@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Second Moment of Area</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="代表的な梁断面の寸法を入力すると、断面二次モーメントを即時計算し、寸法線付きの断面図を表示するツール">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Sans+JP:wght@400;500;700&family=STIX+Two+Text:ital,wght@0,400;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    /* ---------- 色：亜鉛めっきの地 × ケガキ用の青 ---------- */
+    :root {
+      --zinc: #E3E7EA;        /* ページの地 */
+      --plate: #F7F8F9;       /* 作業面 */
+      --ink: #18232C;         /* 文字・外形線 */
+      --steel: #5C6B78;       /* 補助的な文字 */
+      --scribe: #A9B4BD;      /* 罫線・寸法補助 */
+      --dye: #2742C9;         /* ケガキ用の青（唯一のアクセント） */
+      --dye-soft: rgba(39, 66, 201, 0.12);
+      --dye-line: rgba(255, 255, 255, 0.55);
+      --warn: #B4361C;
+
+      --wide: "Archivo", "IBM Plex Sans JP", sans-serif;
+      --jp: "IBM Plex Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+      --math: "STIX Two Text", "Cambria Math", "Times New Roman", serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --zinc: #151C22;
+        --plate: #1C252D;
+        --ink: #E6ECF0;
+        --steel: #9AA8B4;
+        --scribe: #43525F;
+        --dye: #7189FF;
+        --dye-soft: rgba(113, 137, 255, 0.16);
+        --dye-line: rgba(10, 16, 40, 0.45);
+        --warn: #FF8A6B;
+      }
+    }
+    :root[data-theme="dark"] {
+      --zinc: #151C22;
+      --plate: #1C252D;
+      --ink: #E6ECF0;
+      --steel: #9AA8B4;
+      --scribe: #43525F;
+      --dye: #7189FF;
+      --dye-soft: rgba(113, 137, 255, 0.16);
+      --dye-line: rgba(10, 16, 40, 0.45);
+      --warn: #FF8A6B;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--zinc);
+      color: var(--ink);
+      font-family: var(--jp);
+      font-size: 15px;
+      line-height: 1.7;
+      min-height: 100vh;
+      padding: clamp(20px, 4vw, 48px) 16px 48px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 1120px; margin: 0 auto; }
+
+    /* ---------- 見出し ---------- */
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px 24px;
+      margin-bottom: clamp(18px, 3vw, 28px);
+    }
+    h1 {
+      font-family: var(--wide);
+      font-stretch: 125%;
+      font-weight: 800;
+      font-size: clamp(26px, 4.4vw, 46px);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    header p { color: var(--steel); font-size: 14px; }
+
+    /* ---------- 作業面 ---------- */
+    .bench {
+      background: var(--plate);
+      border-radius: 18px;
+      display: grid;
+      grid-template-columns: minmax(300px, 1fr) minmax(0, 1.5fr);
+      overflow: hidden;
+    }
+    .canvas {
+      order: 2;
+      position: relative;
+      min-width: 0;
+      padding: 12px;
+      background:
+        radial-gradient(circle, var(--scribe) 1px, transparent 1.2px) 0 0 / 20px 20px;
+      background-color: var(--plate);
+    }
+    .canvas svg { display: block; width: 100%; height: auto; }
+    .canvas .shape-name {
+      position: absolute; left: 22px; top: 16px;
+      font-family: var(--wide); font-stretch: 112%; font-weight: 700; font-size: 15px;
+      background: var(--plate); padding: 0 6px;
+    }
+    .controls {
+      min-width: 0;
+      padding: 22px 24px 24px;
+      border-right: 1px solid var(--scribe);
+      display: flex; flex-direction: column; gap: 22px;
+    }
+    h2 { font-size: 13px; font-weight: 700; color: var(--steel); margin-bottom: 10px; }
+
+    /* 形状の選択 */
+    .shapes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .shape-btn {
+      font: inherit; font-size: 12px; font-weight: 500;
+      color: var(--ink);
+      background: transparent;
+      border: 1px solid var(--scribe);
+      border-radius: 10px;
+      padding: 8px 4px 6px;
+      cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      transition: border-color .15s, background-color .15s;
+    }
+    .shape-btn svg { width: 38px; height: 38px; }
+    .shape-btn .sec { fill: none; stroke: var(--ink); stroke-width: 1.6; }
+    .shape-btn:hover { border-color: var(--ink); }
+    .shape-btn[aria-pressed="true"] {
+      border-color: var(--dye);
+      background: var(--dye-soft);
+      font-weight: 700;
+    }
+    .shape-btn[aria-pressed="true"] .sec { fill: var(--dye); stroke: var(--dye); }
+    .shape-btn:focus-visible, .back:focus-visible { outline: 2px solid var(--dye); outline-offset: 2px; }
+
+    /* 寸法入力 */
+    .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+    .field label { display: flex; align-items: baseline; gap: 6px; font-size: 12px; color: var(--steel); margin-bottom: 3px; }
+    .field label .sym { font-family: var(--math); font-size: 18px; color: var(--ink); }
+    .field label sub { font-size: 12px; }
+    .input-wrap {
+      display: flex; align-items: center;
+      background: var(--zinc);
+      border: 1px solid transparent;
+      border-radius: 8px;
+      transition: border-color .15s, background-color .15s;
+    }
+    .input-wrap input {
+      flex: 1; min-width: 0; width: 100%;
+      font-family: var(--wide); font-size: 18px; font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--ink); background: transparent;
+      border: 0; padding: 8px 4px 8px 12px;
+    }
+    .input-wrap input:focus { outline: none; }
+    .input-wrap input::-webkit-outer-spin-button,
+    .input-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .input-wrap input[type=number] { -moz-appearance: textfield; }
+    .input-wrap .u { padding-right: 12px; font-size: 12px; color: var(--steel); }
+    .input-wrap:focus-within { border-color: var(--dye); background: var(--plate); }
+    .field.bad .input-wrap { border-color: var(--warn); }
+    .error { color: var(--warn); font-size: 13px; font-weight: 700; margin-top: 10px; min-height: 1.4em; }
+    .hint { font-size: 12px; color: var(--steel); margin-top: 2px; }
+
+    /* ---------- 計算書 ---------- */
+    .sheet {
+      margin-top: 14px;
+      background: var(--plate);
+      border-radius: 18px;
+      padding: clamp(20px, 3.4vw, 34px) clamp(18px, 3.4vw, 36px);
+    }
+    .eq-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px 32px;
+      padding: 14px 0;
+    }
+    .eq-row + .eq-row { border-top: 1px solid var(--scribe); }
+    .eq-caption { font-size: 12px; color: var(--steel); margin-bottom: 2px; }
+    .eq {
+      font-family: var(--math);
+      font-size: clamp(19px, 2.3vw, 24px);
+      line-height: 2.4;
+    }
+    .eq var { font-style: italic; }
+    .sym { white-space: nowrap; }
+    .eq sub { font-size: .62em; vertical-align: -0.35em; line-height: 0; }
+    .eq sup { font-size: .62em; vertical-align: .55em; line-height: 0; }
+    .frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 .12em; line-height: 1.3; }
+    .frac > span { padding: 0 .3em; white-space: nowrap; }
+    .frac > span:first-child { border-bottom: 1.5px solid currentColor; padding-bottom: .12em; }
+    .frac > span:last-child { padding-top: .12em; }
+    .big-paren { font-size: 1.6em; font-weight: 300; line-height: 1; }
+
+    .value {
+      text-align: right;
+      font-family: var(--wide);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .value .n { font-size: clamp(28px, 4.2vw, 46px); font-stretch: 112%; letter-spacing: -0.01em; line-height: 1.05; }
+    .value .n sup { font-size: .5em; vertical-align: .9em; line-height: 0; }
+    .value .unit { font-size: 15px; font-weight: 500; margin-left: 6px; color: var(--steel); }
+    .value .alt { display: block; font-size: 13px; font-weight: 500; color: var(--steel); }
+    .eq-row.primary .value .n { color: var(--dye); }
+
+    .props {
+      margin-top: 18px;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      background: var(--zinc); border-radius: 12px;
+    }
+    .props div { padding: 12px 16px; min-width: 0; }
+    .props div + div { border-left: 1px solid var(--plate); }
+    .props dt { font-size: 12px; color: var(--steel); }
+    .props dt var { font-family: var(--math); font-size: 15px; color: var(--ink); }
+    .props dd { font-family: var(--wide); font-weight: 600; font-size: 16px; font-variant-numeric: tabular-nums; }
+    .note { margin-top: 14px; font-size: 12px; color: var(--steel); max-width: 72ch; }
+
+    .back { display: inline-block; margin-top: 22px; color: var(--ink); font-weight: 500; text-underline-offset: 4px; }
+    .back:hover { color: var(--dye); }
+
+    /* ---------- 図 ---------- */
+    #preview .sec { fill: var(--dye); stroke: var(--ink); stroke-width: 1.8; fill-rule: evenodd; }
+    #preview .scribe-hatch { stroke: var(--dye-line); stroke-width: 1; }
+    .dim, .ext { stroke: var(--ink); fill: none; }
+    .dim { stroke-width: 1; }
+    .ext { stroke-width: .7; opacity: .6; }
+    .arrow { fill: var(--ink); }
+    .dim-text {
+      fill: var(--ink); font-family: var(--math); font-size: 17px;
+      paint-order: stroke; stroke: var(--plate); stroke-width: 5px; stroke-linejoin: round;
+    }
+    .dim-text .v { font-style: italic; }
+    .dim-text .num { font-family: var(--wide); font-size: 14px; font-weight: 600; font-style: normal; }
+    .dimg { transition: opacity .15s; }
+    svg.focusing .dimg { opacity: .28; }
+    svg.focusing .dimg.hl { opacity: 1; }
+    .dimg.hl .dim, .dimg.hl .ext { stroke: var(--dye); stroke-width: 1.6; opacity: 1; }
+    .dimg.hl .arrow, .dimg.hl .dim-text { fill: var(--dye); }
+    .axis { stroke: var(--steel); stroke-width: 1; stroke-dasharray: 16 4 2 4; }
+    .axis-text { fill: var(--steel); font-family: var(--math); font-style: italic; font-size: 17px; }
+    .g-dot { fill: var(--plate); stroke: var(--ink); stroke-width: 1.5; }
+
+    @media (max-width: 860px) {
+      .bench { grid-template-columns: 1fr; }
+      /* スマホ：形の選択 → 断面図 → 寸法入力 の順に並べる */
+      .controls { display: contents; }
+      .pick { order: 1; padding: 22px 20px 18px; }
+      .canvas { order: 2; border-top: 1px solid var(--scribe); border-bottom: 1px solid var(--scribe); }
+      .dims { order: 3; padding: 18px 20px 22px; }
+      .eq-row { grid-template-columns: 1fr; }
+      .value { text-align: left; }
+      .props { grid-template-columns: 1fr 1fr; }
+      .props div:nth-child(3) { border-left: 0; }
+      .props div:nth-child(n+3) { border-top: 1px solid var(--plate); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>断面二次モーメント</h1>
+      <p>The Second Moment of Area ── 梁断面の計算ツール</p>
+    </header>
+
+    <section class="bench">
+      <div class="canvas">
+        <span class="shape-name" id="shape-name"></span>
+        <svg id="preview" viewBox="0 0 600 470" role="img" aria-label="寸法線付きの断面図"></svg>
+      </div>
+      <div class="controls">
+        <div class="pick">
+          <h2>断面の形</h2>
+          <div class="shapes" id="shapes" role="group" aria-label="断面の形"></div>
+        </div>
+        <div class="dims">
+          <h2>寸法</h2>
+          <div class="fields" id="fields"></div>
+          <div class="error" id="error" role="alert"></div>
+          <p class="hint">入力中の寸法は図の中で青く示されます。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="sheet" aria-live="polite">
+      <div class="eq-row primary">
+        <div>
+          <p class="eq-caption">X 軸まわり（強軸）</p>
+          <div class="eq" id="fx"></div>
+        </div>
+        <div class="value" id="ix"></div>
+      </div>
+      <div class="eq-row">
+        <div>
+          <p class="eq-caption">Y 軸まわり</p>
+          <div class="eq" id="fy"></div>
+        </div>
+        <div class="value" id="iy"></div>
+      </div>
+
+      <dl class="props">
+        <div><dt>断面積 <var>A</var></dt><dd id="pa">—</dd></div>
+        <div><dt>図心 (<var>x̄</var>, <var>ȳ</var>)</dt><dd id="pg">—</dd></div>
+        <div><dt>断面係数 <var>Z</var><sub>x</sub></dt><dd id="pzx">—</dd></div>
+        <div><dt>断面係数 <var>Z</var><sub>y</sub></dt><dd id="pzy">—</dd></div>
+      </dl>
+      <p class="note">X・Y 軸は図心 G を通ります。図心は断面の左下角を原点とした位置です。断面係数は図心から最も遠い縁までの距離で割った値（最小値）です。</p>
+    </section>
+
+  </div>
+
+<script>
+(() => {
+  // ---------- 数式の部品 ----------
+  const v = s => s.replace(/([A-Za-z])(?:_([a-z]+))?/g, (m, a, b) => `<span class="sym"><var>${a}</var>${b ? `<sub>${b}</sub>` : ''}</span>`);
+  const frac = (n, d) => `<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+  const p3 = '<sup>3</sup>', p4 = '<sup>4</sup>', p2 = '<sup>2</sup>';
+  const lhs = ax => `<span class="sym"><var>I</var><sub>${ax}</sub></span> =`;
+  const sigma = frac(`${v('b_i')} ${v('h_i')}${p3}`, '12') + ` + ${v('A_i')}${v('e_i')}${p2}`;
+  const composite = ax => `${lhs(ax)} <span>Σ</span><span class="big-paren">(</span>${sigma}<span class="big-paren">)</span>`;
+
+  // ---------- 図形の定義 ----------
+  // 長方形の足し引き（s=+1/-1）で面積・図心・I を求める
+  const R = (x, y, w, h, s = 1) => ({ x, y, w, h, s });
+  const rect = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
+
+  const SHAPES = [
+    {
+      key: 'rect', name: '長方形',
+      params: [['b', '幅', 100], ['h', '高さ', 200]],
+      check: () => null,
+      box: p => [p.b, p.h],
+      parts: p => [R(0, 0, p.b, p.h)],
+      rings: p => [rect(0, 0, p.b, p.h)],
+      dims: p => [
+        ['h', 0, p.b, 0, 40, 'b'],
+        ['v', 0, p.h, 0, -40, 'h'],
+      ],
+      fx: `${lhs('x')} ${frac(`${v('b')} ${v('h')}${p3}`, '12')}`,
+      fy: `${lhs('y')} ${frac(`${v('h')} ${v('b')}${p3}`, '12')}`,
+    },
+    {
+      key: 'box', name: '中空長方形',
+      params: [['B', '外幅', 150], ['H', '外高さ', 250], ['b', '内幅', 120], ['h', '内高さ', 220]],
+      check: p => (p.b >= p.B ? '内幅 b を外幅 B より小さくしてください' :
+                   p.h >= p.H ? '内高さ h を外高さ H より小さくしてください' : null),
+      box: p => [p.B, p.H],
+      parts: p => [R(0, 0, p.B, p.H), R((p.B - p.b) / 2, (p.H - p.h) / 2, p.b, p.h, -1)],
+      rings: p => [rect(0, 0, p.B, p.H), rect((p.B - p.b) / 2, (p.H - p.h) / 2, p.b, p.h)],
+      dims: p => {
+        const x1 = (p.B - p.b) / 2, y1 = (p.H - p.h) / 2;
+        return [
+          ['h', 0, p.B, 0, 40, 'B'],
+          ['v', 0, p.H, 0, -40, 'H'],
+          ['h', x1, x1 + p.b, 0, 0, 'b', { inside: true, at: y1 + p.h * 0.75 }],
+          ['v', y1, y1 + p.h, 0, 0, 'h', { inside: true, at: x1 + p.b * 0.25 }],
+        ];
+      },
+      fx: `${lhs('x')} ${frac(`${v('B')} ${v('H')}${p3} − ${v('b')} ${v('h')}${p3}`, '12')}`,
+      fy: `${lhs('y')} ${frac(`${v('H')} ${v('B')}${p3} − ${v('h')} ${v('b')}${p3}`, '12')}`,
+    },
+    {
+      key: 'circle', name: '円形',
+      params: [['d', '直径', 100]],
+      check: () => null,
+      box: p => [p.d, p.d],
+      circles: p => [[p.d / 2, p.d / 2, p.d / 2]],
+      calc: p => {
+        const I = Math.PI * p.d ** 4 / 64;
+        return { A: Math.PI * p.d ** 2 / 4, cx: p.d / 2, cy: p.d / 2, Ix: I, Iy: I };
+      },
+      dims: p => [['h', 0, p.d, p.d / 2, 0, 'd', { circle: true, off: 40 }]],
+      fx: `${lhs('x')} ${frac(`π ${v('d')}${p4}`, '64')}`,
+      fy: `${lhs('y')} ${frac(`π ${v('d')}${p4}`, '64')}`,
+    },
+    {
+      key: 'pipe', name: '中空円形',
+      params: [['D', '外径', 114.3], ['d', '内径', 100]],
+      check: p => (p.d >= p.D ? '内径 d を外径 D より小さくしてください' : null),
+      box: p => [p.D, p.D],
+      circles: p => [[p.D / 2, p.D / 2, p.D / 2], [p.D / 2, p.D / 2, p.d / 2]],
+      calc: p => {
+        const I = Math.PI * (p.D ** 4 - p.d ** 4) / 64;
+        return { A: Math.PI * (p.D ** 2 - p.d ** 2) / 4, cx: p.D / 2, cy: p.D / 2, Ix: I, Iy: I };
+      },
+      dims: p => [
+        ['h', 0, p.D, p.D / 2, 0, 'D', { circle: true, off: 40 }],
+        ['h', (p.D - p.d) / 2, (p.D + p.d) / 2, p.D / 2, 0, 'd', { circle: true, off: -40 }],
+      ],
+      fx: `${lhs('x')} ${frac(`π (${v('D')}${p4} − ${v('d')}${p4})`, '64')}`,
+      fy: `${lhs('y')} ${frac(`π (${v('D')}${p4} − ${v('d')}${p4})`, '64')}`,
+    },
+    {
+      key: 'i', name: 'I形・H形',
+      params: [['B', 'フランジ幅', 100], ['H', '高さ', 200], ['tw', 'ウェブ厚', 5.5], ['tf', 'フランジ厚', 8]],
+      check: p => (p.tw >= p.B ? 'ウェブ厚 tw をフランジ幅 B より小さくしてください' :
+                   2 * p.tf >= p.H ? 'フランジ厚 tf の 2 倍を高さ H より小さくしてください' : null),
+      box: p => [p.B, p.H],
+      parts: p => [R(0, 0, p.B, p.tf), R((p.B - p.tw) / 2, p.tf, p.tw, p.H - 2 * p.tf), R(0, p.H - p.tf, p.B, p.tf)],
+      rings: p => {
+        const a = (p.B - p.tw) / 2, b = a + p.tw;
+        return [[[0, 0], [p.B, 0], [p.B, p.tf], [b, p.tf], [b, p.H - p.tf], [p.B, p.H - p.tf], [p.B, p.H],
+                 [0, p.H], [0, p.H - p.tf], [a, p.H - p.tf], [a, p.tf], [0, p.tf]]];
+      },
+      dims: p => [
+        ['h', 0, p.B, p.H, -40, 'B'],
+        ['v', 0, p.H, 0, -40, 'H'],
+        ['h', (p.B - p.tw) / 2, (p.B + p.tw) / 2, p.H * 0.3, 0, 'tw'],
+        ['v', p.H - p.tf, p.H, p.B, 32, 'tf'],
+      ],
+      fx: `${lhs('x')} ${frac(`${v('B')} ${v('H')}${p3} − (${v('B')} − ${v('t_w')})(${v('H')} − 2${v('t_f')})${p3}`, '12')}`,
+      fy: `${lhs('y')} ${frac(`2${v('t_f')} ${v('B')}${p3} + (${v('H')} − 2${v('t_f')}) ${v('t_w')}${p3}`, '12')}`,
+    },
+    {
+      key: 't', name: 'T形',
+      params: [['B', 'フランジ幅', 150], ['H', '高さ', 150], ['tw', 'ウェブ厚', 10], ['tf', 'フランジ厚', 15]],
+      check: p => (p.tw >= p.B ? 'ウェブ厚 tw をフランジ幅 B より小さくしてください' :
+                   p.tf >= p.H ? 'フランジ厚 tf を高さ H より小さくしてください' : null),
+      box: p => [p.B, p.H],
+      parts: p => [R((p.B - p.tw) / 2, 0, p.tw, p.H - p.tf), R(0, p.H - p.tf, p.B, p.tf)],
+      rings: p => {
+        const a = (p.B - p.tw) / 2, b = a + p.tw;
+        return [[[a, 0], [b, 0], [b, p.H - p.tf], [p.B, p.H - p.tf], [p.B, p.H], [0, p.H], [0, p.H - p.tf], [a, p.H - p.tf]]];
+      },
+      dims: p => [
+        ['h', 0, p.B, p.H, -40, 'B'],
+        ['v', 0, p.H, 0, -40, 'H'],
+        ['h', (p.B - p.tw) / 2, (p.B + p.tw) / 2, (p.H - p.tf) * 0.25, 0, 'tw'],
+        ['v', p.H - p.tf, p.H, p.B, 32, 'tf'],
+      ],
+      fx: composite('x'),
+      fy: `${lhs('y')} ${frac(`${v('t_f')} ${v('B')}${p3} + (${v('H')} − ${v('t_f')}) ${v('t_w')}${p3}`, '12')}`,
+    },
+    {
+      key: 'c', name: '溝形',
+      params: [['B', 'フランジ幅', 75], ['H', '高さ', 150], ['tw', 'ウェブ厚', 6.5], ['tf', 'フランジ厚', 10]],
+      check: p => (p.tw >= p.B ? 'ウェブ厚 tw をフランジ幅 B より小さくしてください' :
+                   2 * p.tf >= p.H ? 'フランジ厚 tf の 2 倍を高さ H より小さくしてください' : null),
+      box: p => [p.B, p.H],
+      parts: p => [R(0, 0, p.tw, p.H), R(p.tw, 0, p.B - p.tw, p.tf), R(p.tw, p.H - p.tf, p.B - p.tw, p.tf)],
+      rings: p => [[[0, 0], [p.B, 0], [p.B, p.tf], [p.tw, p.tf], [p.tw, p.H - p.tf], [p.B, p.H - p.tf], [p.B, p.H], [0, p.H]]],
+      dims: p => [
+        ['h', 0, p.B, p.H, -40, 'B'],
+        ['v', 0, p.H, 0, -40, 'H'],
+        ['h', 0, p.tw, p.H * 0.3, 0, 'tw'],
+        ['v', p.H - p.tf, p.H, p.B, 32, 'tf'],
+      ],
+      fx: `${lhs('x')} ${frac(`${v('B')} ${v('H')}${p3} − (${v('B')} − ${v('t_w')})(${v('H')} − 2${v('t_f')})${p3}`, '12')}`,
+      fy: composite('y'),
+    },
+    {
+      key: 'l', name: '山形（L形）',
+      params: [['B', '横の辺', 100], ['H', '縦の辺', 100], ['t', '板厚', 10]],
+      check: p => (p.t >= p.B || p.t >= p.H ? '板厚 t を B と H より小さくしてください' : null),
+      box: p => [p.B, p.H],
+      parts: p => [R(0, 0, p.B, p.t), R(0, p.t, p.t, p.H - p.t)],
+      rings: p => [[[0, 0], [p.B, 0], [p.B, p.t], [p.t, p.t], [p.t, p.H], [0, p.H]]],
+      dims: p => [
+        ['h', 0, p.B, 0, 40, 'B'],
+        ['v', 0, p.H, 0, -40, 'H'],
+        ['v', 0, p.t, p.B, 32, 't'],
+        ['h', 0, p.t, p.H, -32, 't'],
+      ],
+      fx: composite('x'),
+      fy: composite('y'),
+    },
+    {
+      key: 'tri', name: '三角形',
+      params: [['b', '底辺', 120], ['h', '高さ', 150]],
+      check: () => null,
+      box: p => [p.b, p.h],
+      rings: p => [[[0, 0], [p.b, 0], [p.b / 2, p.h]]],
+      calc: p => ({ A: p.b * p.h / 2, cx: p.b / 2, cy: p.h / 3, Ix: p.b * p.h ** 3 / 36, Iy: p.h * p.b ** 3 / 48 }),
+      dims: p => [
+        ['h', 0, p.b, 0, 40, 'b'],
+        ['v', 0, p.h, 0, -40, 'h', { fromX: [0, p.b / 2] }],
+      ],
+      fx: `${lhs('x')} ${frac(`${v('b')} ${v('h')}${p3}`, '36')}`,
+      fy: `${lhs('y')} ${frac(`${v('h')} ${v('b')}${p3}`, '48')}`,
+    },
+  ];
+
+  // ---------- 計算 ----------
+  function compute(shape, p) {
+    if (shape.calc) return shape.calc(p);
+    const parts = shape.parts(p);
+    let A = 0, Sx = 0, Sy = 0;
+    for (const r of parts) {
+      const a = r.s * r.w * r.h;
+      A += a; Sx += a * (r.x + r.w / 2); Sy += a * (r.y + r.h / 2);
+    }
+    const cx = Sx / A, cy = Sy / A;
+    let Ix = 0, Iy = 0;
+    for (const r of parts) {
+      const a = r.w * r.h;
+      Ix += r.s * (r.w * r.h ** 3 / 12 + a * (r.y + r.h / 2 - cy) ** 2);
+      Iy += r.s * (r.h * r.w ** 3 / 12 + a * (r.x + r.w / 2 - cx) ** 2);
+    }
+    return { A, cx, cy, Ix, Iy };
+  }
+
+  // ---------- 数値の表示 ----------
+  function num(x, sig = 5) {
+    if (!isFinite(x)) return '—';
+    const a = Math.abs(x);
+    const d = a >= 1e4 ? 0 : Math.max(0, sig - 1 - Math.floor(Math.log10(a || 1)));
+    return x.toLocaleString('ja-JP', { maximumFractionDigits: Math.min(d, 6) });
+  }
+  function sci(x) {
+    let n = Math.floor(Math.log10(Math.abs(x)));
+    if (n < 5) return num(x, 4);
+    let m = x / 10 ** n;
+    if (+m.toFixed(3) >= 10) { m /= 10; n += 1; }
+    return `${m.toFixed(3)}<span style="font-weight:500"> × 10</span><sup>${n}</sup>`;
+  }
+  const valueHTML = I => `<span class="n">${sci(I)}</span><span class="unit">mm⁴</span>` +
+                         `<span class="alt">= ${num(I / 1e4)} cm⁴</span>`;
+  const fmtDim = x => (Math.round(x * 100) / 100).toString();
+
+  // ---------- 作図 ----------
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs, parent) => {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  };
+
+  function sectionPath(shape, p, X, Y, s) {
+    if (shape.circles) {
+      return shape.circles(p).map(([cx, cy, r]) => {
+        const x = X(cx), y = Y(cy), rr = r * s;
+        return `M${x - rr},${y}a${rr},${rr} 0 1,0 ${2 * rr},0a${rr},${rr} 0 1,0 ${-2 * rr},0Z`;
+      }).join('');
+    }
+    return shape.rings(p).map(r => 'M' + r.map(([x, y]) => `${X(x)},${Y(y)}`).join('L') + 'Z').join('');
+  }
+
+  function arrow(g, x, y, dir) {
+    const L = 11, W = 3.2;
+    const pts = {
+      r: [[x, y], [x - L, y - W], [x - L, y + W]],
+      l: [[x, y], [x + L, y - W], [x + L, y + W]],
+      d: [[x, y], [x - W, y - L], [x + W, y - L]],
+      u: [[x, y], [x - W, y + L], [x + W, y + L]],
+    }[dir];
+    el('polygon', { points: pts.map(q => q.join(',')).join(' '), class: 'arrow' }, g);
+  }
+  // 寸法の文字：変数はイタリック、値は数字用の書体
+  function label(g, x, y, name, val, anchor = 'middle', rot = 0) {
+    const t = el('text', { x, y, 'text-anchor': anchor, 'dominant-baseline': 'middle', class: 'dim-text' }, g);
+    if (rot) t.setAttribute('transform', `rotate(${rot} ${x} ${y})`);
+    const [a, b] = [name[0], name.slice(1)];
+    t.innerHTML = `${name === 'd' || name === 'D' ? '<tspan>ø</tspan>' : ''}<tspan class="v">${a}</tspan>` +
+      (b ? `<tspan class="v" font-size="12" dy="4">${b}</tspan><tspan dy="-4"> </tspan>` : ' ') +
+      `<tspan class="num">= ${val}</tspan>`;
+    return t;
+  }
+  const labelLen = (name, val) => 10 * name.length + 8 * String(val).length + 30;
+
+  function hDim(g, xa, xb, ya, yb, yd, name, val) {
+    const dir = yd > Math.max(ya, yb) ? 1 : yd < Math.min(ya, yb) ? -1 : 0;
+    if (dir !== 0) {
+      el('line', { x1: xa, y1: ya + dir * 3, x2: xa, y2: yd + dir * 7, class: 'ext' }, g);
+      el('line', { x1: xb, y1: yb + dir * 3, x2: xb, y2: yd + dir * 7, class: 'ext' }, g);
+    }
+    if (xb - xa >= Math.max(40, labelLen(name, val) + 4)) {
+      el('line', { x1: xa, y1: yd, x2: xb, y2: yd, class: 'dim' }, g);
+      arrow(g, xa, yd, 'l'); arrow(g, xb, yd, 'r');
+      label(g, (xa + xb) / 2, yd - 11, name, val);
+    } else {
+      el('line', { x1: xa - 18, y1: yd, x2: xb + 18, y2: yd, class: 'dim' }, g);
+      arrow(g, xa, yd, 'r'); arrow(g, xb, yd, 'l');
+      label(g, xb + 22, yd, name, val, 'start');
+    }
+  }
+  function vDim(g, ya, yb, xa, xb, xd, name, val) {
+    const dir = xd > Math.max(xa, xb) ? 1 : xd < Math.min(xa, xb) ? -1 : 0;
+    if (dir !== 0) {
+      el('line', { x1: xa + dir * 3, y1: ya, x2: xd + dir * 7, y2: ya, class: 'ext' }, g);
+      el('line', { x1: xb + dir * 3, y1: yb, x2: xd + dir * 7, y2: yb, class: 'ext' }, g);
+    }
+    if (yb - ya >= Math.max(40, labelLen(name, val) + 4)) {
+      el('line', { x1: xd, y1: ya, x2: xd, y2: yb, class: 'dim' }, g);
+      arrow(g, xd, ya, 'u'); arrow(g, xd, yb, 'd');
+      label(g, xd - 11, (ya + yb) / 2, name, val, 'middle', -90);
+    } else {
+      el('line', { x1: xd, y1: ya - 18, x2: xd, y2: yb + 18, class: 'dim' }, g);
+      arrow(g, xd, ya, 'd'); arrow(g, xd, yb, 'u');
+      label(g, xd + 9, (ya + yb) / 2, name, val, 'start');
+    }
+  }
+
+  const svg = document.getElementById('preview');
+  function drawPreview(shape, p, res) {
+    svg.innerHTML = '';
+    // 画面幅に合わせて作図範囲を決める（スマホでも寸法文字が読める大きさに）
+    const VW = Math.round(Math.min(600, Math.max(360, svg.clientWidth || 600))), VH = Math.round(VW * 0.78), M = VW < 480 ? 72 : 92;
+    svg.setAttribute('viewBox', `0 0 ${VW} ${VH}`);
+    const [bw, bh] = shape.box(p);
+    const s = Math.min((VW - 2 * M) / bw, (VH - 2 * M) / bh);
+    const ox = (VW - bw * s) / 2, oy = (VH + bh * s) / 2 + 6;
+    const X = x => ox + x * s, Y = y => oy - y * s;
+
+    // 断面：ケガキ青の面＋細い平行線
+    const d = sectionPath(shape, p, X, Y, s);
+    const defs = el('defs', {}, svg);
+    const clip = el('clipPath', { id: 'clip' }, defs);
+    el('path', { d, 'clip-rule': 'evenodd' }, clip);
+    el('path', { d, class: 'sec' }, svg);
+    const hatch = el('g', { 'clip-path': 'url(#clip)' }, svg);
+    for (let k = -VH; k < VW; k += 9) {
+      el('line', { x1: k, y1: VH, x2: k + VH, y2: 0, class: 'scribe-hatch' }, hatch);
+    }
+    el('path', { d, fill: 'none', stroke: 'var(--ink)', 'stroke-width': 1.8 }, svg);
+
+    // 図心軸
+    if (res) {
+      const gx = X(res.cx), gy = Y(res.cy), e = 16;
+      el('line', { x1: X(0) - e, y1: gy, x2: X(bw) + e, y2: gy, class: 'axis' }, svg);
+      el('line', { x1: gx, y1: Y(bh) - e, x2: gx, y2: Y(0) + e, class: 'axis' }, svg);
+      el('text', { x: X(bw) + e + 5, y: gy + 5, class: 'axis-text' }, svg).textContent = 'X';
+      el('text', { x: gx + 7, y: Y(0) + e - 1, class: 'axis-text' }, svg).textContent = 'Y';
+      el('circle', { cx: gx, cy: gy, r: 4, class: 'g-dot' }, svg);
+      const tg = el('text', { x: gx + 8, y: gy - 9, class: 'axis-text', style: 'fill:var(--ink)' }, svg);
+      tg.textContent = 'G';
+      tg.setAttribute('paint-order', 'stroke');
+      tg.setAttribute('stroke', 'var(--plate)');
+      tg.setAttribute('stroke-width', '4');
+    }
+
+    // 寸法線
+    for (const [kind, a, b, ref, off, name, opt = {}] of shape.dims(p)) {
+      const g = el('g', { class: 'dimg', 'data-k': name }, svg);
+      const val = fmtDim(p[name]);
+      if (kind === 'h') {
+        if (opt.circle) {
+          const cy = Y(ref);
+          const yd = opt.off > 0 ? Y(0) + opt.off : Y(bh) + opt.off;
+          hDim(g, X(a), X(b), cy, cy, yd, name, val);
+        } else if (opt.inside) {
+          const yd = Y(opt.at);
+          hDim(g, X(a), X(b), yd, yd, yd, name, val);
+        } else {
+          const y0 = Y(ref);
+          hDim(g, X(a), X(b), y0, y0, y0 + off, name, val);
+        }
+      } else {
+        const ya = Y(b), yb = Y(a);
+        if (opt.inside) {
+          const xd = X(opt.at);
+          vDim(g, ya, yb, xd, xd, xd, name, val);
+        } else if (opt.fromX) {
+          vDim(g, ya, yb, X(opt.fromX[1]), X(opt.fromX[0]), X(ref) + off, name, val);
+        } else {
+          const x0 = X(ref);
+          vDim(g, ya, yb, x0, x0, x0 + off, name, val);
+        }
+      }
+    }
+    highlight();
+  }
+
+  function drawThumb(shape) {
+    const t = el('svg', { viewBox: '0 0 40 40', 'aria-hidden': 'true' });
+    const p = defaults(shape);
+    const [bw, bh] = shape.box(p);
+    const s = Math.min(32 / bw, 32 / bh);
+    const ox = (40 - bw * s) / 2, oy = (40 + bh * s) / 2;
+    el('path', { d: sectionPath(shape, p, x => ox + x * s, y => oy - y * s, s), class: 'sec', 'fill-rule': 'evenodd' }, t);
+    return t;
+  }
+
+  // ---------- 画面 ----------
+  const defaults = sh => Object.fromEntries(sh.params.map(([k, , d]) => [k, d]));
+  const state = {};
+  SHAPES.forEach(sh => (state[sh.key] = defaults(sh)));
+  let current = SHAPES[0];
+  let focused = null;
+
+  function highlight() {
+    svg.classList.toggle('focusing', !!focused);
+    svg.querySelectorAll('.dimg').forEach(g => g.classList.toggle('hl', g.dataset.k === focused));
+  }
+
+  const $ = id => document.getElementById(id);
+  const shapesEl = $('shapes');
+  SHAPES.forEach(sh => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'shape-btn';
+    b.dataset.key = sh.key;
+    b.appendChild(drawThumb(sh));
+    b.append(sh.name);
+    b.addEventListener('click', () => select(sh));
+    shapesEl.appendChild(b);
+  });
+
+  const fieldsEl = $('fields');
+  function buildFields() {
+    fieldsEl.innerHTML = '';
+    current.params.forEach(([k, desc]) => {
+      const f = document.createElement('div');
+      f.className = 'field';
+      f.innerHTML = `<label for="in-${k}">${v(k.length > 1 ? k[0] + '_' + k.slice(1) : k)}${desc}</label>
+        <div class="input-wrap"><input id="in-${k}" type="number" inputmode="decimal" min="0" step="any"
+        value="${state[current.key][k]}"><span class="u">mm</span></div>`;
+      const input = f.querySelector('input');
+      input.addEventListener('input', update);
+      input.addEventListener('focus', () => { focused = k; highlight(); });
+      input.addEventListener('blur', () => { focused = null; highlight(); });
+      fieldsEl.appendChild(f);
+    });
+  }
+
+  function select(sh) {
+    current = sh;
+    focused = null;
+    document.querySelectorAll('.shape-btn').forEach(b => b.setAttribute('aria-pressed', b.dataset.key === sh.key));
+    $('shape-name').textContent = sh.name;
+    $('fx').innerHTML = sh.fx;
+    $('fy').innerHTML = sh.fy;
+    buildFields();
+    update();
+  }
+
+  function update() {
+    const p = {};
+    let err = null;
+    current.params.forEach(([k]) => {
+      const input = $('in-' + k);
+      const x = parseFloat(input.value);
+      const ok = isFinite(x) && x > 0;
+      input.closest('.field').classList.toggle('bad', !ok);
+      if (!ok) err = err || `${k} に 0 より大きい数値を入力してください`;
+      else state[current.key][k] = x;
+      p[k] = ok ? x : state[current.key][k];
+    });
+    if (!err) err = current.check(p);
+    $('error').textContent = err || '';
+
+    if (err) {
+      drawPreview(current, p, null);
+      $('ix').innerHTML = $('iy').innerHTML = '<span class="n">—</span>';
+      ['pa', 'pg', 'pzx', 'pzy'].forEach(id => ($(id).textContent = '—'));
+      return;
+    }
+
+    const r = compute(current, p);
+    const [bw, bh] = current.box(p);
+    drawPreview(current, p, r);
+    $('ix').innerHTML = valueHTML(r.Ix);
+    $('iy').innerHTML = valueHTML(r.Iy);
+    $('pa').textContent = `${num(r.A)} mm²`;
+    $('pg').textContent = `(${num(r.cx)}, ${num(r.cy)}) mm`;
+    $('pzx').textContent = `${num(r.Ix / Math.max(r.cy, bh - r.cy))} mm³`;
+    $('pzy').textContent = `${num(r.Iy / Math.max(r.cx, bw - r.cx))} mm³`;
+  }
+
+  let rt;
+  addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(update, 120); });
+  select(current);
+})();
+</script>
+</body>
+</html>
