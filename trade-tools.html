@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>貿易事務ツール</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="M3・チャージアブルウェイト計算、コンテナ積載計算、船積みスケジュール逆算をまとめた貿易事務向けツール">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Noto Sans JP"', '"Hiragino Sans"', '"Yu Gothic"', 'sans-serif'],
+            mono: ['"Roboto Mono"', 'ui-monospace', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { background: #F4F7FA; }
+    /* 数値入力の上下ボタンを消して、表を見やすくする */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+    .num { font-variant-numeric: tabular-nums; }
+  </style>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
+</head>
+<body class="min-h-screen text-slate-800 font-sans antialiased">
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="react">
+    const { useState, useMemo } = React;
+
+    /* ---------- 共通 ---------- */
+    const toNum = (v) => {
+      const n = parseFloat(v);
+      return Number.isFinite(n) && n > 0 ? n : 0;
+    };
+    const fmt = (n, digits = 2) =>
+      n.toLocaleString('ja-JP', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    const fmtInt = (n) => n.toLocaleString('ja-JP');
+
+    function Field({ label, unit, value, onChange, id }) {
+      return (
+        <label className="block" htmlFor={id}>
+          <span className="block text-xs font-medium text-slate-500 mb-1">{label}</span>
+          <div className="flex items-center rounded-md border border-slate-300 bg-white focus-within:border-slate-500 focus-within:ring-2 focus-within:ring-slate-200">
+            <input
+              id={id}
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="any"
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              className="w-full min-w-0 bg-transparent px-2.5 py-2 text-right num font-mono text-[15px] outline-none"
+            />
+            {unit && <span className="pr-2.5 text-xs text-slate-400 whitespace-nowrap">{unit}</span>}
+          </div>
+        </label>
+      );
+    }
+
+    function Stat({ label, value, unit, sub }) {
+      return (
+        <div className="rounded-lg border border-slate-200 bg-white px-4 py-3">
+          <div className="text-xs font-medium text-slate-500">{label}</div>
+          <div className="mt-1 flex items-baseline gap-1.5">
+            <span className="num font-mono text-xl font-bold text-slate-800">{value}</span>
+            <span className="text-sm text-slate-500">{unit}</span>
+          </div>
+          {sub && <div className="mt-0.5 text-xs text-slate-400">{sub}</div>}
+        </div>
+      );
+    }
+
+    function Card({ title, children, right }) {
+      return (
+        <section className="rounded-xl border border-slate-200 bg-white/70 p-4 sm:p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="text-sm font-bold tracking-wide text-slate-600">{title}</h2>
+            {right}
+          </div>
+          {children}
+        </section>
+      );
+    }
+
+    /* ---------- 機能1：M3・重量計算 ---------- */
+    let rowSeq = 1;
+    const newRow = () => ({ id: rowSeq++, l: '', w: '', h: '', kg: '', qty: '1' });
+
+    function CargoCalc() {
+      const [rows, setRows] = useState([newRow()]);
+
+      const update = (id, key, val) =>
+        setRows((rs) => rs.map((r) => (r.id === id ? { ...r, [key]: val } : r)));
+      const remove = (id) => setRows((rs) => (rs.length > 1 ? rs.filter((r) => r.id !== id) : rs));
+
+      const calc = useMemo(() => {
+        let m3 = 0, actual = 0, volW = 0, pieces = 0;
+        const perRow = rows.map((r) => {
+          const l = toNum(r.l), w = toNum(r.w), h = toNum(r.h), kg = toNum(r.kg);
+          const q = Math.floor(toNum(r.qty));
+          const rm3 = (l * w * h) / 1e6 * q;
+          const rAct = kg * q;
+          const rVol = (l * w * h) / 6000 * q;
+          m3 += rm3; actual += rAct; volW += rVol; pieces += q;
+          return { m3: rm3, act: rAct, vol: rVol };
+        });
+        const seaKg = Math.max(m3 * 1000, actual);
+        const seaRT = Math.max(m3, actual / 1000);
+        const seaBasis = m3 * 1000 >= actual ? '容積' : '重量';
+        const airKg = Math.max(volW, actual);
+        const airBasis = volW >= actual ? '容積重量' : '実重量';
+        const airRounded = Math.ceil(airKg * 2) / 2;
+        return { perRow, m3, actual, volW, pieces, seaKg, seaRT, seaBasis, airKg, airBasis, airRounded };
+      }, [rows]);
+
+      const hasInput = calc.m3 > 0 || calc.actual > 0;
+
+      return (
+        <div className="space-y-5">
+          <Card
+            title="貨物の入力（1行＝同じ荷姿の貨物）"
+            right={
+              <button
+                type="button"
+                onClick={() => setRows((rs) => [...rs, newRow()])}
+                className="rounded-md bg-slate-700 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+              >
+                ＋ 行を追加
+              </button>
+            }
+          >
+            <div className="space-y-3">
+              {rows.map((r, i) => (
+                <div key={r.id} className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-500">貨物 {i + 1}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-slate-400 num font-mono">
+                        {fmt(calc.perRow[i].m3, 3)} M3 ／ {fmt(calc.perRow[i].act, 1)} kg
+                      </span>
+                      {rows.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => remove(r.id)}
+                          className="text-xs text-slate-400 hover:text-red-600 underline underline-offset-2"
+                        >
+                          削除
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                    <Field id={`l${r.id}`} label="縦" unit="cm" value={r.l} onChange={(v) => update(r.id, 'l', v)} />
+                    <Field id={`w${r.id}`} label="横" unit="cm" value={r.w} onChange={(v) => update(r.id, 'w', v)} />
+                    <Field id={`h${r.id}`} label="高さ" unit="cm" value={r.h} onChange={(v) => update(r.id, 'h', v)} />
+                    <Field id={`k${r.id}`} label="重量（1個）" unit="kg" value={r.kg} onChange={(v) => update(r.id, 'kg', v)} />
+                    <Field id={`q${r.id}`} label="個数" unit="個" value={r.qty} onChange={(v) => update(r.id, 'qty', v)} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card title={`合計（${fmtInt(calc.pieces)} 個）`}>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <Stat label="合計 M3（容積）" value={fmt(calc.m3, 3)} unit="M3" />
+              <Stat label="合計実重量（Actual Weight）" value={fmt(calc.actual, 1)} unit="kg" />
+              <Stat label="航空便 容積重量（Volume Weight）" value={fmt(calc.volW, 1)} unit="kg" sub="縦×横×高さ ÷ 6000 × 個数" />
+            </div>
+          </Card>
+
+          <Card title="運賃適用重量（Chargeable Weight）">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="rounded-xl border-2 border-sky-700/70 bg-sky-50 p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-sky-900">海上輸送</span>
+                  <span className="text-xs text-sky-800/70">1 M3 = 1,000 kg 換算</span>
+                </div>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="num font-mono text-3xl font-bold text-sky-900">{fmt(calc.seaRT, 3)}</span>
+                  <span className="text-base font-medium text-sky-900">R/T</span>
+                </div>
+                <div className="mt-1 text-sm text-sky-900/80 num">
+                  ＝ {fmt(calc.seaKg, 1)} kg 相当
+                  {hasInput && <span className="ml-2 rounded bg-sky-700 px-1.5 py-0.5 text-xs text-white">{calc.seaBasis}で適用</span>}
+                </div>
+              </div>
+
+              <div className="rounded-xl border-2 border-indigo-700/70 bg-indigo-50 p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-indigo-900">航空輸送</span>
+                  <span className="text-xs text-indigo-800/70">実重量と容積重量の大きい方</span>
+                </div>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="num font-mono text-3xl font-bold text-indigo-900">{fmt(calc.airKg, 1)}</span>
+                  <span className="text-base font-medium text-indigo-900">kg</span>
+                </div>
+                <div className="mt-1 text-sm text-indigo-900/80 num">
+                  0.5 kg 単位切り上げ：{fmt(calc.airRounded, 1)} kg
+                  {hasInput && <span className="ml-2 rounded bg-indigo-700 px-1.5 py-0.5 text-xs text-white">{calc.airBasis}で適用</span>}
+                </div>
+              </div>
+            </div>
+            <p className="mt-3 text-xs text-slate-400">
+              ※ 端数の扱い（切り上げ単位・最低運賃など）は船会社・航空会社・フォワーダーにより異なります。
+            </p>
+          </Card>
+        </div>
+      );
+    }
+
+    /* ---------- 機能2：コンテナ積載 ---------- */
+    // 一般的なドライコンテナの内寸と最大積載重量（目安。船会社・個体により差があります）
+    const CONTAINERS = {
+      '20ft':    { name: '20ft',     L: 589.8,  W: 235.2, H: 239.3, payload: 28200 },
+      '40ft':    { name: '40ft',     L: 1203.2, W: 235.2, H: 239.3, payload: 26700 },
+      '40ft HC': { name: '40ft HC',  L: 1203.2, W: 235.2, H: 269.8, payload: 26460 },
+    };
+
+    function ContainerCalc() {
+      const [box, setBox] = useState({ l: '', w: '', h: '', kg: '' });
+      const [type, setType] = useState('20ft');
+      const c = CONTAINERS[type];
+      const set = (k) => (v) => setBox((b) => ({ ...b, [k]: v }));
+
+      const r = useMemo(() => {
+        const l = toNum(box.l), w = toNum(box.w), h = toNum(box.h), kg = toNum(box.kg);
+        const nL = l ? Math.floor(c.L / l) : 0;
+        const nW = w ? Math.floor(c.W / w) : 0;
+        const nH = h ? Math.floor(c.H / h) : 0;
+        const count = nL * nW * nH;
+        const total = count * kg;
+        const over = total > c.payload;
+        const byWeight = kg ? Math.floor(c.payload / kg) : null;
+        const fill = (count * l * w * h) / (c.L * c.W * c.H) * 100;
+        return { nL, nW, nH, count, total, over, byWeight, fill };
+      }, [box, c]);
+
+      return (
+        <div className="space-y-5">
+          <Card title="コンテナの種類">
+            <div role="radiogroup" aria-label="コンテナの種類" className="grid grid-cols-3 gap-2">
+              {Object.keys(CONTAINERS).map((k) => {
+                const ct = CONTAINERS[k];
+                const active = k === type;
+                return (
+                  <label
+                    key={k}
+                    className={`cursor-pointer rounded-lg border px-3 py-2.5 text-center transition ${
+                      active ? 'border-slate-700 bg-slate-700 text-white' : 'border-slate-300 bg-white text-slate-700 hover:border-slate-500'
+                    }`}
+                  >
+                    <input type="radio" name="ctype" value={k} checked={active} onChange={() => setType(k)} className="sr-only" />
+                    <div className="font-bold">{ct.name}</div>
+                    <div className={`mt-0.5 text-[11px] num ${active ? 'text-slate-200' : 'text-slate-400'}`}>
+                      内寸 {ct.L}×{ct.W}×{ct.H} cm
+                    </div>
+                    <div className={`text-[11px] num ${active ? 'text-slate-200' : 'text-slate-400'}`}>
+                      最大積載 {fmtInt(ct.payload)} kg
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+          </Card>
+
+          <Card title="カートンの入力">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <Field id="cl" label="縦（コンテナの奥行き方向）" unit="cm" value={box.l} onChange={set('l')} />
+              <Field id="cw" label="横（コンテナの幅方向）" unit="cm" value={box.w} onChange={set('w')} />
+              <Field id="ch" label="高さ" unit="cm" value={box.h} onChange={set('h')} />
+              <Field id="ck" label="1箱の重量" unit="kg" value={box.kg} onChange={set('kg')} />
+            </div>
+            <p className="mt-2 text-xs text-slate-400">※ 箱の向きは固定（縦をコンテナの奥行き、横を幅に合わせる）で計算します。</p>
+          </Card>
+
+          <Card title="計算結果">
+            <div className="rounded-lg border border-slate-200 bg-white p-4">
+              <div className="text-xs font-medium text-slate-500">理論上の最大積載箱数</div>
+              <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="num font-mono text-3xl font-bold text-slate-800">{fmtInt(r.count)}</span>
+                <span className="text-base text-slate-600">箱</span>
+                <span className="num font-mono text-sm text-slate-500">
+                  ＝ 奥行 {r.nL} × 幅 {r.nW} × 高さ {r.nH}
+                </span>
+              </div>
+              <div className="mt-1 text-xs text-slate-400 num">容積充填率 約 {fmt(r.fill, 1)} %</div>
+            </div>
+
+            <div
+              className={`mt-3 rounded-lg border p-4 ${
+                r.over ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
+              }`}
+            >
+              <div className="text-xs font-medium text-slate-500">総重量（{fmtInt(r.count)} 箱）</div>
+              <div className="mt-1 flex items-baseline gap-2">
+                <span className={`num font-mono text-2xl font-bold ${r.over ? 'text-red-600' : 'text-slate-800'}`}>
+                  {fmt(r.total, 1)}
+                </span>
+                <span className={r.over ? 'text-red-600' : 'text-slate-600'}>kg</span>
+                <span className="text-sm text-slate-400 num">／ 上限 {fmtInt(c.payload)} kg</span>
+              </div>
+              {r.over && (
+                <p role="alert" className="mt-2 text-sm font-bold text-red-600">
+                  ⚠ 最大積載重量を {fmt(r.total - c.payload, 1)} kg 超えています。
+                  重量上限で積めるのは {fmtInt(r.byWeight)} 箱までです。
+                </p>
+              )}
+            </div>
+            <p className="mt-3 text-xs text-slate-400">
+              ※ 内寸・最大積載重量は一般的なドライコンテナの目安です。実際の値は船会社やコンテナにより異なり、陸送時の重量制限も別途あります。
+            </p>
+          </Card>
+        </div>
+      );
+    }
+
+    /* ---------- 機能3：スケジュール逆算 ---------- */
+    const WEEK = ['日', '月', '火', '水', '木', '金', '土'];
+    const parseDate = (s) => {
+      const [y, m, d] = s.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    };
+    const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+    // 土日なら直前の金曜日へ前倒し
+    const toWeekday = (d) => {
+      const w = d.getDay();
+      if (w === 6) return { date: addDays(d, -1), shifted: true };
+      if (w === 0) return { date: addDays(d, -2), shifted: true };
+      return { date: d, shifted: false };
+    };
+    const fmtDate = (d) =>
+      `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}（${WEEK[d.getDay()]}）`;
+    const daysBetween = (a, b) => Math.round((b - a) / 86400000);
+
+    function ScheduleCalc() {
+      const [etd, setEtd] = useState('');
+
+      const items = useMemo(() => {
+        if (!etd) return null;
+        const e = parseDate(etd);
+        if (isNaN(e)) return null;
+        const cy = toWeekday(addDays(e, -2));
+        const doc = toWeekday(addDays(e, -3));
+        const cus = toWeekday(addDays(doc.date, -1));
+        return [
+          { key: 'cus', title: '通関依頼の目安', rule: 'DOC CUT の1日前', ...cus, original: addDays(doc.date, -1) },
+          { key: 'doc', title: 'DOC CUT（書類提出締切）', rule: 'ETD の3日前', ...doc, original: addDays(e, -3) },
+          { key: 'cy', title: 'CY CUT（コンテナ搬入締切）', rule: 'ETD の2日前', ...cy, original: addDays(e, -2) },
+          { key: 'etd', title: 'ETD（出港予定日）', rule: '入力日', date: e, shifted: false, isEtd: true },
+        ];
+      }, [etd]);
+
+      const today = new Date();
+      const today0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+      return (
+        <div className="space-y-5">
+          <Card title="出港予定日の入力">
+            <label htmlFor="etd" className="block max-w-xs">
+              <span className="block text-xs font-medium text-slate-500 mb-1">ETD（出港予定日）</span>
+              <input
+                id="etd"
+                type="date"
+                value={etd}
+                onChange={(e) => setEtd(e.target.value)}
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 font-mono num outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+              />
+            </label>
+          </Card>
+
+          <Card title="逆算スケジュール">
+            {!items ? (
+              <p className="py-6 text-center text-sm text-slate-400">ETD を選択すると、締切日が表示されます。</p>
+            ) : (
+              <ol className="relative ml-2 border-l-2 border-slate-200">
+                {items.map((it) => {
+                  const diff = daysBetween(today0, it.date);
+                  const past = diff < 0;
+                  return (
+                    <li key={it.key} className="relative pl-6 pb-5 last:pb-0">
+                      <span
+                        className={`absolute -left-[9px] top-1.5 h-4 w-4 rounded-full border-2 ${
+                          it.isEtd ? 'border-sky-700 bg-sky-700' : 'border-slate-500 bg-white'
+                        }`}
+                      />
+                      <div className={`rounded-lg border p-3 ${it.isEtd ? 'border-sky-200 bg-sky-50' : 'border-slate-200 bg-white'}`}>
+                        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                          <span className={`text-sm font-bold ${it.isEtd ? 'text-sky-900' : 'text-slate-700'}`}>{it.title}</span>
+                          <span className={`num font-mono text-lg font-bold ${past ? 'text-slate-400 line-through' : 'text-slate-800'}`}>
+                            {fmtDate(it.date)}
+                          </span>
+                        </div>
+                        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                          <span>{it.rule}</span>
+                          {it.shifted && (
+                            <span className="rounded bg-amber-100 px-1.5 py-0.5 font-medium text-amber-800">
+                              {fmtDate(it.original)} が土日のため金曜に前倒し
+                            </span>
+                          )}
+                          <span className="ml-auto num">
+                            {diff === 0 ? '今日' : past ? `${-diff}日前に経過` : `あと${diff}日`}
+                          </span>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+            <p className="mt-4 text-xs text-slate-400">
+              ※ 祝日・年末年始は考慮していません。実際の締切は船会社・ターミナルのブッキング情報で必ずご確認ください。
+            </p>
+          </Card>
+        </div>
+      );
+    }
+
+    /* ---------- 全体 ---------- */
+    const TABS = [
+      { key: 'cargo', label: 'M3・重量計算', Comp: CargoCalc },
+      { key: 'container', label: 'コンテナ積載計算', Comp: ContainerCalc },
+      { key: 'schedule', label: 'スケジュール逆算', Comp: ScheduleCalc },
+    ];
+
+    function App() {
+      const [tab, setTab] = useState('cargo');
+
+      const onKey = (e) => {
+        const i = TABS.findIndex((t) => t.key === tab);
+        let n = null;
+        if (e.key === 'ArrowRight') n = (i + 1) % TABS.length;
+        if (e.key === 'ArrowLeft') n = (i - 1 + TABS.length) % TABS.length;
+        if (n !== null) {
+          e.preventDefault();
+          setTab(TABS[n].key);
+          document.getElementById(`tab-${TABS[n].key}`)?.focus();
+        }
+      };
+
+      return (
+        <div className="flex min-h-screen flex-col">
+          <header className="border-b border-slate-200 bg-white">
+            <div className="mx-auto max-w-4xl px-4 pt-5">
+              <h1 className="text-lg font-bold text-slate-800">貿易事務ツール</h1>
+              <p className="mt-0.5 text-xs text-slate-500">容積・重量の計算、コンテナ積載の目安、船積みスケジュールの逆算</p>
+              <nav role="tablist" aria-label="ツールの切り替え" onKeyDown={onKey} className="mt-4 flex gap-1 overflow-x-auto">
+                {TABS.map((t) => {
+                  const active = t.key === tab;
+                  return (
+                    <button
+                      key={t.key}
+                      id={`tab-${t.key}`}
+                      role="tab"
+                      type="button"
+                      aria-selected={active}
+                      aria-controls={`panel-${t.key}`}
+                      tabIndex={active ? 0 : -1}
+                      onClick={() => setTab(t.key)}
+                      className={`whitespace-nowrap rounded-t-md border-b-2 px-3 sm:px-4 py-2.5 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 ${
+                        active
+                          ? 'border-slate-700 bg-slate-50 text-slate-900'
+                          : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-700'
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+          </header>
+
+          <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 pb-28">
+            {TABS.map((t) => (
+              <div
+                key={t.key}
+                id={`panel-${t.key}`}
+                role="tabpanel"
+                aria-labelledby={`tab-${t.key}`}
+                hidden={t.key !== tab}
+              >
+                <t.Comp />
+              </div>
+            ))}
+          </main>
+
+          <footer className="fixed inset-x-0 bottom-0 border-t border-slate-200 bg-white/95 backdrop-blur">
+            <p className="mx-auto max-w-4xl px-4 py-3 text-xs text-slate-500">
+              ※このツールはブラウザ上で計算が完結しており、入力データは外部に送信・保存されません。
+            </p>
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
