@@ -1,0 +1,1143 @@
+<!doctype html>
+<html lang="ja" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bolt Guard</title>
+<meta name="description" content="VDI 2230 / JIS B 1083 に基づくボルト締結の総合信頼性評価ツール">
+<meta name="theme-color" content="#0a0e15">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>
+  window.tailwind && (tailwind.config = {
+    darkMode: 'class',
+    theme: { extend: {
+      fontFamily: {
+        sans: ['Inter', '"Noto Sans JP"', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace']
+      }
+    } }
+  });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.js"></script>
+<script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.min.js"></script>
+<style type="text/tailwindcss">
+  @layer components {
+    .card { @apply rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/[0.07] dark:bg-[#111722] dark:shadow-none; }
+    .card-h { @apply flex items-center gap-2.5 px-4 pt-4 pb-3 sm:px-5; }
+    .card-t { @apply text-[13px] font-semibold tracking-wide text-slate-800 dark:text-slate-100; }
+    .icon-chip { @apply grid h-8 w-8 place-items-center rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-300; }
+    .fld-l { @apply mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400; }
+    .fld { @apply w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[15px] text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 dark:border-white/10 dark:bg-[#0b1019] dark:text-slate-100; }
+    .unit { @apply pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 font-mono text-[11px] text-slate-400 dark:text-slate-500; }
+    .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-[13px] font-medium transition active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400; }
+    .btn-ghost { @apply btn border border-slate-200 text-slate-700 hover:bg-slate-100 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/5; }
+    .btn-pri { @apply btn bg-cyan-500 text-slate-950 hover:bg-cyan-400; }
+    .kv { @apply flex items-baseline justify-between gap-3 border-b border-dashed border-slate-200 py-2 text-[13px] last:border-0 dark:border-white/[0.06]; }
+    .mono { @apply font-mono tabular-nums; }
+    .pill { @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold; }
+  }
+</style>
+<style>
+  :root { color-scheme: light; }
+  .dark { color-scheme: dark; }
+  html, body { -webkit-tap-highlight-color: transparent; }
+  body { background: #f4f6fa; }
+  .dark body { background: #0a0e15; }
+  .dark .bg-grid {
+    background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(34,211,238,.10), transparent 60%),
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: auto, 28px 28px, 28px 28px;
+  }
+  .bg-grid {
+    background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(6,182,212,.10), transparent 60%);
+  }
+  .katex-display { margin: .35rem 0 !important; overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
+  .katex { font-size: 1.02em; }
+  details > summary { list-style: none; }
+  details > summary::-webkit-details-marker { display: none; }
+  details[open] .chev { transform: rotate(180deg); }
+  input[type=number]::-webkit-inner-spin-button { opacity: .35; }
+  select.fld { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2394a3b8' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right .7rem center; padding-right: 2rem; }
+  @media (max-width: 1023px) {
+    .panel:not(.active) { display: none; }
+    body:not([data-tab="p-result"]) .sum-detail, body:not([data-tab="p-result"]) .sum-msg { display: none; }
+    body:not([data-tab="p-result"]) .sum-icon { height: 2.75rem; width: 2.75rem; }
+    body:not([data-tab="p-result"]) #summary .text-\[30px\] { font-size: 24px; }
+    body:not([data-tab="p-result"]) #sumMore { display: inline-flex; }
+    body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  }
+  .bar { transition: width .45s cubic-bezier(.2,.8,.2,1); }
+  .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  #toast { transition: opacity .25s, transform .25s; }
+</style>
+</head>
+<body class="bg-grid min-h-screen font-sans text-slate-800 antialiased dark:text-slate-200">
+
+<!-- ===== Header ===== -->
+<header style="top:env(safe-area-inset-top,0px)" class="sticky top-0 z-30 border-b border-slate-200/80 bg-white/80 backdrop-blur-xl dark:border-white/[0.06] dark:bg-[#0a0e15]/80">
+  <div class="mx-auto flex max-w-[1400px] items-center gap-3 px-4 py-3 sm:px-6">
+    <div class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 text-slate-950 shadow-lg shadow-cyan-500/20">
+      <i data-lucide="shield-check" class="h-5 w-5"></i>
+    </div>
+    <div class="min-w-0 flex-1">
+      <div class="flex items-center gap-2">
+        <h1 class="text-[15px] font-extrabold tracking-tight text-slate-900 dark:text-white">BOLT GUARD</h1>
+        <span class="hidden rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-500 sm:inline dark:bg-white/5 dark:text-slate-400">v1.0</span>
+      </div>
+      <p class="truncate text-[11px] text-slate-500 dark:text-slate-400">VDI 2230-1 / JIS B 1083 ボルト締結 総合信頼性評価</p>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <button id="btnCsv" aria-label="CSVで計算書を出力" class="btn-ghost !px-2.5" title="CSVエクスポート (UTF-8 BOM)"><i data-lucide="file-spreadsheet" class="h-4 w-4"></i><span class="hidden md:inline">CSV</span></button>
+      <button id="btnJson" aria-label="入力をJSONで保存" class="btn-ghost !px-2.5" title="JSONエクスポート"><i data-lucide="download" class="h-4 w-4"></i><span class="hidden md:inline">JSON</span></button>
+      <button id="btnImport" aria-label="JSONを読み込む" class="btn-ghost !px-2.5" title="JSONインポート"><i data-lucide="upload" class="h-4 w-4"></i><span class="hidden md:inline">読込</span></button>
+      <button id="btnTheme" aria-label="ライト/ダーク切替" class="btn-ghost !px-2.5" title="テーマ切替"><i data-lucide="sun-moon" class="h-4 w-4"></i></button>
+      <input id="fileImport" type="file" accept="application/json,.json" class="hidden">
+    </div>
+  </div>
+</header>
+
+<div class="mx-auto max-w-[1400px] px-4 pb-10 pt-4 sm:px-6">
+
+  <!-- ===== Verdict Summary ===== -->
+  <section id="summary" class="mb-4"></section>
+
+  <main class="grid gap-4 lg:grid-cols-[400px_minmax(0,1fr)] xl:grid-cols-[440px_minmax(0,1fr)]">
+    <!-- Inputs -->
+    <div id="p-input" class="panel active space-y-4 lg:sticky lg:top-[76px] lg:max-h-[calc(100vh-92px)] lg:overflow-y-auto lg:pr-1">
+      <div id="guide" class="card relative p-4">
+        <button id="guideClose" class="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5" aria-label="使い方を閉じる"><i data-lucide="x" class="h-4 w-4"></i></button>
+        <div class="card-t mb-2">使い方</div>
+        <ol class="space-y-1.5 text-[12.5px] leading-relaxed text-slate-600 dark:text-slate-300">
+          <li><b class="text-cyan-600 dark:text-cyan-400">1.</b> 荷重条件 (外力・本数) と被締結体を入力します。値は例として入っています</li>
+          <li><b class="text-cyan-600 dark:text-cyan-400">2.</b> ボルトのサイズ・強度区分を選びます。迷ったら「逆引き」で最軽量の構成を提案します</li>
+          <li><b class="text-cyan-600 dark:text-cyan-400">3.</b> 上部の総合判定と「評価」で各項目を確認し、「根拠」で計算式を確認できます</li>
+        </ol>
+      </div>
+      <div id="inputs" class="space-y-4"></div>
+      <div class="card p-4">
+        <div class="mb-3 flex items-center gap-2 text-[12px] text-slate-500 dark:text-slate-400"><i data-lucide="hard-drive" class="h-4 w-4"></i>入力は端末内 (LocalStorage) に自動保存されます</div>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btnReset" class="btn-ghost"><i data-lucide="rotate-ccw" class="h-4 w-4"></i>初期値に戻す</button>
+          <button id="btnCsv2" class="btn-pri"><i data-lucide="file-spreadsheet" class="h-4 w-4"></i>計算書CSV</button>
+          <button id="btnJson2" class="btn-ghost"><i data-lucide="download" class="h-4 w-4"></i>入力を保存 (JSON)</button>
+          <button id="btnImport2" class="btn-ghost"><i data-lucide="upload" class="h-4 w-4"></i>JSONを読込</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div class="min-w-0 space-y-4">
+      <div id="p-result" class="panel space-y-4">
+        <div class="flex items-start gap-2 rounded-xl border border-slate-200 bg-white/60 px-3.5 py-2.5 text-[11.5px] leading-relaxed text-slate-600 dark:border-white/[0.07] dark:bg-white/[0.02] dark:text-slate-400">
+          <i data-lucide="info" class="mt-0.5 h-4 w-4 shrink-0 text-cyan-500"></i>
+          <span><b class="text-slate-800 dark:text-slate-200">余裕比</b> = 実際の安全率 ÷ 要求安全率。<span class="text-rose-500">1.00 未満で NG</span>、<span class="text-amber-500">1.10 未満で注意</span>。バーの中央線が 1.00 の位置です。</span>
+        </div>
+        <div id="checks" class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3"></div>
+        <div class="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+          <div class="card">
+            <div class="card-h"><div class="icon-chip"><i data-lucide="activity" class="h-4 w-4"></i></div>
+              <div class="flex-1"><div class="card-t">疲労限界線図 (Haigh / Goodman)</div><div class="text-[11px] text-slate-500 dark:text-slate-400">平均応力 σ<sub>m</sub> − 応力振幅 σ<sub>a</sub></div></div>
+              <span id="fatBadge"></span>
+            </div>
+            <div class="px-3 pb-4 sm:px-4"><div class="relative h-[300px] sm:h-[340px]"><canvas id="chart"></canvas></div>
+              <p id="fatNote" class="mt-2 px-1 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400"></p></div>
+          </div>
+          <div class="space-y-4">
+            <div class="card">
+              <div class="card-h"><div class="icon-chip"><i data-lucide="list-tree" class="h-4 w-4"></i></div><div class="card-t">主要中間値</div></div>
+              <div id="keyvals" class="px-4 pb-3 sm:px-5"></div>
+            </div>
+            <div id="advice" class="card"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="p-search" class="panel space-y-4">
+        <div class="card">
+          <div class="card-h"><div class="icon-chip"><i data-lucide="sparkles" class="h-4 w-4"></i></div>
+            <div class="flex-1"><div class="card-t">自動逆引き — 最軽量構成 TOP 3</div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400">M3〜M30 × 全強度区分を総当たり (自動締付けトルク ν 基準)。全判定項目クリアのみ採用</div></div>
+          </div>
+          <div id="top3" class="grid gap-3 px-4 pb-4 sm:px-5 md:grid-cols-3"></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><div class="icon-chip"><i data-lucide="grid-3x3" class="h-4 w-4"></i></div>
+            <div class="flex-1"><div class="card-t">適合マトリクス</div><div class="text-[11px] text-slate-500 dark:text-slate-400">セル値 = 最小安全余裕比 (実安全率 / 要求安全率)。タップで構成を適用</div></div></div>
+          <div class="scroll-x px-4 pb-4 sm:px-5"><div id="matrix"></div></div>
+        </div>
+      </div>
+
+      <div id="p-formula" class="panel space-y-3">
+        <div class="card p-4 sm:p-5">
+          <div class="flex items-start gap-2.5"><div class="icon-chip shrink-0"><i data-lucide="sigma" class="h-4 w-4"></i></div>
+            <div><div class="card-t">計算根拠 (数式モデル × 代入値)</div>
+              <p class="mt-1 text-[12px] leading-relaxed text-slate-500 dark:text-slate-400">本ツールが判定に用いた全数式と、現在の入力値を代入した結果です。単位系: N, mm, MPa (N/mm²)。各パネルをタップして展開してください。</p></div></div>
+          <div class="mt-3 flex gap-2"><button id="expandAll" class="btn-ghost !py-1.5 text-[12px]">すべて展開</button><button id="collapseAll" class="btn-ghost !py-1.5 text-[12px]">すべて閉じる</button></div>
+        </div>
+        <div id="formulas" class="space-y-3"></div>
+        <div class="card p-4 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400 sm:p-5">
+          <div class="mb-1 font-semibold text-slate-700 dark:text-slate-300">適用範囲と前提</div>
+          ISO 並目ねじ・六角ボルト (ISO 4014/4017)、同心締結・軸方向荷重の単一ボルトモデル (VDI 2230-1 準拠)。熱荷重、偏心・曲げ荷重 (prying)、高温クリープは対象外です。許容面圧・摩擦係数・めねじせん断強さ比は代表値であり、最終設計では材料証明値・実測値で確認してください。本ツールの結果は設計判断を補助するもので、規格原典の照合に代わるものではありません。
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Mobile bottom nav -->
+<nav class="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden dark:border-white/[0.07] dark:bg-[#0d121b]/90">
+  <div class="mx-auto grid max-w-md grid-cols-4">
+    <button data-tab="p-input" class="tab flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium"><i data-lucide="sliders-horizontal" class="h-5 w-5"></i>入力</button>
+    <button data-tab="p-result" class="tab flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium"><i data-lucide="gauge" class="h-5 w-5"></i>評価</button>
+    <button data-tab="p-search" class="tab flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium"><i data-lucide="sparkles" class="h-5 w-5"></i>逆引き</button>
+    <button data-tab="p-formula" class="tab flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium"><i data-lucide="sigma" class="h-5 w-5"></i>根拠</button>
+  </div>
+</nav>
+
+<div id="toast" class="pointer-events-none fixed bottom-24 left-1/2 z-50 -translate-x-1/2 translate-y-2 rounded-xl bg-slate-900 px-4 py-2.5 text-[13px] font-medium text-white opacity-0 shadow-xl lg:bottom-8 dark:bg-white dark:text-slate-900"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+ *  DATA TABLES
+ * ===================================================================== */
+// ISO metric coarse threads + ISO 4014/4017 hex head + ISO 273 medium hole + ISO 4032 nut + JIS B 1256 washer
+// d, P, dw(head bearing min), dh(hole), s(width across flats), k(head height), mn(nut height), wo(washer OD), wt(washer thk)
+const SIZES = [
+  { n:'M3',  d:3,  P:0.5,  dw:4.6,  dh:3.4,  s:5.5, k:2.0,  mn:2.4,  wo:7,  wt:0.5 },
+  { n:'M4',  d:4,  P:0.7,  dw:5.9,  dh:4.5,  s:7,   k:2.8,  mn:3.2,  wo:9,  wt:0.8 },
+  { n:'M5',  d:5,  P:0.8,  dw:6.9,  dh:5.5,  s:8,   k:3.5,  mn:4.7,  wo:10, wt:1.0 },
+  { n:'M6',  d:6,  P:1.0,  dw:8.9,  dh:6.6,  s:10,  k:4.0,  mn:5.2,  wo:12.5, wt:1.6 },
+  { n:'M8',  d:8,  P:1.25, dw:11.6, dh:9.0,  s:13,  k:5.3,  mn:6.8,  wo:17, wt:1.6 },
+  { n:'M10', d:10, P:1.5,  dw:14.6, dh:11.0, s:16,  k:6.4,  mn:8.4,  wo:21, wt:2.0 },
+  { n:'M12', d:12, P:1.75, dw:16.6, dh:13.5, s:18,  k:7.5,  mn:10.8, wo:24, wt:2.3 },
+  { n:'M14', d:14, P:2.0,  dw:19.6, dh:15.5, s:21,  k:8.8,  mn:12.8, wo:28, wt:2.3 },
+  { n:'M16', d:16, P:2.0,  dw:22.5, dh:17.5, s:24,  k:10,   mn:14.8, wo:30, wt:3.2 },
+  { n:'M18', d:18, P:2.5,  dw:25.3, dh:20.0, s:27,  k:11.5, mn:15.8, wo:34, wt:3.2 },
+  { n:'M20', d:20, P:2.5,  dw:28.2, dh:22.0, s:30,  k:12.5, mn:18.0, wo:37, wt:3.2 },
+  { n:'M22', d:22, P:2.5,  dw:31.7, dh:24.0, s:34,  k:14,   mn:19.4, wo:39, wt:3.2 },
+  { n:'M24', d:24, P:3.0,  dw:33.6, dh:26.0, s:36,  k:15,   mn:21.5, wo:44, wt:4.0 },
+  { n:'M27', d:27, P:3.0,  dw:38.0, dh:30.0, s:41,  k:17,   mn:23.8, wo:50, wt:4.0 },
+  { n:'M30', d:30, P:3.5,  dw:42.8, dh:33.0, s:46,  k:18.7, mn:25.6, wo:56, wt:4.0 }
+];
+const SIZE_MAP = Object.fromEntries(SIZES.map(s => [s.n, s]));
+
+// ISO 898-1 property classes. Se = fully corrected endurance strength for rolled threads (Shigley, Table 8-17 basis; ≈0.155·Rm for non-tabulated)
+const GRADES = {
+  '4.8':  { Rp: 340,  Rm: 420,  Se: 65 },
+  '5.8':  { Rp: 420,  Rm: 520,  Se: 81 },
+  '6.8':  { Rp: 480,  Rm: 600,  Se: 93 },
+  '8.8':  { Rp: 640,  Rm: 800,  Se: 129, big: { Rp: 660, Rm: 830, Se: 129 } },
+  '9.8':  { Rp: 720,  Rm: 900,  Se: 140, maxD: 16 },
+  '10.9': { Rp: 940,  Rm: 1040, Se: 162 },
+  '12.9': { Rp: 1100, Rm: 1220, Se: 190 }
+};
+const GRADE_KEYS = Object.keys(GRADES);
+function gradeProps(key, d) {
+  const g = GRADES[key];
+  if (!g) return null;
+  if (g.maxD && d > g.maxD) return null;
+  if (g.big && d > 16) return { key, ...g.big };
+  return { key, Rp: g.Rp, Rm: g.Rm, Se: g.Se };
+}
+
+// Materials: E [MPa], pG = limiting surface pressure [MPa] (VDI 2230-1 Table A9 representative), Rm [MPa], tau = τB/Rm ratio
+const MATS = {
+  SS400:  { name:'SS400 / S235',       E:205000, pG:490,  Rm:400,  tau:0.60 },
+  SM490:  { name:'SM490 / S355',       E:205000, pG:760,  Rm:490,  tau:0.60 },
+  S45C:   { name:'S45C 調質 / C45',     E:205000, pG:700,  Rm:690,  tau:0.60 },
+  SCM435: { name:'SCM435 調質 / 42CrMo4', E:205000, pG:1000, Rm:930, tau:0.60 },
+  SUS304: { name:'SUS304 / X5CrNi18-10', E:193000, pG:630, Rm:520,  tau:0.65 },
+  FC250:  { name:'FC250 / GJL-250',     E:110000, pG:850,  Rm:250,  tau:1.00 },
+  FCD500: { name:'FCD500 / GJS-500',    E:169000, pG:750,  Rm:500,  tau:0.90 },
+  A5052:  { name:'A5052-H34',          E:70000,  pG:210,  Rm:235,  tau:0.60 },
+  A6061:  { name:'A6061-T6 / AlMgSi1',  E:69000,  pG:360,  Rm:290,  tau:0.62 },
+  A7075:  { name:'A7075-T6 / AlZnMgCu', E:72000,  pG:450,  Rm:540,  tau:0.60 },
+  ADC12:  { name:'ADC12 ダイカスト',     E:71000,  pG:220,  Rm:228,  tau:0.60 },
+  AZ91:   { name:'AZ91 Mg合金',         E:45000,  pG:180,  Rm:230,  tau:0.55 }
+};
+
+const DEFAULTS = {
+  project: 'ブラケット締結部 A-01',
+  FA: 20, FQ: 6, n: 4, loadType: 'pulsating', shearMode: 'friction',
+  size: 'M10', grade: '10.9', joint: 'ESV', threadType: 'partial', washer: 'no',
+  lK: 20, DA: 0, clampMat: 'S45C', threadMat: 'S45C', m: 15, plim: 0, nfac: 0.5, muT: 0.15, qF: 1,
+  tightMode: 'auto', torque: 55, nu: 0.9, scatter: 10,
+  muGmin: 0.10, muGmax: 0.16, muKmin: 0.10, muKmax: 0.16,
+  SG: 1.5, SD: 1.2, SF: 1.0, SP: 1.0, Sm: 1.0, fatigueCrit: 'vdi'
+};
+
+const sel = arr => arr.map(([v, l]) => ({ v, l }));
+const SCHEMA = [
+  { id:'load', title:'荷重条件', sub:'締結部全体に作用する外力', icon:'weight', fields:[
+    { k:'project', label:'案件名 / 部位', type:'text', full:true },
+    { k:'FA', label:'軸方向外力 F_A (合計)', unit:'kN', step:0.1, min:0 },
+    { k:'FQ', label:'せん断外力 F_Q (合計)', unit:'kN', step:0.1, min:0 },
+    { k:'n', label:'ボルト本数', unit:'本', step:1, min:1 },
+    { k:'loadType', label:'軸荷重の変動', type:'sel', opts: sel([['static','静的'],['pulsating','片振り 0 ↔ FA'],['alternating','両振り −FA ↔ +FA']]) },
+    { k:'shearMode', label:'せん断力の伝達', type:'sel', full:true, opts: sel([['friction','摩擦接合 (すべり限界で評価)'],['bearing','せん断接合 (ボルト軸でせん断を受ける)']]) }
+  ]},
+  { id:'bolt', title:'ボルト仕様', sub:'評価対象の構成', icon:'hexagon', fields:[
+    { k:'size', label:'呼び径 (並目)', type:'sel', opts: SIZES.map(s => ({ v:s.n, l:`${s.n} × ${s.P}` })) },
+    { k:'grade', label:'強度区分 (ISO 898-1)', type:'sel', opts: GRADE_KEYS.map(g => ({ v:g, l:g })) },
+    { k:'joint', label:'締結形式', type:'sel', opts: sel([['ESV','タップ穴 (めねじ)'],['DSV','通しボルト + ナット']]) },
+    { k:'threadType', label:'ねじ部', type:'sel', opts: sel([['partial','半ねじ ISO 4014'],['full','全ねじ ISO 4017']]) },
+    { k:'washer', label:'座金', type:'sel', full:true, opts: sel([['no','なし (ボルト頭座面が直接接触)'],['yes','焼入れ平座金 JIS B 1256 並丸 (HV≥300)']]) }
+  ]},
+  { id:'joint', title:'被締結体', sub:'剛性・面圧・めねじの条件', icon:'layers', fields:[
+    { help:'ボルト頭座面からめねじ/ナット座面までの部材厚さの合計', k:'lK', label:'締付け長さ l_K', unit:'mm', step:0.5, min:0.5 },
+    { help:'ボルト1本が受け持つ被締結体の幅。不明なら0で圧縮円錐から自動計算', k:'DA', label:'外径相当 D_A (0=自動)', unit:'mm', step:1, min:0 },
+    { k:'clampMat', label:'被締結体材質 (座面側)', type:'sel', full:true, opts: Object.entries(MATS).map(([v, m]) => ({ v, l:m.name })) },
+    { k:'threadMat', label:'めねじ側材質', type:'sel', full:true, opts: Object.entries(MATS).map(([v, m]) => ({ v, l:m.name })), show: s => s.joint === 'ESV' },
+    { help:'めねじに掛かっている完全ねじ部の長さ', k:'m', label:'有効ねじ込み深さ m', unit:'mm', step:0.5, min:0.5, show: s => s.joint === 'ESV' },
+    { k:'plim', label:'許容面圧 p_G 上書き', unit:'MPa', step:10, min:0, hint:'0 = 材料代表値' },
+    { help:'外力が作用する位置。頭部直下=1.0、板厚中央付近=0.5 (一般的)', k:'nfac', label:'荷重導入係数 n', unit:'—', step:0.05, min:0.05, max:1 },
+    { help:'部材どうしの接触面。鋼・乾燥 0.10〜0.20', k:'muT', label:'接合面摩擦係数 μ_T', unit:'—', step:0.01, min:0.01 },
+    { help:'せん断を受ける接触面の数。2枚重ね=1', k:'qF', label:'摩擦面数 q_F', unit:'面', step:1, min:1 }
+  ]},
+  { id:'tight', title:'締付け管理', sub:'トルク法・摩擦係数のばらつき', icon:'wrench', fields:[
+    { k:'tightMode', label:'締付けトルクの決定', type:'sel', full:true, opts: sel([['auto','自動 — 利用率 ν から F_M,zul を算出'],['torque','トルク値を直接指定']]) },
+    { k:'torque', label:'締付けトルク T_A', unit:'N·m', step:0.5, min:0, show: s => s.tightMode === 'torque' },
+    { help:'締付け時に降伏点の何割まで使うか。VDI推奨 0.9', k:'nu', label:'降伏点利用率 ν', unit:'—', step:0.01, min:0.3, max:1, show: s => s.tightMode === 'auto' },
+    { help:'トルクレンチ ±10%、インパクト ±40% 程度', k:'scatter', label:'工具誤差 ±e', unit:'%', step:1, min:0, max:60 },
+    { help:'無潤滑の鋼ボルト 0.10〜0.16 が目安', k:'muGmin', label:'ねじ面 μ_G min', unit:'—', step:0.01, min:0.03 },
+    { k:'muGmax', label:'ねじ面 μ_G max', unit:'—', step:0.01, min:0.03 },
+    { k:'muKmin', label:'座面 μ_K min', unit:'—', step:0.01, min:0.03 },
+    { k:'muKmax', label:'座面 μ_K max', unit:'—', step:0.01, min:0.03 }
+  ]},
+  { id:'sf', title:'要求安全率', sub:'各判定基準のしきい値', icon:'shield', fields:[
+    { k:'SG', label:'すべり S_G', unit:'—', step:0.05, min:1 },
+    { k:'SD', label:'疲労 S_D', unit:'—', step:0.05, min:1 },
+    { k:'SF', label:'降伏 (使用時) S_F', unit:'—', step:0.05, min:1 },
+    { k:'SP', label:'座面圧力 S_P', unit:'—', step:0.05, min:1 },
+    { k:'Sm', label:'めねじ S_M', unit:'—', step:0.05, min:1 },
+    { k:'fatigueCrit', label:'疲労の判定基準', type:'sel', opts: sel([['vdi','VDI 2230 σ_ASV'],['goodman','修正グッドマン'],['both','両方 (厳しい方)']]) }
+  ]}
+];
+const FIELD_INDEX = Object.fromEntries(SCHEMA.flatMap(g => g.fields.map(f => [f.k, f])));
+
+/* =====================================================================
+ *  CORE ENGINE  (units: N, mm, MPa)
+ * ===================================================================== */
+const ES = 205000;           // bolt Young's modulus
+const RHO = 7.85e-6;         // steel density kg/mm^3
+const KTAU = 0.5;            // VDI 2230 torsion reduction factor in service
+const C_THREAD = 0.8;        // internal-thread load distribution / dilation factor (representative C1·C3)
+const clamp = (x, a, b) => Math.min(Math.max(x, a), b);
+
+function evaluate(inp, sizeName, gradeName, forceAuto) {
+  const S = SIZE_MAP[sizeName];
+  const g = S && gradeProps(gradeName, S.d);
+  if (!S || !g) return null;
+  const d = S.d, P = S.P;
+  const esv = inp.joint === 'ESV';
+  const cm = MATS[inp.clampMat] || MATS.S45C;
+  const tm = MATS[inp.threadMat] || MATS.S45C;
+  const EP = cm.E;
+
+  // --- thread geometry (ISO 724)
+  const d2 = d - 0.649519 * P, d3 = d - 1.226869 * P, ds = (d2 + d3) / 2;
+  const As = Math.PI / 4 * ds * ds, AN = Math.PI / 4 * d * d, Ad3 = Math.PI / 4 * d3 * d3;
+  const dw = S.dw, dh = S.dh, DKm = (dw + dh) / 2;
+  const lK = Math.max(+inp.lK || 0, 0.5);
+  const mEng = Math.max(+inp.m || 0, 0.1);
+
+  // --- bolt length & thread split
+  const outside = esv ? mEng : S.mn + 2 * P;
+  const L = lK + outside;
+  const b = inp.threadType === 'full' ? L : (L <= 125 ? 2 * d + 6 : L <= 200 ? 2 * d + 12 : 2 * d + 25);
+  const lGew = clamp(b - outside, 0, lK), l1 = lK - lGew;
+  const lM = esv ? 0.33 * d : 0.4 * d;
+
+  // --- bolt compliance (VDI 2230-1, 5.1.1)
+  const dSK = 0.5 * d / (ES * AN), d1c = l1 / (ES * AN), dGew = lGew / (ES * Ad3), dG = 0.5 * d / (ES * Ad3), dM = lM / (ES * AN);
+  const dS = dSK + d1c + dGew + dG + dM;
+
+  // --- clamped-part compliance: deformation cone model (VDI 2230-1, 5.1.2)
+  const w = esv ? 2 : 1, bL = lK / dw;
+  const tanPhiOf = y => clamp(esv ? 0.348 + 0.013 * Math.log(bL) + 0.193 * Math.log(y)
+                                  : 0.362 + 0.032 * Math.log(bL / 2) + 0.153 * Math.log(y), 0.05, 2);
+  const DAauto = !(+inp.DA > 0);
+  let DA, y, tanPhi, DAGr;
+  if (DAauto) {
+    y = 1.0001;
+    for (let i = 0; i < 30; i++) { tanPhi = tanPhiOf(y); DAGr = dw + w * lK * tanPhi; y = DAGr / dw; }
+    DA = DAGr;
+  } else {
+    DA = Math.max(+inp.DA, dh + 0.5); y = Math.max(DA / dw, 1.0001); tanPhi = tanPhiOf(y); DAGr = dw + w * lK * tanPhi;
+  }
+  let dP, coneCase;
+  if (DA >= DAGr) {
+    coneCase = 'cone';
+    dP = 2 * Math.log(((dw + dh) * (dw + w * lK * tanPhi - dh)) / ((dw - dh) * (dw + w * lK * tanPhi + dh))) / (w * EP * Math.PI * dh * tanPhi);
+  } else if (DA > dw) {
+    coneCase = 'cone+sleeve';
+    dP = ((2 / (w * dh * tanPhi)) * Math.log(((dw + dh) * (DA - dh)) / ((dw - dh) * (DA + dh)))
+          + (4 / (DA * DA - dh * dh)) * (lK - (DA - dw) / (w * tanPhi))) / (EP * Math.PI);
+  } else {
+    coneCase = 'sleeve';
+    dP = 4 * lK / (EP * Math.PI * (DA * DA - dh * dh));
+  }
+  const PhiK = dP / (dS + dP), Phin = clamp(+inp.nfac, 0, 1) * PhiK;
+
+  // --- loads per bolt
+  const n = Math.max(1, Math.round(+inp.n || 1));
+  const FA = (+inp.FA || 0) * 1000 / n, FQ = (+inp.FQ || 0) * 1000 / n;
+  const FAmax = FA, FAmin = inp.loadType === 'static' ? FA : inp.loadType === 'pulsating' ? 0 : -FA;
+  const FApos = Math.max(FAmax, 0);
+  const friction = inp.shearMode === 'friction';
+
+  // --- embedding (VDI 2230 empirical)
+  const fZ = 3.29e-3 * Math.pow(lK / d, 0.34);
+  const FZ = fZ / (dS + dP);
+  const FKQ = friction && FQ > 0 ? FQ / (inp.qF * inp.muT) : 0;
+  const FMreq = FKQ + (1 - Phin) * FApos + FZ;
+
+  // --- tightening (torque method)
+  const e = clamp(+inp.scatter || 0, 0, 90) / 100;
+  const muGmin = Math.min(inp.muGmin, inp.muGmax), muGmax = Math.max(inp.muGmin, inp.muGmax);
+  const muKmin = Math.min(inp.muKmin, inp.muKmax), muKmax = Math.max(inp.muKmin, inp.muKmax);
+  const Kmin = 0.16 * P + 0.58 * d2 * muGmin + DKm / 2 * muKmin;
+  const Kmax = 0.16 * P + 0.58 * d2 * muGmax + DKm / 2 * muKmax;
+  const Xmin = P / (Math.PI * d2) + 1.155 * muGmin;
+  const redFac = Math.sqrt(1 + 3 * Math.pow(1.5 * d2 / ds * Xmin, 2));
+  const nu = clamp(+inp.nu || 0.9, 0.3, 1);
+  const FMzul = As * nu * g.Rp / redFac;
+  const auto = forceAuto || inp.tightMode === 'auto';
+  const TA = auto ? FMzul * Kmin / (1 + e) : Math.max(+inp.torque || 0, 0) * 1000; // N·mm
+  const FMmax = TA * (1 + e) / Kmin;
+  const FMmin = TA * (1 - e) / Kmax;
+  const alphaA = FMmin > 0 ? FMmax / FMmin : Infinity;
+
+  // --- assembly stress (Von Mises, plastic torsion)
+  const sigM = FMmax / As, sigRedM = sigM * redFac, nuAct = sigRedM / g.Rp;
+
+  // --- working stress (Von Mises: tension + torsion residual + direct shear)
+  const FSmax = FMmax + Phin * FApos;
+  const sigZ = FSmax / As;
+  const MG = FMmax * d2 / 2 * Xmin;
+  const Wp = Math.PI * ds ** 3 / 16;
+  const tauT = MG / Wp;
+  const tauQ = friction ? 0 : FQ / As;
+  const tauEq = KTAU * tauT + tauQ;
+  const sigRedB = Math.sqrt(sigZ * sigZ + 3 * tauEq * tauEq);
+  const SFact = g.Rp / sigRedB;
+
+  // --- residual clamp / slip
+  const FKR = FMmin - FZ - (1 - Phin) * FApos;
+  const SGact = friction && FQ > 0 ? Math.max(FKR, 0) * inp.qF * inp.muT / FQ : null;
+
+  // --- fatigue
+  const dynamic = inp.loadType !== 'static' && FA > 0;
+  const sigA = Phin * (FAmax - FAmin) / (2 * As);
+  const sigI = FMmax / As;
+  const sigMean = sigI + Phin * (FAmax + FAmin) / (2 * As);
+  const sASV = 0.85 * (150 / d + 45);
+  const SDvdi = sigA > 0 ? sASV / sigA : Infinity;
+  const nfG = sigA > 0 ? g.Se * (g.Rm - sigI) / (g.Rm * sigA + g.Se * (sigMean - sigI)) : Infinity;
+
+  // --- bearing pressure
+  const hasW = inp.washer === 'yes';
+  const dwB = hasW ? S.wo : dw;
+  const Fb = Math.max(FMmax, FSmax);
+  const Ap = Math.PI / 4 * (dwB * dwB - dh * dh);
+  const pB = Fb / Ap;
+  const pG = +inp.plim > 0 ? +inp.plim : cm.pG;
+  const SPact = pG / pB;
+  const dwReq = Math.sqrt(4 * Fb * inp.SP / (Math.PI * pG) + dh * dh);
+
+  // --- internal thread engagement
+  const tauBM = tm.Rm * tm.tau;
+  const Ath1 = 0.875 * Math.PI * d;          // shear area per mm of engagement (FED-STD-H28 form)
+  const mMin = esv ? inp.Sm * g.Rm * As / (C_THREAD * tauBM * Ath1) : null;
+
+  // --- mass
+  const Vbolt = AN * L + 0.866 * S.s * S.s * S.k;
+  const Vnut = esv ? 0 : (0.866 * S.s * S.s - AN) * S.mn;
+  const Vw = hasW ? (esv ? 1 : 2) * Math.PI / 4 * (S.wo ** 2 - dh ** 2) * S.wt : 0;
+  const massPer = RHO * (Vbolt + Vnut + Vw);
+  const massTot = massPer * n;
+
+  // --- checks
+  const checks = [];
+  const mk = (key, name, icon, ratio, valTxt, reqTxt, opt = {}) => {
+    let status = 'na';
+    if (ratio !== null && ratio !== undefined && !Number.isNaN(ratio)) {
+      status = ratio < 1 ? 'ng' : (opt.warn ? 'warn' : (ratio < 1.1 ? 'warn' : 'ok'));
+    }
+    checks.push({ key, name, icon, ratio, valTxt, reqTxt, status, note: opt.note || '' });
+  };
+  mk('assembly', '締付け時降伏', 'hammer', 1 / nuAct, `ν = ${f(nuAct, 3)}`, `σ_red,M ≤ R_p0.2`,
+     { warn: nuAct > nu + 1e-9 && nuAct <= 1, note: auto ? `自動トルク: F_M,max = F_M,zul (ν=${f(nu,2)})` : (nuAct > nu ? `推奨利用率 ν=${f(nu,2)} を超過` : '') });
+  mk('working', '使用時降伏 (Von Mises)', 'zap', SFact / inp.SF, `S_F = ${f(SFact, 2)}`, `≥ ${f(inp.SF, 2)}`);
+  if (FApos > 0) mk('separation', '接合面の分離', 'unlink', (FMmin - FZ) / ((1 - Phin) * FApos), `F_KR = ${kN(FKR)} kN`, `F_KR > 0`);
+  else mk('separation', '接合面の分離', 'unlink', null, '軸荷重なし', '—');
+  if (friction && FQ > 0) mk('slip', '摩擦接合すべり', 'move-horizontal', SGact / inp.SG, `S_G = ${f(SGact, 2)}`, `≥ ${f(inp.SG, 2)}`);
+  else mk('slip', '摩擦接合すべり', 'move-horizontal', null, friction ? 'せん断荷重なし' : 'せん断接合 (降伏で評価)', '—');
+  if (dynamic) {
+    const crit = inp.fatigueCrit;
+    const Sgov = crit === 'vdi' ? SDvdi : crit === 'goodman' ? nfG : Math.min(SDvdi, nfG);
+    mk('fatigue', '疲労限界', 'activity', Sgov / inp.SD, `S_D = ${f(Sgov, 2)}`, `≥ ${f(inp.SD, 2)}`,
+       { note: crit === 'both' ? `VDI ${f(SDvdi,2)} / Goodman ${f(nfG,2)}` : '' });
+  } else mk('fatigue', '疲労限界', 'activity', null, '静的荷重', '—');
+  mk('bearing', '座面陥没 (面圧)', 'circle-dot', SPact / inp.SP, `p = ${f(pB, 0)} MPa`, `p_G = ${f(pG, 0)} MPa`);
+  if (esv) mk('thread', 'めねじ (ねじ込み深さ)', 'ruler', mEng / mMin, `m = ${f(mEng, 1)} mm`, `m_min = ${f(mMin, 1)} mm`);
+  else mk('thread', 'めねじ (ナット)', 'ruler', null, 'ISO 898-2 同等区分ナット', '—');
+
+  const valid = checks.filter(c => c.status !== 'na');
+  // In auto mode the assembly utilisation is a design set-point (ν), so it only counts as bottleneck when it fails
+  const ranked = valid.filter(c => !(auto && c.key === 'assembly' && c.status !== 'ng'));
+  const worst = (ranked.length ? ranked : valid).reduce((a, c) => (a === null || c.ratio < a.ratio ? c : a), null);
+  const verdict = valid.some(c => c.status === 'ng') ? 'DANGER' : valid.some(c => c.status === 'warn') ? 'WARNING' : 'SAFE';
+
+  return {
+    S, g, d, P, d2, d3, ds, As, AN, Ad3, dw, dh, DKm, lK, mEng, L, b, lGew, l1, lM, esv, cm, tm, EP,
+    dSK, d1c, dGew, dG, dM, dS, w, bL, y, tanPhi, DA, DAauto, DAGr, dP, coneCase, PhiK, Phin,
+    n, FA, FQ, FAmax, FAmin, FApos, friction, fZ, FZ, FKQ, FMreq,
+    e, muGmin, muGmax, muKmin, muKmax, Kmin, Kmax, Xmin, redFac, nu, FMzul, auto, TA, FMmax, FMmin, alphaA,
+    sigM, sigRedM, nuAct, FSmax, sigZ, MG, Wp, tauT, tauQ, tauEq, sigRedB, SFact, FKR, SGact,
+    dynamic, sigA, sigI, sigMean, sASV, SDvdi, nfG, hasW, dwB, Fb, Ap, pB, pG, SPact, dwReq,
+    tauBM, Ath1, mMin, massPer, massTot, checks, worst, verdict
+  };
+}
+
+function reverseSearch(inp) {
+  const all = [];
+  for (const s of SIZES) for (const gk of GRADE_KEYS) {
+    const r = evaluate(inp, s.n, gk, true);
+    if (!r) { all.push({ size: s.n, grade: gk, r: null }); continue; }
+    all.push({ size: s.n, grade: gk, r, pass: r.verdict !== 'DANGER' });
+  }
+  const passing = all.filter(x => x.r && x.pass)
+    .sort((a, b) => a.r.massTot - b.r.massTot || a.r.g.Rp - b.r.g.Rp);
+  return { all, top: passing.slice(0, 3), count: passing.length };
+}
+
+/* =====================================================================
+ *  FORMATTING
+ * ===================================================================== */
+function f(x, dgt = 2) {
+  if (x === null || x === undefined || Number.isNaN(x)) return '—';
+  if (!Number.isFinite(x)) return '∞';
+  return Number(x).toLocaleString('en-US', { minimumFractionDigits: dgt, maximumFractionDigits: dgt });
+}
+const kN = x => f(x / 1000, 2);
+function sci(x, dgt = 3) { // TeX scientific
+  if (!Number.isFinite(x)) return '\\infty';
+  if (x === 0) return '0';
+  const ex = Math.floor(Math.log10(Math.abs(x)));
+  const m = x / Math.pow(10, ex);
+  return `${m.toFixed(dgt)}\\times10^{${ex}}`;
+}
+const t = (x, dgt = 2) => f(x, dgt).replace(/,/g, '{,}');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+
+/* =====================================================================
+ *  STATE / STORAGE
+ * ===================================================================== */
+const LS_KEY = 'bolt-guard:v1';
+let state = loadState();
+function loadState() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) return sanitize(JSON.parse(raw));
+  } catch (_) {}
+  return { ...DEFAULTS };
+}
+function sanitize(obj) {
+  const out = { ...DEFAULTS };
+  if (obj && typeof obj === 'object') {
+    for (const k of Object.keys(DEFAULTS)) {
+      if (!(k in obj)) continue;
+      const def = DEFAULTS[k];
+      if (typeof def === 'number') { const v = parseFloat(obj[k]); if (Number.isFinite(v)) out[k] = v; }
+      else if (typeof obj[k] === 'string') {
+        const fd = FIELD_INDEX[k];
+        if (fd && fd.opts && !fd.opts.some(o => o.v === obj[k])) continue;
+        out[k] = obj[k].slice(0, 200);
+      }
+    }
+  }
+  return out;
+}
+let saveTimer;
+function saveState() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (_) {} }, 250);
+}
+
+/* =====================================================================
+ *  UI: INPUTS
+ * ===================================================================== */
+function renderInputs() {
+  const html = SCHEMA.map(gp => `
+    <details class="card group" open data-group="${gp.id}">
+      <summary class="card-h cursor-pointer select-none">
+        <div class="icon-chip"><i data-lucide="${gp.icon}" class="h-4 w-4"></i></div>
+        <div class="flex-1"><div class="card-t">${gp.title}</div><div class="text-[11px] text-slate-500 dark:text-slate-400">${gp.sub}</div></div>
+        <i data-lucide="chevron-down" class="chev h-4 w-4 text-slate-400 transition-transform"></i>
+      </summary>
+      <div class="grid grid-cols-2 gap-x-3 gap-y-3 px-4 pb-4 sm:px-5">
+        ${gp.fields.map(fieldHtml).join('')}
+      </div>
+    </details>`).join('');
+  document.getElementById('inputs').innerHTML = html;
+  document.querySelectorAll('[data-k]').forEach(el => {
+    el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', onInput);
+  });
+  applyVisibility();
+}
+function labelHtml(s) { return esc(s).replace(/_([A-Za-z0-9,.]+)/g, '<sub>$1</sub>'); }
+function fieldHtml(fd) {
+  const v = state[fd.k];
+  const wrap = `<div class="${fd.full ? 'col-span-2' : ''}" data-wrap="${fd.k}">`;
+  const lab = `<label class="fld-l" for="f-${fd.k}">${labelHtml(fd.label)}${fd.hint ? ` <span class="text-slate-400 dark:text-slate-500">(${esc(fd.hint)})</span>` : ''}</label>`;
+  const help = `${fd.help ? `<p class="mt-1 text-[10.5px] leading-snug text-slate-400 dark:text-slate-500">${esc(fd.help)}</p>` : ''}<p id="err-${fd.k}" class="mt-1 hidden text-[11px] font-medium text-rose-500"></p><p id="hint-${fd.k}" class="mt-1 hidden text-[11px] text-cyan-600 dark:text-cyan-400"></p>`;
+  if (fd.type === 'sel') {
+    return `${wrap}${lab}<select id="f-${fd.k}" data-k="${fd.k}" class="fld">${fd.opts.map(o => `<option value="${esc(o.v)}"${o.v === v ? ' selected' : ''}>${esc(o.l)}</option>`).join('')}</select>${help}</div>`;
+  }
+  if (fd.type === 'text') {
+    return `${wrap}${lab}<input id="f-${fd.k}" data-k="${fd.k}" type="text" class="fld" value="${esc(v)}" maxlength="120"></div>`;
+  }
+  return `${wrap}${lab}<div class="relative"><input id="f-${fd.k}" data-k="${fd.k}" type="number" inputmode="decimal" class="fld mono pr-12" value="${v}" step="${fd.step ?? 'any'}" ${fd.min !== undefined ? `min="${fd.min}"` : ''} ${fd.max !== undefined ? `max="${fd.max}"` : ''} aria-describedby="err-${fd.k}"><span class="unit">${esc(fd.unit || '')}</span></div>${help}</div>`;
+}
+function applyVisibility() {
+  for (const fd of Object.values(FIELD_INDEX)) {
+    const w = document.querySelector(`[data-wrap="${fd.k}"]`);
+    if (w) w.style.display = fd.show && !fd.show(state) ? 'none' : '';
+  }
+  // disable grade 9.8 for > M16
+  const gsel = document.getElementById('f-grade');
+  if (gsel) [...gsel.options].forEach(o => { o.disabled = !gradeProps(o.value, SIZE_MAP[state.size].d); });
+}
+let calcTimer;
+function onInput(ev) {
+  const k = ev.target.dataset.k;
+  const fd = FIELD_INDEX[k];
+  if (fd.type === 'sel' || fd.type === 'text') state[k] = ev.target.value;
+  else {
+    const v = parseFloat(ev.target.value);
+    const err = document.getElementById('err-' + k);
+    let msg = '';
+    if (!Number.isFinite(v)) msg = '数値を入力してください';
+    else if (fd.min !== undefined && v < fd.min) msg = `${fd.min} 以上の値を入力してください`;
+    else if (fd.max !== undefined && v > fd.max) msg = `${fd.max} 以下の値を入力してください`;
+    ev.target.classList.toggle('!border-rose-500', !!msg);
+    ev.target.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    if (err) { err.textContent = msg ? msg + ' (直前の値 ' + state[k] + ' で計算中)' : ''; err.classList.toggle('hidden', !msg); }
+    if (msg) return;
+    state[k] = v;
+  }
+  if (k === 'size' && !gradeProps(state.grade, SIZE_MAP[state.size].d)) { state.grade = '10.9'; document.getElementById('f-grade').value = '10.9'; }
+  applyVisibility();
+  saveState();
+  clearTimeout(calcTimer);
+  calcTimer = setTimeout(recompute, 120);
+}
+function syncInputs() {
+  for (const k of Object.keys(FIELD_INDEX)) { const el = document.getElementById('f-' + k); if (el) el.value = state[k]; }
+  applyVisibility();
+}
+
+/* =====================================================================
+ *  UI: OUTPUTS
+ * ===================================================================== */
+const ST = {
+  ok:   { label:'OK',   cls:'text-emerald-600 dark:text-emerald-400', bg:'bg-emerald-500', soft:'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300' },
+  warn: { label:'注意', cls:'text-amber-600 dark:text-amber-400',     bg:'bg-amber-500',   soft:'bg-amber-500/10 text-amber-700 dark:text-amber-300' },
+  ng:   { label:'NG',   cls:'text-rose-600 dark:text-rose-400',       bg:'bg-rose-500',    soft:'bg-rose-500/10 text-rose-700 dark:text-rose-300' },
+  na:   { label:'対象外', cls:'text-slate-400',                        bg:'bg-slate-400',   soft:'bg-slate-500/10 text-slate-500 dark:text-slate-400' }
+};
+const VERD = {
+  SAFE:    { ring:'from-emerald-400/60 to-emerald-600/10', text:'text-emerald-500 dark:text-emerald-400', icon:'shield-check', msg:'全判定基準を余裕をもってクリアしています' },
+  WARNING: { ring:'from-amber-400/70 to-amber-600/10', text:'text-amber-500 dark:text-amber-400', icon:'triangle-alert', msg:'基準は満たしていますが余裕が小さい項目があります (余裕比 < 1.10)' },
+  DANGER:  { ring:'from-rose-500/80 to-rose-700/10', text:'text-rose-500 dark:text-rose-400', icon:'octagon-x', msg:'判定基準を満たさない項目があります。構成の見直しが必要です' }
+};
+
+let lastRes = null, lastSearch = null;
+
+function renderSummary(r) {
+  const V = VERD[r.verdict];
+  const w = r.worst;
+  const chips = [
+    ['締付けトルク T_A', f(r.TA / 1000, 1), 'N·m'],
+    ['軸力 F_M,max', kN(r.FMmax), 'kN'],
+    ['軸力 F_M,min', kN(r.FMmin), 'kN'],
+    ['内力係数 Φ_n', f(r.Phin, 3), ''],
+    ['締付け係数 α_A', f(r.alphaA, 2), '']
+  ];
+  document.getElementById('summary').innerHTML = `
+  <div class="rounded-[20px] bg-gradient-to-br ${V.ring} p-[1.5px]">
+    <div class="rounded-[19px] bg-white px-4 py-4 sm:px-6 sm:py-5 dark:bg-[#0f141e]">
+      <div class="flex flex-col gap-4 md:flex-row md:items-center">
+        <div class="flex items-center gap-4">
+          <div class="sum-icon grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-current/10 ${V.text}" style="background:color-mix(in srgb, currentColor 12%, transparent)"><i data-lucide="${V.icon}" class="h-7 w-7"></i></div>
+          <div class="min-w-0">
+            <div class="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">総合判定 · ${esc(state.project || '')}</div>
+            <div class="text-[30px] font-extrabold leading-none tracking-tight ${V.text}">${r.verdict}</div>
+            <div class="sum-msg mt-1 text-[12px] text-slate-500 dark:text-slate-400">${V.msg}</div>
+          </div>
+        </div>
+        <div class="md:ml-auto md:max-w-[360px] rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 dark:border-white/[0.07] dark:bg-white/[0.03]">
+          <div class="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400"><i data-lucide="crosshair" class="h-3.5 w-3.5"></i>ボトルネック要因</div>
+          <div class="mt-0.5 flex items-baseline gap-2"><span class="text-[15px] font-semibold text-slate-900 dark:text-white">${w ? esc(w.name) : '—'}</span>
+            <span class="mono text-[13px] ${w ? ST[w.status].cls : ''}">余裕比 ${w ? f(w.ratio, 2) : '—'}</span></div>
+          <div class="text-[11px] text-slate-500 dark:text-slate-400">${w ? esc(w.valTxt) + ' / 要求 ' + esc(w.reqTxt) : ''}</div>
+          <button id="sumMore" data-tab="p-result" class="mt-1.5 hidden items-center gap-1 text-[11px] font-semibold text-cyan-600 lg:!hidden dark:text-cyan-400">全項目の判定を見る<i data-lucide="chevron-right" class="h-3.5 w-3.5"></i></button>
+        </div>
+      </div>
+      <div class="sum-detail mt-4 flex flex-wrap gap-1.5">
+        ${r.checks.map(c => `<span class="pill ${ST[c.status].soft}"><span class="h-1.5 w-1.5 rounded-full ${ST[c.status].bg}"></span>${esc(c.name)}</span>`).join('')}
+      </div>
+      <div class="sum-detail mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
+        ${chips.map(([l, v, u]) => `<div class="rounded-xl bg-slate-50 px-3 py-2 dark:bg-white/[0.03]"><div class="text-[10px] text-slate-500 dark:text-slate-400">${labelHtml(l)}</div><div class="mono text-[15px] font-semibold text-slate-900 dark:text-white">${v}<span class="ml-1 text-[10px] font-normal text-slate-400">${u}</span></div></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderChecks(r) {
+  document.getElementById('checks').innerHTML = r.checks.map(c => {
+    const s = ST[c.status];
+    const pct = c.status === 'na' ? 0 : clamp(c.ratio / 2, 0, 1) * 100;
+    return `<div class="card p-4">
+      <div class="flex items-start gap-3">
+        <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl ${s.soft}"><i data-lucide="${c.icon}" class="h-4 w-4"></i></div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between gap-2"><div class="truncate text-[13px] font-semibold text-slate-800 dark:text-slate-100">${esc(c.name)}</div>
+            <span class="pill ${s.soft}">${s.label}</span></div>
+          <div class="mt-0.5 mono text-[12px] text-slate-600 dark:text-slate-300">${labelHtml(c.valTxt)} <span class="text-slate-400">/ ${labelHtml(c.reqTxt)}</span></div>
+        </div>
+      </div>
+      <div class="mt-3 flex items-center gap-2">
+        <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-white/[0.06]">
+          <div class="bar absolute inset-y-0 left-0 rounded-full ${s.bg}" style="width:${pct}%"></div>
+          <div class="absolute inset-y-0 left-1/2 w-px bg-slate-400/70"></div>
+        </div>
+        <span class="mono w-12 text-right text-[12px] font-semibold ${s.cls}">${c.status === 'na' ? '—' : '×' + f(c.ratio, 2)}</span>
+      </div>
+      ${c.note ? `<div class="mt-2 text-[11px] text-slate-500 dark:text-slate-400">${labelHtml(c.note)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function intermediates(r) {
+  return [
+    ['d2', '有効径', r.d2, 'mm', 3], ['d3', '谷径', r.d3, 'mm', 3], ['As', '有効断面積', r.As, 'mm²', 2],
+    ['dw', '座面径', r.dw, 'mm', 1], ['dh', '穴径', r.dh, 'mm', 1], ['DKm', '座面摩擦有効径', r.DKm, 'mm', 2],
+    ['L', 'ボルト長さ(概算)', r.L, 'mm', 1], ['l_Gew', '締付け長内の不完全/遊びねじ長', r.lGew, 'mm', 1],
+    ['δS', 'ボルトの弾性コンプライアンス', r.dS, 'mm/N', 'e'], ['δP', '被締結体の弾性コンプライアンス', r.dP, 'mm/N', 'e'],
+    ['tanφ', '圧縮円錐角', r.tanPhi, '—', 4], ['DA,Gr', '限界外径', r.DAGr, 'mm', 2],
+    ['ΦK', '内力係数(頭部導入)', r.PhiK, '—', 4], ['Φn', '内力係数', r.Phin, '—', 4],
+    ['F_A', '1本あたり軸外力', r.FA, 'N', 0], ['F_Q', '1本あたりせん断外力', r.FQ, 'N', 0],
+    ['fZ', 'へたり量', r.fZ * 1000, 'µm', 2], ['F_Z', 'へたりによる軸力低下', r.FZ, 'N', 0],
+    ['F_KQ', 'すべり防止必要締付力', r.FKQ, 'N', 0], ['F_M,req', '必要最小初期締付力', r.FMreq, 'N', 0],
+    ['K_min', 'トルク換算長 (μmin)', r.Kmin, 'mm', 4], ['K_max', 'トルク換算長 (μmax)', r.Kmax, 'mm', 4],
+    ['F_M,zul', '許容締付力', r.FMzul, 'N', 0], ['T_A', '締付けトルク', r.TA / 1000, 'N·m', 2],
+    ['F_M,max', '最大初期締付力', r.FMmax, 'N', 0], ['F_M,min', '最小初期締付力', r.FMmin, 'N', 0], ['α_A', '締付け係数', r.alphaA, '—', 3],
+    ['σ_red,M', '締付け時相当応力', r.sigRedM, 'MPa', 1], ['ν', '降伏点利用率', r.nuAct, '—', 3],
+    ['F_S,max', '最大ボルト力', r.FSmax, 'N', 0], ['τ', 'ねじり応力', r.tauT, 'MPa', 1], ['τ_Q', '直接せん断応力', r.tauQ, 'MPa', 1],
+    ['σ_red,B', '使用時Von Mises相当応力', r.sigRedB, 'MPa', 1], ['F_KR', '残留締付力', r.FKR, 'N', 0],
+    ['σ_a', '応力振幅', r.sigA, 'MPa', 2], ['σ_m', '平均応力', r.sigMean, 'MPa', 1], ['σ_ASV', '疲労限度(VDI)', r.sASV, 'MPa', 1],
+    ['S_e', '疲労限度(Goodman用)', r.g.Se, 'MPa', 0], ['p', '座面圧力', r.pB, 'MPa', 1], ['p_G', '許容面圧', r.pG, 'MPa', 0],
+    ['m_min', '必要最小ねじ込み深さ', r.mMin, 'mm', 2], ['W', '総質量(ボルト・ナット・座金)', r.massTot * 1000, 'g', 1]
+  ];
+}
+function fmtI(v, dg) { return dg === 'e' ? (v === null ? '—' : v.toExponential(3)) : f(v, dg); }
+
+function renderKeyvals(r) {
+  const pick = ['As', 'δS', 'δP', 'Φn', 'F_Z', 'F_M,req', 'F_KR', 'σ_red,B', 'σ_a', 'p', 'm_min', 'W'];
+  const list = intermediates(r).filter(x => pick.includes(x[0]));
+  document.getElementById('keyvals').innerHTML = list.map(([s, d, v, u, dg]) =>
+    `<div class="kv"><span class="text-slate-500 dark:text-slate-400">${esc(d)} <span class="mono text-[11px] text-slate-400">${labelHtml(s)}</span></span><span class="mono font-semibold text-slate-900 dark:text-white">${fmtI(v, dg)} <span class="text-[10px] font-normal text-slate-400">${u}</span></span></div>`).join('');
+}
+
+function renderAdvice(r) {
+  const items = [];
+  const bc = r.checks.find(c => c.key === 'bearing');
+  if (bc.status === 'ng' || bc.status === 'warn') {
+    if (!r.hasW && r.S.wo >= r.dwReq) items.push(['circle-dot', '座面', `焼入れ平座金 (JIS B 1256 並丸, 外径 ${r.S.wo} mm) の追加を推奨。必要座面外径 d<sub>w,req</sub> = ${f(r.dwReq, 1)} mm`]);
+    else items.push(['circle-dot', '座面', `必要座面外径 d<sub>w,req</sub> = ${f(r.dwReq, 1)} mm。外径 ${f(Math.ceil(r.dwReq), 0)} mm 以上の焼入れ大径座金、または高 p<sub>G</sub> 材/サイズ見直しを推奨`]);
+  } else items.push(['circle-dot', '座面', `面圧 ${f(r.pB, 0)} MPa ≤ p<sub>G</sub> ${f(r.pG, 0)} MPa。${r.hasW ? '座金あり' : '座金なしで適合'}`]);
+  if (r.esv) items.push(['ruler', 'めねじ', `必要最小ねじ込み深さ m<sub>min</sub> = <b>${f(r.mMin, 1)} mm</b> (${f(r.mMin / r.d, 2)}d)。現状 ${f(r.mEng, 1)} mm${r.mEng < r.mMin ? ' → 不足' : ''}`]);
+  const wc = r.worst;
+  if (wc && wc.status !== 'ok') {
+    const tips = {
+      assembly: 'トルクを下げるか ν を 0.9 以下に設定。μ の下限管理 (潤滑剤指定) が有効です。',
+      working: '強度区分を上げる、またはサイズアップで σ<sub>red,B</sub> を低減。',
+      separation: '締付け力を上げる (工具精度向上で α<sub>A</sub> を低減) か本数を増やしてください。',
+      slip: '摩擦面数 q<sub>F</sub>・接合面摩擦 μ<sub>T</sub> の向上、工具誤差の低減、本数増が有効です。',
+      fatigue: '剛性比 Φ を下げる (締付け長を延ばす・細径長ボルト化)、転造後熱処理ボルトの採用を検討。',
+      bearing: '座金追加、または被締結材の変更を検討。',
+      thread: 'ねじ込み深さを確保するか、ヘリサート (インサート) を検討。'
+    };
+    items.push(['lightbulb', '改善策', tips[wc.key] || '']);
+  }
+  document.getElementById('advice').innerHTML = `
+    <div class="card-h"><div class="icon-chip"><i data-lucide="clipboard-check" class="h-4 w-4"></i></div><div class="card-t">設計アドバイス</div></div>
+    <div class="space-y-2.5 px-4 pb-4 sm:px-5">${items.map(([ic, h, tx]) => `
+      <div class="flex gap-2.5 rounded-xl bg-slate-50 p-3 dark:bg-white/[0.03]"><i data-lucide="${ic}" class="mt-0.5 h-4 w-4 shrink-0 text-cyan-500"></i>
+      <div class="text-[12.5px] leading-relaxed"><span class="font-semibold text-slate-800 dark:text-slate-100">${h}</span><br><span class="text-slate-600 dark:text-slate-300">${tx}</span></div></div>`).join('')}</div>`;
+}
+
+/* ---------- Chart ---------- */
+let chart;
+function themeColors() {
+  const dark = document.documentElement.classList.contains('dark');
+  return { grid: dark ? 'rgba(255,255,255,.06)' : 'rgba(15,23,42,.07)', tick: dark ? '#94a3b8' : '#64748b', text: dark ? '#e2e8f0' : '#0f172a' };
+}
+function renderChart(r) {
+  if (!window.Chart) { document.getElementById('fatNote').textContent = 'Chart.js を読み込めませんでした (ネットワークを確認してください)。'; return; }
+  const Rp = r.g.Rp, Rm = r.g.Rm, Se = r.g.Se, sA = r.sASV;
+  const yMax = Math.max(sA, Se, r.sigA) * 1.7;
+  const vdi = [{ x: 0, y: sA }, { x: Rp - sA, y: sA }, { x: Rp, y: 0 }];
+  const goodman = [{ x: 0, y: Se }, { x: Rm, y: 0 }];
+  const langer = [{ x: Math.max(Rp - yMax, 0), y: Math.min(yMax, Rp) }, { x: Rp, y: 0 }];
+  // load line from preload point to Goodman intersection (σa = k(σm-σi), slope k = σa/(σm-σi) when σm>σi)
+  let loadLine = [];
+  if (r.dynamic && r.sigA > 0) {
+    const dm = r.sigMean - r.sigI;
+    const k = dm > 1e-9 ? r.sigA / dm : Infinity;
+    let xg, yg;
+    if (Number.isFinite(k)) { xg = (Se + k * r.sigI) / (k + Se / Rm); yg = k * (xg - r.sigI); }
+    else { xg = r.sigI; yg = Se * (1 - r.sigI / Rm); }
+    loadLine = [{ x: r.sigI, y: 0 }, { x: xg, y: Math.max(yg, 0) }];
+  }
+  const op = [{ x: r.sigMean, y: r.sigA }];
+  const c = themeColors();
+  const data = {
+    datasets: [
+      { label: 'VDI 2230 許容振幅 σ_ASV', data: vdi, borderColor: '#22d3ee', backgroundColor: 'rgba(34,211,238,.08)', fill: 'origin', showLine: true, pointRadius: 0, borderWidth: 2, tension: 0 },
+      { label: '修正グッドマン線', data: goodman, borderColor: '#a78bfa', borderDash: [6, 4], showLine: true, pointRadius: 0, borderWidth: 2, fill: false },
+      { label: '降伏線 σ_m+σ_a=R_p', data: langer, borderColor: '#f43f5e', borderDash: [2, 3], showLine: true, pointRadius: 0, borderWidth: 1.5, fill: false },
+      { label: '荷重線', data: loadLine, borderColor: 'rgba(148,163,184,.8)', borderDash: [3, 3], showLine: true, pointRadius: 0, borderWidth: 1.2, fill: false },
+      { label: '動作点 (σ_m, σ_a)', data: op, borderColor: '#fff', backgroundColor: ST[r.checks.find(x => x.key === 'fatigue').status].bg === 'bg-rose-500' ? '#f43f5e' : '#10b981', pointRadius: 7, pointHoverRadius: 9, pointBorderWidth: 2, showLine: false }
+    ]
+  };
+  const opts = {
+    responsive: true, maintainAspectRatio: false, animation: { duration: 300 },
+    interaction: { mode: 'nearest', intersect: false },
+    scales: {
+      x: { type: 'linear', min: 0, max: Math.ceil(Rm * 1.05 / 50) * 50, title: { display: true, text: '平均応力 σm [MPa]', color: c.tick, font: { size: 11 } }, grid: { color: c.grid }, ticks: { color: c.tick, font: { family: 'JetBrains Mono', size: 10 } } },
+      y: { min: 0, max: Math.ceil(yMax / 10) * 10, title: { display: true, text: '応力振幅 σa [MPa]', color: c.tick, font: { size: 11 } }, grid: { color: c.grid }, ticks: { color: c.tick, font: { family: 'JetBrains Mono', size: 10 } } }
+    },
+    plugins: {
+      legend: { position: 'bottom', labels: { color: c.tick, boxWidth: 12, boxHeight: 2, font: { size: 10 }, usePointStyle: false } },
+      tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: σm=${f(ctx.parsed.x, 1)}, σa=${f(ctx.parsed.y, 1)} MPa` } }
+    }
+  };
+  if (chart) { chart.data = data; chart.options = opts; chart.update(); }
+  else chart = new Chart(document.getElementById('chart'), { type: 'scatter', data, options: opts });
+  const fc = r.checks.find(x => x.key === 'fatigue');
+  document.getElementById('fatBadge').innerHTML = `<span class="pill ${ST[fc.status].soft}">${ST[fc.status].label}</span>`;
+  document.getElementById('fatNote').innerHTML = r.dynamic
+    ? `σ<sub>a</sub> = ${f(r.sigA, 2)} MPa, σ<sub>m</sub> = ${f(r.sigMean, 1)} MPa → VDI S<sub>D</sub> = ${f(r.SDvdi, 2)} (σ<sub>ASV</sub> = ${f(r.sASV, 1)} MPa, 転造後熱処理), Goodman n<sub>f</sub> = ${f(r.nfG, 2)} (S<sub>e</sub> = ${r.g.Se} MPa)。判定基準: ${({ vdi: 'VDI 2230', goodman: '修正グッドマン', both: '両方の厳しい方' })[state.fatigueCrit]}`
+    : '静的荷重のため疲労判定は対象外です (荷重変動を「片振り」または「両振り」に設定すると評価します)。';
+}
+
+/* ---------- Reverse search ---------- */
+function renderSearch(sr) {
+  const top = sr.top;
+  const medals = ['from-amber-300 to-amber-500', 'from-slate-300 to-slate-400', 'from-orange-400 to-orange-600'];
+  document.getElementById('top3').innerHTML = top.length ? top.map((x, i) => {
+    const r = x.r;
+    return `<div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-white/[0.07] dark:bg-white/[0.03]">
+      <div class="flex items-center gap-2"><span class="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br ${medals[i]} text-[12px] font-extrabold text-slate-900">${i + 1}</span>
+        <span class="text-[18px] font-extrabold tracking-tight text-slate-900 dark:text-white">${x.size} <span class="text-slate-400">×</span> ${x.grade}</span>
+        <span class="ml-auto pill ${ST[r.verdict === 'SAFE' ? 'ok' : 'warn'].soft}">${r.verdict}</span></div>
+      <div class="mt-3 grid grid-cols-2 gap-2 text-[11px]">
+        <div><div class="text-slate-500 dark:text-slate-400">総質量</div><div class="mono text-[14px] font-semibold text-slate-900 dark:text-white">${f(r.massTot * 1000, 1)} g</div></div>
+        <div><div class="text-slate-500 dark:text-slate-400">T<sub>A</sub></div><div class="mono text-[14px] font-semibold text-slate-900 dark:text-white">${f(r.TA / 1000, 1)} N·m</div></div>
+        <div><div class="text-slate-500 dark:text-slate-400">F<sub>M,min</sub>〜F<sub>M,max</sub></div><div class="mono text-[12px] text-slate-700 dark:text-slate-200">${kN(r.FMmin)}〜${kN(r.FMmax)} kN</div></div>
+        <div><div class="text-slate-500 dark:text-slate-400">ボトルネック</div><div class="text-[12px] text-slate-700 dark:text-slate-200">${esc(r.worst.name)} ×${f(r.worst.ratio, 2)}</div></div>
+      </div>
+      ${r.esv ? `<div class="mt-2 text-[11px] text-slate-500 dark:text-slate-400">m<sub>min</sub> = ${f(r.mMin, 1)} mm ／ 面圧 ${f(r.pB, 0)} MPa</div>` : ''}
+      <button class="btn-pri mt-3 w-full" data-apply="${x.size}|${x.grade}"><i data-lucide="check" class="h-4 w-4"></i>この構成を適用</button>
+    </div>`;
+  }).join('') : `<div class="md:col-span-3 rounded-xl bg-rose-500/10 p-4 text-[13px] text-rose-700 dark:text-rose-300">M3〜M30 の全組合せで基準を満たす構成がありません。本数の増加、締付け長・材質・座金・摩擦条件・要求安全率を見直してください。</div>`;
+
+  const cur = `${state.size}|${state.grade}`;
+  const head = `<tr><th class="sticky left-0 z-10 bg-white px-2 py-1.5 text-left text-[11px] font-medium text-slate-500 dark:bg-[#111722] dark:text-slate-400">サイズ</th>${GRADE_KEYS.map(g => `<th class="px-1 py-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">${g}</th>`).join('')}<th class="px-2 py-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400">質量/本</th></tr>`;
+  const rows = SIZES.map(s => {
+    let mass = null;
+    const cells = GRADE_KEYS.map(g => {
+      const x = sr.all.find(a => a.size === s.n && a.grade === g);
+      if (!x.r) return `<td class="px-0.5 py-0.5"><div class="rounded-md py-1.5 text-center text-[10px] text-slate-300 dark:text-slate-600">—</div></td>`;
+      mass = x.r.massPer;
+      const st = x.r.verdict === 'DANGER' ? 'ng' : x.r.verdict === 'WARNING' ? 'warn' : 'ok';
+      const bg = st === 'ok' ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' : st === 'warn' ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300' : 'bg-rose-500/10 text-rose-600/80 dark:text-rose-400/80';
+      const isCur = `${s.n}|${g}` === cur;
+      return `<td class="px-0.5 py-0.5"><button data-apply="${s.n}|${g}" title="${esc(x.r.worst.name)}" class="mono w-full rounded-md py-1.5 text-center text-[11px] font-semibold ${bg} ${isCur ? 'ring-2 ring-cyan-400' : ''}">${f(x.r.worst.ratio, 2)}</button></td>`;
+    }).join('');
+    return `<tr><td class="sticky left-0 z-10 bg-white px-2 py-0.5 text-[12px] font-semibold text-slate-700 dark:bg-[#111722] dark:text-slate-200">${s.n}</td>${cells}<td class="mono px-2 text-right text-[11px] text-slate-500 dark:text-slate-400">${mass ? f(mass * 1000, 1) + 'g' : ''}</td></tr>`;
+  }).join('');
+  document.getElementById('matrix').innerHTML = `<table class="w-full min-w-[520px] border-separate border-spacing-0"><thead>${head}</thead><tbody>${rows}</tbody></table>
+    <div class="mt-3 flex flex-wrap gap-3 text-[11px] text-slate-500 dark:text-slate-400">
+      <span class="flex items-center gap-1"><span class="h-2.5 w-2.5 rounded bg-emerald-500/60"></span>SAFE</span>
+      <span class="flex items-center gap-1"><span class="h-2.5 w-2.5 rounded bg-amber-500/60"></span>WARNING (余裕比 1.0〜1.1)</span>
+      <span class="flex items-center gap-1"><span class="h-2.5 w-2.5 rounded bg-rose-500/50"></span>DANGER</span>
+      <span>適合構成数: <b class="text-slate-700 dark:text-slate-200">${sr.count}</b> / ${sr.all.filter(a => a.r).length}</span></div>`;
+}
+
+/* ---------- Formulas (KaTeX) ---------- */
+function formulaSections(r) {
+  const R = String.raw;
+  const esvTxt = r.esv ? 'ESV (タップ穴)' : 'DSV (通しボルト)';
+  return [
+    { id: 'thread', title: '1. ねじ基本諸元', icon: 'ruler', ref: 'ISO 724 / JIS B 0205', rows: [
+      ['有効径・谷径', R`d_2 = d - 0.6495P,\quad d_3 = d - 1.2269P`, R`d_2 = ${t(r.d)} - 0.6495\times${t(r.P)} = ${t(r.d2, 3)}\,\mathrm{mm},\quad d_3 = ${t(r.d3, 3)}\,\mathrm{mm}`],
+      ['有効断面積', R`A_s = \frac{\pi}{4}\left(\frac{d_2+d_3}{2}\right)^2 = \frac{\pi}{4}d_s^2`, R`A_s = \frac{\pi}{4}\left(\frac{${t(r.d2, 3)}+${t(r.d3, 3)}}{2}\right)^2 = ${t(r.As, 2)}\,\mathrm{mm^2}`],
+      ['座面・穴径', R`D_{Km} = \frac{d_w + d_h}{2}`, R`D_{Km} = \frac{${t(r.dw, 1)} + ${t(r.dh, 1)}}{2} = ${t(r.DKm, 2)}\,\mathrm{mm}`]
+    ]},
+    { id: 'torque', title: '2. 締付けトルクと軸力 (最悪条件)', icon: 'wrench', ref: 'JIS B 1083 / VDI 2230-1 R7', rows: [
+      ['トルク–軸力関係 (JIS B 1083)', R`T_f = \frac{F}{2}\left(\frac{P}{\pi} + \mu_s d_2 \sec\alpha' + \mu_w D_w\right)`, R`\sec\alpha' \approx 1/\cos 30^\circ = 1.155 \;\Rightarrow\; \text{VDI 形と同値}`],
+      ['トルク–軸力関係 (VDI 2230)', R`M_A = F_M\,K,\quad K = 0.16P + 0.58\,d_2\,\mu_G + \frac{D_{Km}}{2}\mu_K`, R`K_{min} = 0.16\times${t(r.P)} + 0.58\times${t(r.d2, 3)}\times${t(r.muGmin)} + \frac{${t(r.DKm, 2)}}{2}\times${t(r.muKmin)} = ${t(r.Kmin, 4)}\,\mathrm{mm}`],
+      ['', '', R`K_{max} = 0.16\times${t(r.P)} + 0.58\times${t(r.d2, 3)}\times${t(r.muGmax)} + \frac{${t(r.DKm, 2)}}{2}\times${t(r.muKmax)} = ${t(r.Kmax, 4)}\,\mathrm{mm}`],
+      ['許容締付力 (Von Mises, 塑性ねじり)', R`F_{M,zul} = \frac{A_s\,\nu\,R_{p0.2}}{\sqrt{1+3\left[\frac{3}{2}\frac{d_2}{d_s}\left(\frac{P}{\pi d_2}+1.155\,\mu_{G,min}\right)\right]^2}}`,
+        R`F_{M,zul} = \frac{${t(r.As, 2)}\times${t(r.nu)}\times${r.g.Rp}}{${t(r.redFac, 4)}} = ${t(r.FMzul, 0)}\,\mathrm{N}`],
+      ['締付けトルク', r.auto ? R`T_A = \frac{F_{M,zul}\,K_{min}}{1+e}` : R`T_A = \text{指定値}`, r.auto ? R`T_A = \frac{${t(r.FMzul, 0)}\times${t(r.Kmin, 4)}}{1+${t(r.e)}} = ${t(r.TA / 1000, 2)}\,\mathrm{N\,m}` : R`T_A = ${t(r.TA / 1000, 2)}\,\mathrm{N\,m}`],
+      ['最大軸力 (工具+e, μ_min)', R`F_{M,max} = \frac{T_A(1+e)}{K_{min}}`, R`F_{M,max} = \frac{${t(r.TA, 0)}\times(1+${t(r.e)})}{${t(r.Kmin, 4)}} = ${t(r.FMmax, 0)}\,\mathrm{N}`],
+      ['最小軸力 (工具−e, μ_max)', R`F_{M,min} = \frac{T_A(1-e)}{K_{max}}`, R`F_{M,min} = \frac{${t(r.TA, 0)}\times(1-${t(r.e)})}{${t(r.Kmax, 4)}} = ${t(r.FMmin, 0)}\,\mathrm{N}`],
+      ['締付け係数', R`\alpha_A = \frac{F_{M,max}}{F_{M,min}}`, R`\alpha_A = \frac{${t(r.FMmax, 0)}}{${t(r.FMmin, 0)}} = ${t(r.alphaA, 3)}`]
+    ]},
+    { id: 'stiff', title: '3. 剛性比 (内力係数 Φ)', icon: 'spline', ref: 'VDI 2230-1 R3, 5.1', rows: [
+      ['ボルトのコンプライアンス', R`\delta_S = \frac{1}{E_S}\left(\frac{0.5d}{A_N}+\frac{l_1}{A_N}+\frac{l_{Gew}}{A_{d3}}+\frac{0.5d}{A_{d3}}+\frac{l_M}{A_N}\right)`,
+        R`l_1=${t(r.l1, 1)},\; l_{Gew}=${t(r.lGew, 1)},\; l_M=${t(r.lM, 2)}\,\mathrm{mm}\;\Rightarrow\;\delta_S = ${sci(r.dS)}\,\mathrm{mm/N}`],
+      ['圧縮円錐角 (' + esvTxt + ')', r.esv ? R`\tan\varphi_E = 0.348 + 0.013\ln\beta_L + 0.193\ln y` : R`\tan\varphi_D = 0.362 + 0.032\ln(\beta_L/2) + 0.153\ln y`,
+        R`\beta_L = \frac{l_K}{d_w} = ${t(r.bL, 3)},\; y = \frac{D_A'}{d_w} = ${t(r.y, 3)} \;\Rightarrow\; \tan\varphi = ${t(r.tanPhi, 4)}`],
+      ['限界外径', R`D_{A,Gr} = d_w + w\,l_K\tan\varphi \quad (w=${r.w})`, R`D_{A,Gr} = ${t(r.dw, 1)} + ${r.w}\times${t(r.lK, 1)}\times${t(r.tanPhi, 4)} = ${t(r.DAGr, 2)}\,\mathrm{mm}\;(D_A=${t(r.DA, 1)}${r.DAauto ? R`\,\text{:自動}` : ''})`],
+      ['被締結体のコンプライアンス', r.coneCase === 'cone'
+          ? R`\delta_P = \frac{2\ln\left[\frac{(d_w+d_h)(d_w+w\,l_K\tan\varphi-d_h)}{(d_w-d_h)(d_w+w\,l_K\tan\varphi+d_h)}\right]}{w\,E_P\,\pi\,d_h\tan\varphi}`
+          : r.coneCase === 'cone+sleeve'
+          ? R`\delta_P = \frac{\frac{2}{w d_h\tan\varphi}\ln\frac{(d_w+d_h)(D_A-d_h)}{(d_w-d_h)(D_A+d_h)} + \frac{4}{D_A^2-d_h^2}\left(l_K-\frac{D_A-d_w}{w\tan\varphi}\right)}{E_P\,\pi}`
+          : R`\delta_P = \frac{4\,l_K}{E_P\,\pi\,(D_A^2-d_h^2)}`,
+        R`E_P = ${t(r.EP, 0)}\,\mathrm{MPa} \;\Rightarrow\; \delta_P = ${sci(r.dP)}\,\mathrm{mm/N}`],
+      ['内力係数', R`\Phi_K = \frac{\delta_P}{\delta_S+\delta_P},\quad \Phi_n = n\,\Phi_K`, R`\Phi_K = ${t(r.PhiK, 4)},\quad \Phi_n = ${t(state.nfac)}\times${t(r.PhiK, 4)} = ${t(r.Phin, 4)}`]
+    ]},
+    { id: 'slip', title: '4. 必要締付力・残留締付力・すべり', icon: 'move-horizontal', ref: 'VDI 2230-1 R1, R2, R5, R12', rows: [
+      ['へたり量 (経験式)', R`f_Z = 3.29\left(\frac{l_K}{d}\right)^{0.34}\times10^{-3}\,\mathrm{mm},\quad F_Z = \frac{f_Z}{\delta_S+\delta_P}`, R`f_Z = ${t(r.fZ * 1000, 2)}\,\mu\mathrm{m},\quad F_Z = ${t(r.FZ, 0)}\,\mathrm{N}`],
+      ['すべり防止に必要な締付力', R`F_{KQ,erf} = \frac{F_Q}{q_F\,\mu_T}`, R`F_{KQ,erf} = \frac{${t(r.FQ, 0)}}{${state.qF}\times${t(state.muT)}} = ${t(r.FKQ, 0)}\,\mathrm{N}`],
+      ['必要最小初期締付力', R`F_{M,erf} = F_{KQ,erf} + (1-\Phi_n)F_A + F_Z`, R`F_{M,erf} = ${t(r.FKQ, 0)} + (1-${t(r.Phin, 4)})\times${t(r.FApos, 0)} + ${t(r.FZ, 0)} = ${t(r.FMreq, 0)}\,\mathrm{N}`],
+      ['残留締付力 (最悪条件)', R`F_{KR} = F_{M,min} - F_Z - (1-\Phi_n)F_A`, R`F_{KR} = ${t(r.FMmin, 0)} - ${t(r.FZ, 0)} - (1-${t(r.Phin, 4)})\times${t(r.FApos, 0)} = ${t(r.FKR, 0)}\,\mathrm{N}`],
+      ['すべり安全率', R`S_G = \frac{F_{KR}\,q_F\,\mu_T}{F_Q} \ge S_{G,req}`, r.SGact === null ? R`\text{対象外}` : R`S_G = \frac{${t(Math.max(r.FKR, 0), 0)}\times${state.qF}\times${t(state.muT)}}{${t(r.FQ, 0)}} = ${t(r.SGact, 3)}\;(\text{要求 } ${t(state.SG)})`]
+    ]},
+    { id: 'mises', title: '5. Von Mises 相当応力 (締付け時・使用時)', icon: 'zap', ref: 'VDI 2230-1 R8 / JIS B 1083', rows: [
+      ['締付け時', R`\sigma_{red,M} = \frac{F_{M,max}}{A_s}\sqrt{1+3\left[\frac{3}{2}\frac{d_2}{d_s}\left(\frac{P}{\pi d_2}+1.155\mu_{G,min}\right)\right]^2}`, R`\sigma_{red,M} = ${t(r.sigM, 1)}\times${t(r.redFac, 4)} = ${t(r.sigRedM, 1)}\,\mathrm{MPa},\; \nu = \frac{\sigma_{red,M}}{R_{p0.2}} = ${t(r.nuAct, 3)}`],
+      ['使用時の引張応力', R`\sigma_{z,max} = \frac{F_{M,max} + \Phi_n F_A}{A_s}`, R`\sigma_{z,max} = \frac{${t(r.FMmax, 0)} + ${t(r.Phin, 4)}\times${t(r.FApos, 0)}}{${t(r.As, 2)}} = ${t(r.sigZ, 1)}\,\mathrm{MPa}`],
+      ['ねじり応力', R`\tau = \frac{M_G}{W_p},\; M_G = F_{M,max}\frac{d_2}{2}\left(\frac{P}{\pi d_2}+1.155\mu_{G,min}\right),\; W_p = \frac{\pi d_s^3}{16}`, R`M_G = ${t(r.MG, 0)}\,\mathrm{N\,mm},\; W_p = ${t(r.Wp, 1)}\,\mathrm{mm^3},\; \tau = ${t(r.tauT, 1)}\,\mathrm{MPa}`],
+      ['直接せん断', R`\tau_Q = \frac{F_Q}{A_s}\quad(\text{せん断接合時のみ})`, R`\tau_Q = ${t(r.tauQ, 1)}\,\mathrm{MPa}`],
+      ['使用時相当応力', R`\sigma_{red,B} = \sqrt{\sigma_{z,max}^2 + 3\,(k_\tau\tau + \tau_Q)^2},\quad k_\tau = 0.5`, R`\sigma_{red,B} = \sqrt{${t(r.sigZ, 1)}^2 + 3\times${t(r.tauEq, 1)}^2} = ${t(r.sigRedB, 1)}\,\mathrm{MPa}`],
+      ['降伏安全率', R`S_F = \frac{R_{p0.2}}{\sigma_{red,B}} \ge S_{F,req}`, R`S_F = \frac{${r.g.Rp}}{${t(r.sigRedB, 1)}} = ${t(r.SFact, 3)}\;(\text{要求 } ${t(state.SF)})`]
+    ]},
+    { id: 'fatigue', title: '6. 疲労限界 (平均応力・応力振幅)', icon: 'activity', ref: 'VDI 2230-1 R9 / Shigley Goodman', rows: [
+      ['応力振幅', R`\sigma_a = \frac{\Phi_n\,(F_{A,max}-F_{A,min})}{2A_s}`, R`\sigma_a = \frac{${t(r.Phin, 4)}\times(${t(r.FAmax, 0)} - (${t(r.FAmin, 0)}))}{2\times${t(r.As, 2)}} = ${t(r.sigA, 2)}\,\mathrm{MPa}`],
+      ['平均応力', R`\sigma_m = \frac{F_{M,max}}{A_s} + \frac{\Phi_n\,(F_{A,max}+F_{A,min})}{2A_s}`, R`\sigma_i = ${t(r.sigI, 1)},\quad \sigma_m = ${t(r.sigMean, 1)}\,\mathrm{MPa}`],
+      ['疲労限度 (転造後熱処理, VDI)', R`\sigma_{ASV} = 0.85\left(\frac{150}{d}+45\right),\quad S_D = \frac{\sigma_{ASV}}{\sigma_a}`, R`\sigma_{ASV} = 0.85\left(\frac{150}{${r.d}}+45\right) = ${t(r.sASV, 1)}\,\mathrm{MPa},\; S_D = ${r.dynamic ? t(r.SDvdi, 3) : R`\text{対象外}`}`],
+      ['修正グッドマン (初期軸力考慮)', R`n_f = \frac{S_e\,(R_m - \sigma_i)}{R_m\,\sigma_a + S_e\,(\sigma_m - \sigma_i)}`, R`n_f = \frac{${r.g.Se}\times(${r.g.Rm} - ${t(r.sigI, 1)})}{${r.g.Rm}\times${t(r.sigA, 2)} + ${r.g.Se}\times${t(r.sigMean - r.sigI, 2)}} = ${r.dynamic ? t(r.nfG, 3) : R`\text{対象外}`}`]
+    ]},
+    { id: 'bearing', title: '7. 座面陥没 (面圧) とワッシャー推奨', icon: 'circle-dot', ref: 'VDI 2230-1 R10', rows: [
+      ['座面積', R`A_p = \frac{\pi}{4}\left(d_{w}^2 - d_h^2\right)`, R`A_p = \frac{\pi}{4}(${t(r.dwB, 1)}^2 - ${t(r.dh, 1)}^2) = ${t(r.Ap, 1)}\,\mathrm{mm^2}\;${r.hasW ? R`(\text{座金外径})` : R`(\text{頭部座面})`}`],
+      ['座面圧力', R`p = \frac{\max(F_{M,max},\,F_{S,max})}{A_p} \le \frac{p_G}{S_P}`, R`p = \frac{${t(r.Fb, 0)}}{${t(r.Ap, 1)}} = ${t(r.pB, 1)}\,\mathrm{MPa},\; p_G = ${t(r.pG, 0)}\,\mathrm{MPa},\; S_P = ${t(r.SPact, 3)}`],
+      ['必要座面外径', R`d_{w,req} = \sqrt{\frac{4\,F_{S,max}\,S_P}{\pi\,p_G} + d_h^2}`, R`d_{w,req} = \sqrt{\frac{4\times${t(r.Fb, 0)}\times${t(state.SP)}}{\pi\times${t(r.pG, 0)}} + ${t(r.dh, 1)}^2} = ${t(r.dwReq, 2)}\,\mathrm{mm}`]
+    ]},
+    { id: 'nut', title: '8. めねじ強度と必要ねじ込み深さ', icon: 'ruler', ref: 'VDI 2230-1 R11 / FED-STD-H28', rows: [
+      ['めねじせん断面積', R`A_{SG} = \pi\,d\,m\left[\frac{1}{2} + 0.57735\frac{d-d_2}{P}\right] = 0.875\,\pi\,d\,m`, R`A_{SG}/m = 0.875\times\pi\times${r.d} = ${t(r.Ath1, 2)}\,\mathrm{mm^2/mm}`],
+      ['必要最小ねじ込み深さ', R`m_{min} = \frac{S_M\,R_{m,S}\,A_s}{C\,\tau_{BM}\,A_{SG}/m},\quad \tau_{BM} = k_\tau R_{m,M},\; C = ${C_THREAD}`,
+        r.esv ? R`\tau_{BM} = ${t(r.tm.tau)}\times${r.tm.Rm} = ${t(r.tauBM, 1)},\; m_{min} = \frac{${t(state.Sm)}\times${r.g.Rm}\times${t(r.As, 2)}}{${C_THREAD}\times${t(r.tauBM, 1)}\times${t(r.Ath1, 2)}} = ${t(r.mMin, 2)}\,\mathrm{mm}` : R`\text{DSV: ISO 898-2 同等強度区分ナット使用 (ボルト破断先行)}`]
+    ]}
+  ];
+}
+function renderFormulas(r) {
+  const openSet = new Set([...document.querySelectorAll('#formulas details[open]')].map(d => d.dataset.id));
+  const firstRender = !document.querySelector('#formulas details');
+  const K = (tex) => { if (!window.katex) return `<code class="text-[11px] break-all">${esc(tex)}</code>`; try { return katex.renderToString(tex, { displayMode: true, throwOnError: false, strict: 'ignore' }); } catch (e) { return `<code>${esc(tex)}</code>`; } };
+  document.getElementById('formulas').innerHTML = formulaSections(r).map((s, i) => `
+    <details class="card overflow-hidden" data-id="${s.id}" ${openSet.has(s.id) || (firstRender && i === 1) ? 'open' : ''}>
+      <summary class="card-h cursor-pointer select-none">
+        <div class="icon-chip"><i data-lucide="${s.icon}" class="h-4 w-4"></i></div>
+        <div class="min-w-0 flex-1"><div class="card-t">${esc(s.title)}</div><div class="truncate font-mono text-[10px] text-slate-500 dark:text-slate-400">${esc(s.ref)}</div></div>
+        <i data-lucide="chevron-down" class="chev h-4 w-4 text-slate-400 transition-transform"></i>
+      </summary>
+      <div class="space-y-3 px-4 pb-4 sm:px-5">${s.rows.map(([lab, gen, sub]) => `
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3 dark:border-white/[0.06] dark:bg-black/20">
+          ${lab ? `<div class="mb-1 text-[11px] font-semibold text-cyan-700 dark:text-cyan-300">${esc(lab)}</div>` : ''}
+          ${gen ? `<div class="text-slate-800 dark:text-slate-100">${K(gen)}</div>` : ''}
+          ${sub ? `<div class="mt-1 border-t border-dashed border-slate-200 pt-1 text-slate-600 dark:border-white/[0.08] dark:text-slate-300"><div class="text-[10px] uppercase tracking-wider text-slate-400">代入</div>${K(sub)}</div>` : ''}
+        </div>`).join('')}</div>
+    </details>`).join('');
+}
+
+/* =====================================================================
+ *  EXPORT / IMPORT
+ * ===================================================================== */
+function download(name, blob) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+const stamp = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`; };
+function exportJson() {
+  const payload = { app: 'bolt-guard', schema: 1, savedAt: new Date().toISOString(), inputs: state };
+  download(`bolt-guard-${stamp()}.json`, new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
+  toast('JSONをエクスポートしました');
+}
+function importJson(file) {
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const obj = JSON.parse(rd.result);
+      state = sanitize(obj.inputs || obj);
+      saveState(); renderInputs(); icons(); recompute();
+      toast('JSONを読み込みました');
+    } catch (e) { toast('読み込みに失敗しました: JSON形式を確認してください'); }
+  };
+  rd.readAsText(file, 'utf-8');
+}
+function csvCell(v) {
+  if (v === null || v === undefined) return '';
+  let s = typeof v === 'number' ? (Number.isFinite(v) ? String(+v.toPrecision(8)) : 'inf') : String(v);
+  if (/^[=+\-@]/.test(s) && typeof v !== 'number') s = "'" + s; // formula-injection guard
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+function exportCsv() {
+  const r = lastRes, sr = lastSearch;
+  if (!r) return;
+  const rows = [];
+  rows.push(['Bolt Guard 締結信頼性評価 計算書']);
+  rows.push(['準拠', 'VDI 2230-1 / JIS B 1083 (トルク法)']);
+  rows.push(['案件名', state.project]);
+  rows.push(['出力日時', new Date().toLocaleString('ja-JP')]);
+  rows.push([]);
+  rows.push(['[1] 入力条件']);
+  rows.push(['区分', 'キー', '項目', '値', '単位', '表示値']);
+  for (const gp of SCHEMA) for (const fd of gp.fields) {
+    const v = state[fd.k];
+    const disp = fd.opts ? (fd.opts.find(o => o.v === v) || {}).l : v;
+    rows.push([gp.title, fd.k, fd.label, v, fd.unit || '', disp]);
+  }
+  rows.push([]);
+  rows.push(['[2] 中間値']);
+  rows.push(['記号', '名称', '値', '単位']);
+  for (const [s, d, v, u] of intermediates(r)) rows.push([s, d, v, u]);
+  rows.push(['coneCase', '被締結体モデル', r.coneCase, '']);
+  rows.push([]);
+  rows.push(['[3] 判定結果']);
+  rows.push(['項目', '実値', '基準', '余裕比(実/要求)', '判定', '備考']);
+  for (const c of r.checks) rows.push([c.name, c.valTxt, c.reqTxt, c.ratio === null ? '' : c.ratio, ST[c.status].label, c.note]);
+  rows.push([]);
+  rows.push(['[4] 総合判定', r.verdict]);
+  rows.push(['ボトルネック', r.worst ? r.worst.name : '', r.worst ? r.worst.ratio : '']);
+  rows.push([]);
+  rows.push(['[5] 自動逆引き 最軽量構成 TOP3 (自動トルク)']);
+  rows.push(['順位', 'サイズ', '強度区分', '総合判定', '総質量[g]', '締付けトルク[N·m]', 'F_M,min[N]', 'F_M,max[N]', 'ボトルネック', '余裕比']);
+  sr.top.forEach((x, i) => rows.push([i + 1, x.size, x.grade, x.r.verdict, x.r.massTot * 1000, x.r.TA / 1000, x.r.FMmin, x.r.FMmax, x.r.worst.name, x.r.worst.ratio]));
+  const csv = '﻿' + rows.map(row => row.map(csvCell).join(',')).join('\r\n');
+  download(`bolt-guard-report-${stamp()}.csv`, new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  toast('CSV (UTF-8 BOM付き) を出力しました');
+}
+
+/* =====================================================================
+ *  MISC UI
+ * ===================================================================== */
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.style.opacity = '1'; el.style.transform = 'translate(-50%,0)';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translate(-50%,8px)'; }, 2200);
+}
+function setTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === id));
+  document.body.dataset.tab = id;
+  document.querySelectorAll('.tab').forEach(b => {
+    const on = b.dataset.tab === id;
+    b.classList.toggle('text-cyan-500', on);
+    b.classList.toggle('text-slate-500', !on);
+    b.setAttribute('aria-current', on ? 'page' : 'false');
+  });
+  try { localStorage.setItem(LS_KEY + ':tab', id); } catch (_) {}
+  if (id === 'p-result' && chart) setTimeout(() => chart.resize(), 30);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function applyTheme(mode) {
+  document.documentElement.classList.toggle('dark', mode === 'dark');
+  try { localStorage.setItem(LS_KEY + ':theme', mode); } catch (_) {}
+  if (lastRes) renderChart(lastRes);
+}
+
+function recompute() {
+  const r = evaluate(state, state.size, state.grade, false);
+  if (!r) return;
+  lastRes = r;
+  lastSearch = reverseSearch(state);
+  const th = document.getElementById('hint-torque');
+  if (th) {
+    const ra = evaluate(state, state.size, state.grade, true);
+    th.textContent = ra ? `参考: 自動算出値 ${f(ra.TA / 1000, 1)} N·m (ν=${f(ra.nu, 2)}, 工具誤差・μ_min 考慮)` : '';
+    th.classList.toggle('hidden', state.tightMode !== 'torque');
+  }
+  renderSummary(r); renderChecks(r); renderKeyvals(r); renderAdvice(r); renderChart(r);
+  renderSearch(lastSearch); renderFormulas(r);
+  icons();
+}
+function icons() { if (window.lucide) lucide.createIcons(); }
+
+document.addEventListener('click', ev => {
+  const ap = ev.target.closest('[data-apply]');
+  if (ap) {
+    const [s, g] = ap.dataset.apply.split('|');
+    state.size = s; state.grade = g; state.tightMode = 'auto';
+    saveState(); syncInputs(); recompute();
+    toast(`${s} × ${g} を適用しました (自動トルク)`);
+    if (window.matchMedia('(max-width: 1023px)').matches) setTab('p-result');
+    return;
+  }
+  const tb = ev.target.closest('[data-tab]');
+  if (tb) setTab(tb.dataset.tab);
+});
+document.getElementById('btnCsv').onclick = exportCsv;
+document.getElementById('btnCsv2').onclick = exportCsv;
+document.getElementById('btnJson').onclick = exportJson;
+document.getElementById('btnImport').onclick = () => document.getElementById('fileImport').click();
+document.getElementById('btnJson2').onclick = exportJson;
+document.getElementById('btnImport2').onclick = () => document.getElementById('fileImport').click();
+document.getElementById('fileImport').onchange = e => { if (e.target.files[0]) importJson(e.target.files[0]); e.target.value = ''; };
+document.getElementById('btnTheme').onclick = () => applyTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark');
+let resetArmed = 0;
+document.getElementById('btnReset').onclick = () => {
+  const btn = document.getElementById('btnReset');
+  if (Date.now() - resetArmed > 3000) {
+    resetArmed = Date.now();
+    btn.innerHTML = '<i data-lucide="alert-circle" class="h-4 w-4"></i>もう一度押して確定'; btn.classList.add('!border-rose-400', '!text-rose-500'); icons();
+    setTimeout(() => { if (Date.now() - resetArmed >= 2900) { btn.innerHTML = '<i data-lucide="rotate-ccw" class="h-4 w-4"></i>初期値に戻す'; btn.classList.remove('!border-rose-400', '!text-rose-500'); icons(); } }, 3000);
+    return;
+  }
+  resetArmed = 0; btn.innerHTML = '<i data-lucide="rotate-ccw" class="h-4 w-4"></i>初期値に戻す'; btn.classList.remove('!border-rose-400', '!text-rose-500'); state = { ...DEFAULTS }; saveState(); renderInputs(); icons(); recompute(); toast('初期値に戻しました'); };
+document.getElementById('guideClose').onclick = () => { document.getElementById('guide').hidden = true; try { localStorage.setItem(LS_KEY + ':guide', '0'); } catch (_) {} };
+document.getElementById('expandAll').onclick = () => document.querySelectorAll('#formulas details').forEach(d => d.open = true);
+document.getElementById('collapseAll').onclick = () => document.querySelectorAll('#formulas details').forEach(d => d.open = false);
+
+(function init() {
+  let theme = 'dark', tab = 'p-input';
+  const attr = document.documentElement.getAttribute('data-theme');
+  const sys = window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  theme = attr === 'light' || attr === 'dark' ? attr : sys;
+  try { theme = localStorage.getItem(LS_KEY + ':theme') || theme; tab = localStorage.getItem(LS_KEY + ':tab') || 'p-input'; } catch (_) {}
+  document.documentElement.classList.toggle('dark', theme === 'dark');
+  if (window.Chart) { Chart.defaults.font.family = 'Inter, "Noto Sans JP", sans-serif'; }
+  try { if (localStorage.getItem(LS_KEY + ':guide') === '0') document.getElementById('guide').hidden = true; } catch (_) {}
+  renderInputs();
+  recompute();
+  setTab(tab);
+  window.scrollTo(0, 0);
+})();
+</script>
+</body>
+</html>
