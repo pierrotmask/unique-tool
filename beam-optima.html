@@ -111,6 +111,8 @@
     .sum-row > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .dot { width: 10px; height: 10px; border-radius: 3px; }
     details summary::-webkit-details-marker { display: none; }
+    .load-box { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: rgba(12,18,24,.55); }
+    .load-tag { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
   </style>
   <!-- Tailwind CSS v3.4.16 (MIT License)：このページで使うクラスだけを書き出したもの -->
   <style>*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.16 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.visible{visibility:visible}.static{position:static}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.top-0{top:0}.z-30{z-index:30}.col-span-4{grid-column:span 4/span 4}.mx-auto{margin-left:auto;margin-right:auto}.mb-1{margin-bottom:.25rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.ml-auto{margin-left:auto}.mt-0\.5{margin-top:.125rem}.mt-1{margin-top:.25rem}.mt-1\.5{margin-top:.375rem}.mt-2{margin-top:.5rem}.mt-2\.5{margin-top:.625rem}.mt-3{margin-top:.75rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-0\.5{height:.125rem}.h-4{height:1rem}.h-8{height:2rem}.h-\[108px\]{height:108px}.min-h-\[1em\]{min-height:1em}.min-h-screen{min-height:100vh}.w-4{width:1rem}.w-5{width:1.25rem}.w-8{width:2rem}.w-\[108px\]{width:108px}.w-full{width:100%}.min-w-0{min-width:0}.max-w-6xl{max-width:72rem}.flex-1{flex:1 1 0%}.flex-none{flex:none}.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.resize{resize:both}.list-disc{list-style-type:disc}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.items-baseline{align-items:baseline}.items-stretch{align-items:stretch}.justify-between{justify-content:space-between}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.gap-x-3{-moz-column-gap:.75rem;column-gap:.75rem}.gap-y-1{row-gap:.25rem}.space-y-1\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.375rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.375rem*var(--tw-space-y-reverse))}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rounded-xl{border-radius:.75rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-dashed{border-style:dashed}.border-line{--tw-border-opacity:1;border-color:rgb(29 40 51/var(--tw-border-opacity,1))}.\!p-2{padding:.5rem!important}.p-4{padding:1rem}.px-4{padding-left:1rem;padding-right:1rem}.py-4{padding-top:1rem;padding-bottom:1rem}.pb-2{padding-bottom:.5rem}.pb-2\.5{padding-bottom:.625rem}.pl-5{padding-left:1.25rem}.pt-1{padding-top:.25rem}.pt-2\.5{padding-top:.625rem}.text-center{text-align:center}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[12px\]{font-size:12px}.text-\[13px\]{font-size:13px}.text-\[14px\]{font-size:14px}.text-\[17px\]{font-size:17px}.text-sm{font-size:.875rem;line-height:1.25rem}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.italic{font-style:italic}.leading-relaxed{line-height:1.625}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-.025em}.text-ca{color:rgb(109 141 255/var(--tw-text-opacity,1))}.text-ca,.text-fg{--tw-text-opacity:1}.text-fg{color:rgb(230 237 243/var(--tw-text-opacity,1))}.text-mute{--tw-text-opacity:1;color:rgb(134 150 167/var(--tw-text-opacity,1))}.text-ng{color:rgb(248 113 113/var(--tw-text-opacity,1))}.text-ng,.text-ok{--tw-text-opacity:1}.text-ok{color:rgb(52 211 153/var(--tw-text-opacity,1))}.underline{text-decoration-line:underline}.underline-offset-2{text-underline-offset:2px}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.opacity-60{opacity:.6}.opacity-75{opacity:.75}.outline{outline-style:solid}.blur{--tw-blur:blur(8px)}.blur,.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}@media (min-width:1024px){.lg\:grid-cols-\[minmax\(0\2c 430px\)_minmax\(0\2c 1fr\)\]{grid-template-columns:minmax(0,430px) minmax(0,1fr)}.lg\:items-start{align-items:flex-start}}.\[\&_b\]\:font-medium b{font-weight:500}.\[\&_b\]\:text-fg b{--tw-text-opacity:1;color:rgb(230 237 243/var(--tw-text-opacity,1))}</style>
@@ -156,26 +158,78 @@
 
       <section class="card">
         <h2 class="card-h"><span class="step">02</span>梁と荷重</h2>
-        <svg id="beam-svg" viewBox="0 0 360 126" class="w-full mb-3 rounded-xl" style="background:#0c1218;border:1px solid #1d2833" role="img" aria-label="梁と荷重の模式図"></svg>
+        <svg id="beam-svg" viewBox="0 0 360 140" class="w-full mb-3 rounded-xl" style="background:#0c1218;border:1px solid #1d2833" role="img" aria-label="梁と荷重の模式図"></svg>
         <div class="grid gap-3">
           <div>
             <label class="lbl" for="in-L">梁長 <var class="mono italic text-fg">L</var></label>
             <div class="inp-wrap"><input id="in-L" type="number" inputmode="decimal" step="any" min="1"><span>mm</span></div>
             <input type="range" id="rg-L" min="50" max="5000" step="10" aria-label="梁長スライダー">
           </div>
-          <div>
-            <label class="lbl" for="in-P">集中荷重 <var class="mono italic text-fg">P</var>（下向き）</label>
-            <div class="inp-wrap"><input id="in-P" type="number" inputmode="decimal" step="any" min="0"><span>N</span></div>
-            <input type="range" id="rg-P" min="0" max="20000" step="10" aria-label="荷重スライダー">
-          </div>
-          <div>
-            <label class="lbl" for="in-a">荷重位置 <var class="mono italic text-fg">a</var>（左端から）</label>
-            <div class="flex gap-2">
-              <div class="inp-wrap flex-1"><input id="in-a" type="number" inputmode="decimal" step="any" min="0"><span>mm</span></div>
-              <button type="button" class="chip" data-apos="0.5">中央</button>
-              <button type="button" class="chip" data-apos="1">右端</button>
+          <div class="load-box">
+            <div class="flex items-center justify-between gap-3">
+              <div class="text-sm font-medium flex items-center gap-2"><span class="load-tag" style="background:#f5a524"></span>集中荷重 <var class="mono italic">P</var></div>
+              <button type="button" class="switch" id="sw-p" role="switch" aria-checked="true" aria-label="集中荷重"></button>
             </div>
-            <input type="range" id="rg-a" min="0" max="1000" step="1" aria-label="荷重位置スライダー">
+            <div id="p-body" class="grid gap-3 mt-3">
+              <div>
+                <label class="lbl" for="in-P">大きさ <var class="mono italic text-fg">P</var>（下向き）</label>
+                <div class="inp-wrap"><input id="in-P" type="number" inputmode="decimal" step="any" min="0"><span>N</span></div>
+                <input type="range" id="rg-P" min="0" max="20000" step="10" aria-label="荷重スライダー">
+              </div>
+              <div>
+                <label class="lbl" for="in-a">位置 <var class="mono italic text-fg">a</var>（左端から）</label>
+                <div class="flex gap-2">
+                  <div class="inp-wrap flex-1"><input id="in-a" type="number" inputmode="decimal" step="any" min="0"><span>mm</span></div>
+                  <button type="button" class="chip" data-apos="0.5">中央</button>
+                  <button type="button" class="chip" data-apos="1">右端</button>
+                </div>
+                <input type="range" id="rg-a" min="0" max="1000" step="1" aria-label="荷重位置スライダー">
+              </div>
+            </div>
+          </div>
+          <div class="load-box">
+            <div class="flex items-center justify-between gap-3">
+              <div class="text-sm font-medium flex items-center gap-2"><span class="load-tag" style="background:#34d399"></span>分布荷重 <var class="mono italic">q</var></div>
+              <button type="button" class="switch" id="sw-q" role="switch" aria-checked="false" aria-label="分布荷重"></button>
+            </div>
+            <div id="q-body" class="grid gap-3 mt-3">
+              <div class="seg" id="seg-qtype">
+                <button type="button" data-v="uniform">等分布</button>
+                <button type="button" data-v="linear">台形・三角</button>
+              </div>
+              <div class="grid gap-3" id="q-vals">
+                <div>
+                  <label class="lbl" for="in-q1" id="q1-lbl"></label>
+                  <div class="inp-wrap"><input id="in-q1" type="number" inputmode="decimal" step="any" min="0"><span>N/mm</span></div>
+                  <input type="range" id="rg-q1" min="0" max="20" step="0.05" aria-label="分布荷重スライダー">
+                </div>
+                <div id="q2-wrap">
+                  <label class="lbl" for="in-q2">終端の強さ <var class="mono italic text-fg">q</var><sub>2</sub></label>
+                  <div class="inp-wrap"><input id="in-q2" type="number" inputmode="decimal" step="any" min="0"><span>N/mm</span></div>
+                  <input type="range" id="rg-q2" min="0" max="20" step="0.05" aria-label="終端の分布荷重スライダー">
+                </div>
+              </div>
+              <div>
+                <label class="lbl">かける範囲</label>
+                <div class="seg" id="seg-qspan">
+                  <button type="button" data-v="full">全長</button>
+                  <button type="button" data-v="part">区間を指定</button>
+                </div>
+              </div>
+              <div id="qspan-body" class="grid grid-cols-2 gap-2">
+                <div class="min-w-0">
+                  <label class="lbl-s" for="in-qx1">始端 <var>x</var><sub>1</sub></label>
+                  <div class="inp-wrap"><input id="in-qx1" type="number" inputmode="decimal" step="any" min="0"><span>mm</span></div>
+                  <input type="range" id="rg-qx1" min="0" max="1000" step="1" aria-label="分布荷重の始端スライダー">
+                </div>
+                <div class="min-w-0">
+                  <label class="lbl-s" for="in-qx2">終端 <var>x</var><sub>2</sub></label>
+                  <div class="inp-wrap"><input id="in-qx2" type="number" inputmode="decimal" step="any" min="0"><span>mm</span></div>
+                  <input type="range" id="rg-qx2" min="0" max="1000" step="1" aria-label="分布荷重の終端スライダー">
+                </div>
+              </div>
+              <p class="text-[11px] text-mute mono" id="q-note"></p>
+            </div>
           </div>
           <div class="flex items-center justify-between gap-3 pt-1">
             <div>
@@ -264,7 +318,7 @@
       <details class="card text-[12px] text-mute leading-relaxed">
         <summary class="cursor-pointer text-fg font-bold text-[13px] flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide w-4 h-4" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>計算の前提と注意</summary>
         <ul class="list-disc pl-5 mt-3 space-y-1.5">
-          <li>線形弾性・微小変形のオイラー・ベルヌーイ梁理論（せん断変形は無視）で、集中荷重と自重（等分布荷重）を重ね合わせています。</li>
+          <li>線形弾性・微小変形のオイラー・ベルヌーイ梁理論（せん断変形は無視）で、集中荷重・分布荷重（等分布／台形・三角の等変分布、全長または区間）・自重を特異関数法でまとめて解いています。</li>
           <li>断面二次モーメント <var>I</var> と断面係数 <var>Z</var> は <a href="second-moment-of-area.html" class="text-ca underline">second-moment-of-area</a> と同じ式（長方形の足し引き・図心まわり）で計算します。<var>Z</var> は図心から遠い側の縁距離で求めた小さい方の値です。</li>
           <li>角パイプの角R、形鋼のフィレットは無視しているため、実際の規格値と数％ずれます。山形鋼は主軸ではなく図心の水平・垂直軸まわりの値です。</li>
           <li>横座屈・局部座屈・せん断応力・応力集中・疲労は考慮していません。最終確認は規格・メーカーカタログの値で行ってください。</li>
@@ -509,49 +563,63 @@
   })();
 
   // =====================================================================
-  //  梁の解析（集中荷重 P @ a ＋ 等分布 w の重ね合わせ）
+  //  梁の解析（集中荷重・分布荷重（等分布／台形・三角）・自重を一括で解く）
+  //  特異関数法：EI·y'' = M(x) = M1 + R1·x + m(x)。m(x) は x より左の荷重によるモーメント。
   //  V, M は N, N·mm。Y は EI·δ（下向き正）を返す
   // =====================================================================
-  function loadCase(sup, L, P, a, w) {
-    const b = L - a, L2 = L * L, L3 = L2 * L;
-    if (sup === 'cant') { // x=0 固定、x=L 自由
-      return {
-        R1: P + w * L, R2: 0, M1: -(P * a + w * L2 / 2), M2: 0,
-        V: x => (x < a ? P : 0) + w * (L - x),
-        M: x => (x < a ? -P * (a - x) : 0) - w * (L - x) ** 2 / 2,
-        Y: x => (x <= a ? P * x * x * (3 * a - x) / 6 : P * a * a * (3 * x - a) / 6)
-                + w * x * x * (6 * L2 - 4 * L * x + x * x) / 24,
-      };
+  const GX = [-Math.sqrt(0.6), 0, Math.sqrt(0.6)], GW = [5 / 9, 8 / 9, 5 / 9];
+  function buildLoads(L, w) {
+    const pts = [], dists = [];
+    if (S.pOn && S.P > 0) pts.push({ P: S.P, a: clamp(S.a, 0, L) });
+    if (S.qOn) {
+      const part = S.qSpan === 'part';
+      let c = part ? clamp(S.qx1, 0, L) : 0, d = part ? clamp(S.qx2, 0, L) : L;
+      let q1 = S.q1, q2 = S.qType === 'linear' ? S.q2 : S.q1;
+      if (d < c) { [c, d] = [d, c]; [q1, q2] = [q2, q1]; }
+      if (d > c && (q1 > 0 || q2 > 0)) dists.push({ c, d, q1, q2 });
     }
-    if (sup === 'ss') {
-      const r1 = P * b / L, r2 = P * a / L;
-      return {
-        R1: r1 + w * L / 2, R2: r2 + w * L / 2, M1: 0, M2: 0,
-        V: x => (x < a ? r1 : r1 - P) + w * (L / 2 - x),
-        M: x => (x <= a ? r1 * x : r2 * (L - x)) + w * x * (L - x) / 2,
-        Y: x => (x <= a ? P * b * x * (L2 - b * b - x * x) / (6 * L)
-                        : P * a * (L - x) * (L2 - a * a - (L - x) ** 2) / (6 * L))
-                + w * x * (L3 - 2 * L * x * x + x ** 3) / 24,
-      };
+    if (w > 0) dists.push({ c: 0, d: L, q1: w, q2: w, self: true });
+    return { pts, dists };
+  }
+  // x より左にある荷重の 合力 s、モーメント m、たわみ角項 t、たわみ項 g
+  // 分布荷重は 3 点ガウス積分（台形荷重×3次式は 4 次なので厳密）
+  function leftTerms(ld, x) {
+    let s = 0, m = 0, t = 0, g = 0;
+    for (const { P, a } of ld.pts) {
+      if (x > a) { const u = x - a; s += P; m -= P * u; t -= P * u * u / 2; g -= P * u * u * u / 6; }
     }
-    // 両端固定
-    const r1 = P * b * b * (3 * a + b) / L3, r2 = P * a * a * (a + 3 * b) / L3;
-    const m1 = -P * a * b * b / L2, m2 = -P * a * a * b / L2;
+    for (const { c, d, q1, q2 } of ld.dists) {
+      if (x <= c) continue;
+      const e = Math.min(x, d), h = (e - c) / 2, mid = (e + c) / 2, k = (q2 - q1) / (d - c);
+      for (let i = 0; i < 3; i++) {
+        const xi = mid + h * GX[i], f = (q1 + k * (xi - c)) * GW[i] * h, u = x - xi;
+        s += f; m -= f * u; t -= f * u * u / 2; g -= f * u * u * u / 6;
+      }
+    }
+    return { s, m, t, g };
+  }
+  function loadCase(sup, L, ld) {
+    const W = ld.pts.reduce((t, p) => t + p.P, 0) + ld.dists.reduce((t, q) => t + (q.q1 + q.q2) / 2 * (q.d - q.c), 0);
+    const E = leftTerms(ld, L);
+    let R1, M1 = 0, C1 = 0;
+    if (sup === 'cant') {        // x=0 固定、x=L 自由
+      R1 = W; M1 = -R1 * L - E.m;
+    } else if (sup === 'ss') {   // 両端支持
+      R1 = -E.m / L; C1 = -(R1 * L ** 3 / 6 + E.g) / L;
+    } else {                     // 両端固定：x=L で y=0, y'=0
+      R1 = 12 * (E.g - E.t * L / 2) / L ** 3; M1 = (-E.t - R1 * L * L / 2) / L;
+    }
+    const M = x => M1 + R1 * x + leftTerms(ld, x).m;
     return {
-      R1: r1 + w * L / 2, R2: r2 + w * L / 2, M1: m1 - w * L2 / 12, M2: m2 - w * L2 / 12,
-      V: x => (x < a ? r1 : r1 - P) + w * (L / 2 - x),
-      M: x => m1 + r1 * x - (x > a ? P * (x - a) : 0) + w * (6 * L * x - 6 * x * x - L2) / 12,
-      Y: x => {
-        let yp;
-        if (x <= a) yp = P * b * b * x * x * (3 * a * L - (3 * a + b) * x) / (6 * L3);
-        else { const u = L - x; yp = P * a * a * u * u * (3 * b * L - (3 * b + a) * u) / (6 * L3); }
-        return yp + w * x * x * (L - x) ** 2 / 24;
-      },
+      W, R1, R2: W - R1, M1, M2: sup === 'fixed' ? M(L) : 0,
+      V: x => R1 - leftTerms(ld, x).s,   // x の左側の値
+      M,
+      Y: x => -(M1 * x * x / 2 + R1 * x ** 3 / 6 + leftTerms(ld, x).g + C1 * x),
     };
   }
 
-  // 最大値を探す（標本点＋近傍の三分探索）
-  function peaks(lc, L, a, N) {
+  // 最大値を探す（標本点＋近傍の三分探索＋荷重の境目）
+  function peaks(lc, L, sp, N) {
     let yi = 0, ym = -1, mi = 0, mm = -1;
     const xs = new Array(N + 1);
     for (let i = 0; i <= N; i++) {
@@ -559,16 +627,23 @@
       const y = Math.abs(lc.Y(x)); if (y > ym) { ym = y; yi = i; }
       const m = Math.abs(lc.M(x)); if (m > mm) { mm = m; mi = i; }
     }
-    let lo = xs[Math.max(0, yi - 1)], hi = xs[Math.min(N, yi + 1)];
-    for (let k = 0; k < 40; k++) {
-      const m1 = lo + (hi - lo) / 3, m2 = hi - (hi - lo) / 3;
-      if (Math.abs(lc.Y(m1)) < Math.abs(lc.Y(m2))) lo = m1; else hi = m2;
-    }
-    let xd = (lo + hi) / 2, yd = Math.abs(lc.Y(xd));
+    const refine = (f, i) => {
+      let lo = xs[Math.max(0, i - 1)], hi = xs[Math.min(N, i + 1)];
+      for (let k = 0; k < 40; k++) {
+        const m1 = lo + (hi - lo) / 3, m2 = hi - (hi - lo) / 3;
+        if (Math.abs(f(m1)) < Math.abs(f(m2))) lo = m1; else hi = m2;
+      }
+      return (lo + hi) / 2;
+    };
+    let xd = refine(lc.Y, yi), yd = Math.abs(lc.Y(xd));
     if (ym > yd) { yd = ym; xd = xs[yi]; }
-    let xm = xs[mi];
-    for (const x of [0, a, L]) { const m = Math.abs(lc.M(x)); if (m >= mm) { mm = m; xm = x; } }
-    return { yEI: yd, xd, Mmax: mm, xm };
+    let xm = refine(lc.M, mi), mv = Math.abs(lc.M(xm));
+    if (mm > mv) { mv = mm; xm = xs[mi]; }
+    for (const x of sp) {
+      const m = Math.abs(lc.M(x)); if (m > mv) { mv = m; xm = x; }
+      const y = Math.abs(lc.Y(x)); if (y > yd) { yd = y; xd = x; }
+    }
+    return { yEI: yd, xd, Mmax: mv, xm };
   }
 
   const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
@@ -577,23 +652,26 @@
   const gPerM = (A, rho) => A * rho;                      // mm² × g/cm³ = g/m
 
   function solve(sec, mat, full) {
-    const L = S.L, P = S.P, a = clamp(S.a, 0, L);
+    const L = S.L;
     const w = S.selfWeight && sec.A > 0 ? selfW(sec.A, mat.rho) : 0;
-    const lc = loadCase(S.support, L, P, a, w);
+    const ld = buildLoads(L, w);
+    const lc = loadCase(S.support, L, ld);
     const EI = mat.E * 1e3 * sec.I;
-    const pk = peaks(lc, L, a, full ? 240 : 80);
+    const sp = [0, L, ...ld.pts.map(p => p.a), ...ld.dists.flatMap(q => [q.c, q.d])];
+    const pk = peaks(lc, L, sp, full ? 240 : 80);
     const dmax = pk.yEI / EI, sigma = pk.Mmax / sec.Z;
-    const out = { lc, w, a, dmax, xd: pk.xd, Mmax: pk.Mmax, xm: pk.xm, sigma, sf: sigma > 0 ? mat.sy / sigma : Infinity };
+    const out = { lc, w, dmax, xd: pk.xd, Mmax: pk.Mmax, xm: pk.xm, sigma, sf: sigma > 0 ? mat.sy / sigma : Infinity };
     if (full) {
-      const N = 240, xs = [];
-      for (let i = 0; i <= N; i++) xs.push(L * i / N);
-      if (a > 0 && a < L && !xs.includes(a)) xs.push(a);
-      xs.sort((p, q) => p - q);
+      const N = 240, set = new Set(sp);
+      for (let i = 0; i <= N; i++) set.add(L * i / N);
+      const xs = [...set].filter(x => x >= 0 && x <= L).sort((p, q) => p - q);
       out.defl = xs.map(x => ({ x, y: -lc.Y(x) / EI }));
       const V = [{ x: 0, y: 0 }], M = [{ x: 0, y: 0 }];
       for (const x of xs) {
-        if (x === a && a > 0 && a < L) V.push({ x, y: lc.V(a - 1e-9 * L) });
-        V.push({ x, y: lc.V(x === L ? L - 1e-9 * L : x) });
+        const v = lc.V(x);
+        V.push({ x, y: v });
+        const jump = ld.pts.reduce((t, p) => t + (p.a === x ? p.P : 0), 0);
+        if (jump) V.push({ x, y: v - jump });
         M.push({ x, y: lc.M(x) / 1000 });
       }
       V.push({ x: L, y: 0 }); M.push({ x: L, y: 0 });
@@ -613,6 +691,7 @@
   });
   const defaults = () => ({
     support: 'ss', L: 1000, P: 1000, a: 500, selfWeight: false,
+    pOn: true, qOn: false, qType: 'uniform', qSpan: 'full', q1: 1, q2: 0, qx1: 0, qx2: 1000,
     dAllow: 1, sfTarget: 3,
     compare: false, bInit: false, active: 'A',
     cases: { A: newCase(), B: newCase() },
@@ -634,6 +713,8 @@
   function sanitize(st) {
     if (!['cant', 'ss', 'fixed'].includes(st.support)) st.support = 'ss';
     if (!['A', 'B'].includes(st.active)) st.active = 'A';
+    if (!['uniform', 'linear'].includes(st.qType)) st.qType = 'uniform';
+    if (!['full', 'part'].includes(st.qSpan)) st.qSpan = 'full';
     if (!st.compare) st.active = 'A';
     for (const c of Object.values(st.cases)) {
       if (!MAT[c.mat]) c.mat = 'custom';
@@ -701,6 +782,7 @@
   function syncGlobalInputs(skip) {
     const set = (id, v) => { if (id !== skip) $(id).value = +(+v).toFixed(4); };
     set('in-L', S.L); set('in-P', S.P); set('in-a', S.a); set('in-dallow', S.dAllow); set('in-sf', S.sfTarget);
+    set('in-q1', S.q1); set('in-q2', S.q2); set('in-qx1', S.qx1); set('in-qx2', S.qx2);
     const rL = $('rg-L'), rP = $('rg-P'), ra = $('rg-a'), rs = $('rg-sf');
     rL.max = Math.max(5000, Math.ceil(S.L / 10) * 10);
     rP.max = Math.max(20000, Math.ceil(S.P / 10) * 10);
@@ -709,7 +791,26 @@
     if (skip !== 'rg-P') rP.value = S.P;
     if (skip !== 'rg-a') ra.value = S.a;
     if (skip !== 'rg-sf') rs.value = S.sfTarget;
-    [rL, rP, ra, rs].forEach(setPct);
+    const qsl = [['rg-q1', 'q1'], ['rg-q2', 'q2'], ['rg-qx1', 'qx1'], ['rg-qx2', 'qx2']].map(([id, k]) => {
+      const r = $(id);
+      r.max = k[1] === 'x' ? S.L : Math.max(20, Math.ceil(S[k]));
+      if (k[1] === 'x') r.step = S.L > 2000 ? 5 : 1;
+      if (skip !== id) r.value = S[k];
+      return r;
+    });
+    [rL, rP, ra, rs, ...qsl].forEach(setPct);
+    $('sw-p').setAttribute('aria-checked', S.pOn);
+    $('sw-q').setAttribute('aria-checked', S.qOn);
+    $('p-body').classList.toggle('hidden', !S.pOn);
+    $('q-body').classList.toggle('hidden', !S.qOn);
+    $('q2-wrap').classList.toggle('hidden', S.qType !== 'linear');
+    $('qspan-body').classList.toggle('hidden', S.qSpan !== 'part');
+    $('q-vals').className = S.qType === 'linear' ? 'grid grid-cols-2 gap-2' : 'grid gap-3';
+    $('q1-lbl').innerHTML = S.qType === 'linear' ? '始端の強さ <var class="mono italic text-fg">q</var><sub>1</sub>' : '強さ <var class="mono italic text-fg">q</var>（下向き）';
+    document.querySelectorAll('#seg-qtype button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === S.qType));
+    document.querySelectorAll('#seg-qspan button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === S.qSpan));
+    const qd = buildLoads(S.L, 0).dists[0];
+    $('q-note').textContent = qd ? `合計 ${num((qd.q1 + qd.q2) / 2 * (qd.d - qd.c))} N ・ 範囲 ${num(qd.c)}〜${num(qd.d)} mm ・ 1 N/mm = 1 kN/m` : '強さか範囲が 0 のため荷重なし';
     document.querySelectorAll('#seg-support button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === S.support));
     $('sw-self').setAttribute('aria-checked', S.selfWeight);
     $('sw-compare').setAttribute('aria-checked', S.compare);
@@ -726,7 +827,8 @@
       if (!isFinite(v)) return false;
       if (opts.min !== undefined && v < opts.min) return false;
       S[key] = v;
-      if (key === 'L' && S.a > S.L) S.a = S.L;
+      if (key === 'L') { S.a = Math.min(S.a, S.L); S.qx1 = Math.min(S.qx1, S.L); S.qx2 = Math.min(S.qx2, S.L); }
+      if (key === 'qx1' || key === 'qx2') S[key] = clamp(S[key], 0, S.L);
       if (key === 'a') S.a = clamp(S.a, 0, S.L);
       syncGlobalInputs(from);
       update();
@@ -744,6 +846,18 @@
   bindNum('in-a', 'rg-a', 'a', { min: 0 });
   bindNum('in-dallow', null, 'dAllow', { min: 1e-6 });
   bindNum('in-sf', 'rg-sf', 'sfTarget', { min: 0.01 });
+  bindNum('in-q1', 'rg-q1', 'q1', { min: 0 });
+  bindNum('in-q2', 'rg-q2', 'q2', { min: 0 });
+  bindNum('in-qx1', 'rg-qx1', 'qx1', { min: 0 });
+  bindNum('in-qx2', 'rg-qx2', 'qx2', { min: 0 });
+  $('sw-p').addEventListener('click', () => { S.pOn = !S.pOn; syncGlobalInputs(); update(); });
+  $('sw-q').addEventListener('click', () => { S.qOn = !S.qOn; syncGlobalInputs(); update(); });
+  document.querySelectorAll('#seg-qtype button').forEach(b => b.addEventListener('click', () => { S.qType = b.dataset.v; syncGlobalInputs(); update(); }));
+  document.querySelectorAll('#seg-qspan button').forEach(b => b.addEventListener('click', () => {
+    S.qSpan = b.dataset.v;
+    if (S.qSpan === 'part' && !(S.qx2 > S.qx1)) { S.qx1 = 0; S.qx2 = S.L; }
+    syncGlobalInputs(); update();
+  }));
 
   document.querySelectorAll('#seg-support button').forEach(b => b.addEventListener('click', () => {
     S.support = b.dataset.v; syncGlobalInputs(); update();
@@ -928,7 +1042,7 @@
   //  梁の模式図
   // =====================================================================
   function drawBeam(resA) {
-    const x0 = 34, x1 = 326, yb = 60, L = S.L, a = clamp(S.a, 0, L);
+    const x0 = 34, x1 = 326, yb = 74, L = S.L, a = clamp(S.a, 0, L);
     const X = x => x0 + (x1 - x0) * x / L;
     const xp = X(a);
     let s = '';
@@ -944,6 +1058,10 @@
       h += `<line x1="${x - 13}" y1="${gy}" x2="${x + 13}" y2="${gy}" stroke="#8696a7" stroke-width="1.4"/>`;
       for (let k = -12; k <= 8; k += 5) h += `<line x1="${x + k}" y1="${gy}" x2="${x + k + 4}" y2="${gy + 4}" stroke="#55626f" stroke-width="1"/>`;
       return h;
+    };
+    const label = (x, y, text, color) => {
+      const anchor = x < x0 + 50 ? 'start' : x > x1 - 50 ? 'end' : 'middle';
+      return `<text x="${anchor === 'start' ? Math.max(4, x - 4) : anchor === 'end' ? Math.min(356, x + 4) : x}" y="${y}" text-anchor="${anchor}" font-size="11" fill="${color}" font-weight="600" paint-order="stroke" stroke="#0c1218" stroke-width="3">${text}</text>`;
     };
     if (S.support === 'cant') s += wall(x0, -1);
     if (S.support === 'fixed') s += wall(x0, -1) + wall(x1, 1);
@@ -961,10 +1079,25 @@
       for (let x = x0 + 8; x < x1; x += 16) s += `<path d="M${x} ${yb - 15} V${yb - 6} M${x - 2} ${yb - 9} ${x} ${yb - 5.5} ${x + 2} ${yb - 9}" stroke="#4fd1c5" stroke-width="1" fill="none" opacity=".75"/>`;
       s += `<line x1="${x0}" y1="${yb - 15}" x2="${x1}" y2="${yb - 15}" stroke="#4fd1c5" stroke-width="1" opacity=".75"/>`;
     }
-    // 荷重
-    const anchor = xp < x0 + 40 ? 'start' : xp > x1 - 40 ? 'end' : 'middle';
-    s += `<path d="M${xp} ${yb - 40} V${yb - 7}" stroke="#f5a524" stroke-width="2.4"/><path d="M${xp - 5.5} ${yb - 15} L${xp} ${yb - 5} L${xp + 5.5} ${yb - 15} Z" fill="#f5a524"/>`;
-    s += `<text x="${xp + (anchor === 'start' ? -4 : anchor === 'end' ? 4 : 0)}" y="${yb - 45}" text-anchor="${anchor}" font-size="11" fill="#f5c46b" font-weight="600">P = ${num(S.P)} N</text>`;
+    // 分布荷重
+    const qd = S.qOn ? buildLoads(L, 0).dists[0] : null;
+    if (qd) {
+      const base = yb - (S.selfWeight ? 18 : 6), H = 24, qm = Math.max(qd.q1, qd.q2);
+      const xa = X(qd.c), xb = X(qd.d), ha = H * qd.q1 / qm, hb = H * qd.q2 / qm;
+      s += `<path d="M${xa} ${base} L${xa} ${base - ha} L${xb} ${base - hb} L${xb} ${base} Z" fill="rgba(52,211,153,.13)" stroke="#34d399" stroke-width="1.2" stroke-linejoin="round"/>`;
+      const n = Math.max(1, Math.round((xb - xa) / 14));
+      for (let i = 0; i <= n; i++) {
+        const x = xa + (xb - xa) * i / n, h = ha + (hb - ha) * i / n;
+        if (h > 5) s += `<path d="M${x} ${base - h} V${base} M${x - 2.2} ${base - 4} ${x} ${base} ${x + 2.2} ${base - 4}" stroke="#34d399" stroke-width="1" fill="none"/>`;
+      }
+      const txt = S.qType === 'linear' ? `q ${num(qd.q1)}→${num(qd.q2)} N/mm` : `q = ${num(qd.q1)} N/mm`;
+      s += label((xa + xb) / 2, base - H - 6, txt, '#6ee7b7');
+    }
+    // 集中荷重
+    if (S.pOn && S.P > 0) {
+      s += `<path d="M${xp} 19 V${yb - 7}" stroke="#f5a524" stroke-width="2.4"/><path d="M${xp - 5.5} ${yb - 15} L${xp} ${yb - 5} L${xp + 5.5} ${yb - 15} Z" fill="#f5a524"/>`;
+      s += label(xp, 13, `P = ${num(S.P)} N`, '#f5c46b');
+    }
     // 寸法
     const dim = (xa, xb, y, text) => {
       let h = `<line x1="${xa}" y1="${y}" x2="${xb}" y2="${y}" stroke="#55626f" stroke-width="1"/>`;
@@ -972,8 +1105,8 @@
       if (xb - xa > 4) h += `<text x="${(xa + xb) / 2}" y="${y - 3}" text-anchor="middle" font-size="10" fill="#8696a7" paint-order="stroke" stroke="#0c1218" stroke-width="3">${text}</text>`;
       return h;
     };
-    s += dim(x0, x1, 118, `L = ${num(L)} mm`);
-    if (a > 0 && a < L) s += dim(x0, xp, 102, `a = ${num(a)}`);
+    s += dim(x0, x1, yb + 58, `L = ${num(L)} mm`);
+    if (S.pOn && S.P > 0 && a > 0 && a < L) s += dim(x0, xp, yb + 42, `a = ${num(a)}`);
     $('beam-svg').innerHTML = s;
   }
 
@@ -1093,6 +1226,8 @@
             <div class="s">重量 ${isFinite(gm) ? num(gm) + ' g/m' : '—（A 未入力）'}</div></div>
         </div>
         <div class="grid grid-cols-2 gap-x-3 gap-y-1 mt-2.5 text-[12px] text-mute mono [&_b]:text-fg [&_b]:font-medium">
+          <div>全荷重 <var>W</var> <b>${num(lc.W)}</b> N</div>
+          <div></div>
           <div>反力 <var>R</var>₁ <b>${num(lc.R1)}</b> N</div>
           <div>反力 <var>R</var>₂ <b>${num(lc.R2)}</b> N</div>
           ${fixedM}
@@ -1120,6 +1255,14 @@
     }));
   }
 
+  function loadText() {
+    const parts = [];
+    if (S.pOn && S.P > 0) parts.push(`P=${num(S.P)} N（x=${num(clamp(S.a, 0, S.L))}）`);
+    const qd = S.qOn ? buildLoads(S.L, 0).dists[0] : null;
+    if (qd) parts.push(`q=${S.qType === 'linear' ? `${num(qd.q1)}→${num(qd.q2)}` : num(qd.q1)} N/mm（${S.qSpan === 'part' ? `${num(qd.c)}〜${num(qd.d)} mm` : '全長'}）`);
+    return parts.length ? parts.join('・') : '荷重なし';
+  }
+
   function runOpt() {
     const c = cur(), mat = matOf(c);
     const pool = CATALOG.filter(x => S.optCats.includes(x.cat));
@@ -1136,7 +1279,7 @@
     const supName = { cant: '片持ち梁', ss: '両端支持梁', fixed: '両端固定梁' }[S.support];
     const matName = c.mat === 'custom' ? `カスタム材（E=${num(c.E)} GPa）` : MAT[c.mat].name;
     $('opt-cond').innerHTML = `${S.compare ? `<b style="color:${COLORS[S.active]}">${S.active}案</b>の` : ''}材質 <b class="text-fg">${matName}</b>・${c.axis === 'y' ? 'Y' : 'X'}軸まわりで、
-      ${supName} L=${num(S.L)} mm・P=${num(S.P)} N${S.selfWeight ? '・自重込み' : ''} に対し
+      ${supName} L=${num(S.L)} mm・${loadText()}${S.selfWeight ? '・自重込み' : ''} に対し
       <b class="text-fg">δ ≦ ${num(S.dAllow)} mm</b> かつ <b class="text-fg">S.F. ≧ ${num(S.sfTarget)}</b> を満たす断面：
       <b class="text-fg">${pool.length} 件中 ${hits.length} 件</b>`;
     if (!top.length) {
