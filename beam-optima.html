@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Beam Optima</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="梁の支持条件・荷重・断面からたわみと曲げ応力をリアルタイム解析し、条件を満たす最軽量の標準断面を逆引きするメカ設計者向けツール">
+  <meta name="theme-color" content="#0a0e13">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+  <script>
+    if (window.tailwind) tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: '#0a0e13', panel: '#10161e', panel2: '#0c1218', line: '#1d2833',
+            fg: '#e6edf3', mute: '#8696a7', ca: '#6d8dff', cb: '#f5a524', ok: '#34d399', ng: '#f87171',
+          },
+          fontFamily: {
+            jp: ['"IBM Plex Sans JP"', '"Hiragino Sans"', '"Yu Gothic"', 'sans-serif'],
+            wide: ['Archivo', '"IBM Plex Sans JP"', 'sans-serif'],
+            mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.js"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0e13; --panel: #10161e; --panel2: #0c1218; --line: #1d2833; --line2: #2a3846;
+      --fg: #e6edf3; --mute: #8696a7; --a: #6d8dff; --b: #f5a524; --ok: #34d399; --ng: #f87171;
+      color-scheme: dark;
+    }
+    html, body { background: var(--bg); color: var(--fg); }
+    body { font-family: "IBM Plex Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif; -webkit-tap-highlight-color: transparent; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+    .wide { font-family: Archivo, "IBM Plex Sans JP", sans-serif; font-stretch: 112%; }
+
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+    .card-h { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; margin-bottom: 14px; }
+    .card-h .step { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--a); border: 1px solid rgba(109,141,255,.45); border-radius: 6px; padding: 1px 6px; font-weight: 500; }
+    .card-h svg { width: 18px; height: 18px; color: var(--mute); }
+    .lbl { display: block; font-size: 12px; color: var(--mute); margin-bottom: 6px; }
+    .lbl-s { display: block; font-size: 11px; color: var(--mute); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lbl-s var, .lbl var { font-family: "IBM Plex Mono", monospace; font-style: italic; color: var(--fg); margin-right: 4px; }
+
+    .inp-wrap { display: flex; align-items: center; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 0 10px; height: 42px; transition: border-color .15s, box-shadow .15s; }
+    .inp-wrap:focus-within { border-color: var(--a); box-shadow: 0 0 0 3px rgba(109,141,255,.18); }
+    .inp-wrap.bad { border-color: var(--ng); }
+    .inp-wrap input { background: transparent; color: var(--fg); font-size: 16px; width: 100%; min-width: 0; outline: none; font-family: "IBM Plex Mono", monospace; }
+    .inp-wrap span { font-size: 12px; color: var(--mute); white-space: nowrap; margin-left: 6px; }
+    select.inp { width: 100%; height: 42px; border: 1px solid var(--line); border-radius: 10px; padding: 0 10px; background: var(--panel2); color: var(--fg); font-size: 16px; outline: none; }
+    select.inp:focus { border-color: var(--a); }
+
+    .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; background: var(--panel2); border: 1px solid var(--line); border-radius: 12px; padding: 4px; }
+    .seg button { border-radius: 9px; padding: 8px 6px; font-size: 13px; color: var(--mute); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 40px; transition: background .15s, color .15s; }
+    .seg button[aria-pressed="true"] { background: #1a2532; color: var(--fg); box-shadow: inset 0 0 0 1px var(--a); }
+    .seg button svg { color: currentColor; }
+
+    .tabs button { flex: 1; height: 38px; border-radius: 10px; font-weight: 700; font-size: 14px; color: var(--mute); border: 1px solid var(--line); background: var(--panel2); }
+    .tabs button[data-case="A"][aria-pressed="true"] { color: #fff; background: rgba(109,141,255,.18); border-color: var(--a); }
+    .tabs button[data-case="B"][aria-pressed="true"] { color: #fff; background: rgba(245,165,36,.16); border-color: var(--b); }
+
+    input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 30px; background: transparent; touch-action: pan-y; }
+    input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--a) var(--pct, 50%), var(--line2) var(--pct, 50%)); }
+    input[type=range]::-moz-range-track { height: 4px; border-radius: 2px; background: var(--line2); }
+    input[type=range]::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--a); }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -9px; border-radius: 50%; background: #fff; border: 4px solid var(--a); box-shadow: 0 1px 6px rgba(0,0,0,.5); }
+    input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 4px solid var(--a); }
+
+    .chip { border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; font-size: 12px; color: var(--mute); background: var(--panel2); white-space: nowrap; }
+    .chip[aria-pressed="true"] { border-color: var(--a); color: var(--fg); background: rgba(109,141,255,.13); }
+    .chip:active { transform: scale(.97); }
+
+    .switch { position: relative; width: 44px; height: 26px; border-radius: 999px; background: var(--line2); transition: background .2s; flex: none; }
+    .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform .2s; }
+    .switch[aria-checked="true"] { background: var(--a); }
+    .switch[aria-checked="true"]::after { transform: translateX(18px); }
+
+    .shape-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel2); font-size: 11px; color: var(--mute); line-height: 1.25; text-align: center; }
+    .shape-btn svg { width: 30px; height: 30px; }
+    .shape-btn svg path { fill: rgba(134,150,167,.35); stroke: var(--mute); stroke-width: 1.2; }
+    .shape-btn[aria-pressed="true"] { border-color: var(--a); color: var(--fg); background: rgba(109,141,255,.1); }
+    .shape-btn[aria-pressed="true"] svg path { fill: rgba(109,141,255,.45); stroke: var(--a); }
+
+    .icon-btn { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); }
+    .icon-btn:active { background: #1a2532; }
+    .icon-btn svg { width: 18px; height: 18px; }
+
+    .stat { background: var(--panel2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; min-width: 0; }
+    .stat .k { font-size: 11px; color: var(--mute); }
+    .stat .v { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; font-size: 20px; font-weight: 600; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .stat .v small { font-size: 12px; color: var(--mute); font-weight: 400; margin-left: 3px; }
+    .stat .s { font-size: 11px; color: var(--mute); font-family: "IBM Plex Mono", monospace; }
+    .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+    .badge.ok { color: var(--ok); background: rgba(52,211,153,.12); border: 1px solid rgba(52,211,153,.4); }
+    .badge.ng { color: var(--ng); background: rgba(248,113,113,.12); border: 1px solid rgba(248,113,113,.45); }
+    .bar { height: 6px; border-radius: 3px; background: var(--line2); overflow: hidden; }
+    .bar i { display: block; height: 100%; border-radius: 3px; }
+
+    .chart-box { position: relative; height: 200px; }
+    .opt-row { display: grid; grid-template-columns: 26px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 11px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel2); }
+    .opt-row .rank { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 13px; background: #1a2532; color: var(--mute); }
+    .opt-row:first-child .rank { background: rgba(52,211,153,.16); color: var(--ok); }
+    .apply-btn { font-size: 12px; font-weight: 700; color: var(--a); border: 1px solid rgba(109,141,255,.5); border-radius: 8px; padding: 6px 10px; white-space: nowrap; }
+    .apply-btn:active { background: rgba(109,141,255,.15); }
+
+    #toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); opacity: 0; pointer-events: none; transition: all .25s; background: #1a2532; border: 1px solid var(--line2); color: var(--fg); padding: 10px 16px; border-radius: 12px; font-size: 13px; z-index: 60; max-width: calc(100vw - 32px); }
+    #toast.show { opacity: 1; transform: translate(-50%, 0); }
+    svg text { font-family: "IBM Plex Mono", monospace; }
+    .sum-row { display: grid; grid-template-columns: 10px repeat(3, minmax(0,1fr)) auto; gap: 8px; align-items: center; font-size: 12px; }
+    .sum-row b { font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 13px; font-variant-numeric: tabular-nums; }
+    .sum-row .k { color: var(--mute); margin-right: 3px; }
+    .sum-row > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dot { width: 10px; height: 10px; border-radius: 3px; }
+    details summary::-webkit-details-marker { display: none; }
+  </style>
+</head>
+<body class="antialiased min-h-screen">
+  <header class="sticky top-0 z-30 border-b border-line" style="background:rgba(10,14,19,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+    <div class="max-w-6xl mx-auto px-4 pt-2.5 pb-2 flex items-center gap-2">
+      <svg viewBox="0 0 32 32" class="w-8 h-8 flex-none" aria-hidden="true">
+        <rect x="1" y="1" width="30" height="30" rx="8" fill="#141c26" stroke="#2a3846"/>
+        <path d="M5 12 H27" stroke="#8696a7" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M5 12 Q16 24 27 12" fill="none" stroke="#6d8dff" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M16 4 V9.5 M13.6 7.4 16 10 18.4 7.4" fill="none" stroke="#f5a524" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="min-w-0 flex-1">
+        <h1 class="wide font-extrabold text-[17px] leading-tight tracking-tight">Beam Optima</h1>
+        <p class="text-[11px] text-mute leading-tight truncate">梁のたわみ・応力解析と最軽量断面サーチ</p>
+      </div>
+      <button class="icon-btn" id="btn-export" title="JSONエクスポート" aria-label="JSONエクスポート"><i data-lucide="download"></i></button>
+      <button class="icon-btn" id="btn-import" title="JSONインポート" aria-label="JSONインポート"><i data-lucide="upload"></i></button>
+      <button class="icon-btn" id="btn-reset" title="初期値に戻す" aria-label="初期値に戻す"><i data-lucide="rotate-ccw"></i></button>
+      <input type="file" id="file-import" accept="application/json,.json" class="hidden">
+    </div>
+    <div id="summary" class="max-w-6xl mx-auto px-4 pb-2.5 grid gap-1.5"></div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,430px)_minmax(0,1fr)] lg:items-start">
+    <!-- ===== 入力 ===== -->
+    <div class="grid gap-4 min-w-0">
+      <section class="card">
+        <h2 class="card-h"><span class="step">01</span>支持条件</h2>
+        <div class="seg" id="seg-support" role="group" aria-label="支持条件">
+          <button type="button" data-v="cant">
+            <svg viewBox="0 0 44 18" width="44" height="18"><path d="M4 2V16M1 4 4 1M1 8 4 5M1 12 4 9M1 16 4 13" stroke="currentColor" stroke-width="1.4" fill="none"/><rect x="4" y="7" width="37" height="4" rx="1" fill="currentColor"/></svg>
+            片持ち梁</button>
+          <button type="button" data-v="ss">
+            <svg viewBox="0 0 44 18" width="44" height="18"><rect x="3" y="4" width="38" height="4" rx="1" fill="currentColor"/><path d="M6 8 2 15H10Z M38 8 34 14H42Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M34 16.5H42" stroke="currentColor" stroke-width="1.4"/></svg>
+            両端支持梁</button>
+          <button type="button" data-v="fixed">
+            <svg viewBox="0 0 44 18" width="44" height="18"><path d="M4 2V16M1 4 4 1M1 8 4 5M1 12 4 9M1 16 4 13M40 2V16M43 4 40 1M43 8 40 5M43 12 40 9M43 16 40 13" stroke="currentColor" stroke-width="1.4" fill="none"/><rect x="4" y="7" width="36" height="4" rx="1" fill="currentColor"/></svg>
+            両端固定梁</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-h"><span class="step">02</span>梁と荷重</h2>
+        <svg id="beam-svg" viewBox="0 0 360 126" class="w-full mb-3 rounded-xl" style="background:#0c1218;border:1px solid #1d2833" role="img" aria-label="梁と荷重の模式図"></svg>
+        <div class="grid gap-3">
+          <div>
+            <label class="lbl" for="in-L">梁長 <var class="mono italic text-fg">L</var></label>
+            <div class="inp-wrap"><input id="in-L" type="number" inputmode="decimal" step="any" min="1"><span>mm</span></div>
+            <input type="range" id="rg-L" min="50" max="5000" step="10" aria-label="梁長スライダー">
+          </div>
+          <div>
+            <label class="lbl" for="in-P">集中荷重 <var class="mono italic text-fg">P</var>（下向き）</label>
+            <div class="inp-wrap"><input id="in-P" type="number" inputmode="decimal" step="any" min="0"><span>N</span></div>
+            <input type="range" id="rg-P" min="0" max="20000" step="10" aria-label="荷重スライダー">
+          </div>
+          <div>
+            <label class="lbl" for="in-a">荷重位置 <var class="mono italic text-fg">a</var>（左端から）</label>
+            <div class="flex gap-2">
+              <div class="inp-wrap flex-1"><input id="in-a" type="number" inputmode="decimal" step="any" min="0"><span>mm</span></div>
+              <button type="button" class="chip" data-apos="0.5">中央</button>
+              <button type="button" class="chip" data-apos="1">右端</button>
+            </div>
+            <input type="range" id="rg-a" min="0" max="1000" step="1" aria-label="荷重位置スライダー">
+          </div>
+          <div class="flex items-center justify-between gap-3 pt-1">
+            <div>
+              <div class="text-sm font-medium">自重を考慮</div>
+              <div class="text-[11px] text-mute">断面積 × 密度 から等分布荷重 <var class="mono">w</var> を加算</div>
+            </div>
+            <button type="button" class="switch" id="sw-self" role="switch" aria-checked="false" aria-label="自重を考慮"></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-h"><span class="step">03</span>材質と断面</h2>
+        <div class="flex items-center justify-between gap-3 mb-3">
+          <div>
+            <div class="text-sm font-medium flex items-center gap-1.5"><i data-lucide="git-compare" class="w-4 h-4 text-mute"></i>比較モード（A案 / B案）</div>
+            <div class="text-[11px] text-mute">材質や断面を変えた2案を同じグラフで比較</div>
+          </div>
+          <button type="button" class="switch" id="sw-compare" role="switch" aria-checked="false" aria-label="比較モード"></button>
+        </div>
+        <div id="case-tabs" class="tabs gap-2 mb-3 hidden">
+          <div class="flex gap-2">
+            <button type="button" data-case="A">A案</button>
+            <button type="button" data-case="B">B案</button>
+          </div>
+          <button type="button" id="btn-copy" class="text-[12px] text-mute mt-2 underline underline-offset-2"></button>
+        </div>
+        <div id="case-editor"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-h"><span class="step">04</span>判定基準</h2>
+        <div class="grid gap-3">
+          <div>
+            <label class="lbl" for="in-dallow">許容たわみ <var class="mono italic text-fg">δ</var><sub>allow</sub></label>
+            <div class="inp-wrap"><input id="in-dallow" type="number" inputmode="decimal" step="any" min="0"><span>mm</span></div>
+            <div class="flex gap-1.5 mt-2 flex-wrap" id="dallow-chips">
+              <button type="button" class="chip" data-ratio="250">L/250</button>
+              <button type="button" class="chip" data-ratio="500">L/500</button>
+              <button type="button" class="chip" data-ratio="1000">L/1000</button>
+              <button type="button" class="chip" data-ratio="3000">L/3000</button>
+            </div>
+          </div>
+          <div>
+            <label class="lbl" for="in-sf">目標安全率 S.F.（降伏点 ÷ 最大曲げ応力）</label>
+            <div class="inp-wrap"><input id="in-sf" type="number" inputmode="decimal" step="any" min="1"><span>以上</span></div>
+            <input type="range" id="rg-sf" min="1" max="10" step="0.1" aria-label="安全率スライダー">
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== 出力 ===== -->
+    <div class="grid gap-4 min-w-0">
+      <section class="card">
+        <h2 class="card-h"><span class="step">05</span>解析結果</h2>
+        <div id="results" class="grid gap-4"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-h"><span class="step">06</span>たわみ曲線・SFD・BMD</h2>
+        <div id="legend" class="flex gap-4 text-[12px] text-mute mb-2 flex-wrap"></div>
+        <div class="grid gap-5">
+          <div>
+            <div class="flex items-baseline justify-between mb-1"><h3 class="text-[13px] font-bold">たわみ曲線 <span class="text-mute font-normal">δ [mm]</span></h3><span class="text-[11px] text-mute">下向きを負で表示</span></div>
+            <div class="chart-box"><canvas id="ch-d"></canvas></div>
+          </div>
+          <div>
+            <div class="flex items-baseline justify-between mb-1"><h3 class="text-[13px] font-bold">SFD せん断力図 <span class="text-mute font-normal">V [N]</span></h3></div>
+            <div class="chart-box" style="height:170px"><canvas id="ch-v"></canvas></div>
+          </div>
+          <div>
+            <div class="flex items-baseline justify-between mb-1"><h3 class="text-[13px] font-bold">BMD 曲げモーメント図 <span class="text-mute font-normal">M [N·m]</span></h3><span class="text-[11px] text-mute">正：下に凸</span></div>
+            <div class="chart-box" style="height:170px"><canvas id="ch-m"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-h"><span class="step">07</span>最軽量断面サーチ<i data-lucide="search" class="ml-auto"></i></h2>
+        <p id="opt-cond" class="text-[12px] text-mute leading-relaxed mb-3"></p>
+        <div class="flex gap-1.5 flex-wrap mb-3" id="opt-cats"></div>
+        <div id="opt-list" class="grid gap-2"></div>
+      </section>
+
+      <details class="card text-[12px] text-mute leading-relaxed">
+        <summary class="cursor-pointer text-fg font-bold text-[13px] flex items-center gap-2"><i data-lucide="info" class="w-4 h-4"></i>計算の前提と注意</summary>
+        <ul class="list-disc pl-5 mt-3 space-y-1.5">
+          <li>線形弾性・微小変形のオイラー・ベルヌーイ梁理論（せん断変形は無視）で、集中荷重と自重（等分布荷重）を重ね合わせています。</li>
+          <li>断面二次モーメント <var>I</var> と断面係数 <var>Z</var> は <a href="second-moment-of-area.html" class="text-ca underline">second-moment-of-area</a> と同じ式（長方形の足し引き・図心まわり）で計算します。<var>Z</var> は図心から遠い側の縁距離で求めた小さい方の値です。</li>
+          <li>角パイプの角R、形鋼のフィレットは無視しているため、実際の規格値と数％ずれます。山形鋼は主軸ではなく図心の水平・垂直軸まわりの値です。</li>
+          <li>横座屈・局部座屈・せん断応力・応力集中・疲労は考慮していません。最終確認は規格・メーカーカタログの値で行ってください。</li>
+          <li>最軽量サーチは、選択中の案の材質と曲げ軸を全候補に当てはめ、たわみと安全率の両方を満たす断面を単位長さ重量 [g/m] の軽い順に並べます。</li>
+          <li>入力はこの端末のブラウザに自動保存されます（JSONで書き出し・読み込み可）。</li>
+        </ul>
+      </details>
+    </div>
+  </main>
+  <div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const G = 9.80665;
+
+  // =====================================================================
+  //  断面計算（second-moment-of-area.html の SHAPES / compute を流用）
+  // =====================================================================
+  // 長方形の足し引き（s=+1/-1）で面積・図心・I を求める
+  const R = (x, y, w, h, s = 1) => ({ x, y, w, h, s });
+  const rect = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
+
+  const SHAPES = [
+    {
+      key: 'rect', name: '長方形', sub: '角棒・平鋼',
+      params: [['b', '幅', 30], ['h', '高さ', 60]],
+      check: () => null,
+      box: p => [p.b, p.h],
+      parts: p => [R(0, 0, p.b, p.h)],
+      rings: p => [rect(0, 0, p.b, p.h)],
+    },
+    {
+      key: 'box', name: '中空長方形', sub: '角パイプ',
+      params: [['B', '外幅', 50], ['H', '外高さ', 50], ['b', '内幅', 45.4], ['h', '内高さ', 45.4]],
+      check: p => (p.b >= p.B ? '内幅 b を外幅 B より小さくしてください' :
+                   p.h >= p.H ? '内高さ h を外高さ H より小さくしてください' : null),
+      box: p => [p.B, p.H],
+      parts: p => [R(0, 0, p.B, p.H), R((p.B - p.b) / 2, (p.H - p.h) / 2, p.b, p.h, -1)],
+      rings: p => [rect(0, 0, p.B, p.H), rect((p.B - p.b) / 2, (p.H - p.h) / 2, p.b, p.h)],
+    },
+    {
+      key: 'circle', name: '円形', sub: '丸棒',
+      params: [['d', '直径', 30]],
+      check: () => null,
+      box: p => [p.d, p.d],
+      circles: p => [[p.d / 2, p.d / 2, p.d / 2]],
+      calc: p => {
+        const I = Math.PI * p.d ** 4 / 64;
+        return { A: Math.PI * p.d ** 2 / 4, cx: p.d / 2, cy: p.d / 2, Ix: I, Iy: I };
+      },
+    },
+    {
+      key: 'pipe', name: '中空円形', sub: '丸パイプ',
+      params: [['D', '外径', 48.6], ['d', '内径', 44]],
+      check: p => (p.d >= p.D ? '内径 d を外径 D より小さくしてください' : null),
+      box: p => [p.D, p.D],
+      circles: p => [[p.D / 2, p.D / 2, p.D / 2], [p.D / 2, p.D / 2, p.d / 2]],
+      calc: p => {
+        const I = Math.PI * (p.D ** 4 - p.d ** 4) / 64;
+        return { A: Math.PI * (p.D ** 2 - p.d ** 2) / 4, cx: p.D / 2, cy: p.D / 2, Ix: I, Iy: I };
+      },
+    },
+    {
+      key: 'i', name: 'I形・H形', sub: 'H形鋼',
+      params: [['B', 'フランジ幅', 100], ['H', '高さ', 200], ['tw', 'ウェブ厚', 5.5], ['tf', 'フランジ厚', 8]],
+      check: p => (p.tw >= p.B ? 'ウェブ厚 tw をフランジ幅 B より小さくしてください' :
+                   2 * p.tf >= p.H ? 'フランジ厚 tf の 2 倍を高さ H より小さくしてください' : null),
+      box: p => [p.B, p.H],
+      parts: p => [R(0, 0, p.B, p.tf), R((p.B - p.tw) / 2, p.tf, p.tw, p.H - 2 * p.tf), R(0, p.H - p.tf, p.B, p.tf)],
+      rings: p => {
+        const a = (p.B - p.tw) / 2, b = a + p.tw;
+        return [[[0, 0], [p.B, 0], [p.B, p.tf], [b, p.tf], [b, p.H - p.tf], [p.B, p.H - p.tf], [p.B, p.H],
+                 [0, p.H], [0, p.H - p.tf], [a, p.H - p.tf], [a, p.tf], [0, p.tf]]];
+      },
+    },
+    {
+      key: 't', name: 'T形', sub: 'CT形鋼',
+      params: [['B', 'フランジ幅', 150], ['H', '高さ', 150], ['tw', 'ウェブ厚', 10], ['tf', 'フランジ厚', 15]],
+      check: p => (p.tw >= p.B ? 'ウェブ厚 tw をフランジ幅 B より小さくしてください' :
+                   p.tf >= p.H ? 'フランジ厚 tf を高さ H より小さくしてください' : null),
+      box: p => [p.B, p.H],
+      parts: p => [R((p.B - p.tw) / 2, 0, p.tw, p.H - p.tf), R(0, p.H - p.tf, p.B, p.tf)],
+      rings: p => {
+        const a = (p.B - p.tw) / 2, b = a + p.tw;
+        return [[[a, 0], [b, 0], [b, p.H - p.tf], [p.B, p.H - p.tf], [p.B, p.H], [0, p.H], [0, p.H - p.tf], [a, p.H - p.tf]]];
+      },
+    },
+    {
+      key: 'c', name: '溝形', sub: 'チャンネル',
+      params: [['B', 'フランジ幅', 75], ['H', '高さ', 150], ['tw', 'ウェブ厚', 6.5], ['tf', 'フランジ厚', 10]],
+      check: p => (p.tw >= p.B ? 'ウェブ厚 tw をフランジ幅 B より小さくしてください' :
+                   2 * p.tf >= p.H ? 'フランジ厚 tf の 2 倍を高さ H より小さくしてください' : null),
+      box: p => [p.B, p.H],
+      parts: p => [R(0, 0, p.tw, p.H), R(p.tw, 0, p.B - p.tw, p.tf), R(p.tw, p.H - p.tf, p.B - p.tw, p.tf)],
+      rings: p => [[[0, 0], [p.B, 0], [p.B, p.tf], [p.tw, p.tf], [p.tw, p.H - p.tf], [p.B, p.H - p.tf], [p.B, p.H], [0, p.H]]],
+    },
+    {
+      key: 'l', name: '山形', sub: 'L形・アングル',
+      params: [['B', '横の辺', 50], ['H', '縦の辺', 50], ['t', '板厚', 6]],
+      check: p => (p.t >= p.B || p.t >= p.H ? '板厚 t を B と H より小さくしてください' : null),
+      box: p => [p.B, p.H],
+      parts: p => [R(0, 0, p.B, p.t), R(0, p.t, p.t, p.H - p.t)],
+      rings: p => [[[0, 0], [p.B, 0], [p.B, p.t], [p.t, p.t], [p.t, p.H], [0, p.H]]],
+    },
+    {
+      key: 'tri', name: '三角形', sub: '',
+      params: [['b', '底辺', 60], ['h', '高さ', 60]],
+      check: () => null,
+      box: p => [p.b, p.h],
+      rings: p => [[[0, 0], [p.b, 0], [p.b / 2, p.h]]],
+      calc: p => ({ A: p.b * p.h / 2, cx: p.b / 2, cy: p.h / 3, Ix: p.b * p.h ** 3 / 36, Iy: p.h * p.b ** 3 / 48 }),
+    },
+  ];
+  const SHAPE = Object.fromEntries(SHAPES.map(s => [s.key, s]));
+
+  function compute(shape, p) {
+    if (shape.calc) return shape.calc(p);
+    const parts = shape.parts(p);
+    let A = 0, Sx = 0, Sy = 0;
+    for (const r of parts) {
+      const a = r.s * r.w * r.h;
+      A += a; Sx += a * (r.x + r.w / 2); Sy += a * (r.y + r.h / 2);
+    }
+    const cx = Sx / A, cy = Sy / A;
+    let Ix = 0, Iy = 0;
+    for (const r of parts) {
+      const a = r.w * r.h;
+      Ix += r.s * (r.w * r.h ** 3 / 12 + a * (r.y + r.h / 2 - cy) ** 2);
+      Iy += r.s * (r.h * r.w ** 3 / 12 + a * (r.x + r.w / 2 - cx) ** 2);
+    }
+    return { A, cx, cy, Ix, Iy };
+  }
+
+  // 形状＋寸法 → 曲げ軸まわりの I, Z, A
+  function shapeSection(sh, p, axis) {
+    for (const [k] of sh.params) if (!(isFinite(p[k]) && p[k] > 0)) return { err: `${k} に 0 より大きい数値を入力してください` };
+    const e = sh.check(p);
+    if (e) return { err: e };
+    const r = compute(sh, p);
+    const [bw, bh] = sh.box(p);
+    const Zx = r.Ix / Math.max(r.cy, bh - r.cy), Zy = r.Iy / Math.max(r.cx, bw - r.cx);
+    return axis === 'y' ? { I: r.Iy, Z: Zy, A: r.A, r } : { I: r.Ix, Z: Zx, A: r.A, r };
+  }
+
+  function sectionOf(c) {
+    if (c.mode === 'manual') {
+      const { I, Z, A } = c.manual;
+      if (!(I > 0) || !(Z > 0)) return { err: 'I と Z に 0 より大きい数値を入力してください' };
+      return { I, Z, A: A > 0 ? A : 0, manual: true };
+    }
+    return shapeSection(SHAPE[c.shape], c.dims[c.shape], c.axis);
+  }
+
+  // 断面形状の SVG パス（参照元 sectionPath と同じ考え方）
+  function sectionPath(sh, p, X, Y, s) {
+    if (sh.circles) {
+      return sh.circles(p).map(([cx, cy, r]) => {
+        const x = X(cx), y = Y(cy), rr = r * s;
+        return `M${x - rr},${y}a${rr},${rr} 0 1,0 ${2 * rr},0a${rr},${rr} 0 1,0 ${-2 * rr},0Z`;
+      }).join('');
+    }
+    return sh.rings(p).map(r => 'M' + r.map(([x, y]) => `${X(x).toFixed(2)},${Y(y).toFixed(2)}`).join('L') + 'Z').join('');
+  }
+  function fitPath(sh, p, size, pad) {
+    const [bw, bh] = sh.box(p);
+    const s = Math.min((size - 2 * pad) / bw, (size - 2 * pad) / bh);
+    const ox = (size - bw * s) / 2, oy = (size + bh * s) / 2;
+    const X = x => ox + x * s, Y = y => oy - y * s;
+    return { d: sectionPath(sh, p, X, Y, s), X, Y };
+  }
+
+  // =====================================================================
+  //  材料
+  // =====================================================================
+  const MATERIALS = [
+    { key: 'ss400', name: 'SS400（一般構造用鋼）', E: 205, rho: 7.85, sy: 245 },
+    { key: 's45c', name: 'S45C（機械構造用炭素鋼）', E: 205, rho: 7.85, sy: 345 },
+    { key: 'sus304', name: 'SUS304（ステンレス）', E: 193, rho: 7.93, sy: 205 },
+    { key: 'a5052', name: 'A5052-H34（アルミ）', E: 70.6, rho: 2.68, sy: 215 },
+    { key: 'a6063', name: 'A6063-T5（アルミ押出）', E: 68.6, rho: 2.69, sy: 145 },
+    { key: 'a7075', name: 'A7075-T6（超々ジュラルミン）', E: 71.7, rho: 2.80, sy: 505 },
+    { key: 'ti64', name: 'Ti-6Al-4V（チタン合金）', E: 113.8, rho: 4.43, sy: 880 },
+    { key: 'pom', name: 'POM（ジュラコン）', E: 2.8, rho: 1.41, sy: 60 },
+    { key: 'custom', name: 'カスタム（数値を直接入力）' },
+  ];
+  const MAT = Object.fromEntries(MATERIALS.map(m => [m.key, m]));
+
+  // =====================================================================
+  //  標準断面データ（代表的な JIS 寸法）
+  // =====================================================================
+  const CATS = [
+    { key: 'sqpipe', name: '角パイプ' },
+    { key: 'pipe', name: '丸パイプ' },
+    { key: 'bar', name: '丸棒' },
+    { key: 'sqbar', name: '角棒' },
+    { key: 'h', name: 'H形鋼' },
+    { key: 'c', name: '溝形鋼' },
+    { key: 'l', name: '山形鋼' },
+  ];
+  const CATALOG = (() => {
+    const list = [];
+    const add = (cat, label, shape, dims) => list.push({ cat, label, shape, dims });
+    // 角パイプ STKR  [H(縦), B(横), t]
+    [[20,20,1.6],[25,25,1.6],[25,25,2.3],[30,30,1.6],[30,30,2.3],[40,40,1.6],[40,40,2.3],[40,40,3.2],
+     [50,50,1.6],[50,50,2.3],[50,50,3.2],[60,60,2.3],[60,60,3.2],[75,75,2.3],[75,75,3.2],[75,75,4.5],
+     [100,100,2.3],[100,100,3.2],[100,100,4.5],[100,100,6],[125,125,3.2],[125,125,4.5],[125,125,6],
+     [150,150,4.5],[150,150,6],[150,150,9],[200,200,6],[200,200,9],
+     [50,25,1.6],[50,25,2.3],[60,30,1.6],[60,30,2.3],[75,45,1.6],[75,45,2.3],[75,45,3.2],
+     [100,50,1.6],[100,50,2.3],[100,50,3.2],[100,50,4.5],[125,75,2.3],[125,75,3.2],[125,75,4.5],
+     [150,100,3.2],[150,100,4.5],[150,100,6],[200,100,4.5],[200,100,6],[250,150,6],[250,150,9]]
+      .forEach(([H, B, t]) => add('sqpipe', `□-${H}×${B}×${t}`, 'box', { B, H, b: +(B - 2 * t).toFixed(2), h: +(H - 2 * t).toFixed(2) }));
+    // 丸パイプ STK400  [D, t]
+    [[21.7,2],[27.2,2],[27.2,2.3],[34,2.3],[42.7,2.3],[42.7,2.5],[48.6,2.3],[48.6,3.2],[60.5,2.3],[60.5,3.2],
+     [60.5,4],[76.3,2.8],[76.3,3.2],[76.3,4],[89.1,2.8],[89.1,3.2],[101.6,3.2],[101.6,4],[114.3,3.2],
+     [114.3,4.5],[114.3,6],[139.8,4.5],[139.8,6],[165.2,4.5],[165.2,6],[216.3,6],[216.3,8.2]]
+      .forEach(([D, t]) => add('pipe', `○-${D}×${t}`, 'pipe', { D, d: +(D - 2 * t).toFixed(2) }));
+    // 丸棒
+    [6,8,10,12,13,16,19,20,22,25,28,30,32,36,40,45,50,55,60,65,70,80,90,100]
+      .forEach(d => add('bar', `φ${d}`, 'circle', { d }));
+    // 角棒
+    [9,10,12,13,16,19,22,25,28,32,38,44,50,65,75]
+      .forEach(a => add('sqbar', `□${a} 角棒`, 'rect', { b: a, h: a }));
+    // H形鋼  [H, B, tw, tf]
+    [[100,50,5,7],[100,100,6,8],[125,60,6,8],[125,125,6.5,9],[150,75,5,7],[148,100,6,9],[150,150,7,10],
+     [175,90,5,8],[175,175,7.5,11],[198,99,4.5,7],[200,100,5.5,8],[194,150,6,9],[200,200,8,12],
+     [248,124,5,8],[250,125,6,9],[244,175,7,11],[250,250,9,14],[298,149,5.5,8],[300,150,6.5,9],
+     [294,200,8,12],[300,300,10,15],[346,174,6,9],[350,175,7,11],[340,250,9,14],[350,350,12,19],
+     [396,199,7,11],[400,200,8,13],[390,300,10,16],[400,400,13,21]]
+      .forEach(([H, B, tw, tf]) => add('h', `H-${H}×${B}×${tw}×${tf}`, 'i', { B, H, tw, tf }));
+    // 溝形鋼  [H, B, tw, tf]
+    [[75,40,5,7],[100,50,5,7.5],[125,65,6,8],[150,75,6.5,10],[150,75,9,12.5],[180,75,7,10.5],
+     [200,80,7.5,11],[200,90,8,13.5],[250,90,9,13],[250,90,11,14.5],[300,90,9,13],[300,90,10,15.5],
+     [300,90,12,16],[380,100,10.5,16],[380,100,13,20]]
+      .forEach(([H, B, tw, tf]) => add('c', `[-${H}×${B}×${tw}×${tf}`, 'c', { B, H, tw, tf }));
+    // 等辺山形鋼  [A, t]
+    [[25,3],[30,3],[40,3],[40,5],[45,4],[50,4],[50,6],[60,5],[65,6],[65,8],[75,6],[75,9],
+     [90,7],[90,10],[100,7],[100,10],[130,9],[130,12],[150,12]]
+      .forEach(([A, t]) => add('l', `L-${A}×${A}×${t}`, 'l', { B: A, H: A, t }));
+    return list;
+  })();
+
+  // =====================================================================
+  //  梁の解析（集中荷重 P @ a ＋ 等分布 w の重ね合わせ）
+  //  V, M は N, N·mm。Y は EI·δ（下向き正）を返す
+  // =====================================================================
+  function loadCase(sup, L, P, a, w) {
+    const b = L - a, L2 = L * L, L3 = L2 * L;
+    if (sup === 'cant') { // x=0 固定、x=L 自由
+      return {
+        R1: P + w * L, R2: 0, M1: -(P * a + w * L2 / 2), M2: 0,
+        V: x => (x < a ? P : 0) + w * (L - x),
+        M: x => (x < a ? -P * (a - x) : 0) - w * (L - x) ** 2 / 2,
+        Y: x => (x <= a ? P * x * x * (3 * a - x) / 6 : P * a * a * (3 * x - a) / 6)
+                + w * x * x * (6 * L2 - 4 * L * x + x * x) / 24,
+      };
+    }
+    if (sup === 'ss') {
+      const r1 = P * b / L, r2 = P * a / L;
+      return {
+        R1: r1 + w * L / 2, R2: r2 + w * L / 2, M1: 0, M2: 0,
+        V: x => (x < a ? r1 : r1 - P) + w * (L / 2 - x),
+        M: x => (x <= a ? r1 * x : r2 * (L - x)) + w * x * (L - x) / 2,
+        Y: x => (x <= a ? P * b * x * (L2 - b * b - x * x) / (6 * L)
+                        : P * a * (L - x) * (L2 - a * a - (L - x) ** 2) / (6 * L))
+                + w * x * (L3 - 2 * L * x * x + x ** 3) / 24,
+      };
+    }
+    // 両端固定
+    const r1 = P * b * b * (3 * a + b) / L3, r2 = P * a * a * (a + 3 * b) / L3;
+    const m1 = -P * a * b * b / L2, m2 = -P * a * a * b / L2;
+    return {
+      R1: r1 + w * L / 2, R2: r2 + w * L / 2, M1: m1 - w * L2 / 12, M2: m2 - w * L2 / 12,
+      V: x => (x < a ? r1 : r1 - P) + w * (L / 2 - x),
+      M: x => m1 + r1 * x - (x > a ? P * (x - a) : 0) + w * (6 * L * x - 6 * x * x - L2) / 12,
+      Y: x => {
+        let yp;
+        if (x <= a) yp = P * b * b * x * x * (3 * a * L - (3 * a + b) * x) / (6 * L3);
+        else { const u = L - x; yp = P * a * a * u * u * (3 * b * L - (3 * b + a) * u) / (6 * L3); }
+        return yp + w * x * x * (L - x) ** 2 / 24;
+      },
+    };
+  }
+
+  // 最大値を探す（標本点＋近傍の三分探索）
+  function peaks(lc, L, a, N) {
+    let yi = 0, ym = -1, mi = 0, mm = -1;
+    const xs = new Array(N + 1);
+    for (let i = 0; i <= N; i++) {
+      const x = L * i / N; xs[i] = x;
+      const y = Math.abs(lc.Y(x)); if (y > ym) { ym = y; yi = i; }
+      const m = Math.abs(lc.M(x)); if (m > mm) { mm = m; mi = i; }
+    }
+    let lo = xs[Math.max(0, yi - 1)], hi = xs[Math.min(N, yi + 1)];
+    for (let k = 0; k < 40; k++) {
+      const m1 = lo + (hi - lo) / 3, m2 = hi - (hi - lo) / 3;
+      if (Math.abs(lc.Y(m1)) < Math.abs(lc.Y(m2))) lo = m1; else hi = m2;
+    }
+    let xd = (lo + hi) / 2, yd = Math.abs(lc.Y(xd));
+    if (ym > yd) { yd = ym; xd = xs[yi]; }
+    let xm = xs[mi];
+    for (const x of [0, a, L]) { const m = Math.abs(lc.M(x)); if (m >= mm) { mm = m; xm = x; } }
+    return { yEI: yd, xd, Mmax: mm, xm };
+  }
+
+  const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
+  const matOf = c => ({ E: c.E, rho: c.rho, sy: c.sy });
+  const selfW = (A, rho) => A * rho * 1e-6 * G;           // N/mm
+  const gPerM = (A, rho) => A * rho;                      // mm² × g/cm³ = g/m
+
+  function solve(sec, mat, full) {
+    const L = S.L, P = S.P, a = clamp(S.a, 0, L);
+    const w = S.selfWeight && sec.A > 0 ? selfW(sec.A, mat.rho) : 0;
+    const lc = loadCase(S.support, L, P, a, w);
+    const EI = mat.E * 1e3 * sec.I;
+    const pk = peaks(lc, L, a, full ? 240 : 80);
+    const dmax = pk.yEI / EI, sigma = pk.Mmax / sec.Z;
+    const out = { lc, w, a, dmax, xd: pk.xd, Mmax: pk.Mmax, xm: pk.xm, sigma, sf: sigma > 0 ? mat.sy / sigma : Infinity };
+    if (full) {
+      const N = 240, xs = [];
+      for (let i = 0; i <= N; i++) xs.push(L * i / N);
+      if (a > 0 && a < L && !xs.includes(a)) xs.push(a);
+      xs.sort((p, q) => p - q);
+      out.defl = xs.map(x => ({ x, y: -lc.Y(x) / EI }));
+      const V = [{ x: 0, y: 0 }], M = [{ x: 0, y: 0 }];
+      for (const x of xs) {
+        if (x === a && a > 0 && a < L) V.push({ x, y: lc.V(a - 1e-9 * L) });
+        V.push({ x, y: lc.V(x === L ? L - 1e-9 * L : x) });
+        M.push({ x, y: lc.M(x) / 1000 });
+      }
+      V.push({ x: L, y: 0 }); M.push({ x: L, y: 0 });
+      out.V = V; out.M = M;
+    }
+    return out;
+  }
+
+  // =====================================================================
+  //  状態
+  // =====================================================================
+  const newCase = () => ({
+    mat: 'ss400', E: 205, rho: 7.85, sy: 245,
+    mode: 'shape', shape: 'box', axis: 'x',
+    dims: Object.fromEntries(SHAPES.map(sh => [sh.key, Object.fromEntries(sh.params.map(([k, , d]) => [k, d]))])),
+    manual: { I: 100000, Z: 4000, A: 400 },
+  });
+  const defaults = () => ({
+    support: 'ss', L: 1000, P: 1000, a: 500, selfWeight: false,
+    dAllow: 1, sfTarget: 3,
+    compare: false, bInit: false, active: 'A',
+    cases: { A: newCase(), B: newCase() },
+    optCats: CATS.map(c => c.key),
+  });
+  const clone = o => JSON.parse(JSON.stringify(o));
+
+  function merge(base, src) {
+    if (!src || typeof src !== 'object' || Array.isArray(src)) return base;
+    for (const k of Object.keys(base)) {
+      const b = base[k], s = src[k];
+      if (s === undefined || s === null) continue;
+      if (Array.isArray(b)) { if (Array.isArray(s)) base[k] = s.filter(v => typeof v === 'string'); }
+      else if (b && typeof b === 'object') base[k] = merge(b, s);
+      else if (typeof s === typeof b && (typeof s !== 'number' || isFinite(s))) base[k] = s;
+    }
+    return base;
+  }
+  function sanitize(st) {
+    if (!['cant', 'ss', 'fixed'].includes(st.support)) st.support = 'ss';
+    if (!['A', 'B'].includes(st.active)) st.active = 'A';
+    if (!st.compare) st.active = 'A';
+    for (const c of Object.values(st.cases)) {
+      if (!MAT[c.mat]) c.mat = 'custom';
+      if (!['shape', 'manual'].includes(c.mode)) c.mode = 'shape';
+      if (!SHAPE[c.shape]) c.shape = 'box';
+      if (!['x', 'y'].includes(c.axis)) c.axis = 'x';
+    }
+    st.optCats = st.optCats.filter(k => CATS.some(c => c.key === k));
+    return st;
+  }
+
+  const KEY = 'beam-optima:v1';
+  function loadState() {
+    try {
+      const t = localStorage.getItem(KEY);
+      if (t) return sanitize(merge(defaults(), JSON.parse(t)));
+    } catch (e) { /* 読めなければ初期値 */ }
+    return defaults();
+  }
+  let saveT;
+  function scheduleSave() {
+    clearTimeout(saveT);
+    saveT = setTimeout(saveNow, 300);
+  }
+  function saveNow() { clearTimeout(saveT); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* 保存不可 */ } }
+  addEventListener('pagehide', saveNow);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveNow(); });
+
+  let S = loadState();
+  const cur = () => S.cases[S.active];
+  const shownCases = () => (S.compare ? ['A', 'B'] : ['A']);
+
+  // =====================================================================
+  //  表示ユーティリティ
+  // =====================================================================
+  function num(x, sig = 4) {
+    if (x === Infinity) return '∞';
+    if (!isFinite(x)) return '—';
+    const a = Math.abs(x);
+    const d = a >= 1e4 ? 0 : Math.max(0, sig - 1 - Math.floor(Math.log10(a || 1)));
+    return x.toLocaleString('ja-JP', { maximumFractionDigits: Math.min(d, 6) });
+  }
+  function sci(x) {
+    if (!isFinite(x)) return '—';
+    let n = Math.floor(Math.log10(Math.abs(x)));
+    if (n < 5) return num(x, 4);
+    let m = x / 10 ** n;
+    if (+m.toFixed(3) >= 10) { m /= 10; n += 1; }
+    return `${m.toFixed(3)}×10<sup>${n}</sup>`;
+  }
+  const varName = k => `<var>${k[0]}${k.length > 1 ? `<sub>${k.slice(1)}</sub>` : ''}</var>`;
+  const COLORS = { A: '#6d8dff', B: '#f5a524' };
+  const icons = () => { if (window.lucide) window.lucide.createIcons({ attrs: { 'stroke-width': 2 } }); };
+  function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  // =====================================================================
+  //  入力（梁・荷重・判定基準）
+  // =====================================================================
+  function setPct(rg) {
+    const lo = +rg.min, hi = +rg.max;
+    rg.style.setProperty('--pct', `${hi > lo ? ((+rg.value - lo) / (hi - lo)) * 100 : 0}%`);
+  }
+  function syncGlobalInputs(skip) {
+    const set = (id, v) => { if (id !== skip) $(id).value = +(+v).toFixed(4); };
+    set('in-L', S.L); set('in-P', S.P); set('in-a', S.a); set('in-dallow', S.dAllow); set('in-sf', S.sfTarget);
+    const rL = $('rg-L'), rP = $('rg-P'), ra = $('rg-a'), rs = $('rg-sf');
+    rL.max = Math.max(5000, Math.ceil(S.L / 10) * 10);
+    rP.max = Math.max(20000, Math.ceil(S.P / 10) * 10);
+    ra.max = S.L; ra.step = S.L > 2000 ? 5 : 1;
+    if (skip !== 'rg-L') rL.value = S.L;
+    if (skip !== 'rg-P') rP.value = S.P;
+    if (skip !== 'rg-a') ra.value = S.a;
+    if (skip !== 'rg-sf') rs.value = S.sfTarget;
+    [rL, rP, ra, rs].forEach(setPct);
+    document.querySelectorAll('#seg-support button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === S.support));
+    $('sw-self').setAttribute('aria-checked', S.selfWeight);
+    $('sw-compare').setAttribute('aria-checked', S.compare);
+    $('case-tabs').classList.toggle('hidden', !S.compare);
+    document.querySelectorAll('#case-tabs [data-case]').forEach(b => b.setAttribute('aria-pressed', b.dataset.case === S.active));
+    $('btn-copy').textContent = S.active === 'A' ? 'A案の内容を B案にコピー' : 'B案の内容を A案にコピー';
+    document.querySelectorAll('#dallow-chips .chip').forEach(b =>
+      b.setAttribute('aria-pressed', Math.abs(S.L / +b.dataset.ratio - S.dAllow) < 1e-6));
+  }
+
+  function bindNum(inputId, rangeId, key, opts = {}) {
+    const inp = $(inputId), rg = rangeId && $(rangeId);
+    const apply = (v, from) => {
+      if (!isFinite(v)) return false;
+      if (opts.min !== undefined && v < opts.min) return false;
+      S[key] = v;
+      if (key === 'L' && S.a > S.L) S.a = S.L;
+      if (key === 'a') S.a = clamp(S.a, 0, S.L);
+      syncGlobalInputs(from);
+      update();
+      return true;
+    };
+    inp.addEventListener('input', () => {
+      const ok = apply(parseFloat(inp.value), inputId);
+      inp.closest('.inp-wrap').classList.toggle('bad', !ok);
+    });
+    inp.addEventListener('blur', () => { inp.closest('.inp-wrap').classList.remove('bad'); syncGlobalInputs(); });
+    if (rg) rg.addEventListener('input', () => apply(parseFloat(rg.value), rangeId));
+  }
+  bindNum('in-L', 'rg-L', 'L', { min: 1 });
+  bindNum('in-P', 'rg-P', 'P', { min: 0 });
+  bindNum('in-a', 'rg-a', 'a', { min: 0 });
+  bindNum('in-dallow', null, 'dAllow', { min: 1e-6 });
+  bindNum('in-sf', 'rg-sf', 'sfTarget', { min: 0.01 });
+
+  document.querySelectorAll('#seg-support button').forEach(b => b.addEventListener('click', () => {
+    S.support = b.dataset.v; syncGlobalInputs(); update();
+  }));
+  document.querySelectorAll('[data-apos]').forEach(b => b.addEventListener('click', () => {
+    S.a = S.L * +b.dataset.apos; syncGlobalInputs(); update();
+  }));
+  document.querySelectorAll('#dallow-chips .chip').forEach(b => b.addEventListener('click', () => {
+    S.dAllow = +(S.L / +b.dataset.ratio).toFixed(4); syncGlobalInputs(); update();
+  }));
+  $('sw-self').addEventListener('click', () => { S.selfWeight = !S.selfWeight; syncGlobalInputs(); update(); });
+  $('sw-compare').addEventListener('click', () => {
+    S.compare = !S.compare;
+    if (S.compare && !S.bInit) { S.cases.B = clone(S.cases.A); S.bInit = true; }
+    if (!S.compare) S.active = 'A';
+    syncGlobalInputs(); buildEditor(); update();
+  });
+  document.querySelectorAll('#case-tabs [data-case]').forEach(b => b.addEventListener('click', () => {
+    S.active = b.dataset.case; syncGlobalInputs(); buildEditor(); update();
+  }));
+  $('btn-copy').addEventListener('click', () => {
+    const from = S.active, to = from === 'A' ? 'B' : 'A';
+    S.cases[to] = clone(S.cases[from]);
+    toast(`${from}案を ${to}案にコピーしました`);
+    update();
+  });
+
+  // =====================================================================
+  //  材質・断面エディタ
+  // =====================================================================
+  function field(id, labelHTML, unit, value, extra = '') {
+    return `<div class="min-w-0"><label class="lbl-s" for="${id}">${labelHTML}</label>
+      <div class="inp-wrap"><input id="${id}" type="number" inputmode="decimal" step="any" value="${value}" ${extra}><span>${unit}</span></div></div>`;
+  }
+
+  function buildEditor() {
+    const c = cur();
+    const color = COLORS[S.active];
+    $('case-editor').innerHTML = `
+      <div class="grid gap-4" style="${S.compare ? `border-left:3px solid ${color};padding-left:12px` : ''}">
+        <div>
+          <label class="lbl" for="sel-mat">材質</label>
+          <select id="sel-mat" class="inp">${MATERIALS.map(m => `<option value="${m.key}" ${m.key === c.mat ? 'selected' : ''}>${m.name}</option>`).join('')}</select>
+          <div class="grid grid-cols-3 gap-2 mt-2">
+            ${field('m-E', 'ヤング率 <var>E</var>', 'GPa', c.E, 'data-mk="E"')}
+            ${field('m-rho', '密度 <var>ρ</var>', 'g/cm³', c.rho, 'data-mk="rho"')}
+            ${field('m-sy', '降伏点 <var>σ</var><sub>y</sub>', 'MPa', c.sy, 'data-mk="sy"')}
+          </div>
+        </div>
+        <div>
+          <label class="lbl">断面の指定方法</label>
+          <div class="seg" id="seg-mode">
+            <button type="button" data-v="shape" aria-pressed="${c.mode === 'shape'}">形状から計算</button>
+            <button type="button" data-v="manual" aria-pressed="${c.mode === 'manual'}">任意数値（CAD値）</button>
+          </div>
+        </div>
+        <div id="sec-body"></div>
+      </div>`;
+    const sel = $('sel-mat');
+    sel.addEventListener('change', () => {
+      const m = MAT[sel.value];
+      c.mat = sel.value;
+      if (m.E) { c.E = m.E; c.rho = m.rho; c.sy = m.sy; ['E', 'rho', 'sy'].forEach(k => ($('m-' + k).value = c[k])); }
+      update();
+    });
+    document.querySelectorAll('[data-mk]').forEach(inp => inp.addEventListener('input', () => {
+      const v = parseFloat(inp.value), ok = isFinite(v) && v > 0;
+      inp.closest('.inp-wrap').classList.toggle('bad', !ok);
+      if (!ok) return;
+      c[inp.dataset.mk] = v;
+      const m = MAT[c.mat];
+      if (m.E && m[inp.dataset.mk] !== v) { c.mat = 'custom'; sel.value = 'custom'; }
+      update();
+    }));
+    document.querySelectorAll('#seg-mode button').forEach(b => b.addEventListener('click', () => {
+      c.mode = b.dataset.v;
+      document.querySelectorAll('#seg-mode button').forEach(x => x.setAttribute('aria-pressed', x === b));
+      buildSecBody(); update();
+    }));
+    buildSecBody();
+  }
+
+  function thumbSVG(sh) {
+    const p = Object.fromEntries(sh.params.map(([k, , d]) => [k, d]));
+    if (sh.key === 'box') Object.assign(p, { B: 150, H: 250, b: 120, h: 220 });
+    if (sh.key === 'pipe') Object.assign(p, { D: 114.3, d: 90 });
+    if (sh.key === 'i') Object.assign(p, { B: 100, H: 200, tw: 8, tf: 14 });
+    if (sh.key === 'c') Object.assign(p, { B: 75, H: 150, tw: 12, tf: 16 });
+    if (sh.key === 'l') Object.assign(p, { B: 100, H: 100, t: 18 });
+    if (sh.key === 't') Object.assign(p, { tw: 22, tf: 26 });
+    const { d } = fitPath(sh, p, 40, 4);
+    return `<svg viewBox="0 0 40 40" aria-hidden="true"><path d="${d}" fill-rule="evenodd"/></svg>`;
+  }
+
+  function buildSecBody() {
+    const c = cur();
+    const body = $('sec-body');
+    if (c.mode === 'manual') {
+      body.innerHTML = `
+        <div class="grid grid-cols-2 gap-2">
+          ${field('mn-I', '断面二次モーメント <var>I</var>', 'mm⁴', c.manual.I, 'data-mn="I"')}
+          ${field('mn-Z', '断面係数 <var>Z</var>', 'mm³', c.manual.Z, 'data-mn="Z"')}
+          ${field('mn-A', '断面積 <var>A</var>（重量用・任意）', 'mm²', c.manual.A, 'data-mn="A"')}
+        </div>
+        <p id="sec-err" class="text-ng text-[12px] mt-2 min-h-[1em]"></p>
+        <p class="text-[11px] text-mute leading-relaxed">CADの断面特性（曲げ軸まわり）をそのまま入力します。<var>A</var> は自重と重量 [g/m] の計算だけに使います。</p>
+        <div id="sec-props" class="grid grid-cols-2 gap-2 mt-3"></div>`;
+      body.querySelectorAll('[data-mn]').forEach(inp => inp.addEventListener('input', () => {
+        const v = parseFloat(inp.value), k = inp.dataset.mn;
+        const ok = isFinite(v) && (k === 'A' ? v >= 0 : v > 0);
+        inp.closest('.inp-wrap').classList.toggle('bad', !ok);
+        if (ok) { c.manual[k] = v; update(); }
+      }));
+      return;
+    }
+    const sh = SHAPE[c.shape], p = c.dims[c.shape];
+    body.innerHTML = `
+      <div class="grid grid-cols-3 gap-2" id="shape-grid">
+        ${SHAPES.map(s => `<button type="button" class="shape-btn" data-shape="${s.key}" aria-pressed="${s.key === c.shape}">${thumbSVG(s)}<span>${s.name}${s.sub ? `<br><span class="text-[10px] opacity-75">${s.sub}</span>` : ''}</span></button>`).join('')}
+      </div>
+      <div class="grid grid-cols-2 gap-2 mt-3">
+        ${sh.params.map(([k, desc]) => field('dim-' + k, `${varName(k)}${desc}`, 'mm', p[k], `data-dim="${k}" min="0"`)).join('')}
+      </div>
+      <p id="sec-err" class="text-ng text-[12px] mt-2 min-h-[1em]"></p>
+      <div class="mt-1">
+        <label class="lbl">曲げの軸（荷重は図の上下方向）</label>
+        <div class="seg" id="seg-axis">
+          <button type="button" data-v="x" aria-pressed="${c.axis === 'x'}">X軸まわり</button>
+          <button type="button" data-v="y" aria-pressed="${c.axis === 'y'}">Y軸まわり（横倒し）</button>
+        </div>
+      </div>
+      <div class="flex gap-3 mt-3 items-stretch">
+        <svg id="sec-prev" viewBox="0 0 120 120" class="w-[108px] h-[108px] flex-none rounded-xl" style="background:#0c1218;border:1px solid #1d2833" aria-label="断面図"></svg>
+        <div id="sec-props" class="grid grid-cols-2 gap-2 flex-1 min-w-0"></div>
+      </div>`;
+    body.querySelectorAll('.shape-btn').forEach(b => b.addEventListener('click', () => {
+      c.shape = b.dataset.shape; buildSecBody(); update();
+    }));
+    body.querySelectorAll('[data-dim]').forEach(inp => inp.addEventListener('input', () => {
+      const v = parseFloat(inp.value), ok = isFinite(v) && v > 0;
+      inp.closest('.inp-wrap').classList.toggle('bad', !ok);
+      if (ok) { c.dims[c.shape][inp.dataset.dim] = v; update(); }
+    }));
+    body.querySelectorAll('#seg-axis button').forEach(b => b.addEventListener('click', () => {
+      c.axis = b.dataset.v;
+      body.querySelectorAll('#seg-axis button').forEach(x => x.setAttribute('aria-pressed', x === b));
+      update();
+    }));
+  }
+
+  function renderSecProps(c, sec) {
+    const err = $('sec-err'), props = $('sec-props');
+    if (!props) return;
+    if (err) err.textContent = sec.err || '';
+    const box = (k, v, u) => `<div class="stat !p-2"><div class="k">${k}</div><div class="mono text-[13px] font-semibold truncate">${v} <span class="text-mute font-normal text-[11px]">${u}</span></div></div>`;
+    if (sec.err) {
+      props.innerHTML = box('I', '—', 'mm⁴') + box('Z', '—', 'mm³');
+    } else {
+      const gm = gPerM(sec.A, c.rho);
+      props.innerHTML =
+        box('<var>I</var>', sci(sec.I), 'mm⁴') + box('<var>Z</var>', sci(sec.Z), 'mm³') +
+        box('<var>A</var>', sec.A > 0 ? num(sec.A) : '—', 'mm²') +
+        box('重量', sec.A > 0 ? num(gm) : '—', `g/m${sec.A > 0 ? `（${num(gm / 1000, 3)} kg/m）` : ''}`);
+    }
+    const svg = $('sec-prev');
+    if (svg && c.mode === 'shape') {
+      const sh = SHAPE[c.shape], p = c.dims[c.shape];
+      if (sec.err) { svg.innerHTML = ''; return; }
+      const { d, X, Y } = fitPath(sh, p, 120, 20);
+      const r = sec.r, [bw, bh] = sh.box(p);
+      const gx = X(r.cx), gy = Y(r.cy);
+      const axis = c.axis === 'x'
+        ? `<line x1="${X(0) - 10}" y1="${gy}" x2="${X(bw) + 10}" y2="${gy}" stroke="#f5a524" stroke-width="1.2" stroke-dasharray="6 3 1.5 3"/><text x="${X(bw) + 6}" y="${gy - 4}" font-size="9" fill="#f5a524">X</text>`
+        : `<line x1="${gx}" y1="${Y(bh) - 10}" x2="${gx}" y2="${Y(0) + 10}" stroke="#f5a524" stroke-width="1.2" stroke-dasharray="6 3 1.5 3"/><text x="${gx + 4}" y="${Y(0) + 12}" font-size="9" fill="#f5a524">Y</text>`;
+      svg.innerHTML = `<path d="${d}" fill="rgba(109,141,255,.28)" stroke="#9fb3ff" stroke-width="1.4" fill-rule="evenodd"/>${axis}
+        <circle cx="${gx}" cy="${gy}" r="2.6" fill="#fff"/>
+        <path d="M60 3 V14 M56.5 10.5 60 14.5 63.5 10.5" stroke="#8696a7" stroke-width="1.2" fill="none"/>`;
+    }
+  }
+
+  // =====================================================================
+  //  梁の模式図
+  // =====================================================================
+  function drawBeam(resA) {
+    const x0 = 34, x1 = 326, yb = 60, L = S.L, a = clamp(S.a, 0, L);
+    const X = x => x0 + (x1 - x0) * x / L;
+    const xp = X(a);
+    let s = '';
+    const wall = (x, dir) => {
+      let h = `<line x1="${x}" y1="${yb - 22}" x2="${x}" y2="${yb + 22}" stroke="#8696a7" stroke-width="2"/>`;
+      for (let y = yb - 20; y <= yb + 20; y += 7) h += `<line x1="${x}" y1="${y}" x2="${x + dir * 7}" y2="${y + 7}" stroke="#55626f" stroke-width="1.2"/>`;
+      return h;
+    };
+    const pin = (x, roller) => {
+      let h = `<path d="M${x} ${yb + 5} L${x - 9} ${yb + 20} H${x + 9} Z" fill="none" stroke="#8696a7" stroke-width="1.6" stroke-linejoin="round"/>`;
+      const gy = roller ? yb + 27 : yb + 21;
+      if (roller) h += `<circle cx="${x - 5}" cy="${yb + 23.5}" r="2.6" fill="none" stroke="#8696a7" stroke-width="1.3"/><circle cx="${x + 5}" cy="${yb + 23.5}" r="2.6" fill="none" stroke="#8696a7" stroke-width="1.3"/>`;
+      h += `<line x1="${x - 13}" y1="${gy}" x2="${x + 13}" y2="${gy}" stroke="#8696a7" stroke-width="1.4"/>`;
+      for (let k = -12; k <= 8; k += 5) h += `<line x1="${x + k}" y1="${gy}" x2="${x + k + 4}" y2="${gy + 4}" stroke="#55626f" stroke-width="1"/>`;
+      return h;
+    };
+    if (S.support === 'cant') s += wall(x0, -1);
+    if (S.support === 'fixed') s += wall(x0, -1) + wall(x1, 1);
+    if (S.support === 'ss') s += pin(x0, false) + pin(x1, true);
+    // 梁
+    s += `<rect x="${x0}" y="${yb - 4}" width="${x1 - x0}" height="8" rx="1.5" fill="#2b3a4a" stroke="#4a5d70" stroke-width="1"/>`;
+    // たわみ（誇張）
+    if (resA && resA.defl && resA.dmax > 0) {
+      const k = 16 / resA.dmax;
+      const pts = resA.defl.filter((_, i) => i % 4 === 0 || i === resA.defl.length - 1).map(q => `${X(q.x).toFixed(1)},${(yb - q.y * k).toFixed(1)}`).join(' ');
+      s += `<polyline points="${pts}" fill="none" stroke="#6d8dff" stroke-width="1.6" stroke-dasharray="4 3" opacity=".9"/>`;
+    }
+    // 自重
+    if (S.selfWeight) {
+      for (let x = x0 + 8; x < x1; x += 16) s += `<path d="M${x} ${yb - 15} V${yb - 6} M${x - 2} ${yb - 9} ${x} ${yb - 5.5} ${x + 2} ${yb - 9}" stroke="#4fd1c5" stroke-width="1" fill="none" opacity=".75"/>`;
+      s += `<line x1="${x0}" y1="${yb - 15}" x2="${x1}" y2="${yb - 15}" stroke="#4fd1c5" stroke-width="1" opacity=".75"/>`;
+    }
+    // 荷重
+    const anchor = xp < x0 + 40 ? 'start' : xp > x1 - 40 ? 'end' : 'middle';
+    s += `<path d="M${xp} ${yb - 40} V${yb - 7}" stroke="#f5a524" stroke-width="2.4"/><path d="M${xp - 5.5} ${yb - 15} L${xp} ${yb - 5} L${xp + 5.5} ${yb - 15} Z" fill="#f5a524"/>`;
+    s += `<text x="${xp + (anchor === 'start' ? -4 : anchor === 'end' ? 4 : 0)}" y="${yb - 45}" text-anchor="${anchor}" font-size="11" fill="#f5c46b" font-weight="600">P = ${num(S.P)} N</text>`;
+    // 寸法
+    const dim = (xa, xb, y, text) => {
+      let h = `<line x1="${xa}" y1="${y}" x2="${xb}" y2="${y}" stroke="#55626f" stroke-width="1"/>`;
+      h += `<line x1="${xa}" y1="${y - 4}" x2="${xa}" y2="${y + 4}" stroke="#55626f"/><line x1="${xb}" y1="${y - 4}" x2="${xb}" y2="${y + 4}" stroke="#55626f"/>`;
+      if (xb - xa > 4) h += `<text x="${(xa + xb) / 2}" y="${y - 3}" text-anchor="middle" font-size="10" fill="#8696a7" paint-order="stroke" stroke="#0c1218" stroke-width="3">${text}</text>`;
+      return h;
+    };
+    s += dim(x0, x1, 118, `L = ${num(L)} mm`);
+    if (a > 0 && a < L) s += dim(x0, xp, 102, `a = ${num(a)}`);
+    $('beam-svg').innerHTML = s;
+  }
+
+  // =====================================================================
+  //  グラフ（Chart.js）
+  // =====================================================================
+  let charts = null;
+  function makeCharts() {
+    if (!window.Chart) return null;
+    Chart.defaults.color = '#8696a7';
+    Chart.defaults.font.family = '"IBM Plex Mono", ui-monospace, monospace';
+    Chart.defaults.font.size = 10;
+    const opts = unit => ({
+      responsive: true, maintainAspectRatio: false, animation: false, parsing: false, normalized: true,
+      interaction: { mode: 'nearest', axis: 'x', intersect: false },
+      elements: { point: { radius: 0, hoverRadius: 3 }, line: { borderWidth: 2, tension: 0 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1a2532', borderColor: '#2a3846', borderWidth: 1, titleColor: '#e6edf3', bodyColor: '#e6edf3',
+          filter: it => !it.dataset.isRef,
+          callbacks: {
+            title: it => (it.length ? `x = ${num(it[0].parsed.x)} mm` : ''),
+            label: it => ` ${it.dataset.label}: ${num(it.parsed.y)} ${unit}`,
+          },
+        },
+      },
+      scales: {
+        x: { type: 'linear', min: 0, max: 1000, grid: { color: '#18222d' }, border: { color: '#2a3846' }, ticks: { maxTicksLimit: 6, callback: v => num(v) } },
+        y: { grid: { color: c => (c.tick.value === 0 ? '#3a4a5c' : '#18222d') }, border: { color: '#2a3846' }, ticks: { maxTicksLimit: 6, callback: v => num(v, 3) } },
+      },
+    });
+    const mk = (id, unit) => new Chart($(id), { type: 'line', data: { datasets: [] }, options: opts(unit) });
+    return { d: mk('ch-d', 'mm'), v: mk('ch-v', 'N'), m: mk('ch-m', 'N·m') };
+  }
+
+  function renderCharts(res) {
+    if (!charts) charts = makeCharts();
+    if (!charts) return;
+    const ds = (k, data, fill) => ({
+      label: `${k}案`, data, borderColor: COLORS[k], borderDash: k === 'B' ? [6, 4] : [],
+      backgroundColor: k === 'A' ? 'rgba(109,141,255,.12)' : 'rgba(245,165,36,.08)', fill: fill ? 'origin' : false,
+    });
+    const keys = shownCases().filter(k => res[k] && !res[k].err);
+    const D = keys.map(k => ds(k, res[k].defl, true));
+    D.push({ label: '許容', isRef: true, data: [{ x: 0, y: -S.dAllow }, { x: S.L, y: -S.dAllow }], borderColor: 'rgba(248,113,113,.8)', borderDash: [3, 3], borderWidth: 1.2, fill: false });
+    charts.d.data.datasets = D;
+    charts.v.data.datasets = keys.map(k => ds(k, res[k].V, true));
+    charts.m.data.datasets = keys.map(k => ds(k, res[k].M, true));
+    for (const c of Object.values(charts)) { c.options.scales.x.max = S.L; c.update('none'); }
+    // たわみ図の縦軸：許容線と曲線が両方見えるように
+    const dm = Math.max(S.dAllow, ...keys.map(k => res[k].dmax)) * 1.15 || 1;
+    charts.d.options.scales.y.min = -dm;
+    charts.d.options.scales.y.max = dm * 0.25;
+    charts.d.update('none');
+    $('legend').innerHTML = keys.map(k => `<span class="flex items-center gap-1.5"><i class="inline-block w-5 h-0.5" style="background:${COLORS[k]}${k === 'B' ? ';background:repeating-linear-gradient(90deg,#f5a524 0 5px,transparent 5px 8px)' : ''}"></i>${k}案</span>`).join('') +
+      `<span class="flex items-center gap-1.5"><i class="inline-block w-5 h-0.5" style="background:repeating-linear-gradient(90deg,#f87171 0 3px,transparent 3px 6px)"></i>許容たわみ</span>`;
+  }
+
+  // =====================================================================
+  //  結果表示
+  // =====================================================================
+  function judge(r) {
+    const okD = r.dmax <= S.dAllow * (1 + 1e-9), okS = r.sf >= S.sfTarget * (1 - 1e-9);
+    return { ok: okD && okS, okD, okS };
+  }
+  function caseLabel(k) {
+    const c = S.cases[k];
+    const m = MAT[c.mat];
+    const matName = c.mat === 'custom' ? `E=${num(c.E)}GPa` : m.name.replace(/（.*）/, '');
+    const secName = c.mode === 'manual' ? '任意数値' : `${SHAPE[c.shape].name}${c.axis === 'y' ? '・Y軸' : ''}`;
+    return `${matName} / ${secName}`;
+  }
+
+  function renderResults(res, secs) {
+    const keys = shownCases();
+    // ヘッダーの要約
+    $('summary').innerHTML = keys.map(k => {
+      const r = res[k];
+      if (r.err) return `<div class="sum-row"><i class="dot" style="background:${COLORS[k]}"></i><span class="text-ng col-span-4">${k}案：${r.err}</span></div>`;
+      const j = judge(r);
+      return `<div class="sum-row">
+        <i class="dot" style="background:${COLORS[k]}"></i>
+        <span><span class="k">δ</span><b class="${j.okD ? '' : 'text-ng'}">${num(r.dmax, 3)}</b><span class="k"> mm</span></span>
+        <span><span class="k">σ</span><b>${num(r.sigma, 3)}</b><span class="k"> MPa</span></span>
+        <span><span class="k">SF</span><b class="${j.okS ? '' : 'text-ng'}">${num(r.sf, 3)}</b></span>
+        <span class="badge ${j.ok ? 'ok' : 'ng'}" style="padding:1px 8px;font-size:11px">${j.ok ? 'OK' : 'NG'}</span>
+      </div>`;
+    }).join('');
+
+    $('results').innerHTML = keys.map(k => {
+      const r = res[k], c = S.cases[k], sec = secs[k];
+      const head = `<div class="flex items-center gap-2 mb-2 min-w-0">
+          ${S.compare ? `<span class="dot flex-none" style="background:${COLORS[k]}"></span><b class="text-[14px]">${k}案</b>` : ''}
+          <span class="text-[12px] text-mute truncate">${caseLabel(k)}</span>`;
+      if (r.err) return `<div>${head}</div><p class="text-ng text-sm">${r.err}</p></div>`;
+      const j = judge(r);
+      const rd = S.dAllow > 0 ? r.dmax / S.dAllow : 0, rs = r.sf > 0 ? S.sfTarget / r.sf : 0;
+      const bar = (ratio, ok) => `<div class="bar mt-1.5"><i style="width:${Math.min(100, ratio * 100).toFixed(1)}%;background:${ok ? 'var(--ok)' : 'var(--ng)'}"></i></div>`;
+      const reasons = [!j.okD && 'たわみ超過', !j.okS && '安全率不足'].filter(Boolean).join('・');
+      const Ireq = r.dmax > 0 ? sec.I * r.dmax / S.dAllow : 0;
+      const Zreq = r.Mmax * S.sfTarget / c.sy;
+      const lc = r.lc;
+      const gm = sec.A > 0 ? gPerM(sec.A, c.rho) : NaN;
+      const fixedM = S.support === 'cant' ? `<div>固定端 <var>M</var>₁ <b>${num(lc.M1 / 1000)}</b> N·m</div>`
+        : S.support === 'fixed' ? `<div><var>M</var>₁ <b>${num(lc.M1 / 1000)}</b> / <var>M</var>₂ <b>${num(lc.M2 / 1000)}</b> N·m</div>` : '';
+      return `<div>
+        ${head}<span class="badge ${j.ok ? 'ok' : 'ng'} ml-auto">${j.ok ? '判定 OK' : 'NG：' + reasons}</span></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="stat"><div class="k">最大たわみ δ<sub>max</sub></div><div class="v ${j.okD ? '' : 'text-ng'}">${num(r.dmax)}<small>mm</small></div>
+            <div class="s">x = ${num(r.xd)} mm ・ 許容の ${num(rd * 100, 3)}%</div>${bar(rd, j.okD)}</div>
+          <div class="stat"><div class="k">安全率 S.F.</div><div class="v ${j.okS ? '' : 'text-ng'}">${num(r.sf, 3)}</div>
+            <div class="s">目標 ${num(S.sfTarget)} 以上 ・ σy ${num(c.sy)}</div>${bar(rs, j.okS)}</div>
+          <div class="stat"><div class="k">最大曲げ応力 σ<sub>max</sub></div><div class="v">${num(r.sigma)}<small>MPa</small></div>
+            <div class="s">x = ${num(r.xm)} mm</div></div>
+          <div class="stat"><div class="k">最大曲げモーメント</div><div class="v">${num(r.Mmax / 1000)}<small>N·m</small></div>
+            <div class="s">重量 ${isFinite(gm) ? num(gm) + ' g/m' : '—（A 未入力）'}</div></div>
+        </div>
+        <div class="grid grid-cols-2 gap-x-3 gap-y-1 mt-2.5 text-[12px] text-mute mono [&_b]:text-fg [&_b]:font-medium">
+          <div>反力 <var>R</var>₁ <b>${num(lc.R1)}</b> N</div>
+          <div>反力 <var>R</var>₂ <b>${num(lc.R2)}</b> N</div>
+          ${fixedM}
+          ${r.w > 0 ? `<div>自重 <var>w</var> <b>${num(r.w * 1000)}</b> N/m</div>` : ''}
+          <div>必要 <var>I</var> ≧ <b>${sci(Ireq)}</b> mm⁴</div>
+          <div>必要 <var>Z</var> ≧ <b>${sci(Zreq)}</b> mm³</div>
+        </div>
+      </div>`;
+    }).join('<hr class="border-line">');
+  }
+
+  // =====================================================================
+  //  逆引き最適化
+  // =====================================================================
+  function renderOptCats() {
+    $('opt-cats').innerHTML = CATS.map(c => {
+      const n = CATALOG.filter(x => x.cat === c.key).length;
+      return `<button type="button" class="chip" data-cat="${c.key}" aria-pressed="${S.optCats.includes(c.key)}">${c.name} <span class="opacity-60">${n}</span></button>`;
+    }).join('');
+    $('opt-cats').querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => {
+      const k = b.dataset.cat;
+      S.optCats = S.optCats.includes(k) ? S.optCats.filter(x => x !== k) : [...S.optCats, k];
+      b.setAttribute('aria-pressed', S.optCats.includes(k));
+      runOpt(); scheduleSave();
+    }));
+  }
+
+  function runOpt() {
+    const c = cur(), mat = matOf(c);
+    const pool = CATALOG.filter(x => S.optCats.includes(x.cat));
+    const hits = [];
+    for (const item of pool) {
+      const sec = shapeSection(SHAPE[item.shape], item.dims, c.axis);
+      if (sec.err) continue;
+      const r = solve(sec, mat, false);
+      const j = judge(r);
+      if (j.ok) hits.push({ item, sec, r, gm: gPerM(sec.A, c.rho) });
+    }
+    hits.sort((p, q) => p.gm - q.gm);
+    const top = hits.slice(0, 5);
+    const supName = { cant: '片持ち梁', ss: '両端支持梁', fixed: '両端固定梁' }[S.support];
+    const matName = c.mat === 'custom' ? `カスタム材（E=${num(c.E)} GPa）` : MAT[c.mat].name;
+    $('opt-cond').innerHTML = `${S.compare ? `<b style="color:${COLORS[S.active]}">${S.active}案</b>の` : ''}材質 <b class="text-fg">${matName}</b>・${c.axis === 'y' ? 'Y' : 'X'}軸まわりで、
+      ${supName} L=${num(S.L)} mm・P=${num(S.P)} N${S.selfWeight ? '・自重込み' : ''} に対し
+      <b class="text-fg">δ ≦ ${num(S.dAllow)} mm</b> かつ <b class="text-fg">S.F. ≧ ${num(S.sfTarget)}</b> を満たす断面：
+      <b class="text-fg">${pool.length} 件中 ${hits.length} 件</b>`;
+    if (!top.length) {
+      $('opt-list').innerHTML = `<div class="text-[13px] text-mute border border-dashed border-line rounded-xl p-4 text-center">
+        ${pool.length ? '条件を満たす断面が見つかりません。<br>許容たわみ・安全率を見直すか、候補の種類を増やしてください。' : '候補の種類を1つ以上選んでください。'}</div>`;
+      return;
+    }
+    const curSec = sectionOf(c);
+    const curGm = !curSec.err && curSec.A > 0 ? gPerM(curSec.A, c.rho) : NaN;
+    $('opt-list').innerHTML = top.map((h, i) => {
+      const diff = isFinite(curGm) ? (h.gm - curGm) / curGm * 100 : NaN;
+      const catName = CATS.find(x => x.key === h.item.cat).name;
+      return `<div class="opt-row">
+        <div class="rank">${i + 1}</div>
+        <div class="min-w-0">
+          <div class="flex items-baseline gap-2 min-w-0"><b class="mono text-[14px] truncate">${h.item.label}</b><span class="text-[11px] text-mute flex-none">${catName}</span></div>
+          <div class="mono text-[12px] mt-0.5"><b class="text-ok">${num(h.gm)} g/m</b>${isFinite(diff) ? ` <span class="text-mute">（現断面比 ${diff > 0 ? '+' : ''}${num(diff, 3)}%）</span>` : ''}</div>
+          <div class="mono text-[11px] text-mute mt-0.5 truncate">δ ${num(h.r.dmax, 3)} mm ・ SF ${num(h.r.sf, 3)} ・ I ${sci(h.sec.I)}</div>
+        </div>
+        <button type="button" class="apply-btn" data-i="${i}">適用</button>
+      </div>`;
+    }).join('');
+    $('opt-list').querySelectorAll('.apply-btn').forEach(b => b.addEventListener('click', () => {
+      const h = top[+b.dataset.i];
+      c.mode = 'shape'; c.shape = h.item.shape;
+      c.dims[h.item.shape] = { ...h.item.dims };
+      buildEditor(); update();
+      toast(`${S.compare ? S.active + '案に ' : ''}${h.item.label} を適用しました`);
+    }));
+  }
+
+  // =====================================================================
+  //  更新ループ
+  // =====================================================================
+  let optT;
+  function update() {
+    const res = {}, secs = {};
+    for (const k of shownCases()) {
+      const c = S.cases[k];
+      const sec = sectionOf(c);
+      secs[k] = sec;
+      res[k] = sec.err ? { err: sec.err } : solve(sec, matOf(c), true);
+    }
+    const activeSec = secs[S.active];
+    renderSecProps(cur(), activeSec);
+    drawBeam(res.A && !res.A.err ? res.A : null);
+    renderResults(res, secs);
+    renderCharts(res);
+    clearTimeout(optT); optT = setTimeout(runOpt, 120);
+    scheduleSave();
+  }
+
+  // =====================================================================
+  //  保存（JSON エクスポート / インポート）
+  // =====================================================================
+  $('btn-export').addEventListener('click', () => {
+    const data = { app: 'beam-optima', version: 1, savedAt: new Date().toISOString(), state: S };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const d = new Date(), pad = n => String(n).padStart(2, '0');
+    const name = `beam-optima-${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}.json`;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    toast('JSON を書き出しました');
+  });
+  $('btn-import').addEventListener('click', () => $('file-import').click());
+  $('file-import').addEventListener('change', e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      try {
+        const j = JSON.parse(rd.result);
+        const st = j && j.state ? j.state : j;
+        if (!st || typeof st !== 'object' || !('cases' in st || 'L' in st)) throw new Error('形式が違います');
+        S = sanitize(merge(defaults(), st));
+        refreshAll();
+        toast('JSON を読み込みました');
+      } catch (err) { toast('読み込めませんでした：' + err.message); }
+      e.target.value = '';
+    };
+    rd.readAsText(f);
+  });
+  $('btn-reset').addEventListener('click', () => {
+    if (!confirm('入力をすべて初期値に戻しますか？')) return;
+    S = defaults(); refreshAll(); toast('初期値に戻しました');
+  });
+
+  function refreshAll() {
+    syncGlobalInputs(); buildEditor(); renderOptCats(); update(); icons();
+  }
+  refreshAll();
+})();
+</script>
+</body>
+</html>
