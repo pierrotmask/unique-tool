@@ -142,6 +142,8 @@ p.lead{margin:0 0 12px;color:var(--muted);font-size:14px}
 .ctr .num:focus{outline:2px solid var(--sage);border-color:var(--sage)}
 .ctr button{width:44px;height:44px;border-radius:10px;border:0;background:#fff;font-size:22px;font-weight:700;color:var(--sage);box-shadow:0 1px 3px rgba(0,0,0,.08);cursor:pointer}
 .ctr.dis{opacity:.45}
+@media (max-width:374px){.ctrls{grid-template-columns:1fr}}
+.ctr{min-width:0}
 
 /* 献立 */
 .day{margin:16px 0}
@@ -416,6 +418,15 @@ const ING_LIST = [
 ];
 const ING = {}; ING_LIST.forEach(g=>ING[g.id]=g);
 
+/* 栄養バランス用の属性 */
+const IRON = new Set(['horenso','komatsuna','natto','koya','tuna','ranou','egg','edamame','butamince','oat']); /* 鉄分を多く含む食材 */
+const IRON_BASES = new Set(['kinako','aonori']);                     /* 鉄分を補える味付け */
+const GY = new Set(['ninjin','kabocha','horenso','broc','tomato','komatsuna','okra','piman']); /* 緑黄色野菜 */
+const PTYPE = {tofu:'soy',natto:'soy',koya:'soy',shirasu:'fish',tai:'fish',tara:'fish',sake:'fish',tuna:'fish',
+               sasami:'meat',torimince:'meat',butamince:'meat',ranou:'egg',egg:'egg',yogurt:'dairy',cottage:'dairy'};
+const PTYPE_LABEL = {fish:'魚',meat:'肉',soy:'大豆製品',egg:'卵',dairy:'乳製品'};
+const PERISH = new Set(['tofu','yogurt','cottage','ichigo','kiwi']);  /* 開封後・購入後2〜3日で使い切りたい食材 */
+
 /* 味付けベース */
 const BASES = {
   plain:   {name:'素材の味', min:0, al:[], need:'',
@@ -688,6 +699,11 @@ function carbOK(c,stage,ng){ return (c.min||0)<=stage && ingOK(c.ing,stage,ng) &
 function recipeMin(r){ return Math.max(BASES[r.base].min, ...r.parts.map(p=>ING[p].min)); }
 function mainProtein(r){ return r.parts.find(p=>ING[p].cat==='protein') || r.parts[0]; }
 function comboKey(r){ return r.parts.slice().sort().join('+'); }
+function recipeIron(r){ return !!r && (r.parts.some(p=>IRON.has(p)) || IRON_BASES.has(r.base)); }
+function carbIron(cid){ const c=CARB_DISHES.find(x=>x.id===cid); return !!c && (IRON.has(c.ing) || IRON_BASES.has(c.base)); }
+function recipeGY(r){ return !!r && r.parts.some(p=>GY.has(p)); }
+function recipeHasVeg(r){ return !!r && r.parts.some(p=>ING[p].cat==='veg'); }
+function recipePType(r){ const p=r && r.parts.find(x=>PTYPE[x]); return p ? PTYPE[p] : null; }
 function hasStock(id){ return (S.stock.fresh[id]||0)>0 || (S.stock.cubes[id]||0)>0; }
 
 /* 1食分の使用量 */
@@ -722,26 +738,37 @@ function toPrevJSON(info){ return {recipes:[...info.recipes], combos:[...info.co
 function fromPrevJSON(j){ return {recipes:new Set(j.recipes||[]), combos:new Set(j.combos||[]), mains:j.mains||{}, carbs:j.carbs||{}, ings:new Set(j.ings||[])}; }
 
 function buildCtx(opts){
-  const stage=stageNow(), ng=ngSet();
+  const stage=(opts.stage!==undefined)?opts.stage:stageNow(), ng=ngSet();
   const challenge=!!S.settings.challenge;
   const tried=new Set(S.settings.tried);
   return {stage, ng, challenge, tried, strong:!!opts.strong, prev:opts.prev, core:opts.core, intro:opts.intro||{}};
 }
+/* チャレンジON時は「食べたことがある食材」だけで普段のおかずを組む。
+   はじめて食材は1さじから少しずつ増やすのが基本なので、同じ週のおかずには使わない
+   （「問題なく食べられた」を押すと翌週以降の献立に登場） */
 function usableOn(ctx,id,d){
   if(!ctx.challenge) return true;
-  if(ctx.tried.has(id)) return true;
-  return ctx.intro[id]!==undefined && ctx.intro[id] < d;
+  return ctx.tried.has(id);
 }
 
 /* 週のコア食材（1つの食材を使い回すための選定） */
 function chooseCore(ctx, introIds){
   const {stage, ng, prev} = ctx;
-  const usable = id => ingOK(id,stage,ng) && (!ctx.challenge || ctx.tried.has(id) || introIds.includes(id));
-  const scoreIng = id => rnd(3) + (hasStock(id)?6:0) - (prev.ings.has(id)?(ctx.strong?2.2:1):0) - (prev.mains[id]? (ctx.strong?2:0.8):0) + (introIds.includes(id)?2.5:0);
+  const usable = id => ingOK(id,stage,ng) && (!ctx.challenge || ctx.tried.has(id));
+  const scoreIng = id => rnd(3) + (hasStock(id)?6:0) - (prev.ings.has(id)?(ctx.strong?2.2:1):0) - (prev.mains[id]? (ctx.strong?2:0.8):0) + (IRON.has(id)?1.5:0);
   const pick = (cats,n) => ING_LIST.filter(g=>cats.includes(g.cat)&&usable(g.id)).map(g=>({id:g.id,s:scoreIng(g.id)})).sort((a,b)=>b.s-a.s).slice(0,n).map(x=>x.id);
   const nVeg = stage===0?3:(stage===1?4:5), nPro = stage===0?2:(stage===1?3:4);
   const veg = pick(['veg','fruit'], nVeg);
-  const pro = pick(['protein'], nPro);
+  /* タンパク質は種類（魚・肉・大豆・卵・乳）がばらけるように1種類ずつ選ぶ */
+  const proCands = ING_LIST.filter(g=>g.cat==='protein'&&usable(g.id)).map(g=>({id:g.id,s:scoreIng(g.id)})).sort((a,b)=>b.s-a.s);
+  const pro = [], usedT = new Set();
+  proCands.forEach(x=>{ if(pro.length<nPro && !usedT.has(PTYPE[x.id])){ pro.push(x.id); usedT.add(PTYPE[x.id]); } });
+  proCands.forEach(x=>{ if(pro.length<nPro && !pro.includes(x.id)) pro.push(x.id); });
+  /* 鉄分食材と緑黄色野菜をコアに最低1つずつ */
+  const ironC = ING_LIST.filter(g=>IRON.has(g.id)&&g.cat!=='carb'&&usable(g.id)).map(g=>({id:g.id,s:scoreIng(g.id)})).sort((a,b)=>b.s-a.s);
+  if(ironC.length && !veg.concat(pro).some(id=>IRON.has(id))){ const x=ironC[0].id; (ING[x].cat==='protein'?pro:veg).push(x); }
+  const gyC = ING_LIST.filter(g=>GY.has(g.id)&&usable(g.id)).map(g=>({id:g.id,s:scoreIng(g.id)})).sort((a,b)=>b.s-a.s);
+  if(gyC.length && !veg.some(id=>GY.has(id))) veg.push(gyC[0].id);
   /* 炭水化物：おかゆ＋2〜3種 */
   const carbIds = ING_LIST.filter(g=>g.cat==='carb'&&usable(g.id)).map(g=>({id:g.id,s:scoreIng(g.id)+(g.id==='kayu'?100:0)})).sort((a,b)=>b.s-a.s).slice(0, stage===0?2:(stage===1?3:4)).map(x=>x.id);
   const core = new Set([...veg,...pro]);
@@ -777,9 +804,24 @@ function pickRecipe(ctx, days, d, m, exclude){
   const {stage, ng, prev} = ctx;
   const core = new Set(ctx.core.items);
   let cands = RECIPES.filter(r=>recipeOK(r,stage,ng) && r.parts.every(p=>usableOn(ctx,p,d)) && r.id!==exclude);
-  if(!cands.length) cands = RECIPES.filter(r=>recipeOK(r,stage,ng) && r.id!==exclude);
+  if(!cands.length){
+    /* 食べたことがある食材だけでは組めない場合：未経験食材が最も少ないレシピに限定 */
+    const all = RECIPES.filter(r=>recipeOK(r,stage,ng) && r.id!==exclude);
+    const un = r => r.parts.filter(p=>!usableOn(ctx,p,d)).length;
+    const mn = Math.min(...all.map(un));
+    cands = all.filter(r=>un(r)===mn);
+  }
   if(!cands.length) return null;
   const st = weekStats(days,[d,m]);
+  /* 栄養バランス用の状況 */
+  const nM = STAGES[stage].meals, isLast = (m===nM-1);
+  const others = (days[d]?days[d].meals:[]).filter((_,i)=>i!==m);
+  const dayIron = others.some(x=>recipeIron(RECIPES.find(r=>r.id===x.recipe)) || carbIron(x.carb));
+  const dayGY = others.some(x=>recipeGY(RECIPES.find(r=>r.id===x.recipe)));
+  const tcount = {}; Object.keys(st.pro).forEach(p=>{ const t=PTYPE[p]; if(t) tcount[t]=(tcount[t]||0)+st.pro[p]; });
+  const totalP = Object.values(tcount).reduce((a,b)=>a+b,0);
+  const availT = new Set(cands.map(recipePType).filter(Boolean));
+  const missingT = [...availT].filter(t=>!tcount[t]);
   const today = (days[d]?days[d].meals:[]).filter((_,i)=>i!==m).map(x=>RECIPES.find(r=>r.id===x.recipe)).filter(Boolean);
   const yday = d>0 ? days[d-1].meals.map(x=>x.recipe) : [];
   const tmr  = days[d+1] ? days[d+1].meals.map(x=>x.recipe) : [];
@@ -792,7 +834,6 @@ function pickRecipe(ctx, days, d, m, exclude){
       s += core.has(p) ? 5 : -13;
       if(hasStock(p)) s += 5;
       if(st.ing[p]) s += Math.min(st.ing[p],3)*0.8;   /* 同じ食材の使い回し（無駄なく使い切る） */
-      if(ctx.intro[p]!==undefined && ctx.intro[p]<d) s += 2; /* はじめて食材を後日おかずで再登場 */
     });
     s -= (st.rec[r.id]||0)*(stage===0?30:17);
     if(prev.recipes.has(r.id)) s -= ctx.strong?70:25;
@@ -805,6 +846,16 @@ function pickRecipe(ctx, days, d, m, exclude){
     if(todayBases.has(r.base)) s -= 5;
     if(stage>=2) s += recipeMin(r)*1.2;   /* 月齢が進んだら新しい味付けを優先 */
     if(r.parts.length===3 && stage>=1) s += 1;
+    /* 栄養バランス：鉄分は毎日、緑黄色野菜も毎日、タンパク質は種類をばらけさせる */
+    if(recipeIron(r)) s += dayIron ? 1 : 5; else if(isLast && !dayIron) s -= 30;
+    if(!dayGY){ if(recipeGY(r)) s += 3; else if(isLast) s -= 15; }
+    if(!recipeHasVeg(r)) s -= 18;               /* 果物だけのおかずは控えめに */
+    const t = recipePType(r);
+    if(t){
+      const share = (tcount[t]||0)/Math.max(1,totalP);
+      if(totalP>=3 && share>0.3) s -= (share-0.3)*50;
+      if(missingT.includes(t)) s += 3 + d*2;   /* 週の後半ほど未登場の種類を優先 */
+    }
     if(s>bestS){ bestS=s; best=r; }
   });
   return best ? best.id : null;
@@ -814,6 +865,7 @@ function pickCarb(ctx, days, d, m, exclude){
   const {stage, ng} = ctx;
   const core = new Set(ctx.core.carbs);
   let cands = CARB_DISHES.filter(c=>carbOK(c,stage,ng) && usableOn(ctx,c.ing,d) && c.id!==exclude);
+  if(!cands.length) cands = CARB_DISHES.filter(c=>carbOK(c,stage,ng) && c.id!==exclude && c.ing==='kayu');
   if(!cands.length) cands = CARB_DISHES.filter(c=>carbOK(c,stage,ng) && c.id!==exclude);
   if(!cands.length) return null;
   const st = weekStats(days,[d,m]);
@@ -831,6 +883,7 @@ function pickCarb(ctx, days, d, m, exclude){
     if(yday.includes(c.id)) s -= 4;
     if(c.base!=='plain' && recipe && recipe.base===c.base) s -= 6;  /* おかずと同じ味付けを避ける */
     if(ctx.prev.carbs[c.id] && ctx.strong) s -= 1.5;
+    if(carbIron(c.id) && !recipeIron(recipe)) s += 2;
     if(s>bestS){ bestS=s; best=c; }
   });
   return best ? best.id : null;
@@ -838,25 +891,30 @@ function pickCarb(ctx, days, d, m, exclude){
 
 function newCandidates(ctx){
   const order={veg:0, fruit:1, carb:2, protein:3};
-  return ING_LIST.filter(g=>ingOK(g.id,ctx.stage,ctx.ng) && !ctx.tried.has(g.id))
+  return ING_LIST.filter(g=>ingOK(g.id,ctx.stage,ctx.ng) && !ctx.tried.has(g.id) && !(g.id==='egg' && !ctx.tried.has('ranou')))
     .map(g=>({id:g.id, s:g.min*10 + order[g.cat]*2 + (g.al.length?3:0) + rnd(2)}))
     .sort((a,b)=>a.s-b.s).map(x=>x.id);
 }
 
 function generateWeek(mode){
   const strong = mode==='next';
+  const thisMon = ymd(mondayOf(new Date()));
   const latest = S.history[0] || null;
-  const prevPlans = [latest];
-  if(strong && S.plan && (!latest || latest.id!==S.plan.id)) prevPlans.push(S.plan);
-  const prev = prevInfo(prevPlans);
   let weekStart;
   if(mode==='next'){
-    const ref = (S.plan && S.plan.weekStart) || (latest && latest.weekStart) || ymd(mondayOf(new Date()));
-    const ref2 = latest && latest.weekStart > ref ? latest.weekStart : ref;
-    weekStart = addDays(ref2, 7);
+    /* 「来週」= 今週と直近の確定週のうち新しい方の翌週（何度押しても先に進みすぎない） */
+    const base = latest && latest.weekStart > thisMon ? latest.weekStart : thisMon;
+    weekStart = addDays(base, 7);
+  }else if(mode && mode.week){
+    weekStart = mode.week;
   }else{
-    weekStart = ymd(mondayOf(new Date()));
+    weekStart = thisMon;
   }
+  /* 比較対象：作る週より前の直近の確定献立（＋来週分では現在表示中の献立も） */
+  const before = S.history.find(h=>h.weekStart < weekStart) || null;
+  const prevPlans = [before];
+  if(S.plan && S.plan.weekStart < weekStart && (!before || before.id!==S.plan.id)) prevPlans.push(S.plan);
+  const prev = prevInfo(prevPlans);
   const ctx = buildCtx({strong, prev, core:{items:[],carbs:[]}});
   /* はじめて食材：平日（月〜金）の1食目のみ */
   const intro={}, introIds=[];
@@ -889,7 +947,7 @@ function generateWeek(mode){
 }
 
 function ctxFromPlan(plan){
-  return buildCtx({strong:plan.ctx.strong, prev:fromPrevJSON(plan.ctx.prev), core:plan.ctx.core, intro:plan.ctx.intro});
+  return buildCtx({stage:plan.stage, strong:plan.ctx.strong, prev:fromPrevJSON(plan.ctx.prev), core:plan.ctx.core, intro:plan.ctx.intro});
 }
 
 function swapMeal(d,m){
@@ -905,24 +963,25 @@ function swapMeal(d,m){
 }
 
 /* 設定変更時：除外食材や月齢が変わったら献立を自動修正 */
+/* 月齢が変わったとき：表示中の献立を新しい月齢で作り直す（同じ週のまま） */
+function regenForStage(){
+  const plan=S.plan; if(!plan || plan.stage===stageNow()) return;
+  S.plan = generateWeek({week:plan.weekStart});
+  toast('月齢が変わったので献立を作り直しました');
+}
+/* NG食材・チャレンジ設定が変わったとき：合わない食事だけ差し替える（献立の月齢で判定） */
 function revalidatePlan(){
   const plan=S.plan; if(!plan) return;
-  const stage=stageNow(), ng=ngSet();
-  if(plan.stage!==stage){
-    S.plan = generateWeek('this');
-    S.plan.weekStart = plan.weekStart;
-    S.plan.days.forEach((d,i)=>d.date=addDays(plan.weekStart,i));
-    toast('月齢が変わったので献立を作り直しました');
-    return;
-  }
+  const stage=plan.stage, ng=ngSet();
   const ctx=ctxFromPlan(plan);
+  const tried=new Set(S.settings.tried), ch=!!S.settings.challenge;
   let changed=0;
   plan.days.forEach((day,d)=>day.meals.forEach((meal,m)=>{
     const r=RECIPES.find(x=>x.id===meal.recipe);
-    if(!r || !recipeOK(r,stage,ng)){ meal.recipe=pickRecipe(ctx,plan.days,d,m,meal.recipe); changed++; }
+    if(!r || !recipeOK(r,stage,ng) || (ch && plan.ctx.challenge && !r.parts.every(p=>tried.has(p)))){ const n=pickRecipe(ctx,plan.days,d,m,meal.recipe); if(n!==meal.recipe){ meal.recipe=n; changed++; } }
     const c=CARB_DISHES.find(x=>x.id===meal.carb);
     if(!c || !carbOK(c,stage,ng)){ meal.carb=pickCarb(ctx,plan.days,d,m,meal.carb); changed++; }
-    if(meal.newIng && (!S.settings.challenge || !ingOK(meal.newIng,stage,ng) || S.settings.tried.includes(meal.newIng))){ meal.newIng=null; changed++; }
+    if(meal.newIng && (!ch || !ingOK(meal.newIng,stage,ng))){ meal.newIng=null; changed++; }
   }));
   if(changed){ plan.saved=false; toast('設定に合わせて献立の一部を差し替えました'); }
 }
@@ -931,17 +990,19 @@ function revalidatePlan(){
    集計（買い物リスト・下処理）
    ========================================================= */
 function aggregate(plan){
-  const stage=plan.stage, tot={}, uses={}, newOnly={}, bases={};
-  plan.days.forEach(day=>day.meals.forEach(meal=>{
+  const stage=plan.stage, tot={}, uses={}, newOnly={}, bases={}, half={};
+  plan.days.forEach((day,di)=>day.meals.forEach(meal=>{
     mealItems(meal,stage).forEach(it=>{
       tot[it.id]=(tot[it.id]||0)+it.g;
+      if(!half[it.id]) half[it.id]=[0,0];
+      half[it.id][di<3?0:1]+=it.g;
       uses[it.id]=(uses[it.id]||0)+1;
       if(it.role==='new'){ if(newOnly[it.id]===undefined) newOnly[it.id]=true; } else newOnly[it.id]=false;
     });
     const r=RECIPES.find(x=>x.id===meal.recipe), c=CARB_DISHES.find(x=>x.id===meal.carb);
     [r&&r.base, c&&c.base].filter(Boolean).forEach(b=>bases[b]=(bases[b]||0)+1);
   }));
-  return {tot, uses, newOnly, bases};
+  return {tot, uses, newOnly, bases, half};
 }
 function shoppingList(plan){
   const stage=plan.stage, ag=aggregate(plan);
@@ -950,7 +1011,8 @@ function shoppingList(plan){
     const ing=ING[id], total=ag.tot[id], ug=unitG(ing,stage);
     const freshG=(S.stock.fresh[id]||0)*ug, cubeGs=(S.stock.cubes[id]||0)*ing.cubeG;
     const avail=freshG+cubeGs, net=Math.max(0,total-avail);
-    const item={id, ing, total, net, avail, uses:ag.uses[id], newOnly:ag.newOnly[id],
+    const split = PERISH.has(id) && !ag.newOnly[id] && ag.half[id] && ag.half[id][0]>0 && ag.half[id][1]>0 ? ag.half[id] : null;
+    const item={id, ing, total, net, avail, uses:ag.uses[id], newOnly:ag.newOnly[id], split,
       useFrac: fracText(total/ug), netFrac: fracText(net/ug), buyN: Math.max(1, Math.ceil(net/ug - 0.05))};
     if(net<=0.5) have.push(item); else buy.push(item);
   });
@@ -1024,6 +1086,13 @@ function viewSettings(){
     <div class="memo">💡 ${st.cook}</div>
     <p class="xs muted" style="margin:8px 0 0">目安量は厚生労働省「授乳・離乳の支援ガイド」を参考にした一般的な目安です。食べる量には個人差があるので、お子さまの様子に合わせて調整してください。</p>
   </div>`;
+  h+=`<div class="card"><h3>⚠️ 安全のためのメモ</h3><ul class="small" style="margin:0;padding-left:20px">
+    <li><b>はちみつは1歳未満は与えない</b>でください（乳児ボツリヌス症の危険）。このアプリでは使っていません。</li>
+    ${s.stage===0?'<li>離乳食を始めて最初の1ヶ月ほどは、おかゆ→野菜に慣れてから、豆腐・白身魚などのタンパク質を少しずつ。量は小さじ1から。</li>':''}
+    <li>はじめての食材は、平日の午前中に1さじから。特に卵は<b>固ゆで卵黄→全卵</b>の順に進めます。</li>
+    <li>ナッツ・ぶどう・ミニトマト・枝豆などの丸いものは、誤嚥を防ぐため必ずつぶす・刻む。</li>
+    <li>アレルギーの診断を受けている場合や心配なことがある場合は、医師の指示を優先してください。</li>
+  </ul></div>`;
   h+=`<div class="card"><h3>アレルギー・未経験で除外する食材<small>${s.ng.length}件除外中</small></h3>
     <p class="small muted mt0">チェックした食材は献立・レシピ・買い物リストから完全に除外されます（関連する味付けも含む）。</p><div class="chips">`;
   ALLERGENS.forEach(a=>{ const on=ng.has(a.id); h+=`<button class="chip ${on?'on':''}" data-act="ng" data-v="${a.id}">${on?'🚫 ':''}${a.name}</button>`; });
@@ -1031,7 +1100,7 @@ function viewSettings(){
   h+=`<div class="card"><button class="switch ${s.challenge?'on':''}" data-act="challenge"><span><b>新食材チャレンジ</b><br><span class="small muted">平日（月〜金）の1食目（午前）にだけ、まだ試していない食材を「はじめて食材（1さじ）」として配置します。土日には配置しません。</span></span><span class="tr"></span></button>`;
   if(s.challenge){
     const tried=new Set(s.tried);
-    h+=`<div class="hr"></div><h3>食べたことがある食材<small>タップで切り替え</small></h3><p class="small muted mt0">✅の食材だけで普段のおかずを組み、未経験の食材は平日午前に1さじずつ試します。試した翌日以降は普段のおかずにも登場します。</p>`;
+    h+=`<div class="hr"></div><h3>食べたことがある食材<small>タップで切り替え</small></h3><p class="small muted mt0">✅の食材だけで普段のおかずを組み、未経験の食材は平日午前に1さじずつ試します。食べられたら献立の「問題なく食べられた」ボタン（またはここ）で✅にすると、次回以降の献立に登場します。全卵は卵黄に✅が付いてから出てきます。</p>`;
     CAT_ORDER.forEach(cat=>{
       const list=ING_LIST.filter(g=>g.cat===cat && ingOK(g.id,s.stage,ng));
       if(!list.length) return;
@@ -1101,7 +1170,9 @@ function mealHTML(plan, d, m){
   }
   if(meal.newIng){
     const n=ING[meal.newIng];
-    h+=`<div class="newbox">🆕 <b>はじめて食材：${n.name}（1さじ）</b><br>おかずとは別に、加熱した${n.name}を小さじ1杯だけ。${n.al.length?'アレルギーが心配な食材なので耳かき1杯程度から。':''}食後2時間ほどは様子を見て、異変があれば受診を。</div>`;
+    const done=S.settings.tried.includes(meal.newIng);
+    h+=`<div class="newbox">🆕 <b>はじめて食材：${n.name}（1さじ）</b><br>おかずとは別に、${n.freeze==='none'&&n.sh==='asis'?'':'加熱した'}${n.name}を小さじ1杯だけ。${n.al.length?'アレルギーが心配な食材なので耳かき1杯程度から。':''}体調のよい日に、食後2時間ほどは様子を見て、口のまわりの赤み・じんましん・嘔吐などがあれば受診を。数日続けて少しずつ量を増やすと安心です。
+      ${done?'<div style="margin-top:6px;font-weight:700;color:var(--sage)">✅ 食べたことがある食材に追加済み（来週以降の献立に登場します）</div>':`<button class="btn ghost sage sm" style="margin-top:8px" data-act="markTried" data-v="${n.id}">問題なく食べられた → 食べたことがある食材に追加</button>`}</div>`;
   }
   /* 作り方 */
   h+=`<details class="how"><summary>作り方・月齢メモ</summary><ol>`;
@@ -1113,7 +1184,39 @@ function mealHTML(plan, d, m){
   const bnote = r && BASES[r.base].st && BASES[r.base].st[stage] ? `<br>🧂 ${BASES[r.base].name}：${BASES[r.base].st[stage]}` : '';
   h+=`<div class="memo">👶 <b>${st.label}の形状</b>：${sItems.map(it=>`${ING[it.id].name}は${shapeOf(ING[it.id],stage)}`).join('、')}。<br>${st.cook}${bnote}${r?`<br>💡 ${r.tip}`:''}</div>`;
   h+=`</details>`;
-  h+=`<div class="acts"><button class="btn ghost sage sm" data-act="swap" data-d="${d}" data-m="${m}">🔄 別メニューに変更</button></div></div>`;
+  if(plan.stage===stageNow()) h+=`<div class="acts"><button class="btn ghost sage sm" data-act="swap" data-d="${d}" data-m="${m}">🔄 別メニューに変更</button></div>`;
+  h+=`</div>`;
+  return h;
+}
+
+/* 今週の栄養チェック */
+function nutritionHTML(plan){
+  let ironDays=0, gyDays=0, noVeg=0; const tc={};
+  plan.days.forEach(day=>{
+    let ir=false, gy=false;
+    day.meals.forEach(m=>{
+      const r=RECIPES.find(x=>x.id===m.recipe);
+      if(recipeIron(r)||carbIron(m.carb)) ir=true;
+      if(recipeGY(r)) gy=true;
+      if(r && !recipeHasVeg(r)) noVeg++;
+      const t=recipePType(r); if(t) tc[t]=(tc[t]||0)+1;
+    });
+    if(ir) ironDays++; if(gy) gyDays++;
+  });
+  const ng=ngSet();
+  const ch=plan.ctx.challenge && S.settings.challenge, tried=new Set(S.settings.tried);
+  const okT=t=>Object.keys(PTYPE).some(id=>PTYPE[id]===t && ingOK(id,plan.stage,ng));
+  const availT=Object.keys(PTYPE_LABEL).filter(t=>okT(t) && (!ch || Object.keys(PTYPE).some(id=>PTYPE[id]===t && ingOK(id,plan.stage,ng) && tried.has(id))));
+  const untriedT=Object.keys(PTYPE_LABEL).filter(t=>okT(t) && !availT.includes(t));
+  const total=Object.values(tc).reduce((a,b)=>a+b,0)||1;
+  const okMark=b=>b?'<span class="tag">◎</span>':'<span class="tag t">△</span>';
+  let h=`<div class="card"><h3>🥗 今週の栄養チェック</h3><table class="tbl">
+    <tr><th>鉄分のある日</th><td>${okMark(ironDays===7)}<b>${ironDays}</b>/7日<div class="xs muted">生後6ヶ月ごろから不足しやすい栄養素。小松菜・ほうれん草・赤身魚・卵黄・納豆・高野豆腐・きなこ・青のり・オートミールなど</div></td></tr>
+    <tr><th>緑黄色野菜のある日</th><td>${okMark(gyDays===7)}<b>${gyDays}</b>/7日</td></tr>
+    <tr><th>タンパク質の種類</th><td>${okMark(availT.every(t=>tc[t]))}${availT.map(t=>`${PTYPE_LABEL[t]} ${tc[t]||0}回`).join('・')}
+      <div class="progress" style="display:flex;height:10px">${availT.map((t,i)=>`<i style="width:${(tc[t]||0)/total*100}%;border-radius:0;background:${['#5F7F63','#B8603F','#C9A34A','#8C7A6B','#7FA3B8'][i%5]}"></i>`).join('')}</div>${untriedT.length?`<div class="xs muted">${untriedT.map(t=>PTYPE_LABEL[t]).join('・')}はまだ試していないため、普段のおかずには使っていません（はじめて食材で試せます）</div>`:''}</td></tr>
+    <tr><th>野菜のない食事</th><td>${okMark(noVeg===0)}<b>${noVeg}</b>食${noVeg?'<div class="xs muted">果物＋ヨーグルトなどの食事です。主食を野菜入り（だしがゆに野菜キューブを混ぜる等）にすると◎</div>':''}</td></tr>
+  </table><p class="xs muted" style="margin:6px 0 0">献立はこれらを満たすように自動で組み立てています（NG食材や月齢で使える食材が少ないと満たせない場合があります）。</p></div>`;
   return h;
 }
 
@@ -1128,8 +1231,11 @@ function viewPlan(){
     const st=STAGES[plan.stage];
     const end=addDays(plan.weekStart,6);
     h+=`<div class="banner ${plan.saved?'ok':''}">${plan.saved?'✅ 確定済み（履歴に保存されています）':'📝 未確定の献立です。気に入ったら「確定・履歴に保存」を押すと、次回のローテーションに使われます。'}<br><b>${md(plan.weekStart)}（月）〜 ${md(end)}（日）</b>・${st.label} ${st.meals}回食</div>`;
-    const core=plan.ctx.core.items.filter(id=>ING[id]);
-    h+=`<div class="card"><h3>今週の冷凍パーツ<small>このパーツを使い回します</small></h3><div class="chips">${core.map(id=>`<span class="tag ${ING[id].cat==='protein'?'t':(ING[id].cat==='fruit'?'y':'')}" style="font-size:13px;padding:4px 10px">${ING[id].name}</span>`).join('')}${plan.ctx.core.carbs.filter(id=>ING[id]).map(id=>`<span class="tag y" style="font-size:13px;padding:4px 10px">${ING[id].name}</span>`).join('')}</div></div>`;
+    if(plan.stage!==stageNow()) h+=`<div class="banner">📖 この献立は「${st.label}」のときのものです（現在の設定は${STAGES[stageNow()].label}）。量・形状は当時の月齢で表示しています。今の月齢で作るときは上のボタンから新しく作成してください。</div>`;
+    const ag=aggregate(plan);
+    const used=Object.keys(ag.tot).filter(id=>ING[id] && !ag.newOnly[id]).sort((a,b)=>CAT_ORDER.indexOf(ING[a].cat)-CAT_ORDER.indexOf(ING[b].cat)||ag.uses[b]-ag.uses[a]);
+    h+=`<div class="card"><h3>今週の冷凍パーツ<small>${used.length}品目を使い回します（数字は使う回数）</small></h3><div class="chips">${used.map(id=>`<span class="tag ${ING[id].cat==='protein'?'t':(ING[id].cat==='carb'||ING[id].cat==='fruit'?'y':'')}" style="font-size:13px;padding:4px 10px">${ING[id].name} ×${ag.uses[id]}</span>`).join('')}</div></div>`;
+    h+=nutritionHTML(plan);
     plan.days.forEach((day,d)=>{
       const we=d>=5;
       h+=`<div class="day"><div class="dayhd"><span class="d">${md(day.date)}（${WEEKDAYS[d]}）</span><span class="w ${we?'we':''}">${we?'週末・新食材なし':'平日'}</span></div>`;
@@ -1176,6 +1282,7 @@ function viewShop(){
       <div class="dt">赤ちゃんが1週間で使う量：<b>${totalTxt}</b>・${x.uses}回分</div>
       <div class="dt">購入目安：<b>${ing.unitLabel}</b> → ${x.newOnly?'1さじ分だけ使用（少量でOK）':`うち<b>約${x.netFrac}${ing.unit}</b>を使用`}${x.avail>0?`（在庫${Math.round(x.avail)}g分を差し引き済み）`:''}</div>
       <div class="dt">🛍 買う数：<b>${x.buyN}${ing.unit}</b>　<span class="xs">残りは${ing.adult.replace('残りは','')}</span></div>
+      ${x.split?`<div class="dt" style="color:var(--warn)">⏳ 日持ちしないので買い分けがおすすめ：月〜水の分 約${Math.round(x.split[0])}g は週末に、木〜日の分 約${Math.round(x.split[1])}g は水曜ごろに買い足し</div>`:''}
     </span></button>`;
   });
   if(sl.extras.length){
@@ -1253,10 +1360,11 @@ document.getElementById('app').addEventListener('click',e=>{
   const act=b.dataset.act, v=b.dataset.v;
   const s=S.settings;
   switch(act){
-    case 'stage': s.stage=Number(v); revalidatePlan(); break;
+    case 'stage': s.stage=Number(v); regenForStage(); break;
     case 'ng': { const i=s.ng.indexOf(v); if(i>=0) s.ng.splice(i,1); else s.ng.push(v); revalidatePlan(); break; }
     case 'challenge': s.challenge=!s.challenge; revalidatePlan(); if(s.challenge) toast('新食材チャレンジON：献立を作り直すと反映されます'); break;
     case 'tried': { const i=s.tried.indexOf(v); if(i>=0) s.tried.splice(i,1); else s.tried.push(v); revalidatePlan(); break; }
+    case 'markTried': { if(!s.tried.includes(v)) s.tried.push(v); toast(ING[v].name+'を「食べたことがある食材」に追加しました'); break; }
     case 'resetAll': if(confirm('設定・在庫・献立・履歴をすべて初期化します。よろしいですか？')){ S=defaultState(); toast('初期化しました'); } break;
     case 'invf': S.invFilter=v; break;
     case 'invonly': S.invOnly=!S.invOnly; break;
