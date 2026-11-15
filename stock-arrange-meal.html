@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2E5A44">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="robots" content="noindex, nofollow">
+<meta name="googlebot" content="noindex, nofollow">
+<title>かけ算ごはん｜下処理ストック×味付け 日替わり献立</title>
+<style>
+:root{
+  --bg:#F8F7F4; --card:#FFFFFF; --green:#2E5A44; --green-d:#22463449; --green-l:#E6EFE9; --green-ll:#F1F6F2;
+  --orange:#D96B27; --orange-d:#B9551A; --orange-l:#FBEDE3;
+  --ink:#1F2A24; --sub:#56625B; --muted:#89928C; --line:#E9E5DD; --line2:#F1EEE8;
+  --wa:#3B5BA9; --wa-l:#E7ECF8; --yo:#A8750A; --yo-l:#FBF0D6; --chu:#C0392B; --chu-l:#FBE4E1; --kan:#8E44AD; --kan-l:#F3E5F8;
+  --ok:#2E7D4F; --ok-l:#E3F2E8; --soon:#B7791F; --soon-l:#FCF1DC; --over:#C0392B; --over-l:#FBE4E1;
+  --radius:18px; --shadow:0 1px 2px rgba(31,42,36,.05),0 4px 14px rgba(31,42,36,.06);
+  --nav-h:66px; --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI",Meiryo,sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;overscroll-behavior-y:none}
+button{font:inherit;color:inherit;border:none;background:none;cursor:pointer;padding:0}
+.wrap{max-width:560px;margin:0 auto}
+/* header */
+#hdr{position:sticky;top:0;z-index:30;background:rgba(248,247,244,.94);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line2)}
+.hdr-in{max-width:560px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px;display:flex;align-items:center;gap:10px}
+.logo{width:36px;height:36px;border-radius:11px;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:800;font-size:18px;flex:none}
+.ttl{flex:1;min-width:0}
+.ttl b{display:block;font-size:16px;letter-spacing:.02em;color:var(--green)}
+.ttl small{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ppl{display:flex;align-items:center;gap:6px;flex:none}
+.ppl-l{font-size:11px;color:var(--sub);line-height:1.1;text-align:right}
+.seg{display:inline-flex;background:#EEEBE4;border-radius:12px;padding:3px;gap:2px}
+.seg button{min-width:34px;height:32px;border-radius:9px;font-size:13px;font-weight:700;color:var(--sub);padding:0 6px}
+.seg button.on{background:#fff;color:var(--green);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+/* main */
+#main{max-width:560px;margin:0 auto;padding:14px 16px calc(var(--nav-h) + var(--safe-b) + 28px)}
+.sec-t{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:22px 2px 10px}
+.sec-t h2{font-size:16px;margin:0;color:var(--ink);display:flex;align-items:center;gap:8px}
+.sec-t h2 .num{background:var(--green);color:#fff;font-size:11px;border-radius:99px;padding:1px 8px}
+.sec-t small{color:var(--muted);font-size:12px}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.card+.card{margin-top:12px}
+.hero{background:linear-gradient(135deg,#2E5A44 0%,#3C7258 100%);color:#fff;border-radius:22px;padding:18px;box-shadow:0 8px 24px rgba(46,90,68,.25);position:relative;overflow:hidden}
+.hero:after{content:"×";position:absolute;right:-6px;top:-34px;font-size:150px;font-weight:900;opacity:.08;line-height:1}
+.hero h1{font-size:18px;margin:0 0 4px}
+.hero p{margin:0;font-size:12.5px;opacity:.85}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.stat{background:rgba(255,255,255,.13);border-radius:14px;padding:10px 8px;text-align:center}
+.stat b{display:block;font-size:22px;line-height:1.1}
+.stat span{font-size:11px;opacity:.85}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;border-radius:15px;font-weight:700;font-size:15px;padding:10px 14px;transition:transform .08s ease,filter .15s;text-align:center;line-height:1.35}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--orange);color:#fff;box-shadow:0 4px 14px rgba(217,107,39,.32)}
+.btn.primary:active{background:var(--orange-d)}
+.btn.green{background:var(--green);color:#fff;box-shadow:0 4px 14px rgba(46,90,68,.25)}
+.btn.outline{background:#fff;color:var(--green);border:1.5px solid var(--green)}
+.btn.soft{background:var(--green-l);color:var(--green)}
+.btn.ghost{background:transparent;color:var(--sub);min-height:40px;font-weight:600;font-size:13px}
+.btn.sm{min-height:40px;font-size:13.5px;border-radius:12px}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.btn-col{display:grid;gap:10px;margin-top:12px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:none;margin:0 -16px;padding-left:16px;padding-right:16px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;height:36px;padding:0 14px;border-radius:99px;background:#fff;border:1px solid var(--line);font-size:13px;font-weight:600;color:var(--sub);display:inline-flex;align-items:center;gap:5px}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.chip .c{font-size:11px;opacity:.75}
+/* stock rows */
+.grp-h{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.06em;margin:18px 4px 8px;display:flex;align-items:center;gap:6px}
+.list{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.srow{display:flex;align-items:center;gap:12px;padding:12px 12px 12px 14px;border-bottom:1px solid var(--line2)}
+.srow:last-child{border-bottom:none}
+.srow.zero{opacity:.55}
+.emo{width:44px;height:44px;border-radius:14px;background:var(--green-ll);display:grid;place-items:center;font-size:23px;flex:none}
+.sinfo{flex:1;min-width:0}
+.sinfo .nm{font-weight:700;font-size:15px;line-height:1.3}
+.sinfo .un{font-size:11.5px;color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.pill{display:inline-flex;align-items:center;gap:3px;height:22px;padding:0 8px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap}
+.st-freeze{background:#E3EEF8;color:#2C5F8A}
+.st-fridge{background:#E3F2EF;color:#2B6E62}
+.st-pantry{background:#F3EDE2;color:#7A5B2E}
+.fr-ok{background:var(--ok-l);color:var(--ok)}
+.fr-soon{background:var(--soon-l);color:var(--soon)}
+.fr-today,.fr-over{background:var(--over-l);color:var(--over)}
+.stepper{display:flex;align-items:center;background:var(--bg);border-radius:14px;flex:none}
+.stepper button{width:40px;height:44px;font-size:22px;font-weight:600;color:var(--green);display:grid;place-items:center}
+.stepper button:active{background:var(--green-l);border-radius:14px}
+.stepper .v{min-width:30px;text-align:center;font-weight:800;font-size:17px}
+.stepper .v small{display:block;font-size:9px;color:var(--muted);font-weight:600;margin-top:-3px}
+.del{width:40px;height:44px;color:var(--over);font-size:13px;font-weight:700;flex:none}
+.empty{text-align:center;padding:30px 18px;color:var(--sub)}
+.empty .big{font-size:44px;margin-bottom:6px}
+.empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+.empty p{margin:0 0 14px;font-size:13px}
+.link{color:var(--sub);font-size:12.5px;text-decoration:underline;padding:10px;display:block;margin:10px auto 0}
+/* genre */
+.g{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:7px;font-size:11.5px;font-weight:800;letter-spacing:.04em;white-space:nowrap}
+.g-wa{background:var(--wa-l);color:var(--wa)} .g-yo{background:var(--yo-l);color:var(--yo)} .g-chu{background:var(--chu-l);color:var(--chu)} .g-kan{background:var(--kan-l);color:var(--kan)}
+.gb-wa{background:var(--wa)} .gb-yo{background:var(--yo)} .gb-chu{background:var(--chu)} .gb-kan{background:var(--kan)}
+.typ{font-size:11.5px;font-weight:700;color:var(--sub);background:var(--line2);padding:2px 8px;border-radius:7px}
+.mth{font-size:11.5px;color:var(--muted);font-weight:600}
+/* mode seg */
+.mode{display:grid;grid-template-columns:1fr 1fr;background:#EEEBE4;border-radius:15px;padding:4px;gap:4px;margin-bottom:14px}
+.mode button{height:44px;border-radius:12px;font-weight:700;font-size:14px;color:var(--sub);display:flex;align-items:center;justify-content:center;gap:6px}
+.mode button.on{background:#fff;color:var(--green);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+/* dish card */
+.dish{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 14px 12px;position:relative;border-left:5px solid transparent}
+.dish+.dish{margin-top:12px}
+.dish.b-wa{border-left-color:var(--wa)} .dish.b-yo{border-left-color:var(--yo)} .dish.b-chu{border-left-color:var(--chu)} .dish.b-kan{border-left-color:var(--kan)}
+.dish.done{opacity:.6}
+.d-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.d-top .sp{flex:1}
+.star{font-size:20px;line-height:1;color:#D9D3C7;width:34px;height:30px;display:grid;place-items:center}
+.star.on{color:#E8A317}
+.d-name{display:block;text-align:left;width:100%;font-size:17px;font-weight:800;line-height:1.4;margin:8px 0 8px;color:var(--ink)}
+.d-name:after{content:" ›";color:var(--muted);font-weight:600}
+.formula{display:flex;flex-wrap:wrap;align-items:center;gap:4px;font-size:12.5px}
+.fp{display:inline-flex;align-items:center;gap:3px;background:var(--green-ll);color:var(--green);border-radius:8px;padding:3px 8px;font-weight:700}
+.fp.base{background:var(--orange-l);color:var(--orange-d)}
+.fp.miss{background:#fff;border:1px dashed #cfc8bb;color:var(--sub)}
+.fp .s{font-size:10px;font-weight:700;opacity:.8}
+.fx{color:var(--muted);font-weight:800;font-size:12px}
+.d-act{margin-top:12px;display:flex;gap:8px}
+.d-act .btn{min-height:44px;font-size:13.5px}
+.warn{font-size:11.5px;color:var(--soon);margin-top:8px;font-weight:600}
+.sub-dish{display:flex;align-items:center;gap:10px;padding:10px 0 2px;border-top:1px dashed var(--line);margin-top:10px}
+.sub-dish .sdn{flex:1;min-width:0;text-align:left}
+.sub-dish .sdn b{display:block;font-size:14.5px;line-height:1.4}
+.sub-dish .sdn .d-top{margin-bottom:3px}
+.swap{flex:none;height:36px;padding:0 10px;border-radius:10px;background:var(--bg);color:var(--green);font-size:12px;font-weight:700;white-space:nowrap}
+.swap:active{background:var(--green-l)}
+/* week */
+.week-sum{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
+.wk-range{font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.vbar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:12px 0 10px}
+.vcell{border-radius:10px;color:#fff;text-align:center;padding:5px 0 6px;font-weight:800}
+.vcell small{display:block;font-size:10px;opacity:.85;font-weight:700}
+.vcell span{font-size:15px}
+.gcount{display:flex;gap:6px;flex-wrap:wrap;font-size:12px}
+.wk-meta{font-size:12px;color:var(--sub);margin-top:8px}
+.day{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:0;overflow:hidden}
+.day+.day{margin-top:12px}
+.day-h{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--green-ll);font-weight:800;color:var(--green);font-size:14px}
+.day-h .dot{width:10px;height:10px;border-radius:50%}
+.day-b{padding:12px 14px 12px}
+.day-main .d-name{font-size:16.5px;margin-top:6px}
+.confirm-bar{position:sticky;bottom:calc(var(--nav-h) + var(--safe-b) + 10px);margin-top:16px;z-index:5}
+.status{display:flex;align-items:center;gap:8px;background:var(--ok-l);color:var(--ok);font-weight:700;font-size:13px;border-radius:12px;padding:9px 12px;margin-bottom:12px}
+.status.chg{background:var(--soon-l);color:var(--soon)}
+/* fav / dict */
+.switch-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--green-ll);border-radius:14px;margin-top:12px}
+.switch-row .tx{flex:1;font-size:13px;font-weight:700;color:var(--green)}
+.switch-row .tx small{display:block;font-weight:500;color:var(--sub);font-size:11.5px}
+.sw{width:52px;height:30px;border-radius:99px;background:#CFCAC0;position:relative;flex:none;transition:background .2s}
+.sw:after{content:"";position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .2s}
+.sw.on{background:var(--green)} .sw.on:after{left:25px}
+.fav-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line2)}
+.fav-row:last-child{border-bottom:none}
+.fav-row .fx2{flex:1;min-width:0;text-align:left}
+.fav-row .fx2 b{display:block;font-size:14.5px;line-height:1.4;margin-top:3px}
+.x{width:34px;height:34px;border-radius:10px;color:var(--muted);font-size:18px;flex:none}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px}
+.pbtn{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:9px 6px 8px;text-align:center;position:relative;min-height:74px}
+.pbtn .e{font-size:22px;display:block;line-height:1.2}
+.pbtn .n{font-size:11.5px;font-weight:700;line-height:1.25;display:block;margin-top:3px}
+.pbtn.on{border-color:var(--green);background:var(--green-ll)}
+.pbtn .cnt{position:absolute;top:-6px;right:-4px;min-width:22px;height:22px;border-radius:99px;background:var(--orange);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;padding:0 5px}
+.pbtn .cnt:empty{display:none}
+.pbtn:active{transform:scale(.96)}
+.gtab{display:flex;gap:6px;flex-wrap:wrap}
+.bbtn{height:34px;padding:0 11px;border-radius:10px;font-size:12.5px;font-weight:700;border:1.5px solid transparent}
+.bbtn.on{border-color:currentColor;box-shadow:inset 0 0 0 1px currentColor}
+.dict-row{padding:12px 14px;border-bottom:1px solid var(--line2)}
+.dict-row:last-child{border-bottom:none}
+.dict-row .dn{display:block;text-align:left;font-weight:800;font-size:14.5px;line-height:1.4;margin:5px 0 7px}
+.mini{display:flex;flex-wrap:wrap;gap:5px}
+.mini button{height:30px;padding:0 9px;border-radius:9px;background:var(--bg);font-size:12px;font-weight:600;color:var(--sub);border:1px solid var(--line)}
+.mini button:active{background:var(--green-l)}
+.mini .lbl{font-size:11px;color:var(--muted);align-self:center;margin-right:2px}
+.info-box{background:var(--orange-l);border-radius:14px;padding:12px 14px;font-size:13px;color:#7a3d12}
+.info-box b{color:var(--orange-d)}
+/* shop */
+.step-h{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.step-n{background:var(--orange);color:#fff;font-weight:800;font-size:12px;border-radius:8px;padding:3px 9px;flex:none}
+.step-h h3{margin:0;font-size:16px;flex:1}
+.prog{height:8px;background:var(--line2);border-radius:99px;overflow:hidden;margin:8px 0 4px}
+.prog i{display:block;height:100%;background:var(--green);border-radius:99px;transition:width .3s}
+.sec-name{font-size:12px;font-weight:800;color:var(--green);margin:16px 0 4px;display:flex;align-items:center;gap:6px}
+.chk{display:flex;align-items:flex-start;gap:12px;padding:11px 2px;border-bottom:1px solid var(--line2);width:100%;text-align:left}
+.chk:last-child{border-bottom:none}
+.box{width:26px;height:26px;border-radius:8px;border:2px solid #CBC4B7;flex:none;display:grid;place-items:center;color:#fff;font-weight:900;font-size:15px;margin-top:1px;transition:all .15s}
+.chk.on .box{background:var(--green);border-color:var(--green)}
+.chk .ct{flex:1;min-width:0}
+.chk .ct b{display:block;font-size:15px;line-height:1.4}
+.chk .ct small{display:block;font-size:12px;color:var(--muted);line-height:1.5}
+.chk .ct p{margin:4px 0 0;font-size:13px;color:var(--sub);line-height:1.6}
+.chk.on .ct b{text-decoration:line-through;color:var(--muted)}
+.chk .amt{font-weight:800;color:var(--orange-d);white-space:nowrap;font-size:14px;flex:none;margin-top:1px}
+.chk.on .amt{color:var(--muted)}
+.covered{font-size:12.5px;color:var(--sub);background:var(--green-ll);border-radius:12px;padding:10px 12px;margin-top:12px}
+.stag{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.stag button{height:32px;padding:0 11px;border-radius:99px;font-size:12.5px;font-weight:600;border:1px solid var(--line);background:#fff;color:var(--sub)}
+.stag button.on{background:var(--green-l);border-color:var(--green-l);color:var(--green);text-decoration:line-through}
+.tip{font-size:12px;color:var(--sub);background:var(--bg);border-radius:12px;padding:10px 12px;margin-top:8px}
+/* nav */
+#nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:var(--safe-b)}
+.nav-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav-h)}
+.nav-in button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;font-weight:700;color:var(--muted);position:relative}
+.nav-in button svg{width:25px;height:25px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.nav-in button.on{color:var(--green)}
+.nav-in button.on:before{content:"";position:absolute;top:0;width:34px;height:3px;border-radius:0 0 3px 3px;background:var(--green)}
+.nav-in .bdg{position:absolute;top:7px;left:calc(50% + 7px);min-width:17px;height:17px;border-radius:99px;background:var(--orange);color:#fff;font-size:10px;display:grid;place-items:center;padding:0 4px}
+/* sheet & modal */
+.bk{position:fixed;inset:0;z-index:60;background:rgba(20,28,24,.45);display:flex;align-items:flex-end;justify-content:center;animation:fade .18s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:88vh;border-radius:24px 24px 0 0;overflow-y:auto;padding:8px 16px calc(var(--safe-b) + 18px);animation:up .22s ease;-webkit-overflow-scrolling:touch}
+.handle{width:40px;height:5px;border-radius:9px;background:#D5CFC4;margin:4px auto 10px}
+.sheet-h{display:flex;align-items:center;justify-content:space-between;position:sticky;top:-8px;background:var(--bg);padding:6px 0 10px;z-index:2}
+.sheet-h h3{margin:0;font-size:18px}
+.sheet-h button{height:38px;padding:0 16px;border-radius:12px;background:var(--green);color:#fff;font-weight:700}
+.kit{background:var(--bg);width:100%;max-width:560px;height:94vh;border-radius:24px 24px 0 0;overflow-y:auto;animation:up .22s ease;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--safe-b) + 20px)}
+.kit-top{position:sticky;top:0;z-index:3;background:var(--bg);padding:10px 16px 8px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line2)}
+.kit-top .sp{flex:1}
+.close{width:42px;height:42px;border-radius:13px;background:#fff;box-shadow:var(--shadow);font-size:20px;color:var(--sub)}
+.kit-body{padding:14px 16px}
+.kit h1{font-size:25px;line-height:1.35;margin:4px 0 12px;letter-spacing:.01em}
+.kit .formula{font-size:14px}
+.kit-ppl{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:10px 12px;margin:14px 0 4px}
+.kit-ppl b{font-size:15px}
+.kit-ppl .seg button{min-width:48px;height:40px;font-size:15px}
+.ksec{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;margin-top:12px}
+.ksec h3{margin:0 0 8px;font-size:14px;color:var(--green);display:flex;align-items:center;gap:6px}
+.krow{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line2);font-size:19px;font-weight:700}
+.krow:last-child{border-bottom:none}
+.krow .q{color:var(--orange-d);font-weight:800;white-space:nowrap;text-align:right}
+.krow small{display:block;font-size:12px;font-weight:600;color:var(--muted)}
+.ratio{background:var(--orange-l);border-radius:12px;padding:10px 12px;margin-top:10px;font-size:14px;font-weight:700;color:#7a3d12}
+.ratio span{display:block;font-size:11px;font-weight:700;color:var(--orange-d);letter-spacing:.06em}
+.ksteps{list-style:none;margin:0;padding:0;counter-reset:s}
+.ksteps li{counter-increment:s;display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line2);font-size:18px;line-height:1.65;font-weight:600;cursor:pointer}
+.ksteps li:last-child{border-bottom:none}
+.ksteps li:before{content:counter(s);flex:none;width:32px;height:32px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-size:15px;font-weight:800;margin-top:2px}
+.ksteps li.ck{color:var(--muted);text-decoration:line-through}
+.ksteps li.ck:before{content:"✓";background:#BFC8C2}
+.kit-foot{display:grid;gap:10px;margin-top:16px}
+.wake{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;color:var(--sub);font-weight:700;height:40px;border-radius:12px;background:#fff;border:1px solid var(--line)}
+.wake.on{background:var(--green-l);color:var(--green);border-color:var(--green-l)}
+/* toast */
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 66px);transform:translateX(-50%) translateY(-16px);background:#22302A;color:#fff;padding:11px 18px;border-radius:14px;font-size:13.5px;font-weight:600;z-index:90;opacity:0;pointer-events:none;transition:all .25s;max-width:calc(100% - 32px);text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.hint{font-size:12px;color:var(--muted);margin:6px 2px 0}
+.mt0{margin-top:0}
+</style>
+</head>
+<body>
+<header id="hdr"></header>
+<main id="main"></main>
+<nav id="nav"></nav>
+<div id="sheet"></div>
+<div id="modal"></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   かけ算ごはん
+   [タンパク質パーツ1種] + [野菜・きのこパーツ1〜2種] + [味付けベース1種]
+   = 本日の日替わりアレンジ料理
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   1. 下処理パーツマスター（タンパク質14種 / 野菜・きのこ18種）
+   grams        : 1食分（1人前）のグラム数
+   purchaseUnit : スーパーでの購入単位（grams=1単位のグラム数, step=購入刻み）
+   ready        : 加熱済み・そのまま食べられる（和えるだけ系に使える）
+   fry / simmer : 平日の仕上げ工程で使う加熱テキスト
+   group        : 野菜の重複防止グループ（同系統を2種組み合わせない）
+   --------------------------------------------------------------------- */
+const PARTS = [
+  // ===================== タンパク質パーツ =====================
+  { id:'p_mushidori', name:'ほぐし蒸し鶏', short:'蒸し鶏', emoji:'🍗', category:'protein',
+    storageType:'freeze', shelfLifeDays:21, fridgeDays:3, unitName:'1食分[約80g]', grams:80, ready:true,
+    purchaseUnit:{ item:'鶏むね肉', unit:'枚', grams:300, step:1, section:'精肉' },
+    prepInstruction:'皮を除き厚い部分に切り込みを入れる。耐熱容器にのせて酒大さじ1・塩少々を振り、ふんわりラップでレンジ600W4分→裏返して2分。そのまま10分置いて余熱で火を通し、粗熱が取れたら手で細かくほぐして蒸し汁ごと{n}食分に小分けして冷凍',
+    prepMin:20, compatibleTags:['和風','洋風','中華','韓国風'],
+    fry:'ほぐし蒸し鶏を加え、温める程度にさっと炒め合わせる（加熱済みなので火を入れすぎない）',
+    simmer:'ほぐし蒸し鶏を加えてひと煮立ちさせる' },
+  { id:'p_butakoma', name:'下味なし小分け豚こま', short:'豚こま', emoji:'🐖', category:'protein',
+    storageType:'freeze', shelfLifeDays:21, fridgeDays:2, unitName:'1食分[約80g]', grams:80, ready:false,
+    purchaseUnit:{ item:'豚こま切れ肉', unit:'パック', grams:300, step:1, section:'精肉' },
+    prepInstruction:'パックから出してペーパーで水気を拭く。大きいものは食べやすく切り、約80gずつラップに薄く平らに広げて包み、{n}食分を保存袋に入れて冷凍（下味なしなので和洋中韓どれにも使える）',
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風'],
+    fry:'豚こまを凍ったまま広げ入れ、ほぐしながら中火で2〜3分、色が変わるまで炒める',
+    simmer:'豚こまをほぐしながら加え、アクを取りつつ2〜3分煮て火を通す' },
+  { id:'p_momo', name:'カット済み鶏もも', short:'鶏もも', emoji:'🍗', category:'protein',
+    storageType:'freeze', shelfLifeDays:21, fridgeDays:2, unitName:'1食分[約90g]', grams:90, ready:false,
+    purchaseUnit:{ item:'鶏もも肉', unit:'枚', grams:280, step:1, section:'精肉' },
+    prepInstruction:'余分な脂と筋を除き、ひと口大（約3cm角）に切る。ペーパーで水気を拭き、{n}食分ずつ保存袋に重ならないよう平らに並べて冷凍',
+    prepMin:10, compatibleTags:['和風','洋風','中華','韓国風'],
+    fry:'鶏ももを皮目を下にして並べ、ふたをして中火で4分→返して2分焼き、中まで火を通す',
+    simmer:'鶏ももを加え、ふたをして5分ほど中まで火が通るまで煮る' },
+  { id:'p_hikiniku', name:'パラパラ炒めひき肉', short:'ひき肉', emoji:'🥩', category:'protein',
+    storageType:'freeze', shelfLifeDays:21, fridgeDays:3, unitName:'1食分[約60g]', grams:60, ready:true,
+    purchaseUnit:{ item:'合いびき肉', unit:'パック', grams:300, step:1, section:'精肉' },
+    prepInstruction:'フライパンに油をひかずに入れて中火で炒め、出た脂をペーパーで拭き取りながらポロポロになるまで火を通す。冷めたら{n}食分ずつ保存袋に薄く平らに入れて冷凍（パキッと割って使える）',
+    prepMin:12, compatibleTags:['和風','洋風','中華','韓国風'],
+    fry:'パラパラひき肉を凍ったまま加え、ほぐしながら温める',
+    simmer:'パラパラひき肉を加えてほぐし、ひと煮立ちさせる' },
+  { id:'p_sake', name:'骨取り鮭切り身', short:'鮭', emoji:'🐟', category:'protein',
+    storageType:'freeze', shelfLifeDays:14, fridgeDays:2, unitName:'1食分[1切れ・約80g]', grams:80, ready:false,
+    purchaseUnit:{ item:'生鮭切り身', unit:'切れ', grams:80, step:1, section:'鮮魚' },
+    prepInstruction:'ペーパーで水気を拭き、骨抜きで小骨を除く。ひと口大のそぎ切りにして酒少々を振り、1切れずつラップでぴったり包んで{n}食分を保存袋に入れて冷凍',
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風'],
+    fry:'鮭を並べ、ふたをして中火で3分→返して2分蒸し焼きにする（凍ったままなら+1分）',
+    simmer:'鮭を加え、崩さないように3〜4分煮る' },
+  { id:'p_shiromi', name:'骨取り白身魚（たら）', short:'白身魚', emoji:'🐟', category:'protein',
+    storageType:'freeze', shelfLifeDays:14, fridgeDays:2, unitName:'1食分[1切れ・約80g]', grams:80, ready:false,
+    purchaseUnit:{ item:'生たら切り身', unit:'切れ', grams:80, step:1, section:'鮮魚' },
+    prepInstruction:'塩少々を振って10分置き、出た水分をペーパーでしっかり拭き取る（臭み抜き）。骨を除いてひと口大に切り、1切れずつラップで包んで{n}食分を冷凍',
+    prepMin:15, compatibleTags:['和風','洋風','中華','韓国風'],
+    fry:'白身魚に片栗粉を薄くまぶして並べ、中火で両面2分ずつ焼く',
+    simmer:'白身魚を加え、崩さないように3分ほど煮る' },
+  { id:'p_tofu', name:'水切り木綿豆腐', short:'豆腐', emoji:'🧈', category:'protein',
+    storageType:'fridge', shelfLifeDays:3, freezeDays:30, unitName:'1食分[約1/3丁・100g]', grams:100, ready:true,
+    purchaseUnit:{ item:'木綿豆腐', unit:'丁', grams:350, step:1, section:'豆腐・卵' },
+    prepInstruction:'ペーパーで包んで耐熱皿にのせ、レンジ600Wで3分加熱して水切りする。2cm角に切って{n}食分ずつ保存容器に入れて冷蔵（3日以内に。冷凍すると高野豆腐風の食感に）',
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風'],
+    fry:'豆腐を並べ、表面に焼き色がつくまで2〜3分焼きつける',
+    simmer:'豆腐を加え、2分ほど温める' },
+  { id:'p_egg', name:'ゆで卵', short:'ゆで卵', emoji:'🥚', category:'protein',
+    storageType:'fridge', shelfLifeDays:4, unitName:'1食分[1個]', grams:60, ready:true,
+    purchaseUnit:{ item:'卵', unit:'個', grams:60, step:1, section:'豆腐・卵' },
+    prepInstruction:'冷蔵庫から出したての卵を沸騰した湯に静かに入れ、中火で8分（半熟は7分）茹でて冷水に取る。殻をむいて{n}個を保存容器で冷蔵（殻付きのままなら5日）',
+    prepMin:15, compatibleTags:['和風','洋風','中華','韓国風'],
+    fry:'ゆで卵を半分に切り、最後に加えてたれをからめる',
+    simmer:'ゆで卵を半分に切って加え、温める' },
+  { id:'p_tuna', name:'ツナ缶', short:'ツナ', emoji:'🥫', category:'protein',
+    storageType:'pantry', shelfLifeDays:365, fridgeDays:2, unitName:'1食分[1缶・約70g]', grams:70, ready:true,
+    purchaseUnit:{ item:'ツナ缶（70g）', unit:'缶', grams:70, step:1, section:'缶詰・乾物' },
+    prepInstruction:'下処理不要。{n}缶を常備棚へ（開封後は保存容器に移して冷蔵し2日以内に）',
+    prepMin:0, compatibleTags:['和風','洋風','中華','韓国風'],
+    fry:'ツナを軽く油を切って加え、さっと炒め合わせる',
+    simmer:'ツナを油ごと加え、ひと煮立ちさせる' },
+  { id:'p_saba', name:'サバ水煮缶', short:'サバ', emoji:'🥫', category:'protein',
+    storageType:'pantry', shelfLifeDays:365, fridgeDays:2, unitName:'1食分[1/2缶・約95g]', grams:95, ready:true,
+    purchaseUnit:{ item:'サバ水煮缶（190g）', unit:'缶', grams:190, step:1, section:'缶詰・乾物' },
+    prepInstruction:'下処理不要。常備棚へ（1缶＝2食分。{n}食分。開封後は汁ごと保存容器に移して冷蔵し翌日までに）',
+    prepMin:0, compatibleTags:['和風','洋風','中華','韓国風'],
+    fry:'サバ缶の身を大きめにほぐして加え、汁大さじ1も一緒に入れて温める',
+    simmer:'サバ缶を汁ごと加え、身を大きめにほぐしてひと煮立ちさせる' },
+  { id:'p_butabara', name:'カット豚バラ薄切り', short:'豚バラ', emoji:'🥓', category:'protein',
+    storageType:'freeze', shelfLifeDays:21, fridgeDays:2, unitName:'1食分[約70g]', grams:70, ready:false,
+    purchaseUnit:{ item:'豚バラ薄切り肉', unit:'パック', grams:200, step:1, section:'精肉' },
+    prepInstruction:'4cm幅に切り、約70gずつラップに広げて包む。{n}食分を保存袋に入れて冷凍',
+    prepMin:6, compatibleTags:['和風','洋風','中華','韓国風'],
+    fry:'豚バラを広げ入れ、脂が出てカリッとするまで中火で3分炒める（油は不要）',
+    simmer:'豚バラを加え、アクを取りながら3分ほど煮る' },
+  { id:'p_sasami', name:'筋取りそぎ切りささみ', short:'ささみ', emoji:'🍗', category:'protein',
+    storageType:'freeze', shelfLifeDays:21, fridgeDays:2, unitName:'1食分[2本・約100g]', grams:100, ready:false,
+    purchaseUnit:{ item:'鶏ささみ（4本入り）', unit:'パック', grams:200, step:1, section:'精肉' },
+    prepInstruction:'フォークで筋を押さえて引き抜き、斜めにそぎ切りにする。2本分ずつラップで包み、{n}食分を保存袋に入れて冷凍',
+    prepMin:10, compatibleTags:['和風','洋風','中華','韓国風'],
+    fry:'ささみに片栗粉を薄くまぶして並べ、中火で両面2分ずつ焼く',
+    simmer:'ささみを加え、3分ほど煮て火を通す' },
+  { id:'p_atsuage', name:'油抜き厚揚げ', short:'厚揚げ', emoji:'🟫', category:'protein',
+    storageType:'fridge', shelfLifeDays:4, freezeDays:30, unitName:'1食分[1/2枚・約100g]', grams:100, ready:false,
+    purchaseUnit:{ item:'厚揚げ', unit:'枚', grams:200, step:1, section:'豆腐・卵' },
+    prepInstruction:'ザルにのせて熱湯を回しかけて油抜きし、水気を拭いてひと口大に切る。{n}食分ずつ保存容器に入れて冷蔵（冷凍も可）',
+    prepMin:6, compatibleTags:['和風','洋風','中華','韓国風'],
+    fry:'厚揚げを並べ、表面がカリッとするまで中火で3分焼く',
+    simmer:'厚揚げを加え、3分ほど煮て味を含ませる' },
+  { id:'p_ebi', name:'背ワタ取りむきえび', short:'えび', emoji:'🦐', category:'protein',
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:1, unitName:'1食分[約70g]', grams:70, ready:false,
+    purchaseUnit:{ item:'冷凍むきえび', unit:'袋', grams:200, step:1, section:'冷凍食品' },
+    prepInstruction:'半解凍して片栗粉と塩少々で揉み洗いし、背ワタが残っていれば除く。水気をしっかり拭いて酒少々を振り、{n}食分ずつ保存袋に平らに入れて冷凍',
+    prepMin:12, compatibleTags:['和風','洋風','中華','韓国風'],
+    fry:'えびを凍ったまま加え、色が変わるまで中火で2〜3分炒める（出た水分はペーパーで拭く）',
+    simmer:'えびを加え、色が変わるまで2分煮る' },
+
+  // ===================== 野菜・きのこパーツ =====================
+  { id:'v_ninjin', name:'塩揉み千切りにんじん', short:'にんじん', emoji:'🥕', category:'veg', group:'root',
+    storageType:'fridge', shelfLifeDays:5, freezeDays:30, unitName:'1食分[約40g]', grams:40, ready:true,
+    purchaseUnit:{ item:'にんじん', unit:'本', grams:150, step:1, section:'青果' },
+    prepInstruction:'皮をむいてスライサーで千切りにし、塩ひとつまみで軽く揉んで5分置き、水気をぎゅっと絞る。{n}食分ずつ保存袋に入れて冷蔵（冷凍も可）',
+    prepMin:10, compatibleTags:['和風','洋風','中華','韓国風'] },
+  { id:'v_cabbage', name:'ざく切りキャベツ', short:'キャベツ', emoji:'🥬', category:'veg', group:'cabbage',
+    storageType:'fridge', shelfLifeDays:5, freezeDays:30, unitName:'1食分[約80g]', grams:80, ready:false,
+    purchaseUnit:{ item:'キャベツ', unit:'玉', grams:1000, step:0.25, section:'青果' },
+    prepInstruction:'芯を除いて4cm角のざく切りにし、洗って水気をしっかり切る。キッチンペーパーを敷いた保存袋に{n}食分ずつ入れて冷蔵（冷凍する場合は軽く塩揉みしてから）',
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風'] },
+  { id:'v_tamanegi', name:'くし切り玉ねぎ', short:'玉ねぎ', emoji:'🧅', category:'veg', group:'allium',
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:5, unitName:'1食分[約50g]', grams:50, ready:false,
+    purchaseUnit:{ item:'玉ねぎ', unit:'個', grams:200, step:1, section:'青果' },
+    prepInstruction:'皮をむいて縦半分に切り、1cm幅のくし切りにしてバラバラにほぐす。{n}食分ずつ保存袋に平らに入れて冷凍（凍ったまま使えて、冷凍すると甘みが出やすい）',
+    prepMin:6, compatibleTags:['和風','洋風','中華','韓国風'] },
+  { id:'v_broccoli', name:'小房冷凍ブロッコリー', short:'ブロッコリー', emoji:'🥦', category:'veg', group:'green',
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:3, unitName:'1食分[約60g]', grams:60, ready:true,
+    purchaseUnit:{ item:'ブロッコリー', unit:'株', grams:250, step:1, section:'青果' },
+    prepInstruction:'小房に分け、茎は皮を厚くむいて薄切りにする。塩を入れた熱湯で1分半固めに茹でてザルに上げ、冷めたら水気を拭いて{n}食分ずつ保存袋に入れて冷凍',
+    prepMin:10, compatibleTags:['和風','洋風','中華','韓国風'] },
+  { id:'v_kinoko', name:'ほぐし冷凍きのこミックス', short:'きのこ', emoji:'🍄', category:'veg', group:'mushroom',
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:4, unitName:'1食分[約50g]', grams:50, ready:false,
+    purchaseUnit:{ item:'きのこ（しめじ・まいたけ・えのき等）', unit:'パック', grams:100, step:1, section:'青果' },
+    prepInstruction:'石づきを落とし、しめじ・まいたけ・えのき等を食べやすくほぐす（洗わない）。混ぜ合わせて{n}食分ずつ保存袋に入れ、空気を抜いて冷凍（冷凍で旨みがアップ）',
+    prepMin:6, compatibleTags:['和風','洋風','中華','韓国風'] },
+  { id:'v_horenso', name:'茹でほうれん草', short:'ほうれん草', emoji:'🌿', category:'veg', group:'leafy',
+    storageType:'freeze', shelfLifeDays:21, fridgeDays:3, unitName:'1食分[約50g]', grams:50, ready:true,
+    purchaseUnit:{ item:'ほうれん草', unit:'束', grams:200, step:1, section:'青果' },
+    prepInstruction:'根元をよく洗い、塩を入れた熱湯で根元から30秒→葉も沈めて30秒茹でて冷水に取る。水気をしっかり絞って4cm長さに切り、{n}食分ずつラップで包んで冷凍',
+    prepMin:10, compatibleTags:['和風','洋風','中華','韓国風'] },
+  { id:'v_komatsuna', name:'茹で小松菜', short:'小松菜', emoji:'🥬', category:'veg', group:'leafy',
+    storageType:'freeze', shelfLifeDays:21, fridgeDays:3, unitName:'1食分[約50g]', grams:50, ready:true,
+    purchaseUnit:{ item:'小松菜', unit:'束', grams:200, step:1, section:'青果' },
+    prepInstruction:'根元を落として洗い、熱湯で茎30秒→葉20秒さっと茹でて冷水に取る。水気を絞って4cm長さに切り、{n}食分ずつラップで包んで冷凍（アクが少ないので生のまま冷凍も可）',
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風'] },
+  { id:'v_nasu', name:'カットなす', short:'なす', emoji:'🍆', category:'veg', group:'fruit',
+    storageType:'freeze', shelfLifeDays:21, fridgeDays:2, unitName:'1食分[1本・約80g]', grams:80, ready:false,
+    purchaseUnit:{ item:'なす', unit:'本', grams:80, step:1, section:'青果' },
+    prepInstruction:'ヘタを落として縦半分→斜め1cm幅に切り、水に5分さらしてアク抜きする。水気をよく拭いて{n}食分ずつ保存袋に平らに入れて冷凍',
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風'] },
+  { id:'v_jagaimo', name:'レンチンじゃがいも', short:'じゃがいも', emoji:'🥔', category:'veg', group:'starch',
+    storageType:'fridge', shelfLifeDays:3, unitName:'1食分[約100g]', grams:100, ready:true,
+    purchaseUnit:{ item:'じゃがいも', unit:'個', grams:150, step:1, section:'青果' },
+    prepInstruction:'皮をむいてひと口大に切り、水に3分さらす。耐熱容器に入れてふんわりラップし、レンジ600Wで1個あたり2分半加熱（竹串がすっと通ればOK）。粗熱を取って{n}食分ずつ保存容器で冷蔵（冷凍すると食感が落ちるので冷蔵で3日以内に）',
+    prepMin:12, compatibleTags:['和風','洋風','中華','韓国風'] },
+  { id:'v_piman', name:'細切りピーマン', short:'ピーマン', emoji:'🫑', category:'veg', group:'pepper',
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:5, unitName:'1食分[約35g]', grams:35, ready:false,
+    purchaseUnit:{ item:'ピーマン（4〜5個入り）', unit:'袋', grams:150, step:1, section:'青果' },
+    prepInstruction:'縦半分に切ってヘタと種を除き、縦に5mm幅の細切りにする。水気を拭いて{n}食分ずつ保存袋に入れて冷凍',
+    prepMin:6, compatibleTags:['和風','洋風','中華','韓国風'] },
+  { id:'v_moyashi', name:'下茹でもやし', short:'もやし', emoji:'🌱', category:'veg', group:'sprout',
+    storageType:'fridge', shelfLifeDays:2, unitName:'1食分[約70g]', grams:70, ready:true,
+    purchaseUnit:{ item:'もやし', unit:'袋', grams:200, step:1, section:'青果' },
+    prepInstruction:'さっと洗い、熱湯で30秒茹でる（またはレンジ600Wで2分）。ザルで水気をしっかり切り、ペーパーを敷いた保存容器に入れて冷蔵（{n}食分・2日以内に使い切る）',
+    prepMin:5, compatibleTags:['和風','洋風','中華','韓国風'] },
+  { id:'v_negi', name:'斜め切り冷凍長ねぎ', short:'長ねぎ', emoji:'🎋', category:'veg', group:'allium',
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:5, unitName:'1食分[約20g]', grams:20, ready:false,
+    purchaseUnit:{ item:'長ねぎ', unit:'本', grams:100, step:1, section:'青果' },
+    prepInstruction:'斜め薄切りにして水気を拭き、保存袋に平らに入れて冷凍（{n}食分。使う分だけパキッと折って凍ったまま使う）',
+    prepMin:4, compatibleTags:['和風','洋風','中華','韓国風'] },
+  { id:'v_kabocha', name:'レンチン角切りかぼちゃ', short:'かぼちゃ', emoji:'🎃', category:'veg', group:'starch',
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:4, unitName:'1食分[約80g]', grams:80, ready:true,
+    purchaseUnit:{ item:'かぼちゃ', unit:'個', grams:1200, step:0.25, section:'青果' },
+    prepInstruction:'種とワタを取り除き2cm角に切る。耐熱容器でふんわりラップしてレンジ600Wで4〜5分、竹串が通るまで加熱。冷めたら{n}食分ずつ保存袋に入れて冷凍',
+    prepMin:12, compatibleTags:['和風','洋風','中華','韓国風'] },
+  { id:'v_hakusai', name:'ざく切り白菜', short:'白菜', emoji:'🥬', category:'veg', group:'cabbage',
+    storageType:'fridge', shelfLifeDays:5, freezeDays:30, unitName:'1食分[約100g]', grams:100, ready:false,
+    purchaseUnit:{ item:'白菜', unit:'株', grams:2000, step:0.25, section:'青果' },
+    prepInstruction:'芯はそぎ切り、葉はざく切りにして洗い、水気をしっかり切る。{n}食分ずつ保存袋に入れて冷蔵（冷凍すると繊維が壊れて煮込みが時短に）',
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風'] },
+  { id:'v_tomato', name:'くし切りトマト', short:'トマト', emoji:'🍅', category:'veg', group:'fruit',
+    storageType:'fridge', shelfLifeDays:3, unitName:'1食分[約1/2個・75g]', grams:75, ready:true,
+    purchaseUnit:{ item:'トマト', unit:'個', grams:150, step:1, section:'青果' },
+    prepInstruction:'ヘタを取って8等分のくし切りにし、キッチンペーパーを敷いた保存容器に入れて冷蔵（{n}食分・3日以内に）',
+    prepMin:4, compatibleTags:['和風','洋風','中華','韓国風'] },
+  { id:'v_daikon', name:'いちょう切り冷凍大根', short:'大根', emoji:'⚪', category:'veg', group:'root',
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:5, unitName:'1食分[約80g]', grams:80, ready:false,
+    purchaseUnit:{ item:'大根', unit:'本', grams:1000, step:0.25, section:'青果' },
+    prepInstruction:'皮をむいて5mm厚のいちょう切りにする。生のまま{n}食分ずつ保存袋に入れて冷凍（冷凍すると繊維が壊れて味しみ＆煮込み時短）',
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風'] },
+  { id:'v_paprika', name:'細切りパプリカ', short:'パプリカ', emoji:'🌶️', category:'veg', group:'pepper',
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:5, unitName:'1食分[約40g]', grams:40, ready:true,
+    purchaseUnit:{ item:'パプリカ', unit:'個', grams:150, step:1, section:'青果' },
+    prepInstruction:'縦半分に切ってヘタと種を除き、5mm幅の細切りにする。{n}食分ずつ保存袋に入れて冷凍（生食するなら冷蔵で3日）',
+    prepMin:5, compatibleTags:['和風','洋風','中華','韓国風'] },
+  { id:'v_gobo', name:'ささがき冷凍ごぼう', short:'ごぼう', emoji:'🪵', category:'veg', group:'root',
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:3, unitName:'1食分[約40g]', grams:40, ready:false,
+    purchaseUnit:{ item:'ごぼう', unit:'本', grams:150, step:1, section:'青果' },
+    prepInstruction:'たわしで皮をこそげ、ピーラーでささがきにして水に3分さらしてアク抜きする。水気を拭いて{n}食分ずつ保存袋に入れて冷凍（凍ったまま炒め物・汁物に）',
+    prepMin:10, compatibleTags:['和風','中華','韓国風'] },
+];
+
+/* ---------------------------------------------------------------------
+   2. 味付け・調理ベースマスター（35種：和風11 / 洋風9 / 中華8 / 韓国風7）
+   seasonings : 1人分あたり。sp=小さじ数, ml=ミリリットル, gr=グラム, cm=チューブcm, tx=文字
+               k:'x' は黄金比の計算から除外（水・とろみ・トッピング等）, k:'oil' は焼き油
+   finishSteps: {PREP}{FRY}{SIMMER}{MW}{P}{V}{ALL} がパーツに応じて自動で置換される
+   requiredCategories: protein/veg の [最小,最大] 個数。proteinReady=加熱済みパーツ限定
+   pOnly / vOnly : 相性の良いパーツID（接頭辞 p_ / v_ を省略）
+   --------------------------------------------------------------------- */
+const sp=(n,v,k)=>({n,tsp:v,k}), ml=(n,v,k)=>({n,ml:v,k}), gr=(n,v,k)=>({n,g:v,k}), cm=(n,v,k)=>({n,cm:v,k:k||'x'}), tx=(n,t)=>({n,text:t,k:'x'});
+const MAIN={protein:[1,1],veg:[1,2]};
+
+const BASES = [
+  // ============================ 和風 ============================
+  { id:'w_teriyaki', name:'照り焼き', suffix:'照り焼き', genre:'和風', dishType:'主菜', method:'フライパン', time:'5分',
+    requiredCategories:MAIN,
+    pOnly:'momo butakoma sake shiromi sasami atsuage tofu ebi butabara mushidori',
+    vOnly:'tamanegi kinoko piman paprika nasu negi broccoli cabbage gobo ninjin kabocha',
+    seasonings:[sp('醤油',1.5),sp('みりん',1.5),sp('酒',1.5),sp('砂糖',0.5),sp('サラダ油',1,'oil'),tx('白ごま','少々')],
+    finishSteps:['{PREP}','醤油・みりん・酒・砂糖を混ぜて合わせだれを作る。','フライパンにサラダ油を中火で熱し、{FRY}。','合わせだれを回し入れ、強めの中火で汁気が半分になり照りが出るまで1〜2分煮からめる。','器に盛り、白ごまを振って完成。'] },
+  { id:'w_negishio', name:'ねぎ塩レモン和え', suffix:'ねぎ塩レモン和え', genre:'和風', dishType:'主菜', method:'和えるだけ', time:'5分',
+    requiredCategories:{protein:[1,1],veg:[1,2],proteinReady:true},
+    pOnly:'mushidori tofu egg tuna saba',
+    vOnly:'cabbage broccoli moyashi hakusai kinoko komatsuna horenso tomato paprika nasu piman',
+    seasonings:[sp('長ねぎ（みじん切り）',3,'x'),sp('ごま油',1),sp('レモン汁',1),sp('鶏がらスープの素',0.5),tx('塩','ひとつまみ'),tx('粗びき黒こしょう','少々')],
+    finishSteps:['{PREP}','ボウルに長ねぎのみじん切りと調味料をすべて入れてよく混ぜ、ねぎ塩レモンだれを作る。','{ALL}の水気をしっかり切ってからボウルに加え、全体をさっくり和える。','5分ほど置いて味をなじませ、器に盛って完成（冷蔵で翌日までおいしい）。'] },
+  { id:'w_shoga', name:'生姜焼き', suffix:'生姜焼き', genre:'和風', dishType:'主菜', method:'フライパン', time:'5分',
+    requiredCategories:MAIN,
+    pOnly:'butakoma butabara momo sake sasami atsuage tofu',
+    vOnly:'tamanegi cabbage piman kinoko moyashi negi nasu ninjin komatsuna',
+    seasonings:[sp('醤油',2),sp('みりん',1.5),sp('酒',1),sp('砂糖',0.5),cm('おろし生姜（チューブ）',2),sp('サラダ油',1,'oil')],
+    finishSteps:['{PREP}','醤油・みりん・酒・砂糖・生姜を混ぜて合わせだれを作る。','フライパンにサラダ油を中火で熱し、{FRY}。','合わせだれを加えて全体にからめ、汁気が少なくなるまで1分炒め合わせて完成（せん切りキャベツを添えると定食風に）。'] },
+  { id:'w_misomayo', name:'味噌マヨ焼き', suffix:'味噌マヨ焼き', genre:'和風', dishType:'主菜', method:'フライパン', time:'6分',
+    requiredCategories:MAIN,
+    pOnly:'sake shiromi momo sasami mushidori tofu atsuage butakoma',
+    vOnly:'broccoli tamanegi kinoko jagaimo kabocha piman paprika nasu cabbage ninjin',
+    seasonings:[sp('マヨネーズ',2),sp('味噌',1),sp('酒',1),sp('砂糖',0.5),sp('サラダ油',0.5,'oil')],
+    finishSteps:['{PREP}','マヨネーズ・味噌・酒・砂糖をよく混ぜて味噌マヨだれを作る。','フライパンにサラダ油を中火で熱し、{FRY}。','火を弱めて味噌マヨだれを全体にからめ、ふたをして1分蒸し焼きにする。','ふたを取って30秒焼き、軽く焦げ目がついたら完成。'] },
+  { id:'w_dashiankake', name:'和風だしあんかけ', suffix:'和風だしあんかけ', genre:'和風', dishType:'主菜', method:'フライパン', time:'6分',
+    requiredCategories:MAIN,
+    pOnly:'tofu shiromi sake mushidori hikiniku atsuage butakoma ebi sasami',
+    vOnly:'hakusai cabbage kinoko ninjin tamanegi horenso komatsuna kabocha daikon negi broccoli nasu',
+    seasonings:[ml('水',50,'x'),sp('白だし',2),sp('みりん',1),sp('片栗粉（同量の水で溶く）',1,'x'),cm('おろし生姜（チューブ）',1),sp('サラダ油',0.5,'oil')],
+    finishSteps:['{PREP}','フライパンにサラダ油を中火で熱し、{FRY}。','水・白だし・みりん・生姜を加えて煮立て、ふたをして2分煮る。','火を弱めて水溶き片栗粉を回し入れ、すぐに混ぜてとろみがついたら完成。'] },
+  { id:'w_oroshiponzu', name:'おろしポン酢', suffix:'おろしポン酢', genre:'和風', dishType:'主菜', method:'フライパン', time:'5分',
+    requiredCategories:MAIN,
+    pOnly:'momo butakoma butabara sake shiromi sasami atsuage tofu mushidori',
+    vOnly:'kinoko cabbage moyashi nasu piman tamanegi negi komatsuna horenso hakusai broccoli',
+    seasonings:[sp('大根おろし（軽く水気を切る）',9,'x'),sp('ポン酢',4),sp('サラダ油',1,'oil'),tx('七味唐辛子','少々')],
+    finishSteps:['{PREP}','大根おろしは軽く水気を切っておく（チューブや冷凍おろしでもOK）。','フライパンにサラダ油を中火で熱し、{FRY}。','器に盛って大根おろしをたっぷりのせ、ポン酢を回しかけて七味を振ったら完成。'] },
+  { id:'w_nimono', name:'肉じゃが風甘辛煮', suffix:'肉じゃが風甘辛煮', genre:'和風', dishType:'主菜', method:'レンジ', time:'8分', mwBase:5, mwRaw:1, twoVeg:0.75,
+    requiredCategories:MAIN,
+    pOnly:'butakoma momo hikiniku butabara atsuage',
+    vOnly:'jagaimo tamanegi ninjin kabocha daikon gobo kinoko',
+    seasonings:[sp('醤油',2),sp('みりん',2),sp('砂糖',1),sp('酒',1),sp('水',6,'x'),tx('顆粒和風だし','ひとつまみ')],
+    finishSteps:['耐熱ボウルに醤油・みりん・砂糖・酒・水・だしを入れて混ぜる。','{V}を入れ、その上に{P}を広げてのせる（肉が上だと味がしみやすい・冷凍ストックは凍ったままでOK）。','ふんわりラップをしてレンジ600Wで{MW}分加熱する。','一度取り出して全体を混ぜ、再びラップをして2分加熱。そのまま3分置いて味を含ませたら完成。'] },
+  { id:'w_kinpira', name:'甘辛きんぴら', suffix:'甘辛きんぴら', genre:'和風', dishType:'副菜', method:'フライパン', time:'5分',
+    requiredCategories:{protein:[0,1],veg:[1,2]},
+    pOnly:'hikiniku tuna butakoma butabara',
+    vOnly:'ninjin gobo piman paprika jagaimo daikon kinoko nasu kabocha',
+    seasonings:[sp('醤油',1.5),sp('みりん',1.5),sp('砂糖',0.5),sp('ごま油',1,'oil'),tx('白ごま','少々'),tx('一味唐辛子','お好みで')],
+    finishSteps:['{PREP}','フライパンにごま油を中火で熱し、{FRY}。','醤油・みりん・砂糖を加え、汁気がなくなるまで炒りつける。','火を止めて白ごまを振り、好みで一味を振って完成。'] },
+  { id:'w_gomaae', name:'胡麻和え', suffix:'胡麻和え', genre:'和風', dishType:'副菜', method:'和えるだけ', time:'3分',
+    requiredCategories:{protein:[0,1],veg:[1,2],proteinReady:true},
+    pOnly:'mushidori tuna',
+    vOnly:'horenso komatsuna broccoli ninjin moyashi cabbage nasu kabocha hakusai',
+    seasonings:[sp('すりごま',2),sp('砂糖',1),sp('醤油',1)],
+    finishSteps:['{PREP}','ボウルにすりごま・砂糖・醤油を入れて混ぜる。','{ALL}の水気をぎゅっと絞って加え、さっくり和えて完成。'] },
+  { id:'w_nibitashi', name:'だし煮びたし', suffix:'煮びたし', genre:'和風', dishType:'副菜', method:'レンジ', time:'3分', mwBase:2, mwRaw:1,
+    requiredCategories:{protein:[0,1],veg:[1,2]},
+    pOnly:'atsuage tuna',
+    vOnly:'komatsuna horenso hakusai cabbage kinoko nasu moyashi negi daikon',
+    seasonings:[sp('白だし',1.5),sp('水',6,'x'),tx('かつお節','ひとつまみ')],
+    finishSteps:['耐熱容器に白だしと水を入れて混ぜ、{ALL}を加える（冷凍ストックは凍ったままでOK）。','ふんわりラップをしてレンジ600Wで{MW}分加熱する。','ひと混ぜして5分ほど置いて味を含ませ、かつお節をのせて完成（冷やしてもおいしい）。'] },
+  { id:'w_misoshiru', name:'具だくさん味噌汁', suffix:'具だくさん味噌汁', genre:'和風', dishType:'汁物', method:'鍋', time:'7分',
+    requiredCategories:{protein:[0,1],veg:[1,2]},
+    pOnly:'tofu atsuage butakoma saba mushidori butabara',
+    vOnly:'daikon ninjin tamanegi kinoko cabbage hakusai komatsuna horenso negi jagaimo kabocha moyashi nasu gobo',
+    seasonings:[ml('水',180,'x'),sp('顆粒和風だし',0.5),sp('味噌',2)],
+    finishSteps:['鍋に水と顆粒だしを入れて中火にかける。','{SIMMER}。','火を弱めて味噌を溶き入れ、煮立たせないように温めて完成（沸騰させると風味が飛ぶ）。'] },
+
+  // ============================ 洋風 ============================
+  { id:'y_garibata', name:'ガリバタ醤油ソテー', suffix:'ガリバタ醤油ソテー', genre:'洋風', dishType:'主菜', method:'フライパン', time:'5分',
+    requiredCategories:MAIN,
+    pOnly:'momo butakoma sake shiromi ebi sasami mushidori atsuage butabara tofu',
+    vOnly:'kinoko jagaimo broccoli tamanegi piman paprika cabbage horenso komatsuna nasu kabocha moyashi',
+    seasonings:[gr('バター',8,'x'),cm('おろしにんにく（チューブ）',1),sp('醤油',1),sp('酒',1),sp('オリーブオイル',0.5,'oil'),tx('粗びき黒こしょう','少々')],
+    finishSteps:['{PREP}','フライパンにオリーブオイルとにんにくを入れて弱火にかけ、香りが立ったら中火にする。','{FRY}。','バターと酒を加えて溶かし、鍋肌から醤油を回し入れて香ばしくからめる。','黒こしょうを振って完成。'] },
+  { id:'y_tomatogarlic', name:'トマトガーリック煮', suffix:'トマトガーリック煮', genre:'洋風', dishType:'主菜', method:'フライパン', time:'8分',
+    requiredCategories:MAIN,
+    pOnly:'momo butakoma sake shiromi ebi saba hikiniku mushidori atsuage sasami',
+    vOnly:'tamanegi nasu kinoko piman paprika broccoli jagaimo kabocha cabbage tomato ninjin',
+    seasonings:[gr('カットトマト缶',80,'x'),sp('コンソメ顆粒',0.5),sp('砂糖',0.25),cm('おろしにんにく（チューブ）',1),sp('オリーブオイル',1,'oil'),tx('塩こしょう','少々')],
+    finishSteps:['{PREP}','フライパンにオリーブオイルとにんにくを入れて弱火で熱し、香りが立ったら中火にする。','{FRY}。','トマト缶・コンソメ・砂糖を加え、ふたをして弱めの中火で4分煮る。','ふたを取って1分煮詰め、塩こしょうで味をととのえて完成（粉チーズやパセリを振っても）。'] },
+  { id:'y_tonyu', name:'豆乳クリーム煮', suffix:'豆乳クリーム煮', genre:'洋風', dishType:'主菜', method:'フライパン', time:'8分',
+    requiredCategories:MAIN,
+    pOnly:'momo mushidori sake shiromi ebi butakoma sasami tuna',
+    vOnly:'broccoli tamanegi kinoko hakusai horenso komatsuna kabocha jagaimo cabbage ninjin',
+    seasonings:[ml('無調整豆乳',100,'x'),sp('薄力粉',1.5,'x'),gr('バター',5,'x'),sp('コンソメ顆粒',0.5),tx('塩こしょう','少々')],
+    finishSteps:['{PREP}','フライパンにバターを中火で溶かし、{FRY}。','薄力粉を振り入れ、粉っぽさがなくなるまで30秒炒める。','豆乳とコンソメを加え、混ぜながら弱めの中火で3分、とろみがつくまで煮る（沸騰させると分離するので注意）。','塩こしょうで味をととのえて完成。'] },
+  { id:'y_curry', name:'カレーソテー', suffix:'カレーソテー', genre:'洋風', dishType:'主菜', method:'フライパン', time:'5分',
+    requiredCategories:MAIN,
+    pOnly:'momo butakoma sake shiromi ebi sasami mushidori atsuage tofu hikiniku butabara tuna',
+    vOnly:'kabocha jagaimo tamanegi kinoko piman paprika nasu cabbage broccoli moyashi ninjin',
+    seasonings:[sp('ケチャップ',1),sp('ウスターソース',1),sp('カレー粉',0.5),sp('醤油',0.5),sp('オリーブオイル',1,'oil')],
+    finishSteps:['{PREP}','ケチャップ・ウスターソース・醤油を混ぜておく。','フライパンにオリーブオイルを中火で熱し、{FRY}。','カレー粉を振り入れて香りが立つまで炒め、混ぜておいた調味料を加えて全体にからめたら完成。'] },
+  { id:'y_cheeseyaki', name:'トマトチーズ焼き', suffix:'トマトチーズ焼き', genre:'洋風', dishType:'主菜', method:'レンジ＋トースター', time:'10分', mwBase:2, mwRaw:2,
+    requiredCategories:MAIN,
+    pOnly:'mushidori momo sake shiromi tofu atsuage hikiniku ebi sasami tuna egg',
+    vOnly:'tamanegi nasu broccoli jagaimo kabocha kinoko piman paprika tomato horenso cabbage',
+    seasonings:[sp('ケチャップ',2),sp('コンソメ顆粒',0.25),gr('ピザ用チーズ',25,'x'),sp('オリーブオイル',0.5,'oil'),tx('粉チーズ','少々')],
+    finishSteps:['耐熱皿に薄くオリーブオイルを塗り、{ALL}を広げ入れる（冷凍ストックは凍ったままでOK）。','ふんわりラップをしてレンジ600Wで{MW}分加熱し、出た水分を捨てる（生の肉・魚は中まで火が通ったか確認）。','ケチャップとコンソメを混ぜて全体に塗り、ピザ用チーズをのせる。','トースター（1000W）で5〜6分、チーズに焼き色がつくまで焼き、粉チーズを振って完成。'] },
+  { id:'y_lemonbutter', name:'レモンバターソテー', suffix:'レモンバターソテー', genre:'洋風', dishType:'主菜', method:'フライパン', time:'5分',
+    requiredCategories:MAIN,
+    pOnly:'sake shiromi momo sasami ebi mushidori atsuage butakoma',
+    vOnly:'broccoli kinoko horenso komatsuna jagaimo paprika tamanegi cabbage piman kabocha',
+    seasonings:[gr('バター',8,'x'),sp('レモン汁',2),sp('醤油',0.5),sp('オリーブオイル',0.5,'oil'),tx('塩こしょう','少々')],
+    finishSteps:['{PREP}','フライパンにオリーブオイルを中火で熱し、{FRY}。','塩こしょうを振り、バターを加えて溶かしながら全体にからめる。','火を止めてレモン汁と醤油を回しかけ、さっと混ぜて完成。'] },
+  { id:'y_mustardmayo', name:'マスタードマヨサラダ', suffix:'マスタードマヨサラダ', genre:'洋風', dishType:'副菜', method:'和えるだけ', time:'3分',
+    requiredCategories:{protein:[0,1],veg:[1,2],proteinReady:true},
+    pOnly:'egg tuna mushidori',
+    vOnly:'broccoli jagaimo kabocha ninjin cabbage paprika kinoko',
+    seasonings:[sp('マヨネーズ',2),sp('粒マスタード',1),sp('はちみつ',0.5),tx('塩こしょう','少々')],
+    finishSteps:['{PREP}','ボウルにマヨネーズ・粒マスタード・はちみつを混ぜる。','{ALL}の水気をしっかり切って加え、ざっくり和える（ゆで卵は粗くつぶすとなじむ）。','塩こしょうで味をととのえて完成。'] },
+  { id:'y_marine', name:'洋風マリネ', suffix:'洋風マリネ', genre:'洋風', dishType:'副菜', method:'和えるだけ', time:'5分',
+    requiredCategories:{protein:[0,1],veg:[1,2],proteinReady:true},
+    pOnly:'tuna mushidori',
+    vOnly:'paprika tamanegi ninjin kinoko tomato cabbage broccoli nasu kabocha',
+    seasonings:[sp('酢',2),sp('オリーブオイル',1),sp('砂糖',0.5),tx('塩','ひとつまみ'),tx('粗びき黒こしょう','少々')],
+    finishSteps:['{PREP}','ボウルに酢・オリーブオイル・砂糖・塩・こしょうを混ぜてマリネ液を作る。','{ALL}を温かいうちに加えて和える（温かいほうが味がしみる）。','10分以上置いてなじませたら完成（冷蔵で2日おいしい）。'] },
+  { id:'y_consomme', name:'コンソメスープ', suffix:'コンソメスープ', genre:'洋風', dishType:'汁物', method:'鍋', time:'7分',
+    requiredCategories:{protein:[0,1],veg:[1,2]},
+    pOnly:'mushidori butakoma butabara tuna ebi hikiniku sasami',
+    vOnly:'cabbage tamanegi ninjin jagaimo broccoli kinoko tomato hakusai daikon paprika kabocha',
+    seasonings:[ml('水',180,'x'),sp('コンソメ顆粒',1),tx('塩こしょう','少々'),tx('オリーブオイル','仕上げに少々')],
+    finishSteps:['鍋に水とコンソメを入れて中火にかける。','{SIMMER}。','塩こしょうで味をととのえ、器に盛ってオリーブオイルを少し垂らして完成（粉チーズも◎）。'] },
+
+  // ============================ 中華 ============================
+  { id:'c_oyster', name:'オイスター炒め', suffix:'オイスター炒め', genre:'中華', dishType:'主菜', method:'フライパン', time:'5分',
+    requiredCategories:MAIN,
+    pOnly:'butakoma momo ebi mushidori atsuage sasami butabara hikiniku sake',
+    vOnly:'broccoli piman paprika cabbage tamanegi kinoko moyashi komatsuna hakusai nasu ninjin negi',
+    seasonings:[sp('オイスターソース',1.5),sp('酒',1),sp('醤油',0.5),sp('砂糖',0.5),sp('片栗粉',0.5,'x'),sp('ごま油',1,'oil')],
+    finishSteps:['{PREP}','オイスターソース・酒・醤油・砂糖・片栗粉を混ぜて合わせ調味料を作る。','フライパンにごま油を強めの中火で熱し、{FRY}。','合わせ調味料をもう一度混ぜてから回し入れ、とろみがつくまで手早く30秒炒め合わせて完成。'] },
+  { id:'c_toban', name:'ピリ辛豆板醤炒め', suffix:'ピリ辛豆板醤炒め', genre:'中華', dishType:'主菜', method:'フライパン', time:'5分',
+    requiredCategories:MAIN,
+    pOnly:'butakoma butabara momo hikiniku ebi atsuage tofu sasami',
+    vOnly:'nasu piman cabbage moyashi kinoko negi tamanegi paprika hakusai komatsuna broccoli',
+    seasonings:[sp('醤油',1),sp('酒',1),sp('豆板醤',0.5),sp('砂糖',0.5),cm('おろしにんにく（チューブ）',1),sp('ごま油',1,'oil')],
+    finishSteps:['{PREP}','醤油・酒・砂糖を混ぜておく。','フライパンにごま油・豆板醤・にんにくを入れて弱火で炒め、香りと辛みを油に移す。','中火にして{FRY}。','混ぜておいた調味料を加えて手早く炒め合わせ、汁気が飛んだら完成。'] },
+  { id:'c_umashioan', name:'中華風うま塩あん', suffix:'中華風うま塩あんかけ', genre:'中華', dishType:'主菜', method:'フライパン', time:'6分',
+    requiredCategories:MAIN,
+    pOnly:'shiromi sake tofu mushidori ebi butakoma atsuage sasami',
+    vOnly:'hakusai cabbage broccoli kinoko ninjin negi komatsuna moyashi tamanegi',
+    seasonings:[ml('水',60,'x'),sp('酒',1),sp('鶏がらスープの素',0.5),tx('塩','ひとつまみ'),sp('片栗粉（同量の水で溶く）',1,'x'),sp('ごま油',1,'oil')],
+    finishSteps:['{PREP}','フライパンにごま油の半量を中火で熱し、{FRY}。','水・酒・鶏がらスープの素・塩を加えて煮立て、ふたをして2分煮る。','水溶き片栗粉を回し入れてとろみをつけ、残りのごま油を垂らして完成。'] },
+  { id:'c_mabo', name:'麻婆風炒め煮', suffix:'麻婆風炒め煮', genre:'中華', dishType:'主菜', method:'フライパン', time:'7分',
+    requiredCategories:MAIN,
+    pOnly:'tofu atsuage hikiniku butakoma ebi',
+    vOnly:'nasu negi hakusai kinoko piman moyashi cabbage',
+    seasonings:[sp('味噌',1),sp('醤油',0.5),sp('砂糖',0.5),sp('鶏がらスープの素',0.5),sp('豆板醤',0.25),ml('水',50,'x'),sp('片栗粉（同量の水で溶く）',1,'x'),cm('おろしにんにく（チューブ）',1),sp('ごま油',1,'oil')],
+    finishSteps:['{PREP}','味噌・醤油・砂糖・鶏がらスープの素・水を混ぜておく。','フライパンにごま油・豆板醤・にんにくを入れて弱火で炒めて香りを出し、中火にして{FRY}。','混ぜておいた調味料を加え、ふたをして2〜3分煮る。','水溶き片栗粉でとろみをつけ、30秒しっかり煮立てて完成（ラー油や花椒で大人の辛さに）。'] },
+  { id:'c_amazu', name:'甘酢あん炒め', suffix:'甘酢あん炒め', genre:'中華', dishType:'主菜', method:'フライパン', time:'6分',
+    requiredCategories:MAIN,
+    pOnly:'momo butakoma sake shiromi sasami ebi atsuage mushidori',
+    vOnly:'tamanegi piman paprika ninjin kinoko nasu kabocha broccoli',
+    seasonings:[sp('ケチャップ',2),sp('酢',2),sp('砂糖',1.5),sp('醤油',1),sp('水',3,'x'),sp('片栗粉',0.5,'x'),sp('サラダ油',1,'oil')],
+    finishSteps:['{PREP}','ケチャップ・酢・砂糖・醤油・水・片栗粉を混ぜて甘酢あんを作る。','フライパンにサラダ油を中火で熱し、{FRY}。','甘酢あんをよく混ぜてから加え、とろみと照りが出るまで1分炒め合わせて完成。'] },
+  { id:'c_banbanji', name:'棒棒鶏風ごまだれ', suffix:'棒棒鶏風ごまだれ和え', genre:'中華', dishType:'副菜', method:'和えるだけ', time:'3分',
+    requiredCategories:{protein:[0,1],veg:[1,2],proteinReady:true},
+    pOnly:'mushidori egg tofu',
+    vOnly:'moyashi cabbage ninjin tomato komatsuna horenso broccoli nasu paprika',
+    seasonings:[sp('練りごま（またはすりごま）',2),sp('醤油',1),sp('酢',1),sp('砂糖',1),sp('ごま油',0.5),tx('ラー油','お好みで')],
+    finishSteps:['{PREP}','ボウルに練りごま・醤油・酢・砂糖・ごま油を入れ、なめらかになるまでよく混ぜる。','{ALL}の水気をしっかり切って器に盛る。','ごまだれをたっぷりかけ、好みでラー油を垂らして完成。'] },
+  { id:'c_gomatonyu', name:'濃厚ごま豆乳スープ', suffix:'濃厚ごま豆乳スープ', genre:'中華', dishType:'汁物', method:'鍋', time:'7分',
+    requiredCategories:{protein:[0,1],veg:[1,2]},
+    pOnly:'hikiniku butakoma mushidori tofu butabara',
+    vOnly:'hakusai komatsuna horenso moyashi kinoko negi cabbage ninjin',
+    seasonings:[ml('無調整豆乳',120,'x'),ml('水',80,'x'),sp('練りごま（またはすりごま）',2),sp('鶏がらスープの素',1),sp('味噌',1),tx('ラー油','お好みで')],
+    finishSteps:['鍋に水と鶏がらスープの素を入れて中火にかける。','{SIMMER}。','弱火にして練りごまと味噌を溶き入れ、豆乳を加えて沸騰直前まで温める（煮立てると分離するので注意）。','器に盛り、好みでラー油を垂らして完成。'] },
+  { id:'c_chukasoup', name:'中華スープ', suffix:'中華スープ', genre:'中華', dishType:'汁物', method:'鍋', time:'5分',
+    requiredCategories:{protein:[0,1],veg:[1,2]},
+    pOnly:'mushidori hikiniku ebi tofu butakoma tuna',
+    vOnly:'negi cabbage hakusai kinoko moyashi tamanegi ninjin komatsuna tomato daikon',
+    seasonings:[ml('水',180,'x'),sp('鶏がらスープの素',1),sp('醤油',0.5),tx('塩こしょう','少々'),tx('ごま油','仕上げに少々'),tx('白ごま','少々')],
+    finishSteps:['鍋に水と鶏がらスープの素を入れて中火にかける。','{SIMMER}。','醤油・塩こしょうで味をととのえ、火を止めてごま油を垂らし白ごまを振って完成。'] },
+
+  // ============================ 韓国風 ============================
+  { id:'k_yangnyeom', name:'ヤンニョム甘辛', suffix:'ヤンニョム甘辛炒め', genre:'韓国風', dishType:'主菜', method:'フライパン', time:'6分',
+    requiredCategories:MAIN,
+    pOnly:'momo sasami butakoma butabara atsuage ebi mushidori tofu egg',
+    vOnly:'tamanegi piman paprika kabocha jagaimo kinoko ninjin nasu cabbage negi broccoli',
+    seasonings:[sp('コチュジャン',1.5),sp('ケチャップ',1.5),sp('砂糖',1),sp('醤油',0.5),cm('おろしにんにく（チューブ）',1),sp('ごま油',1,'oil'),tx('白ごま','少々')],
+    finishSteps:['{PREP}','コチュジャン・ケチャップ・砂糖・醤油・にんにくを混ぜてヤンニョムだれを作る。','フライパンにごま油を中火で熱し、{FRY}。','火を弱めてヤンニョムだれを加え、焦がさないように全体にからめながら1分炒める。','白ごまを振って完成。'] },
+  { id:'k_bulgogi', name:'プルコギ風炒め', suffix:'プルコギ風炒め', genre:'韓国風', dishType:'主菜', method:'フライパン', time:'6分',
+    requiredCategories:MAIN,
+    pOnly:'butakoma butabara momo hikiniku sasami atsuage mushidori',
+    vOnly:'tamanegi ninjin piman paprika kinoko negi moyashi cabbage komatsuna gobo',
+    seasonings:[sp('醤油',2),sp('砂糖',1),sp('酒',1),sp('ごま油',1),cm('おろしにんにく（チューブ）',1),sp('サラダ油',0.5,'oil'),tx('白ごま','少々')],
+    finishSteps:['{PREP}','醤油・砂糖・酒・ごま油・にんにくを混ぜてプルコギだれを作る。','フライパンにサラダ油を中火で熱し、{FRY}。','プルコギだれを回し入れ、汁気がほぼなくなるまで強火で1〜2分炒め合わせる。','白ごまを振って完成（サンチュやのりで巻いても）。'] },
+  { id:'k_chijimi', name:'チヂミ', suffix:'チヂミ', genre:'韓国風', dishType:'主菜', method:'フライパン', time:'8分',
+    requiredCategories:MAIN,
+    pOnly:'butakoma ebi tuna butabara hikiniku mushidori',
+    vOnly:'negi ninjin komatsuna moyashi piman paprika kabocha kinoko cabbage horenso',
+    seasonings:[sp('薄力粉',6,'x'),sp('片栗粉',3,'x'),ml('水',35,'x'),sp('鶏がらスープの素',0.25,'x'),sp('ごま油',2,'oil'),sp('醤油（たれ用）',1),sp('酢（たれ用）',1),tx('ラー油（たれ用）','お好みで')],
+    finishSteps:['ボウルに薄力粉・片栗粉・鶏がらスープの素・水を入れ、ダマがなくなるまで混ぜる。','{ALL}を加えてざっくり混ぜる（冷凍ストックは凍ったままでOK、生の肉は薄く広げる）。','フライパンにごま油の半量を中火で熱して生地を薄く広げ、フライ返しで押さえながら3分焼く。','裏返して鍋肌から残りのごま油を足し、さらに3分カリッと焼く。','食べやすく切り、醤油・酢・ラー油を混ぜたたれを添えて完成。'] },
+  { id:'k_jjim', name:'チムタク風甘辛煮', suffix:'チムタク風甘辛煮', genre:'韓国風', dishType:'主菜', method:'フライパン', time:'10分', twoVeg:0.7,
+    requiredCategories:MAIN,
+    pOnly:'momo mushidori butakoma atsuage sasami',
+    vOnly:'jagaimo ninjin tamanegi kabocha kinoko negi daikon',
+    seasonings:[sp('醤油',2),sp('砂糖',1.5),sp('酒',1),sp('コチュジャン',0.5),ml('水',50,'x'),cm('おろしにんにく（チューブ）',1),cm('おろし生姜（チューブ）',1),sp('ごま油',0.5,'oil')],
+    finishSteps:['{PREP}','醤油・砂糖・酒・コチュジャン・水・にんにく・生姜を混ぜて煮汁を作る。','フライパンにごま油を中火で熱し、{FRY}。','煮汁を加えてふたをし、弱めの中火で4分煮る。','ふたを取ってとろりとするまで煮詰め、全体にからめて完成（春雨を加えるとボリュームアップ）。'] },
+  { id:'k_namul', name:'ごま油ナムル', suffix:'ナムル', genre:'韓国風', dishType:'副菜', method:'和えるだけ', time:'3分',
+    requiredCategories:{protein:[0,1],veg:[1,2],proteinReady:true},
+    pOnly:'mushidori tuna',
+    vOnly:'moyashi horenso komatsuna ninjin cabbage broccoli nasu piman paprika kinoko',
+    seasonings:[sp('ごま油',1),sp('鶏がらスープの素',0.5),sp('白ごま',0.5),cm('おろしにんにく（チューブ）',0.5),tx('塩','ひとつまみ')],
+    finishSteps:['{PREP}','ボウルにごま油・鶏がらスープの素・にんにく・塩を混ぜる。','{ALL}の水気をしっかり絞って加え、手でもみ込むように和える。','白ごまを振って完成（冷蔵で2日、作り置きにも）。'] },
+  { id:'k_chorogi', name:'チョレギサラダ', suffix:'チョレギサラダ', genre:'韓国風', dishType:'副菜', method:'和えるだけ', time:'3分', rawOk:['v_cabbage','v_hakusai'],
+    requiredCategories:{protein:[0,1],veg:[1,2],proteinReady:true},
+    pOnly:'tuna mushidori egg',
+    vOnly:'cabbage tomato paprika hakusai ninjin',
+    seasonings:[sp('ごま油',1),sp('醤油',0.5),sp('酢',0.5),sp('鶏がらスープの素',0.25,'x'),sp('白ごま',0.5,'x'),tx('韓国のり（または焼きのり）','適量')],
+    finishSteps:['{PREP}','ボウルにごま油・醤油・酢・鶏がらスープの素を混ぜてドレッシングを作る。','{ALL}を加えてさっと和える（キャベツや白菜は生のまま細めにするとシャキッと仕上がる）。','器に盛り、韓国のりをちぎってのせ白ごまを振って完成。'] },
+  { id:'k_sundubu', name:'スンドゥブ風スープ', suffix:'スンドゥブ風スープ', genre:'韓国風', dishType:'汁物', method:'鍋', time:'7分',
+    requiredCategories:{protein:[0,1],veg:[1,2]},
+    pOnly:'tofu butakoma butabara ebi saba hikiniku mushidori shiromi',
+    vOnly:'hakusai kinoko negi moyashi komatsuna nasu tamanegi cabbage',
+    seasonings:[ml('水',180,'x'),sp('コチュジャン',1),sp('鶏がらスープの素',0.5),sp('醤油',0.5),sp('味噌',0.5),cm('おろしにんにく（チューブ）',0.5),sp('ごま油',0.5,'oil'),tx('一味唐辛子','お好みで')],
+    finishSteps:['鍋にごま油とにんにくを入れて弱火で香りを出し、水と鶏がらスープの素を加えて中火にする。','{SIMMER}。','コチュジャン・味噌・醤油を溶き入れて1分煮る。','好みで一味を振って完成（溶き卵を加えると本格的に）。'] },
+];
+
+/* ---------------------------------------------------------------------
+   3. アレンジルール（ジャンル・調理法・売り場・デモ在庫）
+   --------------------------------------------------------------------- */
+const GENRES = ['和風','洋風','中華','韓国風'];
+const GCLS = { '和風':'wa', '洋風':'yo', '中華':'chu', '韓国風':'kan' };
+const GSHORT = { '和風':'和', '洋風':'洋', '中華':'中', '韓国風':'韓' };
+const METHOD_ICON = { 'フライパン':'🍳', 'レンジ':'⚡', '和えるだけ':'🥣', '鍋':'🍲', 'レンジ＋トースター':'🔥' };
+const STORAGE = { freeze:{label:'冷凍', icon:'❄️'}, fridge:{label:'冷蔵', icon:'🧊'}, pantry:{label:'常備', icon:'🗄️'} };
+const STORAGE_ORDER = ['freeze','fridge','pantry'];
+const SECTIONS = ['青果','精肉','鮮魚','豆腐・卵','冷凍食品','缶詰・乾物'];
+const SECTION_ICON = { '青果':'🥬', '精肉':'🥩', '鮮魚':'🐟', '豆腐・卵':'🥚', '冷凍食品':'🧊', '缶詰・乾物':'🥫' };
+const ARRANGE_RULES = {
+  weekMainGenreNoRepeat: true,   // 連続する日で主菜のジャンルを被らせない
+  weekBaseNoRepeat: true,        // 連続する日で同じ味付けベースを使わない
+  maxSameGenrePerWeek: 2,        // 1週間で同ジャンル主菜は原則2回まで（超えると減点）
+  coreProteins: 4,               // 1週間で回すタンパク質パーツ数（ストック優先＋補充）
+  coreVegs: 6,                   // 1週間で回す野菜パーツ数
+  sideProteinRate: 0.25,         // 副菜・汁物にタンパク質を入れる確率
+  favoriteBonus: 3.5,            // お気に入り優先ON時の加点
+  stockBonus: 2.5,               // 在庫があるパーツの加点
+};
+// よくある週末仕込みセット（daysAgo=登録からの経過日数デモ）
+const DEMO_SET = [
+  ['p_mushidori',4,1],['p_butakoma',4,1],['p_sake',2,1],['p_tofu',2,2],['p_egg',4,1],['p_tuna',2,0],
+  ['v_cabbage',4,3],['v_ninjin',4,1],['v_tamanegi',4,1],['v_broccoli',4,1],['v_kinoko',4,1],['v_horenso',3,1],['v_moyashi',2,1],
+];
+
+/* ---------- master post-processing ---------- */
+const PART = Object.fromEntries(PARTS.map(p=>[p.id,p]));
+BASES.forEach(b=>{
+  b.pOnly = (b.pOnly||'').split(/\s+/).filter(Boolean).map(x=>'p_'+x);
+  b.vOnly = (b.vOnly||'').split(/\s+/).filter(Boolean).map(x=>'v_'+x);
+});
+const BASE = Object.fromEntries(BASES.map(b=>[b.id,b]));
+
+/* =====================================================================
+   4. 状態管理（localStorage 自動保存）
+   ===================================================================== */
+const LS_KEY = 'kakezan-gohan-v1';
+const DEFAULT_STATE = () => ({
+  v:1, tab:'stock', mode:'A', people:2,
+  stock:[],            // {uid, partId, count, storage, addedAt}
+  favorites:[],        // {key, baseId, p, v, savedAt}
+  favPriority:true,
+  history:[],          // 確定済み週献立
+  draft:null,          // 作成中の週献立
+  activePlanId:null,
+  suggestions:null, seenKeys:[], cooked:[],
+  stockFilter:'all', addQty:1, dictMode:'part', dictSel:null,
+});
+let S = load();
+function load(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return DEFAULT_STATE();
+    return Object.assign(DEFAULT_STATE(), JSON.parse(raw));
+  }catch(e){ return DEFAULT_STATE(); }
+}
+function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){} }
+
+/* =====================================================================
+   5. ユーティリティ
+   ===================================================================== */
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = ()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
+const shuffle = a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+function weightedPick(arr, scoreFn){
+  const w = arr.map(x=>Math.exp(Math.max(-6,Math.min(6,scoreFn(x)))*0.7));
+  let r = Math.random()*w.reduce((a,b)=>a+b,0);
+  for(let i=0;i<arr.length;i++){ r-=w[i]; if(r<=0) return arr[i]; }
+  return arr[arr.length-1];
+}
+const ymd = d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const parseYmd = s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);};
+const todayStr = ()=>ymd(new Date());
+const addDays = (s,n)=>{const d=parseYmd(s);d.setDate(d.getDate()+n);return ymd(d);};
+const daysSince = s=>Math.round((parseYmd(todayStr())-parseYmd(s))/864e5);
+const WD = ['日','月','火','水','木','金','土'];
+const fmtDate = s=>{const d=parseYmd(s);return `${d.getMonth()+1}/${d.getDate()}（${WD[d.getDay()]}）`;};
+const fmtMD = s=>{const d=parseYmd(s);return `${d.getMonth()+1}/${d.getDate()}`;};
+function upcomingMonday(){ const d=new Date(); d.setHours(0,0,0,0); const w=d.getDay(); d.setDate(d.getDate()+(w===1?0:(8-w)%7)); return ymd(d); }
+
+function frac(x){
+  const w=Math.floor(x+1e-9); const f=Math.round((x-w)*4)/4;
+  if(f>=1) return String(w+1);
+  const fs={0.25:'1/4',0.5:'1/2',0.75:'3/4'}[f];
+  if(!fs) return String(w);
+  return w ? `${w}と${fs}` : fs;
+}
+function fmtSpoon(t){
+  if(t<0.2) return '少々';
+  if(t<3){ const r = t<1 ? Math.round(t*4)/4 : Math.round(t*2)/2; return '小さじ'+frac(r); }
+  const r=Math.round(t*2)/2, tb=Math.floor(r/3), rem=r-tb*3;
+  if(rem===0) return '大さじ'+tb;
+  if(rem===1.5) return '大さじ'+frac(tb+0.5);
+  return `大さじ${tb}＋小さじ${frac(rem)}`;
+}
+function fmtSeason(s,n){
+  if(s.tsp!=null) return fmtSpoon(s.tsp*n);
+  if(s.ml!=null) return Math.round(s.ml*n)+'ml';
+  if(s.g!=null) return Math.round(s.g*n)+'g';
+  if(s.cm!=null) return frac(Math.round(s.cm*n*2)/2)+'cm';
+  return s.text;
+}
+function goldenRatio(b){
+  const it=b.seasonings.filter(s=>s.tsp!=null && s.k!=='x' && s.k!=='oil' && s.tsp>=0.5);
+  if(it.length<2) return '';
+  const m=Math.min(...it.map(s=>s.tsp));
+  return it.map(s=>`${s.n.replace(/（.*?）/g,'')} ${frac(Math.round(s.tsp/m*2)/2)}`).join(' ： ');
+}
+
+/* ---------- stock helpers ---------- */
+function lifeDays(p,st){
+  if(st===p.storageType) return p.shelfLifeDays;
+  if(st==='fridge') return p.fridgeDays||3;
+  if(st==='freeze') return p.freezeDays||21;
+  return p.storageType==='pantry' ? p.shelfLifeDays : (p.fridgeDays||3);
+}
+function freshness(b){
+  const p=PART[b.partId], life=lifeDays(p,b.storage), el=daysSince(b.addedAt), rem=life-el;
+  let cls='ok', txt=`あと${rem}日`;
+  if(rem<0){cls='over';txt='消費目安超過';}
+  else if(rem===0){cls='today';txt='今日中に';}
+  else if(rem<=2){cls='soon';txt=`あと${rem}日・早めに`;}
+  return {cls,txt,rem,el,life};
+}
+const stockCount = id=>S.stock.filter(b=>b.partId===id).reduce((a,b)=>a+b.count,0);
+function stockMap(){ const m={}; S.stock.forEach(b=>{m[b.partId]=(m[b.partId]||0)+b.count;}); return m; }
+function minRemain(id){ const r=S.stock.filter(b=>b.partId===id&&b.count>0).map(b=>freshness(b).rem); return r.length?Math.min(...r):99; }
+function addStock(partId,n,storage,date){
+  const st=storage||PART[partId].storageType, d=date||todayStr();
+  const ex=S.stock.find(b=>b.partId===partId&&b.addedAt===d&&b.storage===st);
+  if(ex) ex.count+=n; else S.stock.push({uid:uid(),partId,count:n,storage:st,addedAt:d});
+}
+function consumeStock(partId,n){
+  let need=n;
+  const bs=S.stock.filter(b=>b.partId===partId&&b.count>0).sort((a,b)=>a.addedAt<b.addedAt?-1:1);
+  for(const b of bs){ const t=Math.min(b.count,need); b.count-=t; need-=t; if(need<=0) break; }
+  S.stock=S.stock.filter(b=>b.count>0);
+  return n-need;
+}
+function stockPool(){
+  const m=stockMap(), ids=Object.keys(m).filter(id=>m[id]>0&&PART[id]);
+  return { protein:ids.filter(id=>PART[id].category==='protein'), veg:ids.filter(id=>PART[id].category==='veg') };
+}
+
+/* =====================================================================
+   6. パーツ × 味付けの掛け算エンジン
+   ===================================================================== */
+function compat(b,p,role){
+  if(!p.compatibleTags.includes(b.genre)) return false;
+  if(role==='protein'){
+    if(p.category!=='protein') return false;
+    if(b.requiredCategories.proteinReady && !p.ready) return false;
+    return !b.pOnly.length || b.pOnly.includes(p.id);
+  }
+  if(p.category!=='veg') return false;
+  return !b.vOnly.length || b.vOnly.includes(p.id);
+}
+function makeDish(b,p,vs){
+  return { key:`${b.id}|${p||'-'}|${[...vs].sort().join('+')}`, baseId:b.id, p:p||null, v:[...vs], type:b.dishType, genre:b.genre };
+}
+const dishParts = d=>(d.p?[d.p]:[]).concat(d.v);
+function dishName(d){
+  const b=BASE[d.baseId]; const vn=d.v.map(id=>PART[id].short);
+  const head = d.p ? `${PART[d.p].short}と${vn.join('・')}` : vn.join('と');
+  return `${head}の${b.suffix}`;
+}
+function pickVegs(b,pool,k,sf,avoid){
+  const cand=pool.filter(id=>compat(b,PART[id],'veg'));
+  const chosen=[];
+  for(let i=0;i<k;i++){
+    const c=cand.filter(id=>!chosen.includes(id)&&!chosen.some(x=>PART[x].group===PART[id].group));
+    if(!c.length) break;
+    chosen.push(weightedPick(c,id=>sf(id)-(avoid&&avoid.includes(id)?2:0)));
+  }
+  return chosen;
+}
+function randomCombo(b,o){
+  const rc=b.requiredCategories;
+  const pc=o.pool.protein.filter(id=>compat(b,PART[id],'protein'));
+  let p=null;
+  if(rc.protein[0]>=1){ if(!pc.length) return null; p=weightedPick(pc,o.partScore); }
+  else if(rc.protein[1]>=1 && pc.length && Math.random()<(o.sideProteinRate??ARRANGE_RULES.sideProteinRate)) p=weightedPick(pc,o.partScore);
+  const k = rc.veg[1]>=2 && Math.random()<(b.twoVeg??0.45) ? 2 : rc.veg[0];
+  let vs=pickVegs(b,o.pool.veg,k,o.partScore,o.avoidVeg);
+  if(vs.length<rc.veg[0]) return null;
+  return makeDish(b,p,vs);
+}
+function favKeySet(){ return new Set(S.favorites.map(f=>f.key)); }
+function scoreDish(d,o,favs){
+  let s=Math.random()*1.4;
+  dishParts(d).forEach(id=>{ s+=o.partScore(id)*0.5; });
+  if(o.genreCount) s-=(o.genreCount[d.genre]||0)*1.3;
+  if(o.genreCount && (o.genreCount[d.genre]||0)>=ARRANGE_RULES.maxSameGenrePerWeek) s-=2;
+  if(o.baseCount) s-=(o.baseCount[d.baseId]||0)*2;
+  if(o.softKeys && o.softKeys.has(d.key)) s-=3;
+  if(o.avoidVeg) s-=d.v.filter(x=>o.avoidVeg.includes(x)).length*1.2;
+  if(S.favPriority && favs.has(d.key)) s+=ARRANGE_RULES.favoriteBonus;
+  return s;
+}
+function dishAllowed(d,h){
+  if(h.genres && h.genres.has(d.genre)) return false;
+  if(h.bases && h.bases.has(d.baseId)) return false;
+  if(h.keys && h.keys.has(d.key)) return false;
+  if(h.bp && h.bp.has(d.baseId+'|'+d.p)) return false;
+  if(h.must && h.must.has(d.key)) return false;
+  return true;
+}
+function searchDish(o,h){
+  const favs=favKeySet();
+  let best=null, bestS=-1e9;
+  for(const b of shuffle(BASES.filter(x=>x.dishType===o.type))){
+    if(h.genres && h.genres.has(b.genre)) continue;
+    if(h.bases && h.bases.has(b.id)) continue;
+    for(let t=0;t<3;t++){
+      const d=randomCombo(b,o); if(!d) break;
+      if(!dishAllowed(d,h)) continue;
+      const s=scoreDish(d,o,favs);
+      if(s>bestS){best=d;bestS=s;}
+    }
+  }
+  // お気に入り優先採用：条件を満たすお気に入りを候補に追加
+  if(S.favPriority){
+    const inPool=new Set([...o.pool.protein,...o.pool.veg]);
+    S.favorites.forEach(f=>{
+      const b=BASE[f.baseId]; if(!b||b.dishType!==o.type) return;
+      const d=makeDish(b,f.p,f.v);
+      if(!dishParts(d).every(id=>inPool.has(id))) return;
+      if(!dishAllowed(d,h)) return;
+      const s=scoreDish(d,o,favs)+0.5;
+      if(s>bestS){best=d;bestS=s;}
+    });
+  }
+  return best;
+}
+function generateDish(o){
+  const h=o.hard||{};
+  const tiers=[h, {keys:h.keys,must:h.must,genres:h.genres}, {must:h.must,keys:h.keys}, {must:h.must}];
+  for(const t of tiers){ const d=searchDish(o,t); if(d) return d; }
+  return null;
+}
+
+/* ---------- モードA：今あるストックから今日のアレンジ提案 ---------- */
+function makeSuggestions(){
+  const pool=stockPool();
+  if(!pool.veg.length && !pool.protein.length){ S.suggestions=[]; return; }
+  const seen=new Set(S.seenKeys), cookedKeys=new Set(S.cooked.slice(0,10).map(c=>c.key));
+  const res=[], used={}, genreCount={}, baseCount={};
+  const partScore=id=>{
+    const c=stockCount(id); let s=c>=S.people?1.5:0.3;
+    const r=minRemain(id); if(r<=1) s+=2; else if(r<=3) s+=1;
+    s-=(used[id]||0)*(PART[id].category==='protein'?1.6:0.6);
+    return s;
+  };
+  const slots=[];
+  if(pool.protein.length) slots.push('主菜','主菜','主菜');
+  if(pool.veg.length){ slots.push('副菜'); slots.push(Math.random()<0.5?'汁物':'副菜'); if(!pool.protein.length) slots.push('副菜','汁物'); }
+  for(const type of slots){
+    const must=new Set(res.map(d=>d.key));
+    const mainGenres=new Set(res.filter(d=>d.type==='主菜').map(d=>d.genre));
+    const d=generateDish({ type, pool, partScore, genreCount, baseCount, softKeys:cookedKeys,
+      avoidVeg: res.flatMap(x=>x.v), sideProteinRate:0.3,
+      hard:{ genres: type==='主菜'?mainGenres:null, bases:new Set(res.map(x=>x.baseId)), keys:seen, must } });
+    if(!d) continue;
+    res.push(d); genreCount[d.genre]=(genreCount[d.genre]||0)+1; baseCount[d.baseId]=(baseCount[d.baseId]||0)+1;
+    dishParts(d).forEach(id=>used[id]=(used[id]||0)+1);
+  }
+  S.suggestions=res;
+  S.seenKeys=[...res.map(d=>d.key),...S.seenKeys].slice(0,150);
+}
+
+/* ---------- モードB：1週間の日替わり献立 ---------- */
+function selectCore(stockIds, avoidParts){
+  const pick=(cat,target,maxStock)=>{
+    const stocked=stockIds.filter(id=>PART[id].category===cat).sort((a,b)=>stockCount(b)-stockCount(a)).slice(0,maxStock);
+    const out=[...stocked];
+    let others=shuffle(PARTS.filter(p=>p.category===cat&&!out.includes(p.id)).map(p=>p.id));
+    if(avoidParts) others.sort((a,b)=>(avoidParts[a]||0)-(avoidParts[b]||0));
+    while(out.length<target && others.length){
+      // 野菜は系統（group）がばらけるように補充
+      let idx=0;
+      if(cat==='veg'){ const gs=new Set(out.map(x=>PART[x].group)); const j=others.findIndex(x=>!gs.has(PART[x].group)); if(j>=0) idx=j; }
+      out.push(others.splice(idx,1)[0]);
+    }
+    return out;
+  };
+  const pT=ARRANGE_RULES.coreProteins+(Math.random()<0.5?1:0), vT=ARRANGE_RULES.coreVegs+(Math.random()<0.5?1:0);
+  return { protein:pick('protein',pT,6), veg:pick('veg',vT,8) };
+}
+function generateWeek(different){
+  const people=S.people, last=S.history[0];
+  const histKeys=new Set(), histBP=new Set(), lastParts={};
+  if(last) last.days.forEach(day=>day.dishes.forEach(d=>{ histKeys.add(d.key); histBP.add(d.baseId+'|'+d.p); dishParts(d).forEach(id=>lastParts[id]=(lastParts[id]||0)+1); }));
+  const pool0=stockPool();
+  const core=selectCore([...pool0.protein,...pool0.veg], different?lastParts:null);
+  const virtual=stockMap(), usage={}, weekKeys=new Set(), genreCount={}, baseCount={};
+  let start=upcomingMonday();
+  if(different && last && last.weekStart>=start) start=addDays(last.weekStart,7);
+  const days=[];
+  const apply=(d,isMain)=>{
+    weekKeys.add(d.key); baseCount[d.baseId]=(baseCount[d.baseId]||0)+1;
+    if(isMain) genreCount[d.genre]=(genreCount[d.genre]||0)+1;
+    dishParts(d).forEach(id=>{ usage[id]=(usage[id]||0)+1; virtual[id]=(virtual[id]||0)-people; });
+  };
+  for(let i=0;i<7;i++){
+    const prev=days[i-1], prevMain=prev&&prev.dishes[0];
+    const prevBases=new Set(prev?prev.dishes.map(x=>x.baseId):[]);
+    const partScore=id=>{
+      let s=0; const vv=virtual[id]||0;
+      if(vv>=people) s+=ARRANGE_RULES.stockBonus; else if(vv>0) s+=1;
+      const u=usage[id]||0;
+      if(PART[id].category==='veg') s+=Math.min(u,2)*0.4-(u>=4?1:0);
+      else s+= u>=2 ? -(u-1)*1.2 : 0.3*u;
+      if(prevMain && prevMain.p===id) s-=2.5;
+      if(different && lastParts[id]) s-=0.4;
+      return s;
+    };
+    const hard={ genres: prevMain?new Set([prevMain.genre]):null, bases:prevBases, must:weekKeys,
+      keys: different?histKeys:null, bp: different?histBP:null };
+    const main=generateDish({ type:'主菜', pool:core, partScore, genreCount, baseCount, softKeys:histKeys, hard });
+    const dishes=[];
+    if(main){ dishes.push(main); apply(main,true); }
+    const nSide = Math.random()<0.5?1:2;
+    const types = nSide===1 ? [Math.random()<0.3?'汁物':'副菜'] : ['副菜', Math.random()<0.6?'汁物':'副菜'];
+    for(const type of types){
+      const today=new Set(dishes.map(x=>x.baseId));
+      const d=generateDish({ type, pool:core, partScore, baseCount, softKeys:histKeys, avoidVeg:dishes.flatMap(x=>x.v),
+        hard:{ bases:new Set([...prevBases,...today]), must:new Set([...weekKeys]), keys: different?histKeys:null, bp: different?histBP:null } });
+      if(d){ dishes.push(d); apply(d,false); }
+    }
+    days.push({ date:addDays(start,i), dishes });
+  }
+  return { id:uid(), weekStart:start, people, core, days, createdAt:Date.now(), different:!!different, confirmed:false };
+}
+function swapDish(di,j){
+  const plan=S.draft, day=plan.days[di], cur=day.dishes[j];
+  const prev=plan.days[di-1], next=plan.days[di+1];
+  const genres=new Set(); if(cur.type==='主菜'){ if(prev&&prev.dishes[0]) genres.add(prev.dishes[0].genre); if(next&&next.dishes[0]) genres.add(next.dishes[0].genre); }
+  const bases=new Set([cur.baseId]); [prev,next,day].forEach(d=>d&&d.dishes.forEach((x,k)=>{ if(!(d===day&&k===j)) bases.add(x.baseId); }));
+  const must=new Set(); plan.days.forEach(d=>d.dishes.forEach(x=>must.add(x.key)));
+  const sp0=stockPool();
+  const pool={ protein:[...new Set([...plan.core.protein,...sp0.protein])], veg:[...new Set([...plan.core.veg,...sp0.veg])] };
+  const usage={}; plan.days.forEach(d=>d.dishes.forEach(x=>dishParts(x).forEach(id=>usage[id]=(usage[id]||0)+1)));
+  const sm=stockMap();
+  const partScore=id=>{ let s=(sm[id]||0)>=plan.people?1.5:0; s+=PART[id].category==='veg'?Math.min(usage[id]||0,2)*0.3:0; if(id===cur.p) s-=1.5; return s; };
+  const others=day.dishes.filter((_,k)=>k!==j).flatMap(x=>x.v);
+  const d=generateDish({ type:cur.type, pool, partScore, avoidVeg:others, hard:{genres:genres.size?genres:null, bases, must} });
+  if(!d) return false;
+  day.dishes[j]=d; plan.confirmed=false; return true;
+}
+
+/* =====================================================================
+   7. 調理手順の自動合成
+   ===================================================================== */
+const jn = arr=>arr.map(x=>x.short).join('・');
+function prepText(b,all,people){
+  if(b.method==='和えるだけ'){
+    const raw=b.rawOk||[];
+    const heat=all.filter(x=>!x.ready&&!raw.includes(x.id));
+    const thaw=all.filter(x=>x.ready&&x.storageType==='freeze');
+    const out=[];
+    if(heat.length){ const m=Math.min(2+(people-1)+(heat.some(x=>x.storageType==='freeze')?1:0),6); out.push(`${jn(heat)}は耐熱容器に入れてふんわりラップし、レンジ600Wで${m}分加熱して粗熱を取る`); }
+    if(thaw.length) out.push(`冷凍の${jn(thaw)}はレンジ600Wで1分ずつ様子を見ながら解凍し、水気をしっかり絞る`);
+    return out.length ? out.join('。')+'。' : '';
+  }
+  const fr=all.filter(x=>x.storageType==='freeze');
+  return fr.length ? `冷凍ストック（${jn(fr)}）は解凍不要。凍ったまま使えます。` : '';
+}
+function buildSteps(d,people){
+  const b=BASE[d.baseId], p=d.p?PART[d.p]:null, vs=d.v.map(id=>PART[id]), all=(p?[p]:[]).concat(vs);
+  const V=jn(vs), ALL=jn(all), P=p?p.short:'';
+  const mw=(b.mwBase||2)+(p&&!p.ready?(b.mwRaw||0):0)+(people-1);
+  const fry = !p ? `${V}を入れて2〜3分炒める`
+    : p.ready ? `${V}を入れて2〜3分炒め、火が通ったら${p.fry}`
+    : `${p.fry}。続けて${V}を加え、2〜3分炒め合わせる`;
+  const sim = !p ? `${V}を入れ、ふたをして3〜4分、やわらかくなるまで煮る`
+    : p.ready ? `${V}を入れてふたをし3〜4分煮て、やわらかくなったら${p.simmer}`
+    : `${p.simmer}。${V}も加え、ふたをして3〜4分、野菜がやわらかくなるまで煮る`;
+  const prep=prepText(b,all,people);
+  return b.finishSteps.map(t=>{
+    if(t.includes('{PREP}')) return prep ? t.replace('{PREP}',prep) : null;
+    return t.replace(/\{FRY\}/g,fry).replace(/\{SIMMER\}/g,sim).replace(/\{MW\}/g,mw).replace(/\{ALL\}/g,ALL).replace(/\{V\}/g,V).replace(/\{P\}/g,P);
+  }).filter(Boolean);
+}
+
+/* =====================================================================
+   8. 買い物＆下処理リストの逆算
+   ===================================================================== */
+function activePlan(){ return S.history.find(h=>h.id===S.activePlanId)||null; }
+function computeShopping(plan){
+  if(plan.prepDone && plan.buySnapshot) return plan.buySnapshot;
+  const need={};
+  plan.days.forEach(d=>d.dishes.forEach(x=>dishParts(x).forEach(id=>need[id]=(need[id]||0)+plan.people)));
+  const sm=stockMap(); const items=[], covered=[];
+  Object.keys(need).forEach(id=>{
+    const p=PART[id], pu=p.purchaseUnit, have=Math.min(sm[id]||0,need[id]), buyS=need[id]-have;
+    if(buyS<=0){ covered.push({id,need:need[id]}); return; }
+    const units=Math.ceil(buyS*p.grams/pu.grams/pu.step-1e-9)*pu.step;
+    const produced=Math.floor(units*pu.grams/p.grams+1e-9);
+    items.push({ id, need:need[id], have, buyS, units, produced, section:pu.section,
+      label:`${pu.item} ${frac(units)}${pu.unit}`, grams:Math.round(units*pu.grams) });
+  });
+  items.sort((a,b)=>SECTIONS.indexOf(a.section)-SECTIONS.indexOf(b.section));
+  return { items, covered };
+}
+function planSeasonings(plan){
+  const set=new Map();
+  plan.days.forEach(d=>d.dishes.forEach(x=>BASE[x.baseId].seasonings.forEach(s=>{
+    const n=s.n.replace(/（.*?）/g,''); if(n==='水') return; set.set(n,(set.get(n)||0)+1);
+  })));
+  return [...set.entries()].sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
+}
+
+/* =====================================================================
+   9. 描画
+   ===================================================================== */
+const gBadge = g=>`<span class="g g-${GCLS[g]}">${g}</span>`;
+const mLabel = b=>`<span class="mth">${METHOD_ICON[b.method]||''} ${b.method}・${b.time}</span>`;
+function formulaHTML(d,showStock){
+  const b=BASE[d.baseId], sm=stockMap();
+  const chip=id=>{ const p=PART[id], c=sm[id]||0; const miss=showStock&&c<=0;
+    return `<span class="fp ${miss?'miss':''}">${p.emoji}${esc(p.short)}${showStock?`<span class="s">${c>0?'在庫'+c:'要購入'}</span>`:''}</span>`; };
+  return `<div class="formula">${dishParts(d).map(chip).join('<span class="fx">×</span>')}<span class="fx">×</span><span class="fp base">${esc(b.name)}</span></div>`;
+}
+function render(){
+  renderHeader(); renderNav();
+  const m=$('#main');
+  if(S.tab==='stock') m.innerHTML=renderStock();
+  else if(S.tab==='plan') m.innerHTML=renderPlan();
+  else if(S.tab==='fav') m.innerHTML=renderFav();
+  else m.innerHTML=renderShop();
+  save();
+}
+function renderHeader(){
+  $('#hdr').innerHTML=`<div class="hdr-in">
+    <div class="logo">×</div>
+    <div class="ttl"><b>かけ算ごはん</b><small>下処理ストック × 味付け ＝ 日替わり献立</small></div>
+    <div class="ppl"><div class="ppl-l">人数<br>設定</div><div class="seg">${[1,2,3,4].map(n=>`<button class="${S.people===n?'on':''}" data-act="people" data-n="${n}">${n}人</button>`).join('')}</div></div>
+  </div>`;
+}
+const ICONS={
+  stock:'<svg viewBox="0 0 24 24"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M5 10h14M8.5 6v1.5M8.5 13v3"/></svg>',
+  plan:'<svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M8 2.5v4M16 2.5v4M9 14.5l2 2 4-4"/></svg>',
+  fav:'<svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg>',
+  shop:'<svg viewBox="0 0 24 24"><path d="M3 4h2.5l2.2 11h10.6L20.5 7.5H6.4"/><circle cx="9.5" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg>',
+};
+function renderNav(){
+  const ap=activePlan(); let shopBadge='';
+  if(ap){ const sh=computeShopping(ap); const left=sh.items.filter(i=>!(ap.shopChecks||{})[i.id]).length; if(left&&!ap.prepDone) shopBadge=`<span class="bdg">${left}</span>`; }
+  const totalStock=S.stock.reduce((a,b)=>a+b.count,0);
+  const tabs=[['stock','下処理ストック',totalStock?`<span class="bdg" style="background:var(--green)">${totalStock}</span>`:''],['plan','アレンジ献立',''],['fav','お気に入り・図鑑',S.favorites.length?`<span class="bdg" style="background:#E8A317">${S.favorites.length}</span>`:''],['shop','買い物・仕込み',shopBadge]];
+  $('#nav').innerHTML=`<div class="nav-in">${tabs.map(([k,l,bd])=>`<button class="${S.tab===k?'on':''}" data-act="tab" data-tab="${k}">${ICONS[k]}${l}${bd}</button>`).join('')}</div>`;
+}
+
+/* ---------- タブ1：下処理ストック ---------- */
+function renderStock(){
+  const sm=stockMap();
+  const pS=S.stock.filter(b=>PART[b.partId].category==='protein').reduce((a,b)=>a+b.count,0);
+  const vS=S.stock.filter(b=>PART[b.partId].category==='veg').reduce((a,b)=>a+b.count,0);
+  const soon=S.stock.filter(b=>b.count>0&&freshness(b).rem<=2).length;
+  const kinds=Object.keys(sm).length;
+  let rows=S.stock.slice();
+  if(S.stockFilter==='protein') rows=rows.filter(b=>PART[b.partId].category==='protein');
+  if(S.stockFilter==='veg') rows=rows.filter(b=>PART[b.partId].category==='veg');
+  if(S.stockFilter==='soon') rows=rows.filter(b=>freshness(b).rem<=2);
+  rows.sort((a,b)=>freshness(a).rem-freshness(b).rem);
+  const row=b=>{ const p=PART[b.partId], f=freshness(b), st=STORAGE[b.storage];
+    return `<div class="srow ${b.count?'':'zero'}">
+      <div class="emo">${p.emoji}</div>
+      <div class="sinfo"><div class="nm">${esc(p.name)}</div><div class="un">${esc(p.unitName)}</div>
+        <div class="meta"><button class="pill st-${b.storage}" data-act="cycleSt" data-uid="${b.uid}" aria-label="保存区分を変更">${st.icon} ${st.label}</button>
+        <span class="pill fr-${f.cls}">${f.el===0?'今日登録':`登録${f.el}日目`}・${f.txt}</span></div></div>
+      <div class="stepper"><button data-act="dec" data-uid="${b.uid}" aria-label="減らす">−</button><div class="v">${b.count}<small>食分</small></div><button data-act="inc" data-uid="${b.uid}" aria-label="増やす">＋</button></div>
+    </div>`; };
+  const grp=(cat,title,icon)=>{ const r=rows.filter(b=>PART[b.partId].category===cat); if(!r.length) return '';
+    return `<div class="grp-h">${icon} ${title}（${r.length}）</div><div class="list">${r.map(row).join('')}</div>`; };
+  const list = S.stock.length ? (grp('protein','タンパク質パーツ','🍖')+grp('veg','野菜・きのこパーツ','🥕') || `<div class="card empty"><p>該当するストックはありません</p></div>`)
+    : `<div class="card empty" style="margin-top:14px"><div class="big">🧊</div><b>まだストックがありません</b><p>週末に下処理したパーツを登録すると、<br>毎日の「かけ算アレンジ」が自動で提案されます。</p>
+       <button class="btn primary" data-act="demo">✨ よくある週末仕込みセットを一括追加</button></div>`;
+  return `<div class="hero"><h1>冷蔵庫・冷凍庫のストック</h1><p>下処理済みパーツを登録して、平日は5〜10分で仕上げるだけ。</p>
+    <div class="stats"><div class="stat"><b>${pS}</b><span>タンパク質（食分）</span></div><div class="stat"><b>${vS}</b><span>野菜・きのこ（食分）</span></div><div class="stat"><b>${soon}</b><span>早めに使う</span></div></div></div>
+    <div class="btn-row"><button class="btn primary" data-act="openAdd">＋ ストックを追加</button><button class="btn outline" data-act="demo">✨ 週末仕込み<br>セットを一括追加</button></div>
+    ${S.stock.length?`<div class="chips" style="margin-top:16px">${[['all','すべて',S.stock.length],['protein','タンパク質',null],['veg','野菜・きのこ',null],['soon','期限が近い',soon]].map(([k,l,c])=>`<button class="chip ${S.stockFilter===k?'on':''}" data-act="sfilter" data-f="${k}">${l}${c!=null?`<span class="c">${c}</span>`:''}</button>`).join('')}</div>`:''}
+    ${list}
+    ${S.stock.length?`<p class="hint">💡 保存区分のバッジをタップすると「冷凍→冷蔵→常備」を切り替えられます。0食分にすると自動で一覧から消えます。登録パーツ ${kinds}種</p><button class="link" data-act="clearStock">ストックをすべてクリア</button>`:''}`;
+}
+function renderAddSheet(){
+  const sm=stockMap();
+  const grid=cat=>PARTS.filter(p=>p.category===cat).map(p=>`<button class="pbtn" data-act="addPart" data-id="${p.id}"><span class="cnt">${sm[p.id]||''}</span><span class="e">${p.emoji}</span><span class="n">${esc(p.name)}</span><span class="pill st-${p.storageType}" style="margin-top:4px;height:18px;font-size:10px">${STORAGE[p.storageType].label}${p.shelfLifeDays>=365?'':' '+p.shelfLifeDays+'日'}</span></button>`).join('');
+  $('#sheet').innerHTML=`<div class="bk" data-act="backdrop" data-close="sheet"><div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-h"><h3>ストックを追加</h3><button data-act="closeSheet">完了</button></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="font-size:12.5px;color:var(--sub);font-weight:700">1タップで追加：</span>
+      <div class="seg">${[1,2,4].map(n=>`<button class="${S.addQty===n?'on':''}" data-act="addQty" data-n="${n}">${n}食分</button>`).join('')}</div></div>
+    <p class="hint mt0">パーツをタップするたびに今日の日付で在庫に追加されます。</p>
+    <div class="grp-h">🍖 タンパク質パーツ</div><div class="pgrid">${grid('protein')}</div>
+    <div class="grp-h">🥕 野菜・きのこパーツ</div><div class="pgrid">${grid('veg')}</div>
+  </div></div>`;
+}
+
+/* ---------- タブ2：アレンジ献立 ---------- */
+function renderPlan(){
+  return `<div class="mode">
+      <button class="${S.mode==='A'?'on':''}" data-act="mode" data-m="A">🍳 今日のアレンジ</button>
+      <button class="${S.mode==='B'?'on':''}" data-act="mode" data-m="B">📅 1週間献立</button>
+    </div>${S.mode==='A'?renderModeA():renderModeB()}`;
+}
+function dishCard(d,ref,opts={}){
+  const b=BASE[d.baseId], fav=favKeySet().has(d.key);
+  const short=dishParts(d).filter(id=>stockCount(id)<S.people);
+  return `<div class="dish b-${GCLS[d.genre]} ${d.done?'done':''}">
+    <div class="d-top">${gBadge(d.genre)}<span class="typ">${d.type}</span>${mLabel(b)}<span class="sp"></span>
+      <button class="star ${fav?'on':''}" data-act="fav" data-ref="${ref}" aria-label="お気に入り">${fav?'★':'☆'}</button></div>
+    <button class="d-name" data-act="open" data-ref="${ref}">${esc(dishName(d))}</button>
+    ${formulaHTML(d,opts.stock)}
+    ${opts.cook?(d.done?`<div class="d-act"><button class="btn soft" disabled>✓ 作りました（ストック消費済み）</button></div>`:
+      `${short.length?`<div class="warn">⚠ ${short.map(id=>PART[id].short).join('・')}の在庫が${S.people}人分に足りません（あるだけ消費します）</div>`:''}
+      <div class="d-act"><button class="btn primary" data-act="cook" data-ref="${ref}">この料理を作ってストックを消費（−${S.people}食分）</button></div>`):''}
+  </div>`;
+}
+function renderModeA(){
+  const pool=stockPool();
+  if(!pool.protein.length&&!pool.veg.length){
+    return `<div class="card empty"><div class="big">🥡</div><b>ストックが空っぽです</b><p>タブ1で下処理パーツを登録すると、<br>手持ちだけで作れるアレンジ料理を自動合成します。</p>
+      <div class="btn-col"><button class="btn primary" data-act="demo">✨ 週末仕込みセットを一括追加して試す</button><button class="btn outline" data-act="tab" data-tab="stock">ストック登録へ</button></div></div>`;
+  }
+  if(!S.suggestions) makeSuggestions();
+  const sg=S.suggestions||[];
+  const n=pool.protein.length+pool.veg.length;
+  return `<div class="info-box">🧮 手持ちの <b>${n}種のパーツ</b>（タンパク質${pool.protein.length}・野菜${pool.veg.length}）× <b>${BASES.length}種の味付け</b>から、今日作れる料理を合成しました。</div>
+    <div class="sec-t"><h2>今日のアレンジ提案 <span class="num">${sg.length}</span></h2><small>${S.people}人分で計算</small></div>
+    ${sg.length?sg.map((d,i)=>dishCard(d,'A:'+i,{cook:true,stock:true})).join(''):`<div class="card empty"><p>この組み合わせでは提案できませんでした。パーツを追加してみてください。</p></div>`}
+    ${!pool.protein.length?`<p class="hint">💡 タンパク質パーツを登録すると主菜も提案されます。</p>`:''}
+    <div class="confirm-bar"><button class="btn green" data-act="shuffle">🔀 別のアレンジ組み合わせを見る（シャッフル）</button></div>`;
+}
+function renderModeB(){
+  const p=S.draft;
+  const last=S.history[0];
+  let html=`<div class="btn-col mt0"><button class="btn primary" data-act="genWeek">📅 1週間分の献立を自動作成</button>
+    <button class="btn outline" data-act="genNext">🔄 先週と違うバリエーションで来週分を作成</button></div>
+    ${last?`<p class="hint">直近の確定献立：${fmtMD(last.weekStart)}〜${fmtMD(addDays(last.weekStart,6))}（同じパーツ×味付けを避けて作成します）</p>`:''}`;
+  if(!p){
+    return html+`<div class="card empty" style="margin-top:14px"><div class="big">🗓️</div><b>まだ献立がありません</b><p>ボタンを押すと月〜日の7日分（主菜＋副菜1〜2品）を<br>ストック優先・ジャンル被りなしで自動作成します。</p></div>`;
+  }
+  const gc={}; p.days.forEach(d=>{ const m=d.dishes[0]; if(m) gc[m.genre]=(gc[m.genre]||0)+1; });
+  const sm=stockMap(); let fromStock=0, total=0;
+  p.days.forEach(d=>d.dishes.forEach(x=>{ total++; if(dishParts(x).some(id=>(sm[id]||0)>0)) fromStock++; }));
+  const usedP=new Set(), usedV=new Set(); p.days.forEach(d=>d.dishes.forEach(x=>{ if(x.p) usedP.add(x.p); x.v.forEach(v=>usedV.add(v)); }));
+  html+=`<div class="sec-t"><h2>今週の日替わり献立</h2><small>${p.people}人分</small></div>
+  <div class="week-sum">
+    <div class="wk-range"><span>${fmtDate(p.weekStart)} 〜 ${fmtDate(addDays(p.weekStart,6))}</span>${p.different?'<span class="pill fr-ok">先週と別バリエ</span>':''}</div>
+    <div class="vbar">${p.days.map(d=>{ const m=d.dishes[0]; return `<div class="vcell gb-${m?GCLS[m.genre]:'wa'}"><small>${WD[parseYmd(d.date).getDay()]}</small><span>${m?GSHORT[m.genre]:'-'}</span></div>`; }).join('')}</div>
+    <div class="gcount">${GENRES.map(g=>`<span class="g g-${GCLS[g]}">${g} ${gc[g]||0}</span>`).join('')}</div>
+    <div class="wk-meta">🔁 使い回すパーツ：タンパク質${usedP.size}種・野菜${usedV.size}種 ／ 📦 ストック活用 ${fromStock}/${total}品</div>
+  </div>
+  ${p.confirmed?`<div class="status">✓ この献立は確定済みです（買い物＆仕込みリストに反映中）</div>`:(S.history.some(h=>h.id===p.id)?`<div class="status chg">✎ 確定後に変更があります。再確定するとリストが更新されます</div>`:'')}`;
+  html+=p.days.map((d,di)=>{
+    const m=d.dishes[0];
+    return `<div class="day"><div class="day-h"><span class="dot gb-${m?GCLS[m.genre]:'wa'}"></span>${fmtDate(d.date)}<span style="flex:1"></span><span style="font-size:11.5px;font-weight:700;color:var(--sub)">主菜＋${d.dishes.length-1}品</span></div>
+      <div class="day-b">${d.dishes.map((x,j)=>{
+        const b=BASE[x.baseId], ref=`W:${di}:${j}`, fav=favKeySet().has(x.key);
+        if(j===0) return `<div class="day-main"><div class="d-top">${gBadge(x.genre)}<span class="typ">主菜</span>${mLabel(b)}<span class="sp"></span><button class="star ${fav?'on':''}" data-act="fav" data-ref="${ref}">${fav?'★':'☆'}</button></div>
+          <button class="d-name" data-act="open" data-ref="${ref}">${esc(dishName(x))}</button>${formulaHTML(x,true)}
+          <div class="d-act"><button class="swap" data-act="swap" data-d="${di}" data-j="${j}">↻ 別アレンジに変更</button></div></div>`;
+        return `<div class="sub-dish"><button class="sdn" data-act="open" data-ref="${ref}"><div class="d-top">${gBadge(x.genre)}<span class="typ">${x.type}</span>${mLabel(b)}${fav?'<span style="color:#E8A317">★</span>':''}</div><b>${esc(dishName(x))}</b></button>
+          <button class="swap" data-act="swap" data-d="${di}" data-j="${j}">↻ 変更</button></div>`;
+      }).join('')}</div></div>`;
+  }).join('');
+  html+=`<div class="confirm-bar">${p.confirmed?`<button class="btn green" data-act="tab" data-tab="shop">🛒 買い物＆仕込みリストを見る</button>`:`<button class="btn primary" data-act="confirm">✅ この献立を確定（買い物＆仕込みリストへ反映）</button>`}</div>`;
+  return html;
+}
+
+/* ---------- タブ3：お気に入り＆図鑑 ---------- */
+function combosCount(b){
+  const P=PARTS.filter(p=>compat(b,p,'protein')).length, V=PARTS.filter(p=>compat(b,p,'veg')).length;
+  const vc = b.requiredCategories.veg[1]>=2 ? V+V*(V-1)/2 : V;
+  const pc = b.requiredCategories.protein[0]>=1 ? P : P+1;
+  return Math.round(pc*vc);
+}
+function renderFav(){
+  const favs=S.favorites;
+  let html=`<div class="sec-t" style="margin-top:4px"><h2>★ お気に入りアレンジ一覧 <span class="num">${favs.length}</span></h2></div>
+  <div class="list">${favs.length?favs.map(f=>{ const d=makeDish(BASE[f.baseId],f.p,f.v); const b=BASE[f.baseId];
+    return `<div class="fav-row"><button class="fx2" data-act="open" data-ref="F:${esc(f.key)}"><div class="d-top">${gBadge(d.genre)}<span class="typ">${d.type}</span>${mLabel(b)}</div><b>${esc(dishName(d))}</b></button><button class="x" data-act="unfav" data-key="${esc(f.key)}" aria-label="削除">×</button></div>`; }).join('')
+    :`<div class="empty"><div class="big">⭐</div><b>お気に入りはまだありません</b><p>料理カードの☆や、キッチンモードの<br>「★ お気に入りに保存」で神組み合わせを保存できます。</p></div>`}</div>
+  <div class="switch-row"><div class="tx">献立作成時にお気に入りを優先採用<small>ONにすると提案・1週間献立でお気に入りの組み合わせが選ばれやすくなります</small></div><button class="sw ${S.favPriority?'on':''}" data-act="favPri" aria-label="切り替え"></button></div>`;
+
+  const total=BASES.reduce((a,b)=>a+combosCount(b),0);
+  html+=`<div class="sec-t"><h2>📖 組み合わせ図鑑（逆引き）</h2><small>全${PARTS.length}パーツ×${BASES.length}味付け＝約${total.toLocaleString()}通り</small></div>
+  <div class="mode"><button class="${S.dictMode==='part'?'on':''}" data-act="dictMode" data-m="part">🥕 パーツから探す</button><button class="${S.dictMode==='base'?'on':''}" data-act="dictMode" data-m="base">🧂 味付けから探す</button></div>`;
+  if(S.dictMode==='part'){
+    const sel=PART[S.dictSel]?S.dictSel:null;
+    const grid=cat=>`<div class="pgrid">${PARTS.filter(p=>p.category===cat).map(p=>`<button class="pbtn ${sel===p.id?'on':''}" data-act="dictSel" data-id="${p.id}"><span class="e">${p.emoji}</span><span class="n">${esc(p.short)}</span></button>`).join('')}</div>`;
+    html+=`<div class="grp-h mt0">🍖 タンパク質</div>${grid('protein')}<div class="grp-h">🥕 野菜・きのこ</div>${grid('veg')}`;
+    if(sel) html+=dictByPart(sel); else html+=`<p class="hint">パーツを選ぶと、そのパーツを使ったアレンジを全味付け分表示します。</p>`;
+  } else {
+    const sel=BASE[S.dictSel]?S.dictSel:null;
+    html+=GENRES.map(g=>`<div class="grp-h mt0" style="margin-top:12px">${gBadge(g)}</div><div class="gtab">${BASES.filter(b=>b.genre===g).map(b=>`<button class="bbtn g-${GCLS[g]} ${sel===b.id?'on':''}" data-act="dictSel" data-id="${b.id}">${esc(b.name)}</button>`).join('')}</div>`).join('');
+    if(sel) html+=dictByBase(sel); else html+=`<p class="hint">味付けベースを選ぶと、合わせられるパーツの全組み合わせを表示します。</p>`;
+  }
+  return html;
+}
+function dictByPart(id){
+  const p=PART[id], isP=p.category==='protein';
+  const list=BASES.filter(b=>compat(b,p,isP?'protein':'veg'));
+  let n=0;
+  const rows=GENRES.map(g=>{ const bs=list.filter(b=>b.genre===g); if(!bs.length) return '';
+    return `<div class="grp-h">${gBadge(g)} ${bs.length}種</div><div class="list">${bs.map(b=>{
+      if(isP){
+        const vs=PARTS.filter(v=>compat(b,v,'veg')); n+=vs.length;
+        const ex=makeDish(b,id,[vs[0].id]);
+        return `<div class="dict-row"><div class="d-top"><span class="typ">${b.dishType}</span>${mLabel(b)}</div><button class="dn" data-act="open" data-ref="X:${b.id}:${id}:${vs[0].id}">${esc(dishName(ex))}</button>
+          <div class="mini"><span class="lbl">合わせる野菜→</span>${vs.map(v=>`<button data-act="open" data-ref="X:${b.id}:${id}:${v.id}">${v.emoji}${esc(v.short)}</button>`).join('')}</div></div>`;
+      } else {
+        const ps=PARTS.filter(q=>compat(b,q,'protein')); const opt=b.requiredCategories.protein[0]===0;
+        n+=ps.length+(opt?1:0);
+        const ex=makeDish(b,opt?null:(ps[0]&&ps[0].id),[id]);
+        return `<div class="dict-row"><div class="d-top"><span class="typ">${b.dishType}</span>${mLabel(b)}</div><button class="dn" data-act="open" data-ref="X:${b.id}:${ex.p||'-'}:${id}">${esc(dishName(ex))}</button>
+          <div class="mini"><span class="lbl">合わせる食材→</span>${opt?`<button data-act="open" data-ref="X:${b.id}:-:${id}">🥗野菜のみ</button>`:''}${ps.map(q=>`<button data-act="open" data-ref="X:${b.id}:${q.id}:${id}">${q.emoji}${esc(q.short)}</button>`).join('')}</div></div>`;
+      }
+    }).join('')}</div>`; }).join('');
+  return `<div class="sec-t"><h2>${p.emoji} ${esc(p.name)}を使ったアレンジ一覧</h2></div>
+    <div class="info-box">${list.length}種の味付けベース × 相性の良い食材で <b>${n}通り</b>（1品目のみ表示・野菜2種の組み合わせはさらに増えます）</div>${rows}`;
+}
+function dictByBase(bid){
+  const b=BASE[bid], ps=PARTS.filter(q=>compat(b,q,'protein')), vs=PARTS.filter(v=>compat(b,v,'veg'));
+  const opt=b.requiredCategories.protein[0]===0, ratio=goldenRatio(b);
+  const rowFor=(pid)=>{ const ex=makeDish(b,pid,[vs[0].id]); const label=pid?`${PART[pid].emoji} ${esc(PART[pid].name)}`:'🥗 野菜のみで';
+    return `<div class="dict-row"><div style="font-size:12px;font-weight:800;color:var(--green)">${label}</div><button class="dn" data-act="open" data-ref="X:${b.id}:${pid||'-'}:${vs[0].id}">${esc(dishName(ex))}</button>
+      <div class="mini">${vs.map(v=>`<button data-act="open" data-ref="X:${b.id}:${pid||'-'}:${v.id}">${v.emoji}${esc(v.short)}</button>`).join('')}</div></div>`; };
+  return `<div class="sec-t"><h2>${esc(b.name)}の味付け一覧</h2><small>約${combosCount(b)}通り</small></div>
+    <div class="card"><div class="d-top">${gBadge(b.genre)}<span class="typ">${b.dishType}</span>${mLabel(b)}</div>
+      <div style="margin-top:10px;font-size:13.5px">${b.seasonings.map(s=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--line2)"><span>${esc(s.n)}</span><b style="color:var(--orange-d)">${esc(fmtSeason(s,1))}</b></div>`).join('')}</div>
+      ${ratio?`<div class="ratio"><span>黄金比</span>${esc(ratio)}</div>`:''}<p class="hint">※1人分。タップした組み合わせは人数に合わせて自動換算されます。</p></div>
+    <div class="list" style="margin-top:12px">${opt?rowFor(null):''}${ps.map(q=>rowFor(q.id)).join('')}</div>`;
+}
+
+/* ---------- タブ4：買い物＆下処理 ---------- */
+function renderShop(){
+  const plan=activePlan();
+  if(!plan) return `<div class="card empty"><div class="big">🛒</div><b>確定した献立がありません</b><p>「アレンジ献立」タブで1週間献立を作成して確定すると、<br>買い物リストと週末の下処理ガイドが自動で作られます。</p>
+    <button class="btn primary" data-act="goWeek">📅 1週間献立を作成する</button></div>`;
+  plan.shopChecks=plan.shopChecks||{}; plan.prepChecks=plan.prepChecks||{}; plan.seasonChecks=plan.seasonChecks||{};
+  const sh=computeShopping(plan);
+  const done=sh.items.filter(i=>plan.shopChecks[i.id]).length;
+  let html=`<div class="hero"><h1>買い物＆週末まとめ下処理</h1><p>${fmtDate(plan.weekStart)}〜${fmtDate(addDays(plan.weekStart,6))}の献立（${plan.people}人分）から逆算</p>
+    <div class="stats"><div class="stat"><b>${sh.items.length}</b><span>買うもの</span></div><div class="stat"><b>${sh.covered.length}</b><span>在庫で足りる</span></div><div class="stat"><b>${sh.items.reduce((a,i)=>a+PART[i.id].prepMin,0)}<small style="font-size:12px">分</small></b><span>仕込み目安</span></div></div></div>`;
+  // STEP1
+  html+=`<div class="card" style="margin-top:14px"><div class="step-h"><span class="step-n">STEP 1</span><h3>スーパーで買うもの</h3><small style="color:var(--muted);font-weight:700">${done}/${sh.items.length}</small></div>
+    <div class="prog"><i style="width:${sh.items.length?done/sh.items.length*100:100}%"></i></div>
+    ${plan.prepDone?`<p class="hint">※仕込み登録済みのため、確定時点のリストを表示しています。</p>`:`<p class="hint">タブ1のストック分は自動で差し引き済み。売り場ごとにまとめています。</p>`}
+    ${sh.items.length?SECTIONS.map(sec=>{ const its=sh.items.filter(i=>i.section===sec); if(!its.length) return '';
+      return `<div class="sec-name">${SECTION_ICON[sec]} ${sec}</div>${its.map(i=>{ const p=PART[i.id];
+        return `<button class="chk ${plan.shopChecks[i.id]?'on':''}" data-act="chkShop" data-id="${i.id}"><span class="box">${plan.shopChecks[i.id]?'✓':''}</span>
+          <span class="ct"><b>${esc(p.purchaseUnit.item)}</b><small>${p.emoji}${esc(p.name)}に ／ 1週間で${i.need}食分使用${i.have?`・ストック${i.have}食分を差し引き`:''}</small></span>
+          <span class="amt">${frac(i.units)}${esc(p.purchaseUnit.unit)}<small style="display:block;font-size:11px;color:var(--muted);text-align:right;font-weight:600">約${i.grams}g</small></span></button>`; }).join('')}`; }).join('')
+      :`<div class="empty"><b>🎉 買い足しは不要です</b><p>今のストックだけで1週間まわせます。</p></div>`}
+    ${sh.covered.length?`<div class="covered">📦 ストックで足りているもの：${sh.covered.map(c=>`${PART[c.id].emoji}${esc(PART[c.id].short)}（${c.need}食分）`).join('、')}</div>`:''}
+  </div>`;
+  // 調味料
+  const seas=planSeasonings(plan);
+  html+=`<div class="card"><div class="step-h"><span class="step-n" style="background:var(--green)">確認</span><h3>今週使う調味料・常備品</h3></div><p class="hint mt0">家にあるものをタップして消し込み。残ったものだけ買い足しましょう。</p>
+    <div class="stag">${seas.map(n=>`<button class="${plan.seasonChecks[n]?'on':''}" data-act="chkSeason" data-n="${esc(n)}">${esc(n)}</button>`).join('')}</div></div>`;
+  // STEP2
+  const prepItems=[...sh.items].sort((a,b)=>(PART[a.id].category===PART[b.id].category?0:PART[a.id].category==='veg'?-1:1));
+  const pDone=prepItems.filter(i=>plan.prepChecks[i.id]).length;
+  html+=`<div class="card"><div class="step-h"><span class="step-n">STEP 2</span><h3>週末のまとめ下処理ガイド</h3><small style="color:var(--muted);font-weight:700">${pDone}/${prepItems.length}</small></div>
+    <div class="prog"><i style="width:${prepItems.length?pDone/prepItems.length*100:100}%"></i></div>
+    <div class="tip">🔪 <b>段取りのコツ</b>：まな板は「野菜 → 肉・魚」の順で使うと洗い物が1回で済みます。茹でる野菜は「葉物 → ブロッコリー → もやし」の順に同じお湯で。レンジ工程の待ち時間に包丁作業を進めましょう。</div>
+    ${prepItems.map(i=>{ const p=PART[i.id], st=STORAGE[p.storageType];
+      return `<button class="chk ${plan.prepChecks[i.id]?'on':''}" data-act="chkPrep" data-id="${i.id}"><span class="box">${plan.prepChecks[i.id]?'✓':''}</span>
+        <span class="ct"><b>${esc(i.label)} → ${p.emoji}${esc(p.name)} ${i.produced}食分</b>
+        <p>${esc(p.prepInstruction.replace('{n}',i.produced))}</p>
+        <span class="meta"><span class="pill st-${p.storageType}">${st.icon} ${st.label}保存・${p.shelfLifeDays>=365?'長期保存可':'約'+p.shelfLifeDays+'日'}</span>${p.prepMin?`<span class="pill" style="background:var(--line2);color:var(--sub)">⏱ 約${p.prepMin}分</span>`:''}</span></span></button>`; }).join('')}
+    <div style="margin-top:14px">${plan.prepDone?`<button class="btn soft" disabled>✓ ${fmtMD(plan.prepDoneAt)} にストックへ登録済み</button><button class="link" data-act="resetPrep">もう一度登録できるようにする</button>`
+      :`<button class="btn primary" data-act="prepDone" ${prepItems.length?'':'disabled'}>🎉 仕込み完了！すべてストックに登録する</button><p class="hint" style="text-align:center">出来上がった ${prepItems.reduce((a,i)=>a+i.produced,0)}食分 がタブ1の在庫に一括追加されます</p>`}</div>
+  </div>`;
+  return html;
+}
+
+/* ---------- キッチンモード（詳細モーダル） ---------- */
+let MODAL=null, wakeLock=null;
+function resolveRef(ref){
+  const [t,...r]=ref.split(':');
+  if(t==='A') return S.suggestions&&S.suggestions[+r[0]];
+  if(t==='W') return S.draft&&S.draft.days[+r[0]]&&S.draft.days[+r[0]].dishes[+r[1]];
+  if(t==='F'){ const key=r.join(':'); const f=S.favorites.find(x=>x.key===key); return f&&makeDish(BASE[f.baseId],f.p,f.v); }
+  if(t==='X'){ const b=BASE[r[0]]; return b&&makeDish(b,r[1]==='-'?null:r[1],r[2].split('+')); }
+  return null;
+}
+function openModal(ref){ const d=resolveRef(ref); if(!d) return; MODAL={ref,dish:d,checked:new Set()}; renderModal(); }
+function renderModal(){
+  if(!MODAL){ $('#modal').innerHTML=''; return; }
+  const d=MODAL.dish, b=BASE[d.baseId], n=S.people, fav=favKeySet().has(d.key), sm=stockMap();
+  const steps=buildSteps(d,n), ratio=goldenRatio(b);
+  const prev=$('#modal .kit'); const top=prev?prev.scrollTop:0;
+  $('#modal').innerHTML=`<div class="bk" data-act="backdrop" data-close="modal"><div class="kit" role="dialog" aria-modal="true">
+    <div class="kit-top">${gBadge(d.genre)}<span class="typ">${d.type}</span>${mLabel(b)}<span class="sp"></span><button class="close" data-act="closeModal" aria-label="閉じる">✕</button></div>
+    <div class="kit-body">
+      <h1>${esc(dishName(d))}</h1>
+      ${formulaHTML(d,false)}
+      <div class="kit-ppl"><b>何人分つくる？</b><div class="seg">${[1,2,3,4].map(k=>`<button class="${n===k?'on':''}" data-act="people" data-n="${k}">${k}人</button>`).join('')}</div></div>
+      <div class="ksec"><h3>📦 使う下処理パーツ（${n}人分）</h3>
+        ${dishParts(d).map(id=>{ const p=PART[id], c=sm[id]||0;
+          return `<div class="krow"><span>${p.emoji} ${esc(p.name)}<small>${STORAGE[p.storageType].icon} ${c>0?`在庫 ${c}食分${c<n?'（不足）':''}`:'在庫なし'}</small></span><span class="q">${n}食分<small>約${p.grams*n}g</small></span></div>`; }).join('')}</div>
+      <div class="ksec"><h3>🧂 合わせ調味料（${n}人分）</h3>
+        ${b.seasonings.map(s=>`<div class="krow"><span>${esc(s.n)}</span><span class="q">${esc(fmtSeason(s,n))}</span></div>`).join('')}
+        ${ratio?`<div class="ratio"><span>この味の黄金比</span>${esc(ratio)}</div>`:''}</div>
+      <div class="ksec"><h3>🔥 平日の仕上げ手順（約${b.time}）</h3><ol class="ksteps">${steps.map((s,i)=>`<li class="${MODAL.checked.has(i)?'ck':''}" data-act="stepck" data-i="${i}">${esc(s)}</li>`).join('')}</ol>
+        <p class="hint">手順をタップすると完了チェックできます。</p></div>
+      <div class="kit-foot">
+        <button class="btn ${fav?'soft':'primary'}" data-act="fav" data-ref="${esc(MODAL.ref)}">${fav?'★ お気に入り保存済み（タップで解除）':'★ お気に入りに保存'}</button>
+        ${MODAL.ref.startsWith('A:')&&!d.done?`<button class="btn green" data-act="cook" data-ref="${esc(MODAL.ref)}">この料理を作ってストックを消費（−${n}食分）</button>`:''}
+        ${'wakeLock' in navigator?`<button class="wake ${wakeLock?'on':''}" data-act="wake">💡 ${wakeLock?'画面を点灯したまま（ON）':'調理中は画面を消さない'}</button>`:''}
+      </div>
+    </div></div></div>`;
+  const k=$('#modal .kit'); if(k&&prev) k.scrollTop=top;
+}
+function closeModal(){ MODAL=null; if(wakeLock){ try{wakeLock.release();}catch(e){} wakeLock=null; } renderModal(); }
+
+/* =====================================================================
+   10. アクション
+   ===================================================================== */
+let toastT=null;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2200); }
+function toggleFav(d){
+  const i=S.favorites.findIndex(f=>f.key===d.key);
+  if(i>=0){ S.favorites.splice(i,1); toast('お気に入りから外しました'); }
+  else { S.favorites.unshift({key:d.key,baseId:d.baseId,p:d.p,v:d.v,savedAt:Date.now()}); toast('★ お気に入りに保存しました'); }
+}
+const ACTIONS={
+  tab:ds=>{ S.tab=ds.tab; render(); window.scrollTo(0,0); },
+  people:ds=>{ S.people=+ds.n; render(); if(MODAL) renderModal(); },
+  // stock
+  openAdd:()=>renderAddSheet(),
+  closeSheet:()=>{ $('#sheet').innerHTML=''; },
+  addQty:ds=>{ S.addQty=+ds.n; const sc=$('#sheet .sheet').scrollTop; renderAddSheet(); $('#sheet .sheet').scrollTop=sc; save(); },
+  addPart:(ds,el)=>{ addStock(ds.id,S.addQty); S.suggestions=null; el.querySelector('.cnt').textContent=stockCount(ds.id); render(); toast(`${PART[ds.id].name} を${S.addQty}食分追加`); },
+  demo:()=>{ const t=todayStr(); DEMO_SET.forEach(([id,n,ago])=>addStock(id,n,null,addDays(t,-ago))); S.suggestions=null; S.seenKeys=[]; render(); toast('✨ 週末仕込みセットを追加しました'); },
+  inc:ds=>{ const b=S.stock.find(x=>x.uid===ds.uid); if(b){ b.count++; S.suggestions=null; render(); } },
+  dec:ds=>{ const b=S.stock.find(x=>x.uid===ds.uid); if(b){ b.count--; if(b.count<=0){ S.stock=S.stock.filter(x=>x!==b); toast(`${PART[b.partId].name} を使い切りました`); } S.suggestions=null; render(); } },
+  cycleSt:ds=>{ const b=S.stock.find(x=>x.uid===ds.uid); if(b){ b.storage=STORAGE_ORDER[(STORAGE_ORDER.indexOf(b.storage)+1)%3]; render(); } },
+  sfilter:ds=>{ S.stockFilter=ds.f; render(); },
+  clearStock:()=>{ if(confirm('ストックをすべて削除しますか？')){ S.stock=[]; S.suggestions=null; render(); } },
+  // plan
+  mode:ds=>{ S.mode=ds.m; render(); },
+  shuffle:()=>{ makeSuggestions(); render(); toast('🔀 新しい組み合わせを合成しました'); },
+  cook:ds=>{
+    const d=resolveRef(ds.ref); if(!d||d.done) return;
+    const msg=dishParts(d).map(id=>{ const got=consumeStock(id,S.people); return `${PART[id].short}−${got}`; }).join('、');
+    d.done=true; S.cooked.unshift({key:d.key,at:Date.now()}); S.cooked=S.cooked.slice(0,30);
+    render(); if(MODAL) renderModal(); toast(`🍽 いただきます！ ${msg}`);
+  },
+  genWeek:()=>{ S.draft=generateWeek(false); render(); toast('📅 1週間の献立を作成しました'); },
+  genNext:()=>{ if(!S.history.length) toast('確定済みの履歴がないため、新規で作成しました'); else toast('🔄 先週と違う組み合わせで作成しました'); S.draft=generateWeek(true); render(); },
+  swap:ds=>{ if(swapDish(+ds.d,+ds.j)){ render(); toast('↻ 別のアレンジに差し替えました'); } else toast('他に条件を満たす組み合わせがありません'); },
+  confirm:()=>{
+    const p=S.draft; if(!p) return;
+    p.people=S.people; p.confirmed=true; p.confirmedAt=Date.now();
+    const old=S.history.find(h=>h.id===p.id);
+    const copy=JSON.parse(JSON.stringify(p));
+    copy.names=copy.days.map(d=>d.dishes.map(dishName));
+    if(old){ copy.shopChecks=old.shopChecks; copy.seasonChecks=old.seasonChecks; }
+    S.history=[copy,...S.history.filter(h=>h.id!==p.id)].slice(0,12);
+    S.activePlanId=p.id; render(); toast('✅ 確定しました。買い物リストに反映！');
+  },
+  goWeek:()=>{ S.tab='plan'; S.mode='B'; render(); window.scrollTo(0,0); },
+  // fav
+  fav:ds=>{ const d=resolveRef(ds.ref); if(!d) return; toggleFav(d); render(); if(MODAL) renderModal(); },
+  unfav:ds=>{ S.favorites=S.favorites.filter(f=>f.key!==ds.key); render(); toast('お気に入りから外しました'); },
+  favPri:()=>{ S.favPriority=!S.favPriority; render(); toast(S.favPriority?'お気に入りを優先採用します':'優先採用をOFFにしました'); },
+  dictMode:ds=>{ S.dictMode=ds.m; S.dictSel=null; render(); },
+  dictSel:ds=>{ S.dictSel=S.dictSel===ds.id?null:ds.id; render(); },
+  // shop
+  chkShop:ds=>{ const p=activePlan(); p.shopChecks[ds.id]=!p.shopChecks[ds.id]; render(); },
+  chkPrep:ds=>{ const p=activePlan(); p.prepChecks[ds.id]=!p.prepChecks[ds.id]; render(); },
+  chkSeason:ds=>{ const p=activePlan(); p.seasonChecks[ds.n]=!p.seasonChecks[ds.n]; render(); },
+  prepDone:()=>{
+    const p=activePlan(); const sh=computeShopping(p); let total=0;
+    sh.items.forEach(i=>{ addStock(i.id,i.produced); total+=i.produced; p.prepChecks[i.id]=true; });
+    p.buySnapshot=sh; p.prepDone=true; p.prepDoneAt=todayStr(); S.suggestions=null;
+    render(); toast(`🎉 ${total}食分をストックに登録しました！`);
+  },
+  resetPrep:()=>{ const p=activePlan(); p.prepDone=false; p.buySnapshot=null; p.prepChecks={}; render(); },
+  // modal
+  open:ds=>openModal(ds.ref),
+  closeModal:()=>closeModal(),
+  stepck:ds=>{ const i=+ds.i; MODAL.checked.has(i)?MODAL.checked.delete(i):MODAL.checked.add(i); renderModal(); },
+  wake:async()=>{ try{ if(wakeLock){ await wakeLock.release(); wakeLock=null; } else { wakeLock=await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release',()=>{wakeLock=null;}); } }catch(e){ toast('この端末では画面点灯を維持できません'); } renderModal(); },
+};
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]'); if(!el) return;
+  const a=el.dataset.act;
+  if(a==='backdrop'){ if(e.target!==el) return; if(el.dataset.close==='sheet') $('#sheet').innerHTML=''; else closeModal(); return; }
+  const fn=ACTIONS[a]; if(fn){ e.preventDefault(); fn(el.dataset,el,e); }
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if(MODAL) closeModal(); else $('#sheet').innerHTML=''; } });
+
+render();
+</script>
+</body>
+</html>
