@@ -639,7 +639,7 @@ const BASES = [
     pOnly:'mushidori momo sake shiromi tofu atsuage hikiniku ebi sasami tuna egg',
     vOnly:'tamanegi nasu broccoli jagaimo kabocha kinoko piman paprika tomato horenso cabbage',
     seasonings:[sp('ケチャップ',2),sp('コンソメ顆粒',0.25),gr('ピザ用チーズ',25,'x'),sp('オリーブオイル',0.5,'oil'),tx('粉チーズ','少々')],
-    finishSteps:['耐熱皿に薄くオリーブオイルを塗り、{ALL}を広げ入れる（冷凍ストックは凍ったままでOK）。','ふんわりラップをしてレンジ600Wで{MW}分加熱し、出た水分を捨てる（生の肉・魚は中まで火が通ったか確認）。','ケチャップとコンソメを混ぜて全体に塗り、ピザ用チーズをのせる。','トースター（1000W）で5〜6分、チーズに焼き色がつくまで焼き、粉チーズを振って完成。'] },
+    finishSteps:['耐熱皿に薄くオリーブオイルを塗り、{ALL}を広げ入れる（冷凍ストックは凍ったままでOK）。','ふんわりラップをしてレンジ600Wで{MW}分加熱し、出た水分を捨てる（生の肉・魚は中まで火が通ったか確認）。','ケチャップとコンソメを混ぜて全体に塗り、ピザ用チーズをのせる。','{BAKE}、チーズに焼き色がつくまで焼き、粉チーズを振って完成。'] },
   { id:'y_lemonbutter', name:'レモンバターソテー', suffix:'レモンバターソテー', genre:'洋風', dishType:'主菜', method:'フライパン', time:'5分',
     requiredCategories:MAIN,
     pOnly:'sake shiromi momo sasami ebi mushidori atsuage butakoma',
@@ -884,6 +884,107 @@ const EXTRA_PACKS = [
         finishSteps:['鍋に水とダシダを入れて中火にかける。','{SIMMER}。','醤油で味をととのえ、ごま油を垂らして白ごまを振ったら完成。'] },
     ] },
 ];
+/* ---------------------------------------------------------------------
+   2-c. 調理器具マスター
+   def=初期設定（よくある器具はON）。OFFの器具を使う味付けは提案されない。
+   bases=その器具をONにすると加わる器具専用の味付け。
+   --------------------------------------------------------------------- */
+const EQUIPMENT = [
+  { id:'pan', name:'フライパン', emoji:'🍳', def:true, desc:'炒め物・焼き物・あんかけなど、いちばん多くの料理で使います', bases:[] },
+  { id:'pot', name:'鍋', emoji:'🍲', def:true, desc:'味噌汁・スープなどの汁物に使います', bases:[] },
+  { id:'microwave', name:'電子レンジ', emoji:'⚡', def:true, desc:'レンジ煮物・煮びたし、和え物の下ごしらえ、蒸し鶏の仕込みなどに使います', bases:[] },
+  { id:'toaster', name:'オーブントースター', emoji:'🍞', def:true, desc:'チーズ焼きの焼き色づけに使います（オーブンでも代用できます）', bases:[] },
+  { id:'grill', name:'魚焼きグリル', emoji:'🐟', def:true, desc:'魚や鶏をこんがり香ばしく。両面焼き・片面焼きどちらでもOK',
+    bases:[
+      { id:'e_yuan', name:'柚庵焼き風', suffix:'柚庵焼き風', genre:'和風', dishType:'主菜', method:'魚焼きグリル', time:'10分',
+        requiredCategories:MAIN,
+        pOnly:'sake shiromi momo sasami atsuage',
+        vOnly:'negi kinoko paprika piman kabocha nasu',
+        seasonings:[sp('醤油',1.5),sp('みりん',1.5),sp('酒',1),sp('レモン汁（または柚子果汁）',0.5)],
+        finishSteps:['調味料を混ぜてたれを作り、{P}を5分ほど漬ける（凍っている場合は半解凍してから）。','グリルを中火で1分予熱し、{ALL}を並べて{GRILL}分焼く（片面焼きグリルは途中で返す）。','焼き上がりに残ったたれを塗り、30秒あぶって香ばしく仕上げたら完成。'] },
+      { id:'e_spicegrill', name:'ガーリックスパイスグリル', suffix:'ガーリックスパイスグリル', genre:'洋風', dishType:'主菜', method:'魚焼きグリル', time:'10分',
+        requiredCategories:MAIN,
+        pOnly:'momo sake sasami butakoma atsuage',
+        vOnly:'paprika piman kabocha jagaimo kinoko nasu tamanegi broccoli',
+        seasonings:[sp('オリーブオイル',1),sp('カレー粉',0.25,'x'),cm('おろしにんにく（チューブ）',1),tx('塩','ひとつまみ'),tx('粗びき黒こしょう','少々')],
+        finishSteps:['ボウルにオリーブオイル・カレー粉・にんにく・塩・こしょうを混ぜ、{ALL}を加えて全体にからめる。','グリルにアルミホイルを敷いて並べ、中火で{GRILL}分焼く（片面焼きグリルは途中で返す）。','焼き色がつき、肉・魚の中まで火が通っていれば完成。'] },
+    ] },
+  { id:'oven', name:'オーブン（オーブンレンジ）', emoji:'🔥', def:false, desc:'天板に並べて焼くだけのほったらかし料理が作れます',
+    bases:[
+      { id:'e_panko', name:'ハーブパン粉焼き', suffix:'ハーブパン粉焼き', genre:'洋風', dishType:'主菜', method:'オーブン', time:'15分',
+        requiredCategories:MAIN,
+        pOnly:'momo sake shiromi sasami mushidori atsuage',
+        vOnly:'jagaimo broccoli kabocha tamanegi paprika tomato kinoko nasu',
+        seasonings:[sp('パン粉',6,'x'),sp('粉チーズ',2,'x'),sp('オリーブオイル',1,'oil'),cm('おろしにんにく（チューブ）',1),tx('乾燥パセリ','少々'),tx('塩こしょう','少々')],
+        finishSteps:['天板にクッキングシートを敷き、{ALL}を並べる（冷凍ストックは凍ったままでOK）。','塩こしょうを振り、パン粉・粉チーズ・にんにく・パセリを混ぜて全体にのせ、オリーブオイルを回しかける。','230℃に予熱したオーブンで{OVEN}分、パン粉にこんがり焼き色がつくまで焼いて完成（生の肉・魚は中まで火が通ったか確認）。'] },
+      { id:'e_gochumayo', name:'コチュマヨ焼き', suffix:'コチュマヨオーブン焼き', genre:'韓国風', dishType:'主菜', method:'オーブン', time:'15分',
+        requiredCategories:MAIN,
+        pOnly:'momo sake sasami mushidori atsuage tofu',
+        vOnly:'kabocha jagaimo tamanegi paprika piman kinoko broccoli negi',
+        seasonings:[sp('マヨネーズ',2),sp('コチュジャン',1),sp('砂糖',0.5),tx('白ごま','少々')],
+        finishSteps:['天板にクッキングシートを敷き、{ALL}を並べる（冷凍ストックは凍ったままでOK）。','マヨネーズ・コチュジャン・砂糖を混ぜて全体に塗る。','220℃に予熱したオーブンで{OVEN}分、焼き色がつくまで焼き、白ごまを振って完成（生の肉・魚は中まで火が通ったか確認）。'] },
+    ] },
+  { id:'seiro', name:'せいろ・蒸し器', emoji:'♨️', def:false, desc:'冷凍パーツを並べて蒸すだけ。油を使わずヘルシー',
+    bases:[
+      { id:'e_seiro_goma', name:'せいろ蒸し ごまポン酢', suffix:'せいろ蒸し ごまポン酢', genre:'和風', dishType:'主菜', method:'せいろ', time:'12分',
+        requiredCategories:MAIN,
+        pOnly:'butakoma butabara momo sake shiromi tofu atsuage sasami ebi',
+        vOnly:'cabbage hakusai moyashi kinoko kabocha broccoli ninjin negi komatsuna jagaimo',
+        seasonings:[sp('ポン酢',3),sp('練りごま（またはすりごま）',1),sp('ごま油',0.5)],
+        finishSteps:['せいろ（蒸し器）にクッキングシートを敷き、{V}を広げて上に{P}をのせる（冷凍ストックは凍ったままでOK）。','湯を沸かした鍋にのせ、ふたをして強火で{STEAM}分蒸す（肉・魚は中まで火が通ったか確認）。','ポン酢・練りごま・ごま油を混ぜたたれを添えて完成。'] },
+      { id:'e_seiro_chuka', name:'中華せいろ蒸し 香味だれ', suffix:'中華せいろ蒸し 香味だれ', genre:'中華', dishType:'主菜', method:'せいろ', time:'12分',
+        requiredCategories:MAIN,
+        pOnly:'butakoma butabara momo shiromi sake tofu ebi',
+        vOnly:'hakusai cabbage moyashi kinoko negi komatsuna broccoli',
+        seasonings:[sp('醤油',1.5),sp('酢',1),sp('ごま油',1),sp('砂糖',0.5),sp('長ねぎ（みじん切り）',2,'x'),cm('おろし生姜（チューブ）',1)],
+        finishSteps:['せいろ（蒸し器）にクッキングシートを敷き、{V}を広げて上に{P}をのせる（冷凍ストックは凍ったままでOK）。','湯を沸かした鍋にのせ、ふたをして強火で{STEAM}分蒸す。','醤油・酢・ごま油・砂糖・長ねぎ・生姜を混ぜた香味だれをかけて完成。'] },
+    ] },
+  { id:'airfryer', name:'ノンフライヤー', emoji:'💨', def:false, desc:'少ない油でから揚げ風・焼き野菜がカリッと仕上がります',
+    bases:[
+      { id:'e_af_karaage', name:'ノンフライから揚げ風', suffix:'ノンフライから揚げ風', genre:'和風', dishType:'主菜', method:'ノンフライヤー', time:'15分',
+        requiredCategories:MAIN,
+        pOnly:'momo sasami butakoma sake shiromi ebi atsuage',
+        vOnly:'jagaimo kabocha broccoli kinoko paprika piman nasu',
+        seasonings:[sp('醤油',1.5),sp('酒',1),cm('おろし生姜（チューブ）',1),cm('おろしにんにく（チューブ）',1),sp('片栗粉',3,'x'),sp('サラダ油',0.5,'oil')],
+        finishSteps:['醤油・酒・生姜・にんにくを混ぜて{P}にもみ込み、片栗粉をまぶす（冷凍ストックは半解凍してから）。','バスケットに{ALL}を重ならないように並べ、表面に油を薄く塗る（スプレーが便利）。','200℃で{AF}分、途中で一度バスケットを振り、こんがり焼き色がついたら完成。'] },
+      { id:'e_af_curry', name:'スパイシーカレー焼き', suffix:'スパイシーカレー焼き', genre:'洋風', dishType:'主菜', method:'ノンフライヤー', time:'15分',
+        requiredCategories:MAIN,
+        pOnly:'momo sasami butakoma sake atsuage',
+        vOnly:'jagaimo kabocha broccoli paprika piman tamanegi kinoko',
+        seasonings:[sp('オリーブオイル',1),sp('カレー粉',0.5),sp('ケチャップ',1),tx('塩','ひとつまみ')],
+        finishSteps:['ボウルにオリーブオイル・カレー粉・ケチャップ・塩を混ぜ、{ALL}を加えてからめる（冷凍ストックは半解凍してから）。','バスケットに重ならないように並べる。','200℃で{AF}分、途中で一度振り、焼き色がついたら完成。'] },
+    ] },
+  { id:'autopot', name:'自動調理鍋・電気圧力鍋', emoji:'⏲️', def:false, desc:'材料を入れてスイッチを押すだけ。朝セットして夜に食べられます',
+    bases:[
+      { id:'e_auto_tomato', name:'ほったらかしトマト煮込み', suffix:'ほったらかしトマト煮込み', genre:'洋風', dishType:'主菜', method:'自動調理鍋', time:'手間5分',
+        requiredCategories:MAIN,
+        pOnly:'momo butakoma hikiniku saba sasami',
+        vOnly:'tamanegi ninjin jagaimo kabocha kinoko nasu daikon cabbage paprika',
+        seasonings:[gr('カットトマト缶',100,'x'),sp('コンソメ顆粒',1),sp('ケチャップ',1),tx('塩こしょう','少々')],
+        finishSteps:['内鍋に{V}を入れ、上に{P}をのせる（冷凍ストックは凍ったままでOK）。','トマト缶・コンソメ・ケチャップを加え、「煮込み」メニュー（電気圧力鍋は加圧5分）でスタートする。','出来上がったら全体を混ぜ、塩こしょうで味をととのえて完成（そのまま保温しておけば帰宅後すぐ食べられる）。'] },
+      { id:'e_auto_wa', name:'ほったらかし和風煮', suffix:'ほったらかし和風煮', genre:'和風', dishType:'主菜', method:'自動調理鍋', time:'手間5分', twoVeg:0.7,
+        requiredCategories:MAIN,
+        pOnly:'butakoma momo butabara atsuage hikiniku',
+        vOnly:'daikon jagaimo ninjin tamanegi kabocha gobo kinoko hakusai',
+        seasonings:[sp('醤油',2),sp('みりん',2),sp('砂糖',1),ml('水',60,'x'),tx('顆粒和風だし','ひとつまみ')],
+        finishSteps:['内鍋に{V}を入れ、上に{P}をのせる（冷凍ストックは凍ったままでOK）。','調味料と水を加え、「煮物」メニュー（電気圧力鍋は加圧5分）でスタートする。','出来上がったら全体を混ぜ、味を含ませて完成（冷めるときにさらに味がしみる）。'] },
+    ] },
+];
+const DEFAULT_EQUIP = Object.fromEntries(EQUIPMENT.map(e=>[e.id,e.def]));
+// 調理法 → 必要な器具（all=すべて必要, any=どれか1つあればOK）
+const METHOD_EQUIP = {
+  'フライパン':{all:['pan']}, '鍋':{all:['pot']}, 'レンジ':{all:['microwave']}, '和えるだけ':{all:[]},
+  'レンジ＋トースター':{all:['microwave'],any:['toaster','oven']}, 'オーブン':{all:['oven']},
+  '魚焼きグリル':{all:['grill']}, 'せいろ':{all:['seiro']}, 'ノンフライヤー':{all:['airfryer']}, '自動調理鍋':{all:['autopot']},
+};
+// 電子レンジがない場合の週末仕込み手順（レンジを使うパーツのみ）
+const PREP_NO_MW = {
+  p_mushidori:'鍋に鶏むね肉とかぶるくらいの水、酒大さじ1・塩少々を入れて中火にかける。沸騰したら弱火で2分→火を止めてふたをし、20分置いて余熱で火を通す。粗熱が取れたら手でほぐし、ゆで汁ごと{n}食分に小分けして冷凍',
+  p_tofu:'ペーパーで包んで重し（水を入れた皿など）をのせ、20分置いて水切りする。2cm角に切って{n}食分ずつ保存容器に入れて冷蔵（3日以内に）',
+  v_jagaimo:'皮をむいてひと口大に切り、水から鍋で8〜10分、竹串がすっと通るまで茹でる。湯を切って粗熱を取り、{n}食分ずつ保存容器で冷蔵（3日以内に）',
+  v_kabocha:'種とワタを取り2cm角に切り、鍋に少量の水（深さ1cm）と入れてふたをし、5〜6分蒸し煮にする。冷めたら{n}食分ずつ保存袋に入れて冷凍',
+  v_moyashi:'さっと洗い、熱湯で30秒茹でる。ザルで水気をしっかり切り、ペーパーを敷いた保存容器に入れて冷蔵（{n}食分・2日以内に使い切る）',
+};
 // 自作の味付け：調理法ごとの手順テンプレート
 const CUSTOM_STEPS = {
   'フライパン':['{PREP}','調味料をすべて混ぜて合わせ調味料を作る。','フライパンに油（小さじ1）を中火で熱し、{FRY}。','合わせ調味料を回し入れ、全体にからめながら1〜2分炒めて完成。'],
@@ -900,7 +1001,7 @@ const SEASON_SUGGEST = ['塩麹','醤油麹','玉ねぎ麹','甘酒','柚子胡�
 const GENRES = ['和風','洋風','中華','韓国風'];
 const GCLS = { '和風':'wa', '洋風':'yo', '中華':'chu', '韓国風':'kan' };
 const GSHORT = { '和風':'和', '洋風':'洋', '中華':'中', '韓国風':'韓' };
-const METHOD_ICON = { 'フライパン':'🍳', 'レンジ':'⚡', '和えるだけ':'🥣', '鍋':'🍲', 'レンジ＋トースター':'🔥' };
+const METHOD_ICON = { 'フライパン':'🍳', 'レンジ':'⚡', '和えるだけ':'🥣', '鍋':'🍲', 'レンジ＋トースター':'🔥', 'オーブン':'🔥', '魚焼きグリル':'🐟', 'せいろ':'♨️', 'ノンフライヤー':'💨', '自動調理鍋':'⏲️' };
 const STORAGE = { freeze:{label:'冷凍', icon:'❄️'}, fridge:{label:'冷蔵', icon:'🧊'}, pantry:{label:'常備', icon:'🗄️'} };
 const STORAGE_ORDER = ['freeze','fridge','pantry'];
 const SECTIONS = ['青果','精肉','鮮魚','豆腐・卵','冷凍食品','缶詰・乾物'];
@@ -934,6 +1035,7 @@ const splitIds=(v,pre)=>Array.isArray(v)?v:(v||'').split(/\s+/).filter(Boolean).
 function normBase(b){ b.pOnly=splitIds(b.pOnly,'p_'); b.vOnly=splitIds(b.vOnly,'v_'); return b; }
 BASES.forEach(normBase);
 EXTRA_PACKS.forEach(pk=>pk.bases.forEach(b=>{ normBase(b); b.extra=pk.id; }));
+EQUIPMENT.forEach(eq=>eq.bases.forEach(b=>{ normBase(b); b.equipPack=eq.id; }));
 const CORE_BASES = BASES.slice();   // 基本の味付け（常に有効）
 const BASE = {};                     // 既知の全味付け（OFFの追加パック・削除済み自作も含む＝履歴表示用）
 
@@ -951,7 +1053,7 @@ const DEFAULT_STATE = () => ({
   activePlanId:null,
   suggestions:null, seenKeys:[], cooked:[],
   stockFilter:'all', addQty:1, dictMode:'part', dictSel:null,
-  tutorialSeen:false, addLog:{}, extraOn:[], customBases:[],
+  tutorialSeen:false, addLog:{}, extraOn:[], customBases:[], equip:Object.assign({},DEFAULT_EQUIP),
 });
 let S = load();
 // 有効な味付け一覧（BASES）を、基本＋ONの追加調味料＋自作で組み立て直す
@@ -963,16 +1065,23 @@ function customToBase(c){
     requiredCategories:req, pOnly:c.method==='和えるだけ'?[]:PARTS.filter(p=>p.category==='protein'&&!['p_egg','p_tuna','p_saba'].includes(p.id)).map(p=>p.id), vOnly:[], seasonings:seas, finishSteps:(c.steps&&c.steps.length)?c.steps:CUSTOM_STEPS[c.method],
     mwBase:3, mwRaw:2, custom:true, hidden:!!c.hidden });
 }
+// 持っている調理器具で作れる味付けか
+const hasEq = id=>!!(S.equip&&S.equip[id]);
+function equipReq(b){ return b.equip || METHOD_EQUIP[b.method] || {all:[]}; }
+function equipOK(b){ const r=equipReq(b); return r.all.every(hasEq) && (!r.any || r.any.some(hasEq)); }
 function rebuildBases(){
   S.extraOn=(S.extraOn||[]).filter(id=>EXTRA_PACKS.some(p=>p.id===id));
+  S.equip=Object.assign({},DEFAULT_EQUIP,S.equip||{});
   const customs=(S.customBases||[]).map(customToBase);
   BASES.length=0;
-  CORE_BASES.forEach(b=>BASES.push(b));
-  EXTRA_PACKS.forEach(pk=>{ if(S.extraOn.includes(pk.id)) pk.bases.forEach(b=>BASES.push(b)); });
-  customs.forEach(b=>{ if(!b.hidden) BASES.push(b); });
+  CORE_BASES.forEach(b=>{ if(equipOK(b)) BASES.push(b); });
+  EXTRA_PACKS.forEach(pk=>{ if(S.extraOn.includes(pk.id)) pk.bases.forEach(b=>{ if(equipOK(b)) BASES.push(b); }); });
+  EQUIPMENT.forEach(eq=>eq.bases.forEach(b=>{ if(equipOK(b)) BASES.push(b); }));
+  customs.forEach(b=>{ if(!b.hidden && equipOK(b)) BASES.push(b); });
   Object.keys(BASE).forEach(k=>delete BASE[k]);
   CORE_BASES.forEach(b=>BASE[b.id]=b);
   EXTRA_PACKS.forEach(pk=>pk.bases.forEach(b=>BASE[b.id]=b));
+  EQUIPMENT.forEach(eq=>eq.bases.forEach(b=>BASE[b.id]=b));
   customs.forEach(b=>BASE[b.id]=b);
 }
 rebuildBases();
@@ -1301,8 +1410,11 @@ function prepText(b,all,people){
     const heat=all.filter(x=>!x.ready&&!raw.includes(x.id));
     const thaw=all.filter(x=>x.ready&&x.storageType==='freeze');
     const out=[];
-    if(heat.length){ const m=Math.min(2+(people-1)+(heat.some(x=>x.storageType==='freeze')?1:0),6); out.push(`${jn(heat)}は耐熱容器に入れてふんわりラップし、レンジ600Wで${m}分加熱して粗熱を取る`); }
-    if(thaw.length) out.push(`冷凍の${jn(thaw)}はレンジ600Wで1分ずつ様子を見ながら解凍し、水気をしっかり絞る`);
+    if(heat.length){ const m=Math.min(2+(people-1)+(heat.some(x=>x.storageType==='freeze')?1:0),6); out.push(hasEq('microwave') ? `${jn(heat)}は耐熱容器に入れてふんわりラップし、レンジ600Wで${m}分加熱して粗熱を取る`
+      : hasEq('pot') ? `小鍋に湯を沸かして${jn(heat)}を1〜2分茹で、ザルに上げて粗熱を取る`
+      : `フライパンに${jn(heat)}と水大さじ2を入れ、ふたをして中火で2〜3分蒸し焼きにして粗熱を取る`); }
+    if(thaw.length) out.push(hasEq('microwave') ? `冷凍の${jn(thaw)}はレンジ600Wで1分ずつ様子を見ながら解凍し、水気をしっかり絞る`
+      : `冷凍の${jn(thaw)}は前の晩に冷蔵庫へ移して自然解凍（急ぐときは保存袋ごと流水で解凍）し、水気をしっかり絞る`);
     return out.length ? out.join('。')+'。' : '';
   }
   const fr=all.filter(x=>x.storageType==='freeze');
@@ -1312,6 +1424,9 @@ function buildSteps(d,people){
   const b=BASE[d.baseId], p=d.p?PART[d.p]:null, vs=d.v.map(id=>PART[id]), all=(p?[p]:[]).concat(vs);
   const V=jn(vs), ALL=jn(all), P=p?p.short:'';
   const mw=(b.mwBase||2)+(p&&!p.ready?(b.mwRaw||0):0)+(people-1);
+  const raw=p&&!p.ready, big=people>2;
+  const tok={ OVEN:12+(raw?3:0)+(big?3:0), STEAM:8+(raw?2:0)+(big?2:0), AF:12+(big?3:0), GRILL:7+(raw?1:0)+(big?1:0),
+    BAKE: hasEq('toaster') ? 'トースター（1000W）で5〜6分' : 'オーブン（230℃に予熱）で8〜10分' };
   const fry = !p ? `${V}を入れて2〜3分炒める`
     : p.ready ? `${V}を入れて2〜3分炒め、火が通ったら${p.fry}`
     : `${p.fry}。続けて${V}を加え、2〜3分炒め合わせる`;
@@ -1321,7 +1436,7 @@ function buildSteps(d,people){
   const prep=prepText(b,all,people);
   return b.finishSteps.map(t=>{
     if(t.includes('{PREP}')) return prep ? t.replace('{PREP}',prep) : null;
-    return t.replace(/\{FRY\}/g,fry).replace(/\{SIMMER\}/g,sim).replace(/\{MW\}/g,mw).replace(/\{ALL\}/g,ALL).replace(/\{V\}/g,V).replace(/\{P\}/g,P);
+    return t.replace(/\{FRY\}/g,fry).replace(/\{SIMMER\}/g,sim).replace(/\{MW\}/g,mw).replace(/\{(OVEN|STEAM|AF|GRILL|BAKE)\}/g,(m,k)=>tok[k]).replace(/\{ALL\}/g,ALL).replace(/\{V\}/g,V).replace(/\{P\}/g,P);
   }).filter(Boolean);
 }
 
@@ -1618,7 +1733,7 @@ function renderShop(){
     ${prepItems.map(i=>{ const p=PART[i.id], st=STORAGE[p.storageType];
       return `<button class="chk ${plan.prepChecks[i.id]?'on':''}" data-act="chkPrep" data-id="${i.id}"><span class="box">${plan.prepChecks[i.id]?'✓':''}</span>
         <span class="ct"><b>${esc(i.label)} → ${p.emoji}${esc(p.name)} ${i.produced}食分</b>
-        <p>${esc(p.prepInstruction.replace('{n}',i.produced))}</p>
+        <p>${esc(((!hasEq('microwave')&&PREP_NO_MW[p.id])||p.prepInstruction).replace('{n}',i.produced))}</p>
         <span class="meta"><span class="pill st-${p.storageType}">${st.icon} ${st.label}保存・${p.shelfLifeDays>=365?'長期保存可':'約'+p.shelfLifeDays+'日'}</span>${p.prepMin?`<span class="pill" style="background:var(--line2);color:var(--sub)">⏱ 約${p.prepMin}分</span>`:''}</span></span></button>`; }).join('')}
     <div style="margin-top:14px">${plan.prepDone?`<button class="btn soft" disabled>✓ ${fmtMD(plan.prepDoneAt)} にストックへ登録済み</button><button class="link" data-act="resetPrep">もう一度登録できるようにする</button>`
       :`<button class="btn primary" data-act="prepDone" ${prepItems.length?'':'disabled'}>🎉 仕込み完了！すべてストックに登録する</button><p class="hint" style="text-align:center">出来上がった ${prepItems.reduce((a,i)=>a+i.produced,0)}食分 がタブ1の在庫に一括追加されます</p>`}</div>
@@ -1687,7 +1802,7 @@ const TUT_SLIDES = [
     body:'献立を確定すると、在庫を差し引いた<b>買い物リスト</b>と<b>下処理の手順</b>が自動で完成。仕込みが終わったら「仕込み完了」を押すだけで、在庫にまとめて登録されます。' },
   { ill:'<span class="big">👩‍🍳</span>',
     title:'⑤ 料理名をタップして調理',
-    body:'分量・調味料・手順を大きな文字で表示する<b>キッチンモード</b>になります。分量は画面上部の人数（1〜4人）に合わせて自動換算。★でお気に入り保存も。<br>この説明は右上の「<b>?</b>」からいつでも見返せます。' },
+    body:'分量・調味料・手順を大きな文字で表示する<b>キッチンモード</b>になります。分量は画面上部の人数（1〜4人）に合わせて自動換算。★でお気に入り保存も。<br>持っている<b>調理器具や調味料</b>、この説明は、右上の「<b>?</b>」からいつでも設定・見返しできます。' },
 ];
 let TUT=null;
 function openTutorial(){ TUT={ i:0, dontShow:true }; renderTutorial(); pushOv(); }
@@ -1734,6 +1849,7 @@ function sheetShell(title,inner){
 function renderMenuSheet(){
   sheetShell('使い方・設定',`
     <button class="menu-item" data-act="tutorial"><span class="mi">📖</span><span>使い方（チュートリアル）を見る<small>初回に表示された説明をもう一度見られます</small></span></button>
+    <button class="menu-item" data-act="equipSheet"><span class="mi">🍳</span><span>調理器具の設定<small>持っている器具に合わせて料理を提案（オーブン・せいろ・ノンフライヤーなど）</small></span></button>
     <button class="menu-item" data-act="seasonSheet"><span class="mi">🧂</span><span>調味料をカスタマイズ<span class="tagx">上級者向け</span><small>塩麹・醤油麹など手持ちの調味料を追加／自分だけの味付けを作る</small></span></button>
     <button class="menu-item" data-act="exportData"><span class="mi">💾</span><span>データをバックアップ<small>ストック・お気に入り・履歴をファイルに保存</small></span></button>
     <button class="menu-item" data-act="importData"><span class="mi">📂</span><span>バックアップから復元<small>保存したファイルを読み込みます（機種変更時にも）</small></span></button>
@@ -1850,6 +1966,21 @@ function saveCustomForm(id){
   if(i>=0) S.customBases[i]=obj; else S.customBases.push(obj);
   rebuildBases(); S.suggestions=null; return true;
 }
+/* ---------- 調理器具の設定 ---------- */
+function renderEquipSheet(){
+  const prevSc=$('#sheet .sheet')?$('#sheet .sheet').scrollTop:0;
+  const all=[...CORE_BASES, ...EXTRA_PACKS.filter(pk=>S.extraOn.includes(pk.id)).flatMap(pk=>pk.bases), ...(S.customBases||[]).filter(c=>!c.hidden).map(customToBase)];
+  const uses=id=>all.filter(b=>{ const r=equipReq(b); return r.all.includes(id)||(r.any||[]).includes(id); }).length;
+  sheetShell('調理器具の設定',`
+    <div class="info-box">持っている調理器具をONにしてください。<b>OFFにした器具を使う料理は提案されません。</b>オーブン・せいろなどをONにすると、その器具ならではの料理が加わります。</div>
+    <div class="list" style="margin-top:12px">${EQUIPMENT.map(e=>{ const on=hasEq(e.id), n=uses(e.id);
+      return `<div class="pk-row"><div class="tx"><b>${e.emoji} ${esc(e.name)}</b>${e.def?'':'<span class="tagx">追加</span>'}<small>${esc(e.desc)}</small>
+        <div class="mini">${n?`<span class="tagb" style="background:var(--line2);color:var(--sub)">使う料理 ${n}種</span>`:''}${e.bases.map(b=>`<span class="tagb g-${GCLS[b.genre]}">${esc(b.name)}</span>`).join('')}</div></div>
+        <button class="sw ${on?'on':''}" data-act="toggleEquip" data-id="${e.id}" aria-label="${esc(e.name)}"></button></div>`; }).join('')}</div>
+    <p class="hint">💡 電子レンジをOFFにすると、和え物の下ごしらえや週末の仕込み手順が鍋を使う方法に切り替わります。トースターがなくてもオーブンがあればチーズ焼きが作れます。</p>
+    <p class="hint">いま提案に使える味付け：<b>${BASES.length}種</b></p>`);
+  $('#sheet .sheet').scrollTop=prevSc;
+}
 /* =====================================================================
    12. オーバーレイ（スマホの「戻る」で閉じられるように履歴と連動）
    ===================================================================== */
@@ -1896,6 +2027,13 @@ const ACTIONS={
   tutCk:()=>{ TUT.dontShow=!TUT.dontShow; renderTutorial(); },
   tutEnd:()=>endTutorial(),
   tutStart:ds=>{ const demo=ds.demo; endTutorial(); if(demo){ S.tab='stock'; addPreset('basic'); } },
+  equipSheet:()=>{ const had=!!$('#sheet').innerHTML; renderEquipSheet(); if(!had) pushOv(); },
+  toggleEquip:ds=>{
+    S.equip[ds.id]=!hasEq(ds.id); rebuildBases(); S.suggestions=null;
+    const e=EQUIPMENT.find(x=>x.id===ds.id);
+    if(!BASES.some(b=>b.dishType==='主菜')) toast('⚠ 主菜を作れる器具がありません。フライパンなどをONにしてください');
+    else toast(hasEq(ds.id)?`${e.emoji} ${e.name}をONにしました${e.bases.length?`（専用の料理${e.bases.length}種が追加）`:''}`:`${e.name}を使う料理を提案から外しました`);
+    renderEquipSheet(); render(); },
   seasonSheet:()=>{ const had=!!$('#sheet').innerHTML; renderSeasonSheet(); if(!had) pushOv(); },
   togglePack:ds=>{ const on=S.extraOn.includes(ds.id); S.extraOn=on?S.extraOn.filter(x=>x!==ds.id):[...S.extraOn,ds.id];
     rebuildBases(); S.suggestions=null; renderSeasonSheet(); render();
