@@ -1184,7 +1184,8 @@ const DEFAULT_STATE = () => ({
   activePlanId:null,
   suggestions:null, seenKeys:[], cooked:[],
   stockFilter:'all', stockSort:'rem', addQty:1, dictMode:'part', dictSel:null,
-  tutorialSeen:false, addLog:{}, tipsOn:true, tipsSeen:{}, genresOff:[], lastBackupAt:null, extraOn:[], customBases:[], equip:Object.assign({},DEFAULT_EQUIP),
+  tutorialSeen:false, addLog:{}, tipsOn:true, tipsSeen:{}, genresOff:['韓国風','エスニック'],   // 初期設定は和・洋・中のみ（歯車→使うジャンルでON）
+  lastBackupAt:null, extraOn:[], customBases:[], equip:Object.assign({},DEFAULT_EQUIP),
 });
 // ユーザー一覧（同じブラウザで家族が別々に保存できるように、ユーザーごとに保存先を分ける）
 const PROF_KEY = 'kakezan-gohan-profiles';
@@ -1977,7 +1978,7 @@ const TIPS = {
     { sel:'#main .dish [data-act=cook]', title:'作ったらここを押す', text:'使ったストックが自動で減ります。間違えても「取り消す」で戻せます。' },
     { sel:'#main [data-act=shuffle]', title:'気分じゃなければ', text:'別の組み合わせを提案します。1品だけ替えたいときはカードの「↻」を。' } ] },
   planB:{ cond:()=>S.tab==='plan'&&S.mode==='B'&&!S.draft, steps:[
-    { sel:'#main [data-act=genWeek]', title:'ボタン1つで7日分', text:'和・洋・中・韓・エスニックが毎日変わるように、ストックを優先して自動で作ります。' } ] },
+    { sel:'#main [data-act=genWeek]', title:'ボタン1つで7日分', text:'ジャンル（和・洋・中など）が毎日変わるように、ストックを優先して自動で作ります。' } ] },
   planB2:{ cond:()=>S.tab==='plan'&&S.mode==='B'&&S.draft&&document.querySelector('#main [data-act=confirm]'), steps:[
     { sel:'#main .day .swap', title:'気分に合わない日は', text:'その料理だけ別のアレンジに差し替えられます。' },
     { sel:'#main [data-act=confirm]', title:'決まったら確定', text:'買い物リストと週末の仕込み手順が自動で作られます。' } ] },
@@ -2261,7 +2262,7 @@ function closeModalUI(){ closeModal(); popOv(); }
 /* =====================================================================
    14. PWA（ホーム画面に追加・オフライン・自動アップデート・引き継ぎ）
    ===================================================================== */
-const APP_VERSION = '2026.11.15.4';
+const APP_VERSION = '2026.11.15.5';
 const SW_FILE = 'stock-arrange-meal-sw.js', SW_SCOPE = './stock-arrange-meal';
 const PWA = { deferred:null };
 const isHttp = ()=>/^https?:$/.test(location.protocol);
@@ -2438,7 +2439,7 @@ function renderGenreSheet(){
   const icon={ '和風':'🍙', '洋風':'🍝', '中華':'🥟', '韓国風':'🌶️', 'エスニック':'🌿' };
   const desc={ '和風':'照り焼き・生姜焼き・胡麻和え・味噌汁など', '洋風':'ガリバタ・トマト煮・豆乳クリーム・チーズ焼きなど', '中華':'オイスター炒め・麻婆風・甘酢あん・中華スープなど', '韓国風':'ヤンニョム・プルコギ・チヂミ・ナムルなど', 'エスニック':'ガパオ・スイートチリ・ココナッツカレー・トムヤムなど' };
   sheetShell('使うジャンル',`
-    <div class="info-box">苦手・使わないジャンルはOFFにすると、提案・1週間献立・図鑑に出なくなります。<br><small style="color:var(--sub)">毎日ジャンルが変わるように組むため、<b>2つ以上ONがおすすめ</b>です。</small></div>
+    <div class="info-box">苦手・使わないジャンルはOFFにすると、提案・1週間献立・図鑑に出なくなります。<br><small style="color:var(--sub)">毎日ジャンルが変わるように組むため、<b>2つ以上ONがおすすめ</b>です。はじめは韓国風・エスニックがOFFになっています。</small></div>
     <div class="list" style="margin-top:12px">${GENRES.map(g=>{ const n=all.filter(b=>b.genre===g).length;
       return `<div class="pk-row"><span class="emo" style="width:40px;height:40px">${icon[g]}</span><div class="tx"><div class="d-top">${gBadge(g)}<span class="mth">${n}種</span></div><small>${desc[g]}</small></div>
         <button class="sw ${genreOn(g)?'on':''}" data-act="toggleGenre" data-g="${g}" aria-label="${g}を使う"></button></div>`; }).join('')}</div>`);
