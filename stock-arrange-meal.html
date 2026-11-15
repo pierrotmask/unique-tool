@@ -10,7 +10,7 @@
 <title>かけ算ごはん｜下処理ストック×味付け 日替わり献立</title>
 <style>
 :root{
-  --bg:#F8F7F4; --card:#FFFFFF; --green:#2E5A44; --green-d:#22463449; --green-l:#E6EFE9; --green-ll:#F1F6F2;
+  --bg:#F8F7F4; --card:#FFFFFF; --green:#2E5A44; --green-l:#E6EFE9; --green-ll:#F1F6F2;
   --orange:#D96B27; --orange-d:#B9551A; --orange-l:#FBEDE3;
   --ink:#1F2A24; --sub:#56625B; --muted:#89928C; --line:#E9E5DD; --line2:#F1EEE8;
   --wa:#3B5BA9; --wa-l:#E7ECF8; --yo:#A8750A; --yo-l:#FBF0D6; --chu:#C0392B; --chu-l:#FBE4E1; --kan:#8E44AD; --kan-l:#F3E5F8;
@@ -31,7 +31,7 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer;pad
 .ttl b{display:block;font-size:16px;letter-spacing:.02em;color:var(--green)}
 .ttl small{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ppl{display:flex;align-items:center;gap:6px;flex:none}
-.ppl-l{font-size:11px;color:var(--sub);line-height:1.1;text-align:right}
+.help{width:36px;height:36px;border-radius:11px;background:#fff;border:1px solid var(--line);color:var(--green);font-weight:800;font-size:17px;flex:none;display:grid;place-items:center}
 .seg{display:inline-flex;background:#EEEBE4;border-radius:12px;padding:3px;gap:2px}
 .seg button{min-width:34px;height:32px;border-radius:9px;font-size:13px;font-weight:700;color:var(--sub);padding:0 6px}
 .seg button.on{background:#fff;color:var(--green);box-shadow:0 1px 3px rgba(0,0,0,.12)}
@@ -206,8 +206,39 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer;pad
 .stag button{height:32px;padding:0 11px;border-radius:99px;font-size:12.5px;font-weight:600;border:1px solid var(--line);background:#fff;color:var(--sub)}
 .stag button.on{background:var(--green-l);border-color:var(--green-l);color:var(--green);text-decoration:line-through}
 .tip{font-size:12px;color:var(--sub);background:var(--bg);border-radius:12px;padding:10px 12px;margin-top:8px}
-.intro{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:14px 16px;margin-bottom:14px;font-size:13.5px;line-height:1.7;color:var(--sub)}
-.intro b{color:var(--green)}
+/* tutorial */
+.tut-bk{position:fixed;inset:0;z-index:80;background:rgba(20,28,24,.55);display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s ease}
+.tut{position:relative;background:#fff;border-radius:24px;width:100%;max-width:420px;max-height:calc(100vh - 32px);overflow-y:auto;padding:18px 20px 18px;animation:up .22s ease;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.tut-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.tut-top span{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em}
+.tut-top button{font-size:13px;font-weight:700;color:var(--sub);height:34px;padding:0 10px;border-radius:10px}
+.tut-ill{min-height:132px;border-radius:18px;background:var(--green-ll);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;margin-bottom:16px;padding:14px;text-align:center}
+.tut-ill .big{font-size:52px;line-height:1}
+.tut-ill .eq{width:100%;font-weight:800;color:var(--green);font-size:15px;margin-top:4px}
+.tut h2{font-size:20px;margin:0 0 8px;color:var(--green);line-height:1.4}
+.tut p{margin:0;font-size:14.5px;line-height:1.8;color:var(--sub)}
+.tut p b{color:var(--ink)}
+.dots{display:flex;gap:6px;justify-content:center;margin:18px 0 14px}
+.dots i{width:7px;height:7px;border-radius:9px;background:#D5CFC4;transition:all .2s}
+.dots i.on{width:22px;background:var(--green)}
+.tut-nav{display:grid;grid-template-columns:1fr 2fr;gap:10px}
+.tut-nav.one{grid-template-columns:1fr}
+.ck-row{display:flex;align-items:center;justify-content:center;gap:9px;font-size:13.5px;font-weight:700;color:var(--sub);margin:14px auto 0;padding:6px 10px}
+.ck-row .box{width:22px;height:22px;border-radius:7px;font-size:13px}
+.ck-row.on .box{background:var(--green);border-color:var(--green)}
+.menu-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px;background:#fff;border-radius:14px;box-shadow:var(--shadow);font-weight:700;font-size:15px}
+.menu-item+.menu-item{margin-top:8px}
+.menu-item .mi{width:38px;height:38px;border-radius:12px;background:var(--green-ll);display:grid;place-items:center;font-size:19px;flex:none}
+.menu-item small{display:block;font-weight:500;font-size:12px;color:var(--muted)}
+.menu-item.danger{color:var(--over)}
+.preset{display:block;width:100%;text-align:left;background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:14px;border:1.5px solid transparent}
+.preset+.preset{margin-top:10px}
+.preset b{display:block;font-size:15.5px;color:var(--green)}
+.preset small{display:block;font-size:12px;color:var(--sub);margin:2px 0 8px}
+.preset .em{font-size:20px;letter-spacing:2px;line-height:1.4}
+.preset:active{border-color:var(--green)}
+#toast .undo{margin-left:12px;color:#F7C59F;font-weight:800;text-decoration:underline;pointer-events:auto;padding:4px 2px}
+#toast:not(.show) .undo{pointer-events:none}
 /* nav */
 #nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:var(--safe-b)}
 .nav-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav-h)}
@@ -265,7 +296,9 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer;pad
 <nav id="nav"></nav>
 <div id="sheet"></div>
 <div id="modal"></div>
+<div id="tut"></div>
 <div id="toast"></div>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
 
 <script>
 'use strict';
@@ -729,10 +762,17 @@ const ARRANGE_RULES = {
   favoriteBonus: 3.5,            // お気に入り優先ON時の加点
   stockBonus: 2.5,               // 在庫があるパーツの加点
 };
-// よくある週末仕込みセット（daysAgo=登録からの経過日数デモ）
+// よくある週末仕込みセット（[パーツID, 食分, 登録からの経過日数デモ]）
 const DEMO_SET = [
   ['p_mushidori',4,1],['p_butakoma',4,1],['p_sake',2,1],['p_tofu',2,2],['p_egg',4,1],['p_tuna',2,0],
   ['v_cabbage',4,3],['v_ninjin',4,1],['v_tamanegi',4,1],['v_broccoli',4,1],['v_kinoko',4,1],['v_horenso',3,1],['v_moyashi',2,1],
+];
+const PRESETS = [
+  { id:'basic', name:'定番・週末仕込みセット', desc:'蒸し鶏・豚こま・鮭に、キャベツやブロッコリーなど使い回しやすい定番野菜', items:DEMO_SET },
+  { id:'fish', name:'魚と豆腐のヘルシーセット', desc:'鮭・白身魚・豆腐・厚揚げ・サバ缶と、白菜や大根など和風向きの野菜',
+    items:[['p_sake',3,0],['p_shiromi',2,0],['p_tofu',2,0],['p_atsuage',2,0],['p_saba',2,0],['v_hakusai',4,0],['v_kinoko',4,0],['v_komatsuna',3,0],['v_daikon',4,0],['v_negi',4,0],['v_ninjin',3,0]] },
+  { id:'veg', name:'野菜たっぷり作り置きセット', desc:'鶏もも・ひき肉・ゆで卵と、かぼちゃ・なす・パプリカなど彩り野菜',
+    items:[['p_momo',4,0],['p_hikiniku',3,0],['p_egg',4,0],['v_broccoli',4,0],['v_kabocha',4,0],['v_nasu',3,0],['v_piman',4,0],['v_paprika',3,0],['v_jagaimo',3,0],['v_horenso',3,0],['v_tamanegi',4,0]] },
 ];
 
 /* ---------- master post-processing ---------- */
@@ -757,6 +797,7 @@ const DEFAULT_STATE = () => ({
   activePlanId:null,
   suggestions:null, seenKeys:[], cooked:[],
   stockFilter:'all', addQty:1, dictMode:'part', dictSel:null,
+  tutorialSeen:false, addLog:{},
 });
 let S = load();
 function load(){
@@ -893,7 +934,7 @@ function randomCombo(b,o){
   let p=null;
   if(rc.protein[0]>=1){ if(!pc.length) return null; p=weightedPick(pc,o.partScore); }
   else if(rc.protein[1]>=1 && pc.length && Math.random()<(o.sideProteinRate??ARRANGE_RULES.sideProteinRate)) p=weightedPick(pc,o.partScore);
-  const k = rc.veg[1]>=2 && Math.random()<(b.twoVeg??0.45) ? 2 : rc.veg[0];
+  const k = rc.veg[1]>=2 && Math.random()<(b.twoVeg??0.35) ? 2 : rc.veg[0];
   let vs=pickVegs(b,o.pool.veg,k,o.partScore,o.avoidVeg);
   if(vs.length<rc.veg[0]) return null;
   return makeDish(b,p,vs);
@@ -953,17 +994,30 @@ function generateDish(o){
 }
 
 /* ---------- モードA：今あるストックから今日のアレンジ提案 ---------- */
+function modeAScore(used){
+  return id=>{
+    const c=stockCount(id); let s=c>=S.people?1.5:0.3;
+    const r=minRemain(id); if(r<=1) s+=2; else if(r<=3) s+=1;   // 期限が近いものを優先
+    s-=(used[id]||0)*(PART[id].category==='protein'?1.6:0.6);
+    return s;
+  };
+}
+function swapSuggestion(i){
+  const cur=S.suggestions[i]; if(!cur) return false;
+  const others=S.suggestions.filter((_,k)=>k!==i), used={};
+  others.forEach(d=>dishParts(d).forEach(id=>used[id]=(used[id]||0)+1));
+  const d=generateDish({ type:cur.type, pool:stockPool(), partScore:modeAScore(used), avoidVeg:others.flatMap(x=>x.v), sideProteinRate:0.3,
+    hard:{ genres: cur.type==='主菜'?new Set(others.filter(x=>x.type==='主菜').map(x=>x.genre)):null,
+      bases:new Set([cur.baseId,...others.map(x=>x.baseId)]), keys:new Set(S.seenKeys), must:new Set(S.suggestions.map(x=>x.key)) } });
+  if(!d) return false;
+  S.suggestions[i]=d; S.seenKeys=[d.key,...S.seenKeys].slice(0,150); return true;
+}
 function makeSuggestions(){
   const pool=stockPool();
   if(!pool.veg.length && !pool.protein.length){ S.suggestions=[]; return; }
   const seen=new Set(S.seenKeys), cookedKeys=new Set(S.cooked.slice(0,10).map(c=>c.key));
   const res=[], used={}, genreCount={}, baseCount={};
-  const partScore=id=>{
-    const c=stockCount(id); let s=c>=S.people?1.5:0.3;
-    const r=minRemain(id); if(r<=1) s+=2; else if(r<=3) s+=1;
-    s-=(used[id]||0)*(PART[id].category==='protein'?1.6:0.6);
-    return s;
-  };
+  const partScore=modeAScore(used);
   const slots=[];
   if(pool.protein.length) slots.push('主菜','主菜','主菜');
   if(pool.veg.length){ slots.push('副菜'); slots.push(Math.random()<0.5?'汁物':'副菜'); if(!pool.protein.length) slots.push('副菜','汁物'); }
@@ -1146,8 +1200,9 @@ function render(){
 function renderHeader(){
   $('#hdr').innerHTML=`<div class="hdr-in">
     <div class="logo">×</div>
-    <div class="ttl"><b>かけ算ごはん</b><small>下処理ストック × 味付け ＝ 日替わり献立</small></div>
-    <div class="ppl"><div class="ppl-l">人数<br>設定</div><div class="seg">${[1,2,3,4].map(n=>`<button class="${S.people===n?'on':''}" data-act="people" data-n="${n}">${n}人</button>`).join('')}</div></div>
+    <div class="ttl"><b>かけ算ごはん</b><small>ストック×味付けで日替わり</small></div>
+    <div class="ppl"><div class="seg" aria-label="人数設定">${[1,2,3,4].map(n=>`<button class="${S.people===n?'on':''}" data-act="people" data-n="${n}">${n}人</button>`).join('')}</div></div>
+    <button class="help" data-act="menu" aria-label="使い方・設定">?</button>
   </div>`;
 }
 const ICONS={
@@ -1188,23 +1243,27 @@ function renderStock(){
     return `<div class="grp-h">${icon} ${title}（${r.length}）</div><div class="list">${r.map(row).join('')}</div>`; };
   const list = S.stock.length ? (grp('protein','タンパク質パーツ','🍖')+grp('veg','野菜・きのこパーツ','🥕') || `<div class="card empty"><p>該当するストックはありません</p></div>`)
     : `<div class="card empty" style="margin-top:14px"><div class="big">🧊</div><b>まだストックがありません</b><p>週末に下処理したパーツを登録すると、<br>毎日の「かけ算アレンジ」が自動で提案されます。</p>
-       <button class="btn primary" data-act="demo">✨ よくある週末仕込みセットを一括追加</button></div>`;
-  return `<div class="intro"><b>かけ算ごはん</b>は、週末にまとめて下処理した食材（ストックパーツ）を登録すると、「パーツ×味付け」の掛け算で毎日違うアレンジ料理を自動で提案するアプリです。1週間の献立づくりから、買い物リスト・週末の下処理手順まで逆算して作れます。</div><div class="hero"><h1>冷蔵庫・冷凍庫のストック</h1><p>下処理済みパーツを登録して、平日は5〜10分で仕上げるだけ。</p>
+       <div class="btn-col"><button class="btn primary" data-act="openAdd">＋ パーツを選んで登録</button><button class="btn outline" data-act="presetSheet">✨ よくある週末仕込みセットから一括追加</button></div>
+       <button class="link" data-act="tutorial">はじめての方へ：使い方を見る</button></div>`;
+  return `<div class="hero"><h1>冷蔵庫・冷凍庫のストック</h1><p>下処理済みパーツを登録して、平日は5〜10分で仕上げるだけ。</p>
     <div class="stats"><div class="stat"><b>${pS}</b><span>タンパク質（食分）</span></div><div class="stat"><b>${vS}</b><span>野菜・きのこ（食分）</span></div><div class="stat"><b>${soon}</b><span>早めに使う</span></div></div></div>
-    <div class="btn-row"><button class="btn primary" data-act="openAdd">＋ ストックを追加</button><button class="btn outline" data-act="demo">✨ 週末仕込み<br>セットを一括追加</button></div>
+    <div class="btn-row"><button class="btn primary" data-act="openAdd">＋ ストックを追加</button><button class="btn outline" data-act="presetSheet">✨ 週末仕込み<br>セットを一括追加</button></div>
     ${S.stock.length?`<div class="chips" style="margin-top:16px">${[['all','すべて',S.stock.length],['protein','タンパク質',null],['veg','野菜・きのこ',null],['soon','期限が近い',soon]].map(([k,l,c])=>`<button class="chip ${S.stockFilter===k?'on':''}" data-act="sfilter" data-f="${k}">${l}${c!=null?`<span class="c">${c}</span>`:''}</button>`).join('')}</div>`:''}
     ${list}
     ${S.stock.length?`<p class="hint">💡 保存区分のバッジをタップすると「冷凍→冷蔵→常備」を切り替えられます。0食分にすると自動で一覧から消えます。登録パーツ ${kinds}種</p><button class="link" data-act="clearStock">ストックをすべてクリア</button>`:''}`;
 }
 function renderAddSheet(){
   const sm=stockMap();
-  const grid=cat=>PARTS.filter(p=>p.category===cat).map(p=>`<button class="pbtn" data-act="addPart" data-id="${p.id}"><span class="cnt">${sm[p.id]||''}</span><span class="e">${p.emoji}</span><span class="n">${esc(p.name)}</span><span class="pill st-${p.storageType}" style="margin-top:4px;height:18px;font-size:10px">${STORAGE[p.storageType].label}${p.shelfLifeDays>=365?'':' '+p.shelfLifeDays+'日'}</span></button>`).join('');
+  const btn=p=>`<button class="pbtn" data-act="addPart" data-id="${p.id}"><span class="cnt">${sm[p.id]||''}</span><span class="e">${p.emoji}</span><span class="n">${esc(p.name)}</span><span class="pill st-${p.storageType}" style="margin-top:4px;height:18px;font-size:10px">${STORAGE[p.storageType].label}${p.shelfLifeDays>=365?'':' '+p.shelfLifeDays+'日'}</span></button>`;
+  const grid=cat=>PARTS.filter(p=>p.category===cat).map(btn).join('');
+  const freq=Object.keys(S.addLog||{}).filter(id=>PART[id]).sort((a,b)=>S.addLog[b]-S.addLog[a]).slice(0,6);
   $('#sheet').innerHTML=`<div class="bk" data-act="backdrop" data-close="sheet"><div class="sheet">
     <div class="handle"></div>
     <div class="sheet-h"><h3>ストックを追加</h3><button data-act="closeSheet">完了</button></div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="font-size:12.5px;color:var(--sub);font-weight:700">1タップで追加：</span>
       <div class="seg">${[1,2,4].map(n=>`<button class="${S.addQty===n?'on':''}" data-act="addQty" data-n="${n}">${n}食分</button>`).join('')}</div></div>
-    <p class="hint mt0">パーツをタップするたびに今日の日付で在庫に追加されます。</p>
+    <p class="hint mt0">パーツをタップするたびに今日の日付で在庫に追加されます。間違えたら下に出る「取り消す」で戻せます。</p>
+    ${freq.length?`<div class="grp-h">⏱ よく登録するパーツ</div><div class="pgrid">${freq.map(id=>btn(PART[id])).join('')}</div>`:''}
     <div class="grp-h">🍖 タンパク質パーツ</div><div class="pgrid">${grid('protein')}</div>
     <div class="grp-h">🥕 野菜・きのこパーツ</div><div class="pgrid">${grid('veg')}</div>
   </div></div>`;
@@ -1227,7 +1286,8 @@ function dishCard(d,ref,opts={}){
     ${formulaHTML(d,opts.stock)}
     ${opts.cook?(d.done?`<div class="d-act"><button class="btn soft" disabled>✓ 作りました（ストック消費済み）</button></div>`:
       `${short.length?`<div class="warn">⚠ ${short.map(id=>PART[id].short).join('・')}の在庫が${S.people}人分に足りません（あるだけ消費します）</div>`:''}
-      <div class="d-act"><button class="btn primary" data-act="cook" data-ref="${ref}">この料理を作ってストックを消費（−${S.people}食分）</button></div>`):''}
+      <div class="d-act"><button class="btn primary" data-act="cook" data-ref="${ref}">この料理を作ってストックを消費（−${S.people}食分）</button></div>
+      <div class="d-act" style="margin-top:8px"><button class="swap" style="width:100%;height:40px" data-act="swapA" data-i="${ref.split(':')[1]}">↻ この1品だけ別の組み合わせにする</button></div>`):''}
   </div>`;
 }
 function renderModeA(){
@@ -1258,7 +1318,7 @@ function renderModeB(){
   const sm=stockMap(); let fromStock=0, total=0;
   p.days.forEach(d=>d.dishes.forEach(x=>{ total++; if(dishParts(x).some(id=>(sm[id]||0)>0)) fromStock++; }));
   const usedP=new Set(), usedV=new Set(); p.days.forEach(d=>d.dishes.forEach(x=>{ if(x.p) usedP.add(x.p); x.v.forEach(v=>usedV.add(v)); }));
-  html+=`<div class="sec-t"><h2>今週の日替わり献立</h2><small>${p.people}人分</small></div>
+  html+=`<div class="sec-t"><h2>1週間の日替わり献立</h2><small>${p.people}人分</small></div>
   <div class="week-sum">
     <div class="wk-range"><span>${fmtDate(p.weekStart)} 〜 ${fmtDate(addDays(p.weekStart,6))}</span>${p.different?'<span class="pill fr-ok">先週と別バリエ</span>':''}</div>
     <div class="vbar">${p.days.map(d=>{ const m=d.dishes[0]; return `<div class="vcell gb-${m?GCLS[m.genre]:'wa'}"><small>${WD[parseYmd(d.date).getDay()]}</small><span>${m?GSHORT[m.genre]:'-'}</span></div>`; }).join('')}</div>
@@ -1431,10 +1491,145 @@ function renderModal(){
 function closeModal(){ MODAL=null; if(wakeLock){ try{wakeLock.release();}catch(e){} wakeLock=null; } renderModal(); }
 
 /* =====================================================================
-   10. アクション
+   10. チュートリアル（初回のみ表示・右上の「?」からいつでも再表示）
    ===================================================================== */
-let toastT=null;
-function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2200); }
+const TUT_SLIDES = [
+  { ill:`<span class="fp">🍗蒸し鶏</span><span class="fx">×</span><span class="fp">🥬キャベツ</span><span class="fx">×</span><span class="fp base">ねぎ塩レモン</span><div class="eq">＝ 今日の一品！</div>`,
+    title:'ようこそ、かけ算ごはんへ',
+    body:'週末に下処理しておいた食材（<b>ストックパーツ</b>）と<b>味付け</b>を掛け算して、毎日ちがう料理を自動で提案します。平日は5〜10分で仕上げるだけ。まずは使い方を1分でご紹介します。' },
+  { ill:'<span class="big">🧊</span>',
+    title:'① ストックを登録する',
+    body:'「<b>下処理ストック</b>」タブで、作り置きした食材をタップするだけで登録できます。<b>週末仕込みセット</b>を選べば一括で登録。消費期限が近いものはバッジでお知らせします。' },
+  { ill:'<span class="big">🍳</span>',
+    title:'② 今日のアレンジを見る',
+    body:'「<b>アレンジ献立</b>」→「今日のアレンジ」で、手持ちのストックだけで作れる料理を3〜5品提案します。気分に合わなければ🔀シャッフル。作ったら<b>ボタン1つで在庫が自動で減ります</b>。' },
+  { ill:'<span class="big">📅</span>',
+    title:'③ 1週間の献立をおまかせ',
+    body:'「1週間献立」でボタンを押すと、月〜日の7日分を自動で作成。<b>毎日ジャンル（和・洋・中・韓）が変わる</b>ように調整します。気分に合わない日は「↻ 別アレンジ」で1品だけ変更できます。' },
+  { ill:'<span class="big">🛒</span>',
+    title:'④ 買い物と週末の仕込み',
+    body:'献立を確定すると、在庫を差し引いた<b>買い物リスト</b>と<b>下処理の手順</b>が自動で完成。仕込みが終わったら「仕込み完了」を押すだけで、在庫にまとめて登録されます。' },
+  { ill:'<span class="big">👩‍🍳</span>',
+    title:'⑤ 料理名をタップして調理',
+    body:'分量・調味料・手順を大きな文字で表示する<b>キッチンモード</b>になります。分量は画面上部の人数（1〜4人）に合わせて自動換算。★でお気に入り保存も。<br>この説明は右上の「<b>?</b>」からいつでも見返せます。' },
+];
+let TUT=null;
+function openTutorial(){ TUT={ i:0, dontShow:true }; renderTutorial(); pushOv(); }
+function renderTutorial(){
+  if(!TUT){ $('#tut').innerHTML=''; return; }
+  const sl=TUT_SLIDES[TUT.i], last=TUT.i===TUT_SLIDES.length-1, first=TUT.i===0;
+  const empty=!S.stock.length;
+  $('#tut').innerHTML=`<div class="tut-bk"><div class="tut" role="dialog" aria-modal="true" aria-label="使い方">
+    <div class="tut-top"><span>使い方 ${TUT.i+1} / ${TUT_SLIDES.length}</span>${last?'':'<button data-act="tutEnd">スキップ</button>'}</div>
+    <div class="tut-ill">${sl.ill}</div>
+    <h2>${sl.title}</h2><p>${sl.body}</p>
+    <div class="dots">${TUT_SLIDES.map((_,k)=>`<i class="${k===TUT.i?'on':''}"></i>`).join('')}</div>
+    ${last
+      ? `<div class="btn-col mt0">${empty?'<button class="btn primary" data-act="tutStart" data-demo="1">✨ お試しセットを入れて始める</button>':''}
+          <button class="btn ${empty?'outline':'primary'}" data-act="tutStart">${empty?'空のまま始める':'はじめる'}</button>
+          <button class="btn ghost" data-act="tutPrev">← 戻る</button></div>`
+      : `<div class="tut-nav ${first?'one':''}">${first?'':'<button class="btn soft" data-act="tutPrev">← 戻る</button>'}<button class="btn green" data-act="tutNext">次へ →</button></div>`}
+    <button class="ck-row ${TUT.dontShow?'on':''}" data-act="tutCk"><span class="box">${TUT.dontShow?'✓':''}</span>次回から使い方を表示しない</button>
+  </div></div>`;
+}
+function endTutorial(fromBack){
+  if(!TUT) return;
+  S.tutorialSeen = TUT.dontShow ? true : false;
+  TUT=null; renderTutorial(); save();
+  if(!fromBack) popOv();
+}
+// スワイプでページ送り
+let tutX=null;
+document.addEventListener('touchstart',e=>{ if(TUT&&e.target.closest('.tut')) tutX=e.touches[0].clientX; },{passive:true});
+document.addEventListener('touchend',e=>{
+  if(!TUT||tutX==null) return; const dx=e.changedTouches[0].clientX-tutX; tutX=null;
+  if(Math.abs(dx)<50) return;
+  if(dx<0&&TUT.i<TUT_SLIDES.length-1) TUT.i++; else if(dx>0&&TUT.i>0) TUT.i--; else return;
+  renderTutorial();
+},{passive:true});
+
+/* =====================================================================
+   11. ヘルプ・設定メニュー／プリセット／バックアップ
+   ===================================================================== */
+function sheetShell(title,inner){
+  $('#sheet').innerHTML=`<div class="bk" data-act="backdrop" data-close="sheet"><div class="sheet">
+    <div class="handle"></div><div class="sheet-h"><h3>${title}</h3><button data-act="closeSheet">閉じる</button></div>${inner}</div></div>`;
+}
+function renderMenuSheet(){
+  sheetShell('使い方・設定',`
+    <button class="menu-item" data-act="tutorial"><span class="mi">📖</span><span>使い方（チュートリアル）を見る<small>初回に表示された説明をもう一度見られます</small></span></button>
+    <button class="menu-item" data-act="exportData"><span class="mi">💾</span><span>データをバックアップ<small>ストック・お気に入り・履歴をファイルに保存</small></span></button>
+    <button class="menu-item" data-act="importData"><span class="mi">📂</span><span>バックアップから復元<small>保存したファイルを読み込みます（機種変更時にも）</small></span></button>
+    <button class="menu-item danger" data-act="resetAll"><span class="mi">🗑️</span><span>すべてのデータを初期化<small>この端末に保存した内容をすべて消去します</small></span></button>
+    <p class="hint" style="margin-top:14px">データはこの端末のブラウザ内だけに保存され、外部には送信されません。ブラウザの履歴・サイトデータを消すと失われるため、ときどきバックアップしておくと安心です。</p>`);
+}
+function renderPresetSheet(){
+  sheetShell('週末仕込みセットを選ぶ',`<p class="hint mt0" style="margin-bottom:12px">タップすると、セットの食材がまとめて在庫に追加されます（あとから個別に増減できます）。</p>
+    ${PRESETS.map(p=>`<button class="preset" data-act="addPreset" data-id="${p.id}"><b>${esc(p.name)}</b><small>${esc(p.desc)}／計${p.items.reduce((a,x)=>a+x[1],0)}食分</small>
+      <span class="em">${p.items.map(x=>PART[x[0]].emoji).join('')}</span></button>`).join('')}`);
+}
+function addPreset(id){
+  const ps=PRESETS.find(p=>p.id===id)||PRESETS[0], t=todayStr();
+  const snap=snapshot();
+  ps.items.forEach(([pid,n,ago])=>addStock(pid,n,null,addDays(t,-ago)));
+  S.suggestions=null; S.seenKeys=[];
+  render(); toast(`✨ ${ps.name}を追加しました`, ()=>restore(snap));
+}
+function exportData(){
+  try{
+    const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download=`kakezan-gohan-backup-${todayStr()}.json`; document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500);
+    toast('💾 バックアップファイルを保存しました');
+  }catch(e){ toast('保存できませんでした'); }
+}
+$('#importFile').addEventListener('change',e=>{
+  const file=e.target.files[0]; e.target.value=''; if(!file) return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const obj=JSON.parse(rd.result);
+      if(!obj||!Array.isArray(obj.stock)||!Array.isArray(obj.favorites)) throw new Error('format');
+      if(!confirm('現在のデータをバックアップの内容で置き換えます。よろしいですか？')) return;
+      obj.stock=obj.stock.filter(b=>PART[b.partId]);
+      obj.favorites=obj.favorites.filter(f=>BASE[f.baseId]);
+      S=Object.assign(DEFAULT_STATE(),obj,{tutorialSeen:true});
+      closeSheetUI(); render(); toast('📂 バックアップから復元しました');
+    }catch(err){ toast('このファイルは読み込めませんでした'); }
+  };
+  rd.readAsText(file);
+});
+
+/* =====================================================================
+   12. オーバーレイ（スマホの「戻る」で閉じられるように履歴と連動）
+   ===================================================================== */
+let skipPop=false;
+function pushOv(){ try{ if(!(history.state&&history.state.ov)) history.pushState({ov:1},''); }catch(e){} }
+function popOv(){ try{ if(history.state&&history.state.ov && !$('#sheet').innerHTML && !MODAL && !TUT){ skipPop=true; history.back(); } }catch(e){} }
+window.addEventListener('popstate',()=>{
+  if(skipPop){ skipPop=false; return; }
+  if(TUT) endTutorial(true);
+  if(MODAL) closeModal();
+  $('#sheet').innerHTML='';
+});
+function closeSheetUI(){ $('#sheet').innerHTML=''; popOv(); }
+function closeModalUI(){ closeModal(); popOv(); }
+
+/* =====================================================================
+   13. アクション
+   ===================================================================== */
+let toastT=null, toastUndo=null;
+function toast(msg,undo){
+  const t=$('#toast'); toastUndo=undo||null;
+  t.innerHTML=esc(msg)+(undo?'<button class="undo" data-act="undo">取り消す</button>':'');
+  t.classList.add('show'); clearTimeout(toastT);
+  toastT=setTimeout(()=>{ t.classList.remove('show'); toastUndo=null; }, undo?4500:2200);
+}
+// 取り消し用スナップショット（ストック・提案・作った履歴）
+const snapshot=()=>JSON.stringify({stock:S.stock,suggestions:S.suggestions,cooked:S.cooked});
+function restore(snap){ const o=JSON.parse(snap); S.stock=o.stock; S.suggestions=o.suggestions; S.cooked=o.cooked; if(MODAL&&MODAL.ref.startsWith('A:')) MODAL.dish=resolveRef(MODAL.ref)||MODAL.dish; render(); if(MODAL) renderModal(); refreshSheetCounts(); }
+function refreshSheetCounts(){ const sm=stockMap(); document.querySelectorAll('#sheet [data-act=addPart]').forEach(b=>{ b.querySelector('.cnt').textContent=sm[b.dataset.id]||''; }); }
 function toggleFav(d){
   const i=S.favorites.findIndex(f=>f.key===d.key);
   if(i>=0){ S.favorites.splice(i,1); toast('お気に入りから外しました'); }
@@ -1443,25 +1638,49 @@ function toggleFav(d){
 const ACTIONS={
   tab:ds=>{ S.tab=ds.tab; render(); window.scrollTo(0,0); },
   people:ds=>{ S.people=+ds.n; render(); if(MODAL) renderModal(); },
+  undo:()=>{ const u=toastUndo; toastUndo=null; $('#toast').classList.remove('show'); if(u){ u(); toast('↩ 取り消しました'); } },
+  // help / tutorial
+  menu:()=>{ renderMenuSheet(); pushOv(); },
+  tutorial:()=>{ if($('#sheet').innerHTML){ $('#sheet').innerHTML=''; TUT={i:0,dontShow:true}; renderTutorial(); } else openTutorial(); },
+  tutNext:()=>{ TUT.i=Math.min(TUT.i+1,TUT_SLIDES.length-1); renderTutorial(); },
+  tutPrev:()=>{ TUT.i=Math.max(TUT.i-1,0); renderTutorial(); },
+  tutCk:()=>{ TUT.dontShow=!TUT.dontShow; renderTutorial(); },
+  tutEnd:()=>endTutorial(),
+  tutStart:ds=>{ const demo=ds.demo; endTutorial(); if(demo){ S.tab='stock'; addPreset('basic'); } },
+  exportData:()=>exportData(),
+  importData:()=>$('#importFile').click(),
+  resetAll:()=>{ if(confirm('すべてのデータ（ストック・お気に入り・献立履歴）を消去します。元に戻せません。よろしいですか？')){ try{localStorage.removeItem(LS_KEY);}catch(e){} S=DEFAULT_STATE(); $('#sheet').innerHTML=''; render(); TUT={i:0,dontShow:true}; renderTutorial(); } },
   // stock
-  openAdd:()=>renderAddSheet(),
-  closeSheet:()=>{ $('#sheet').innerHTML=''; },
+  openAdd:()=>{ renderAddSheet(); pushOv(); },
+  presetSheet:()=>{ renderPresetSheet(); pushOv(); },
+  addPreset:ds=>{ $('#sheet').innerHTML=''; popOv(); addPreset(ds.id); },
+  demo:()=>addPreset('basic'),
+  closeSheet:()=>closeSheetUI(),
   addQty:ds=>{ S.addQty=+ds.n; const sc=$('#sheet .sheet').scrollTop; renderAddSheet(); $('#sheet .sheet').scrollTop=sc; save(); },
-  addPart:(ds,el)=>{ addStock(ds.id,S.addQty); S.suggestions=null; el.querySelector('.cnt').textContent=stockCount(ds.id); render(); toast(`${PART[ds.id].name} を${S.addQty}食分追加`); },
-  demo:()=>{ const t=todayStr(); DEMO_SET.forEach(([id,n,ago])=>addStock(id,n,null,addDays(t,-ago))); S.suggestions=null; S.seenKeys=[]; render(); toast('✨ 週末仕込みセットを追加しました'); },
+  addPart:ds=>{
+    const snap=snapshot();
+    addStock(ds.id,S.addQty); S.addLog[ds.id]=(S.addLog[ds.id]||0)+1; S.suggestions=null;
+    refreshSheetCounts(); render();
+    toast(`${PART[ds.id].name} を${S.addQty}食分追加`, ()=>restore(snap));
+  },
   inc:ds=>{ const b=S.stock.find(x=>x.uid===ds.uid); if(b){ b.count++; S.suggestions=null; render(); } },
-  dec:ds=>{ const b=S.stock.find(x=>x.uid===ds.uid); if(b){ b.count--; if(b.count<=0){ S.stock=S.stock.filter(x=>x!==b); toast(`${PART[b.partId].name} を使い切りました`); } S.suggestions=null; render(); } },
+  dec:ds=>{ const b=S.stock.find(x=>x.uid===ds.uid); if(!b) return; const snap=snapshot(); b.count--;
+    if(b.count<=0){ S.stock=S.stock.filter(x=>x!==b); toast(`${PART[b.partId].name} を使い切りました`, ()=>restore(snap)); }
+    S.suggestions=null; render(); },
   cycleSt:ds=>{ const b=S.stock.find(x=>x.uid===ds.uid); if(b){ b.storage=STORAGE_ORDER[(STORAGE_ORDER.indexOf(b.storage)+1)%3]; render(); } },
   sfilter:ds=>{ S.stockFilter=ds.f; render(); },
-  clearStock:()=>{ if(confirm('ストックをすべて削除しますか？')){ S.stock=[]; S.suggestions=null; render(); } },
+  clearStock:()=>{ const snap=snapshot(); S.stock=[]; S.suggestions=null; render(); toast('ストックをすべてクリアしました', ()=>restore(snap)); },
   // plan
   mode:ds=>{ S.mode=ds.m; render(); },
   shuffle:()=>{ makeSuggestions(); render(); toast('🔀 新しい組み合わせを合成しました'); },
+  swapA:ds=>{ if(swapSuggestion(+ds.i)){ render(); toast('↻ この1品を入れ替えました'); } else toast('手持ちのストックでは他の組み合わせがありません'); },
   cook:ds=>{
     const d=resolveRef(ds.ref); if(!d||d.done) return;
+    const snap=snapshot();
     const msg=dishParts(d).map(id=>{ const got=consumeStock(id,S.people); return `${PART[id].short}−${got}`; }).join('、');
     d.done=true; S.cooked.unshift({key:d.key,at:Date.now()}); S.cooked=S.cooked.slice(0,30);
-    render(); if(MODAL) renderModal(); toast(`🍽 いただきます！ ${msg}`);
+    if(MODAL&&MODAL.ref===ds.ref) MODAL.dish=d;
+    render(); if(MODAL) renderModal(); toast(`🍽 いただきます！ ${msg}`, ()=>restore(snap));
   },
   genWeek:()=>{ S.draft=generateWeek(false); render(); toast('📅 1週間の献立を作成しました'); },
   genNext:()=>{ if(!S.history.length) toast('確定済みの履歴がないため、新規で作成しました'); else toast('🔄 先週と違う組み合わせで作成しました'); S.draft=generateWeek(true); render(); },
@@ -1479,7 +1698,7 @@ const ACTIONS={
   goWeek:()=>{ S.tab='plan'; S.mode='B'; render(); window.scrollTo(0,0); },
   // fav
   fav:ds=>{ const d=resolveRef(ds.ref); if(!d) return; toggleFav(d); render(); if(MODAL) renderModal(); },
-  unfav:ds=>{ S.favorites=S.favorites.filter(f=>f.key!==ds.key); render(); toast('お気に入りから外しました'); },
+  unfav:ds=>{ const keep=S.favorites.slice(); S.favorites=S.favorites.filter(f=>f.key!==ds.key); render(); toast('お気に入りから外しました', ()=>{ S.favorites=keep; render(); }); },
   favPri:()=>{ S.favPriority=!S.favPriority; render(); toast(S.favPriority?'お気に入りを優先採用します':'優先採用をOFFにしました'); },
   dictMode:ds=>{ S.dictMode=ds.m; S.dictSel=null; render(); },
   dictSel:ds=>{ S.dictSel=S.dictSel===ds.id?null:ds.id; render(); },
@@ -1495,20 +1714,21 @@ const ACTIONS={
   },
   resetPrep:()=>{ const p=activePlan(); p.prepDone=false; p.buySnapshot=null; p.prepChecks={}; render(); },
   // modal
-  open:ds=>openModal(ds.ref),
-  closeModal:()=>closeModal(),
+  open:ds=>{ openModal(ds.ref); if(MODAL) pushOv(); },
+  closeModal:()=>closeModalUI(),
   stepck:ds=>{ const i=+ds.i; MODAL.checked.has(i)?MODAL.checked.delete(i):MODAL.checked.add(i); renderModal(); },
   wake:async()=>{ try{ if(wakeLock){ await wakeLock.release(); wakeLock=null; } else { wakeLock=await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release',()=>{wakeLock=null;}); } }catch(e){ toast('この端末では画面点灯を維持できません'); } renderModal(); },
 };
 document.addEventListener('click',e=>{
   const el=e.target.closest('[data-act]'); if(!el) return;
   const a=el.dataset.act;
-  if(a==='backdrop'){ if(e.target!==el) return; if(el.dataset.close==='sheet') $('#sheet').innerHTML=''; else closeModal(); return; }
+  if(a==='backdrop'){ if(e.target!==el) return; if(el.dataset.close==='sheet') closeSheetUI(); else closeModalUI(); return; }
   const fn=ACTIONS[a]; if(fn){ e.preventDefault(); fn(el.dataset,el,e); }
 });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if(MODAL) closeModal(); else $('#sheet').innerHTML=''; } });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if(TUT) endTutorial(); else if(MODAL) closeModalUI(); else if($('#sheet').innerHTML) closeSheetUI(); } });
 
 render();
+if(!S.tutorialSeen) openTutorial();
 </script>
 </body>
 </html>
