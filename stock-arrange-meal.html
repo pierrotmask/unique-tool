@@ -206,23 +206,32 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer;pad
 .stag button{height:32px;padding:0 11px;border-radius:99px;font-size:12.5px;font-weight:600;border:1px solid var(--line);background:#fff;color:var(--sub)}
 .stag button.on{background:var(--green-l);border-color:var(--green-l);color:var(--green);text-decoration:line-through}
 .tip{font-size:12px;color:var(--sub);background:var(--bg);border-radius:12px;padding:10px 12px;margin-top:8px}
-/* tutorial */
-.tut-bk{position:fixed;inset:0;z-index:80;background:rgba(20,28,24,.55);display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s ease}
-.tut{position:relative;background:#fff;border-radius:24px;width:100%;max-width:420px;max-height:calc(100vh - 32px);overflow-y:auto;padding:18px 20px 18px;animation:up .22s ease;box-shadow:0 20px 50px rgba(0,0,0,.25)}
-.tut-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.tut-top span{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em}
-.tut-top button{font-size:13px;font-weight:700;color:var(--sub);height:34px;padding:0 10px;border-radius:10px}
-.tut-ill{min-height:132px;border-radius:18px;background:var(--green-ll);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;margin-bottom:16px;padding:14px;text-align:center}
-.tut-ill .big{font-size:52px;line-height:1}
-.tut-ill .eq{width:100%;font-weight:800;color:var(--green);font-size:15px;margin-top:4px}
-.tut h2{font-size:20px;margin:0 0 8px;color:var(--green);line-height:1.4}
-.tut p{margin:0;font-size:14.5px;line-height:1.8;color:var(--sub)}
-.tut p b{color:var(--ink)}
+/* tour */
+.tour-bk{position:fixed;inset:0;z-index:84}
+.tour-hole{position:fixed;z-index:85;border-radius:14px;box-shadow:0 0 0 9999px rgba(20,28,24,.66);pointer-events:none;transition:all .25s ease}
+.tour-hole:after{content:"";position:absolute;inset:-4px;border-radius:17px;border:3px solid #F7C59F;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.04)}}
+.tour-dim{position:fixed;inset:0;z-index:85;background:rgba(20,28,24,.66);pointer-events:none}
+.tour-bub{position:fixed;z-index:86;background:#fff;border-radius:18px;padding:14px 16px 12px;box-shadow:0 14px 40px rgba(0,0,0,.3);animation:fade .2s ease}
+.tour-bub b{display:block;font-size:16.5px;color:var(--green);line-height:1.4;margin-bottom:4px}
+.tour-bub p{margin:0;font-size:14px;line-height:1.7;color:var(--sub)}
+.tour-bub p b{display:inline;font-size:inherit;color:var(--ink)}
+.tour-step{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.06em;margin-bottom:2px}
+.tour-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+.tour-btns .btn{width:auto;min-width:88px}
+.tour-btns.col{flex-direction:column}
+.tour-btns.col .btn{width:100%}
+.tour-arr{position:absolute;width:16px;height:16px;background:#fff;transform:translateX(-50%) rotate(45deg)}
+.tour-arr.up{top:-7px}
+.tour-arr.down{bottom:-7px}
+.tour-bub .ck-row{margin-top:8px;font-size:12.5px}
+.prof-bar{display:flex;align-items:center;gap:8px;width:100%;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin-bottom:12px;font-size:12.5px;color:var(--sub);text-align:left}
+.prof-bar span:first-child{font-size:18px}
+.prof-bar b{color:var(--ink)}
+.prof-bar .sp{flex:1}
 .dots{display:flex;gap:6px;justify-content:center;margin:18px 0 14px}
 .dots i{width:7px;height:7px;border-radius:9px;background:#D5CFC4;transition:all .2s}
 .dots i.on{width:22px;background:var(--green)}
-.tut-nav{display:grid;grid-template-columns:1fr 2fr;gap:10px}
-.tut-nav.one{grid-template-columns:1fr}
 .ck-row{display:flex;align-items:center;justify-content:center;gap:9px;font-size:13.5px;font-weight:700;color:var(--sub);margin:14px auto 0;padding:6px 10px}
 .ck-row .box{width:22px;height:22px;border-radius:7px;font-size:13px}
 .ck-row.on .box{background:var(--green);border-color:var(--green)}
@@ -337,7 +346,7 @@ textarea.inp{height:auto;padding:10px 12px;line-height:1.6;resize:vertical}
 <nav id="nav"></nav>
 <div id="sheet"></div>
 <div id="modal"></div>
-<div id="tut"></div>
+<div id="tour"></div>
 <div id="toast"></div>
 <input type="file" id="importFile" accept="application/json,.json" hidden>
 
@@ -1075,8 +1084,18 @@ const DEFAULT_STATE = () => ({
   activePlanId:null,
   suggestions:null, seenKeys:[], cooked:[],
   stockFilter:'all', addQty:1, dictMode:'part', dictSel:null,
-  tutorialSeen:false, addLog:{}, extraOn:[], customBases:[], equip:Object.assign({},DEFAULT_EQUIP),
+  tutorialSeen:false, addLog:{}, tipsOn:true, tipsSeen:{}, lastBackupAt:null, extraOn:[], customBases:[], equip:Object.assign({},DEFAULT_EQUIP),
 });
+// ユーザー一覧（同じブラウザで家族が別々に保存できるように、ユーザーごとに保存先を分ける）
+const PROF_KEY = 'kakezan-gohan-profiles';
+function loadProfiles(){
+  try{ const p=JSON.parse(localStorage.getItem(PROF_KEY)); if(p&&Array.isArray(p.list)&&p.list.length&&p.list.some(x=>x.id===p.current)) return p; }catch(e){}
+  return { current:'default', list:[{ id:'default', name:'わたし', emoji:'🙂', createdAt:Date.now() }] };
+}
+let PROF = loadProfiles();
+const dataKey = id=>id==='default' ? LS_KEY : LS_KEY+':'+id;   // 既存データは default としてそのまま引き継ぐ
+const curProfile = ()=>PROF.list.find(p=>p.id===PROF.current)||PROF.list[0];
+function saveProfiles(){ try{ localStorage.setItem(PROF_KEY, JSON.stringify(PROF)); }catch(e){} }
 let S = load();
 // 有効な味付け一覧（BASES）を、基本＋ONの追加調味料＋自作で組み立て直す
 function customToBase(c){
@@ -1126,12 +1145,12 @@ rebuildBases();
 sanitizeState();
 function load(){
   try{
-    const raw = localStorage.getItem(LS_KEY);
+    const raw = localStorage.getItem(dataKey(PROF.current));
     if(!raw) return DEFAULT_STATE();
     return Object.assign(DEFAULT_STATE(), JSON.parse(raw));
   }catch(e){ return DEFAULT_STATE(); }
 }
-function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){} }
+function save(){ try{ localStorage.setItem(dataKey(PROF.current), JSON.stringify(S)); }catch(e){} }
 
 /* =====================================================================
    5. ユーティリティ
@@ -1521,11 +1540,10 @@ function formulaHTML(d,showStock){
 function render(){
   renderHeader(); renderNav();
   const m=$('#main');
-  if(S.tab==='stock') m.innerHTML=renderStock();
-  else if(S.tab==='plan') m.innerHTML=renderPlan();
-  else if(S.tab==='fav') m.innerHTML=renderFav();
-  else m.innerHTML=renderShop();
+  const body = S.tab==='stock'?renderStock() : S.tab==='plan'?renderPlan() : S.tab==='fav'?renderFav() : renderShop();
+  m.innerHTML=profileBar()+body;
   save();
+  if(TOUR) drawTour(); else maybeTip();
 }
 function renderHeader(){
   $('#hdr').innerHTML=`<div class="hdr-in">
@@ -1580,7 +1598,7 @@ function renderStock(){
     <div class="btn-row"><button class="btn primary" data-act="openAdd">＋ ストックを追加</button><button class="btn outline" data-act="presetSheet">✨ 週末仕込み<br>セットを一括追加</button></div>
     ${S.stock.length?`<div class="chips" style="margin-top:16px">${[['all','すべて',S.stock.length],['protein','タンパク質',null],['veg','野菜・きのこ',null],['soon','期限が近い',soon]].map(([k,l,c])=>`<button class="chip ${S.stockFilter===k?'on':''}" data-act="sfilter" data-f="${k}">${l}${c!=null?`<span class="c">${c}</span>`:''}</button>`).join('')}</div>`:''}
     ${list}
-    ${S.stock.length?`<p class="hint">💡 保存区分のバッジをタップすると「冷凍→冷蔵→常備」を切り替えられます。0食分にすると自動で一覧から消えます。登録パーツ ${kinds}種</p><button class="link" data-act="clearStock">ストックをすべてクリア</button>`:''}`;
+    ${S.stock.length?`<p class="hint">💡 保存区分のバッジをタップすると「冷凍→冷蔵→常備」を切り替えられます。0食分にすると自動で一覧から消えます。登録パーツ ${kinds}種</p>${(!S.lastBackupAt||daysSince(S.lastBackupAt)>=30)&&S.stock.length>=5?`<div class="tip" style="display:flex;align-items:center;gap:8px">💾<span style="flex:1">${S.lastBackupAt?'前回のバックアップから30日以上たっています':'データはこの端末にだけ保存されています。念のためバックアップを'}</span><button class="swap" data-act="exportData">保存</button></div>`:''}<button class="link" data-act="clearStock">ストックをすべてクリア</button>`:''}`;
 }
 function renderAddSheet(){
   const sm=stockMap();
@@ -1824,62 +1842,104 @@ function renderModal(){
 function closeModal(){ MODAL=null; if(wakeLock){ try{wakeLock.release();}catch(e){} wakeLock=null; } renderModal(); }
 
 /* =====================================================================
-   10. チュートリアル（初回のみ表示・右上の「?」からいつでも再表示）
+   10. 使い方ガイド（オーバーレイ形式）
+   ・初回：実際の画面の大事な3か所をスポットライトで案内（ようこそツアー）
+   ・各画面：はじめて開いたときだけ、その場で使うボタンを1〜3個だけ案内（その場ヒント）
+   覚えることを最小限にし、必要になったタイミングで教える。
    ===================================================================== */
-const TUT_SLIDES = [
-  { ill:`<span class="fp">🍗蒸し鶏</span><span class="fx">×</span><span class="fp">🥬キャベツ</span><span class="fx">×</span><span class="fp base">ねぎ塩レモン</span><div class="eq">＝ 今日の一品！</div>`,
-    title:'ようこそ、かけ算ごはんへ',
-    body:'週末に下処理しておいた食材（<b>ストックパーツ</b>）と<b>味付け</b>を掛け算して、毎日ちがう料理を自動で提案します。平日は5〜10分で仕上げるだけ。まずは使い方を1分でご紹介します。' },
-  { ill:'<span class="big">🧊</span>',
-    title:'① ストックを登録する',
-    body:'「<b>下処理ストック</b>」タブで、作り置きした食材をタップするだけで登録できます。<b>週末仕込みセット</b>を選べば一括で登録。消費期限が近いものはバッジでお知らせします。' },
-  { ill:'<span class="big">🍳</span>',
-    title:'② 今日のアレンジを見る',
-    body:'「<b>アレンジ献立</b>」→「今日のアレンジ」で、手持ちのストックだけで作れる料理を3〜5品提案します。気分に合わなければ🔀シャッフル。作ったら<b>ボタン1つで在庫が自動で減ります</b>。' },
-  { ill:'<span class="big">📅</span>',
-    title:'③ 1週間の献立をおまかせ',
-    body:'「1週間献立」でボタンを押すと、月〜日の7日分を自動で作成。<b>毎日ジャンル（和・洋・中・韓）が変わる</b>ように調整します。気分に合わない日は「↻ 別アレンジ」で1品だけ変更できます。' },
-  { ill:'<span class="big">🛒</span>',
-    title:'④ 買い物と週末の仕込み',
-    body:'献立を確定すると、在庫を差し引いた<b>買い物リスト</b>と<b>下処理の手順</b>が自動で完成。仕込みが終わったら「仕込み完了」を押すだけで、在庫にまとめて登録されます。' },
-  { ill:'<span class="big">👩‍🍳</span>',
-    title:'⑤ 料理名をタップして調理',
-    body:'分量・調味料・手順を大きな文字で表示する<b>キッチンモード</b>になります。分量は画面上部の人数（1〜4人）に合わせて自動換算。★でお気に入り保存も。<br>持っている<b>調理器具や調味料</b>、この説明は、右上の「<b>?</b>」からいつでも設定・見返しできます。' },
+const WELCOME_TOUR = [
+  { sel:'#main [data-act=presetSheet]', before:()=>{ if(S.tab!=='stock'){ S.tab='stock'; render(); } },
+    title:'ようこそ！まずはここから', text:'週末に作り置きした食材を登録すると、毎日の料理を自動で提案します。<b>「週末仕込みセット」</b>なら1タップでお試しできます。' },
+  { sel:'#nav [data-tab=plan]', title:'料理の提案はここ', text:'今日作れる料理と1週間の献立はこのタブ。献立を確定すると、隣の<b>「買い物・仕込み」</b>にリストができます。' },
+  { sel:'#hdr .help', title:'困ったらここ', text:'使い方の見直し、調理器具・調味料の設定、<b>バックアップ</b>、<b>ユーザー切り替え</b>はここから。各画面のくわしい使い方は、はじめて開いたときにその場でご案内します。', last:true },
 ];
-let TUT=null;
-function openTutorial(){ TUT={ i:0, dontShow:true }; renderTutorial(); pushOv(); }
-function renderTutorial(){
-  if(!TUT){ $('#tut').innerHTML=''; return; }
-  const sl=TUT_SLIDES[TUT.i], last=TUT.i===TUT_SLIDES.length-1, first=TUT.i===0;
-  const empty=!S.stock.length;
-  $('#tut').innerHTML=`<div class="tut-bk"><div class="tut" role="dialog" aria-modal="true" aria-label="使い方">
-    <div class="tut-top"><span>使い方 ${TUT.i+1} / ${TUT_SLIDES.length}</span>${last?'':'<button data-act="tutEnd">スキップ</button>'}</div>
-    <div class="tut-ill">${sl.ill}</div>
-    <h2>${sl.title}</h2><p>${sl.body}</p>
-    <div class="dots">${TUT_SLIDES.map((_,k)=>`<i class="${k===TUT.i?'on':''}"></i>`).join('')}</div>
-    ${last
-      ? `<div class="btn-col mt0">${empty?'<button class="btn primary" data-act="tutStart" data-demo="1">✨ お試しセットを入れて始める</button>':''}
-          <button class="btn ${empty?'outline':'primary'}" data-act="tutStart">${empty?'空のまま始める':'はじめる'}</button>
-          <button class="btn ghost" data-act="tutPrev">← 戻る</button></div>`
-      : `<div class="tut-nav ${first?'one':''}">${first?'':'<button class="btn soft" data-act="tutPrev">← 戻る</button>'}<button class="btn green" data-act="tutNext">次へ →</button></div>`}
-    <button class="ck-row ${TUT.dontShow?'on':''}" data-act="tutCk"><span class="box">${TUT.dontShow?'✓':''}</span>次回から使い方を表示しない</button>
-  </div></div>`;
+// 画面ごとのその場ヒント（cond を満たしたとき、はじめての1回だけ表示）
+const TIPS = {
+  planA:{ cond:()=>S.tab==='plan'&&S.mode==='A'&&document.querySelector('#main .dish [data-act=cook]'), steps:[
+    { sel:'#main .dish .d-name', title:'料理名をタップ', text:'分量・調味料・手順が大きな文字で表示されます（キッチンモード）。' },
+    { sel:'#main .dish [data-act=cook]', title:'作ったらここを押す', text:'使ったストックが自動で減ります。間違えても「取り消す」で戻せます。' },
+    { sel:'#main [data-act=shuffle]', title:'気分じゃなければ', text:'別の組み合わせを提案します。1品だけ替えたいときはカードの「↻」を。' } ] },
+  planB:{ cond:()=>S.tab==='plan'&&S.mode==='B'&&!S.draft, steps:[
+    { sel:'#main [data-act=genWeek]', title:'ボタン1つで7日分', text:'和・洋・中・韓が毎日変わるように、ストックを優先して自動で作ります。' } ] },
+  planB2:{ cond:()=>S.tab==='plan'&&S.mode==='B'&&S.draft&&document.querySelector('#main [data-act=confirm]'), steps:[
+    { sel:'#main .day .swap', title:'気分に合わない日は', text:'その料理だけ別のアレンジに差し替えられます。' },
+    { sel:'#main [data-act=confirm]', title:'決まったら確定', text:'買い物リストと週末の仕込み手順が自動で作られます。' } ] },
+  shop:{ cond:()=>S.tab==='shop'&&document.querySelector('#main [data-act=prepDone]'), steps:[
+    { sel:'#main .chk', title:'買ったらタップ', text:'チェックで消し込めます。家にある分はストックから自動で差し引き済みです。' },
+    { sel:'#main [data-act=prepDone]', title:'仕込みが終わったら', text:'ボタン1つで、作ったパーツが在庫にまとめて登録されます。' } ] },
+  fav:{ cond:()=>S.tab==='fav', steps:[
+    { sel:'#main .mode', title:'逆引き図鑑', text:'食材や味付けから、作れる料理を全部探せます。気に入った料理は★でお気に入りに。' } ] },
+};
+let TOUR=null, tipsReady=false;
+function startTour(steps,kind,key){
+  TOUR={ steps, i:0, kind, key, dontShow:true };
+  document.body.style.overflow='hidden';
+  pushOv(); showTourStep();
 }
-function endTutorial(fromBack){
-  if(!TUT) return;
-  S.tutorialSeen = TUT.dontShow ? true : false;
-  TUT=null; renderTutorial(); save();
+function startWelcome(){ startTour(WELCOME_TOUR,'welcome'); }
+function showTourStep(){
+  const st=TOUR.steps[TOUR.i];
+  if(st.before) st.before();
+  const el=document.querySelector(st.sel);
+  if(el&&!el.closest('#nav,#hdr')){
+    const r=el.getBoundingClientRect(), top=r.top, vh=innerHeight;
+    if(top<90||r.bottom>vh-240) window.scrollTo(0, window.scrollY+top-Math.max(90,vh*0.28));
+  }
+  drawTour();
+}
+function drawTour(){
+  const box=$('#tour');
+  if(!TOUR){ box.innerHTML=''; return; }
+  const st=TOUR.steps[TOUR.i], n=TOUR.steps.length, last=TOUR.i===n-1;
+  const el=document.querySelector(st.sel); const r=el?el.getBoundingClientRect():null;
+  const pad=6, W=innerWidth, H=innerHeight, bw=Math.min(340,W-24);
+  let hole='', bubStyle='', arrow='';
+  if(r&&r.width){
+    const L=Math.max(4,r.left-pad), T=Math.max(4,r.top-pad), R=Math.min(W-4,r.right+pad), B=Math.min(H-4,r.bottom+pad);
+    hole=`<div class="tour-hole" style="left:${L}px;top:${T}px;width:${R-L}px;height:${B-T}px"></div>`;
+    const below=H-B, above=T, cx=(L+R)/2;
+    const left=Math.min(Math.max(12,cx-bw/2),W-bw-12), ax=Math.min(Math.max(22,cx-left),bw-22);
+    if(below>=above){ bubStyle=`top:${B+14}px;left:${left}px;width:${bw}px`; arrow=`<i class="tour-arr up" style="left:${ax}px"></i>`; }
+    else { bubStyle=`bottom:${H-T+14}px;left:${left}px;width:${bw}px`; arrow=`<i class="tour-arr down" style="left:${ax}px"></i>`; }
+  } else {
+    hole='<div class="tour-dim"></div>';
+    bubStyle=`top:50%;left:${(W-bw)/2}px;width:${bw}px;transform:translateY(-50%)`;
+  }
+  const empty=!S.stock.length;
+  let btns;
+  if(last&&TOUR.kind==='welcome'){
+    btns=`${empty?'<button class="btn primary sm" data-act="tourStart" data-demo="1">✨ お試しセットで始める</button>':''}<button class="btn ${empty?'soft':'green'} sm" data-act="tourStart">${empty?'自分で登録する':'はじめる'}</button>`;
+  } else {
+    btns=`<button class="btn ghost sm" data-act="tourEnd">${TOUR.kind==='welcome'?'スキップ':'閉じる'}</button><button class="btn green sm" data-act="tourNext">${last?'OK':'次へ'}</button>`;
+  }
+  box.innerHTML=`<div class="tour-bk" data-act="tourTap"></div>${hole}
+    <div class="tour-bub" style="${bubStyle}" role="dialog" aria-modal="true" aria-label="使い方ガイド">${arrow}
+      ${n>1?`<div class="tour-step">${TOUR.i+1} / ${n}</div>`:''}
+      <b>${st.title}</b><p>${st.text}</p>
+      <div class="tour-btns ${last&&TOUR.kind==='welcome'?'col':''}">${btns}</div>
+      ${last&&TOUR.kind==='welcome'?`<button class="ck-row ${TOUR.dontShow?'on':''}" data-act="tourCk"><span class="box">${TOUR.dontShow?'✓':''}</span>次回からこの案内を表示しない</button>`:''}
+    </div>`;
+}
+function endTour(fromBack){
+  if(!TOUR) return;
+  if(TOUR.kind==='welcome'){ S.tutorialSeen=!!TOUR.dontShow; tipsReady=true; }
+  else { S.tipsSeen=S.tipsSeen||{}; S.tipsSeen[TOUR.key]=true; }
+  TOUR=null; drawTour(); document.body.style.overflow=''; save();
   if(!fromBack) popOv();
 }
-// スワイプでページ送り
-let tutX=null;
-document.addEventListener('touchstart',e=>{ if(TUT&&e.target.closest('.tut')) tutX=e.touches[0].clientX; },{passive:true});
-document.addEventListener('touchend',e=>{
-  if(!TUT||tutX==null) return; const dx=e.changedTouches[0].clientX-tutX; tutX=null;
-  if(Math.abs(dx)<50) return;
-  if(dx<0&&TUT.i<TUT_SLIDES.length-1) TUT.i++; else if(dx>0&&TUT.i>0) TUT.i--; else return;
-  renderTutorial();
-},{passive:true});
+// 画面を開いたときに、条件を満たす未表示のヒントがあれば出す
+let tipTimer=null;
+function maybeTip(){
+  clearTimeout(tipTimer);
+  tipTimer=setTimeout(()=>{
+    if(TOUR||MODAL||$('#sheet').innerHTML||!S.tipsOn||!tipsReady) return;
+    for(const [key,t] of Object.entries(TIPS)){
+      if((S.tipsSeen||{})[key]) continue;
+      if(t.cond()){ const steps=t.steps.filter(s=>document.querySelector(s.sel)); if(steps.length){ startTour(steps,'tip',key); } return; }
+    }
+  },450);
+}
+window.addEventListener('resize',()=>{ if(TOUR) drawTour(); });
 
 /* =====================================================================
    11. ヘルプ・設定メニュー／プリセット／バックアップ
@@ -1890,13 +1950,47 @@ function sheetShell(title,inner){
 }
 function renderMenuSheet(){
   sheetShell('使い方・設定',`
-    <button class="menu-item" data-act="tutorial"><span class="mi">📖</span><span>使い方（チュートリアル）を見る<small>初回に表示された説明をもう一度見られます</small></span></button>
+    <button class="menu-item" data-act="tutorial"><span class="mi">📖</span><span>使い方ガイドをもう一度見る<small>はじめの案内と、各画面のヒントをもう一度表示します</small></span></button>
+    <button class="menu-item" data-act="toggleTips"><span class="mi">💡</span><span>画面ごとのヒント<small>はじめて開いた画面で、使うボタンをその場で案内します</small></span><span class="sp" style="flex:1"></span><span class="sw ${S.tipsOn?'on':''}" aria-hidden="true"></span></button>
+    <button class="menu-item" data-act="profileSheet"><span class="mi">${curProfile().emoji}</span><span>ユーザー切り替え（${esc(curProfile().name)}）<small>家族で同じブラウザを使うとき、データを人ごとに分けて保存</small></span></button>
     <button class="menu-item" data-act="equipSheet"><span class="mi">🍳</span><span>調理器具の設定<small>持っている器具に合わせて料理を提案（オーブン・せいろ・ノンフライヤーなど）</small></span></button>
     <button class="menu-item" data-act="seasonSheet"><span class="mi">🧂</span><span>調味料をカスタマイズ<span class="tagx">上級者向け</span><small>塩麹・醤油麹など手持ちの調味料を追加／自分だけの味付けを作る</small></span></button>
-    <button class="menu-item" data-act="exportData"><span class="mi">💾</span><span>データをバックアップ<small>ストック・お気に入り・履歴をファイルに保存</small></span></button>
+    <button class="menu-item" data-act="exportData"><span class="mi">💾</span><span>データをバックアップ<small>${esc(curProfile().name)}のストック・お気に入り・履歴・設定をファイルに保存／前回：${S.lastBackupAt?fmtMD(S.lastBackupAt)+'（'+daysSince(S.lastBackupAt)+'日前）':'まだしていません'}</small></span></button>
     <button class="menu-item" data-act="importData"><span class="mi">📂</span><span>バックアップから復元<small>保存したファイルを読み込みます（機種変更時にも）</small></span></button>
-    <button class="menu-item danger" data-act="resetAll"><span class="mi">🗑️</span><span>すべてのデータを初期化<small>この端末に保存した内容をすべて消去します</small></span></button>
+    <button class="menu-item danger" data-act="resetAll"><span class="mi">🗑️</span><span>データを初期化<small>${esc(curProfile().name)}のデータを消去します（他のユーザーのデータは残ります）</small></span></button>
     <p class="hint" style="margin-top:14px">データはこの端末のブラウザ内だけに保存され、外部には送信されません。ブラウザの履歴・サイトデータを消すと失われるため、ときどきバックアップしておくと安心です。</p>`);
+}
+/* ---------- ユーザー（同じブラウザを家族で共有するとき用） ---------- */
+const PROFILE_EMOJI = ['🙂','👩','👨','👧','👦','👵','👴','🧑‍🍳','🐱','🐶'];
+function renderProfileSheet(){
+  const prevSc=$('#sheet .sheet')?$('#sheet .sheet').scrollTop:0;
+  const one=PROF.list.length<=1;
+  sheetShell('ユーザー切り替え',`
+    <div class="info-box">同じスマホ・ブラウザを家族などで使うときに、<b>ストック・献立・お気に入り・設定をユーザーごとに分けて保存</b>できます。<br><small style="color:var(--sub)">※パスワードはないため、他の人に見られたくない情報の保護には使えません。別のスマホやブラウザのデータとは共有されません。</small></div>
+    <div class="list" style="margin-top:12px">${PROF.list.map(p=>{ const cur=p.id===PROF.current;
+      return `<div class="pk-row"><span class="emo" style="width:40px;height:40px">${p.emoji}</span><div class="tx"><b>${esc(p.name)}</b>${cur?'<span class="tagx" style="background:var(--green-l);color:var(--green)">使用中</span>':''}</div>
+        ${cur?'':`<button class="swap" data-act="profSwitch" data-id="${p.id}">切り替え</button>`}
+        <button class="swap" data-act="profRename" data-id="${p.id}" aria-label="名前を変更">✎</button>
+        ${one?'':`<button class="x" data-act="profDel" data-id="${p.id}" aria-label="削除">×</button>`}</div>`; }).join('')}</div>
+    <div class="fl" style="margin-top:18px">ユーザーを追加</div>
+    <input id="prof_name" class="inp" maxlength="12" placeholder="例：ママ、パパ、ひとり暮らし用">
+    <div class="gtab" style="margin-top:8px" id="prof_emoji">${PROFILE_EMOJI.map((e,i)=>`<button class="bbtn ${i===1?'on':''}" style="font-size:20px;color:var(--green)" data-act="profEmoji" data-e="${e}">${e}</button>`).join('')}</div>
+    <div class="btn-col"><button class="btn outline" data-act="profAdd">＋ 追加して切り替える</button></div>`);
+  $('#sheet .sheet').scrollTop=prevSc;
+}
+function switchProfile(id){
+  save();
+  PROF.current=id; saveProfiles();
+  S=load(); rebuildBases(); sanitizeState();
+  MODAL=null; renderModal(); $('#sheet').innerHTML='';
+  render(); window.scrollTo(0,0);
+  toast(`${curProfile().emoji} ${curProfile().name} に切り替えました`);
+  if(!S.tutorialSeen){ tipsReady=false; startWelcome(); } else tipsReady=true;
+}
+function profileBar(){
+  if(PROF.list.length<=1) return '';
+  const p=curProfile();
+  return `<button class="prof-bar" data-act="profileSheet"><span>${p.emoji}</span><b>${esc(p.name)}</b> のデータを表示中<span class="sp"></span>切り替え ▾</button>`;
 }
 function renderPresetSheet(){
   sheetShell('週末仕込みセットを選ぶ',`<p class="hint mt0" style="margin-bottom:12px">タップすると、セットの食材がまとめて在庫に追加されます（あとから個別に増減できます）。</p>
@@ -1912,11 +2006,12 @@ function addPreset(id){
 }
 function exportData(){
   try{
-    const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});
+    S.lastBackupAt=todayStr(); save();
+    const blob=new Blob([JSON.stringify(Object.assign({},S,{_profile:{name:curProfile().name,emoji:curProfile().emoji},_app:'kakezan-gohan'}),null,1)],{type:'application/json'});
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-    a.download=`kakezan-gohan-backup-${todayStr()}.json`; document.body.appendChild(a); a.click();
+    a.download=`kakezan-gohan-backup-${todayStr()}${PROF.list.length>1?'-user'+(PROF.list.indexOf(curProfile())+1):''}.json`; document.body.appendChild(a); a.click();
     setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500);
-    toast('💾 バックアップファイルを保存しました');
+    toast(`💾 ${a.download} を保存しました`); if($('#sheet').innerHTML) renderMenuSheet();
   }catch(e){ toast('保存できませんでした'); }
 }
 $('#importFile').addEventListener('change',e=>{
@@ -1926,7 +2021,8 @@ $('#importFile').addEventListener('change',e=>{
     try{
       const obj=JSON.parse(rd.result);
       if(!obj||!Array.isArray(obj.stock)||!Array.isArray(obj.favorites)) throw new Error('format');
-      if(!confirm('現在のデータをバックアップの内容で置き換えます。よろしいですか？')) return;
+      if(!confirm(`「${curProfile().name}」のデータを、バックアップの内容で置き換えます。よろしいですか？`)) return;
+      delete obj._profile; delete obj._app;
       obj.stock=obj.stock.filter(b=>PART[b.partId]);
       S=Object.assign(DEFAULT_STATE(),obj,{tutorialSeen:true});
       rebuildBases(); sanitizeState();
@@ -2028,10 +2124,10 @@ function renderEquipSheet(){
    ===================================================================== */
 let skipPop=false;
 function pushOv(){ try{ if(!(history.state&&history.state.ov)) history.pushState({ov:1},''); }catch(e){} }
-function popOv(){ try{ if(history.state&&history.state.ov && !$('#sheet').innerHTML && !MODAL && !TUT){ skipPop=true; history.back(); } }catch(e){} }
+function popOv(){ try{ if(history.state&&history.state.ov && !$('#sheet').innerHTML && !MODAL && !TOUR){ skipPop=true; history.back(); } }catch(e){} }
 window.addEventListener('popstate',()=>{
   if(skipPop){ skipPop=false; return; }
-  if(TUT) endTutorial(true);
+  if(TOUR) endTour(true);
   if(MODAL) closeModal();
   $('#sheet').innerHTML='';
 });
@@ -2063,12 +2159,29 @@ const ACTIONS={
   undo:()=>{ const u=toastUndo; toastUndo=null; $('#toast').classList.remove('show'); if(u){ u(); toast('↩ 取り消しました'); } },
   // help / tutorial
   menu:()=>{ renderMenuSheet(); pushOv(); },
-  tutorial:()=>{ if($('#sheet').innerHTML){ $('#sheet').innerHTML=''; TUT={i:0,dontShow:true}; renderTutorial(); } else openTutorial(); },
-  tutNext:()=>{ TUT.i=Math.min(TUT.i+1,TUT_SLIDES.length-1); renderTutorial(); },
-  tutPrev:()=>{ TUT.i=Math.max(TUT.i-1,0); renderTutorial(); },
-  tutCk:()=>{ TUT.dontShow=!TUT.dontShow; renderTutorial(); },
-  tutEnd:()=>endTutorial(),
-  tutStart:ds=>{ const demo=ds.demo; endTutorial(); if(demo){ S.tab='stock'; addPreset('basic'); } },
+  tutorial:()=>{ $('#sheet').innerHTML=''; S.tipsSeen={}; S.tipsOn=true; tipsReady=false; S.tab='stock'; render(); window.scrollTo(0,0);
+    TOUR={ steps:WELCOME_TOUR, i:0, kind:'welcome', dontShow:true }; document.body.style.overflow='hidden'; showTourStep(); },
+  tourNext:()=>{ if(TOUR.i<TOUR.steps.length-1){ TOUR.i++; showTourStep(); } else endTour(); },
+  tourTap:()=>{ ACTIONS.tourNext(); },
+  tourCk:()=>{ TOUR.dontShow=!TOUR.dontShow; drawTour(); },
+  tourEnd:()=>endTour(),
+  tourStart:ds=>{ const demo=ds.demo; endTour(); if(demo){ S.tab='stock'; addPreset('basic'); } else render(); },
+  toggleTips:()=>{ S.tipsOn=!S.tipsOn; save(); renderMenuSheet(); toast(S.tipsOn?'💡 画面ごとのヒントをONにしました':'画面ごとのヒントをOFFにしました'); },
+  profileSheet:()=>{ const had=!!$('#sheet').innerHTML; renderProfileSheet(); if(!had) pushOv(); },
+  profEmoji:(ds,el)=>{ document.querySelectorAll('#prof_emoji .bbtn').forEach(b=>b.classList.toggle('on',b===el)); },
+  profAdd:()=>{ const name=$('#prof_name').value.trim(); if(!name){ toast('ユーザー名を入力してください'); $('#prof_name').focus(); return; }
+    if(PROF.list.length>=8){ toast('ユーザーは8人までです'); return; }
+    const em=($('#prof_emoji .bbtn.on')||{}).dataset; const id='u'+uid();
+    PROF.list.push({ id, name, emoji:(em&&em.e)||'🙂', createdAt:Date.now() }); popOv(); switchProfile(id); },
+  profSwitch:ds=>{ popOv(); switchProfile(ds.id); },
+  profRename:ds=>{ const p=PROF.list.find(x=>x.id===ds.id); const n=prompt('新しい名前（12文字まで）',p.name); if(n&&n.trim()){ p.name=n.trim().slice(0,12); saveProfiles(); renderProfileSheet(); render(); } },
+  profDel:ds=>{ const p=PROF.list.find(x=>x.id===ds.id); if(!p||PROF.list.length<=1) return;
+    if(!confirm(`「${p.name}」と、そのユーザーのデータをすべて削除します。元に戻せません。よろしいですか？`)) return;
+    try{ localStorage.removeItem(dataKey(p.id)); }catch(e){}
+    PROF.list=PROF.list.filter(x=>x.id!==p.id); saveProfiles();
+    if(PROF.current===p.id){ PROF.current=PROF.list[0].id; saveProfiles(); S=load(); rebuildBases(); sanitizeState(); render(); }
+    else render();
+    renderProfileSheet(); toast('ユーザーを削除しました'); },
   equipSheet:()=>{ const had=!!$('#sheet').innerHTML; renderEquipSheet(); if(!had) pushOv(); },
   toggleEquip:ds=>{
     S.equip[ds.id]=!hasEq(ds.id); rebuildBases(); S.suggestions=null;
@@ -2090,7 +2203,7 @@ const ACTIONS={
   cfSave:ds=>{ if(saveCustomForm(ds.id)){ renderSeasonSheet(); render(); toast(ds.id?'✍️ 味付けを更新しました':'✍️ オリジナルの味付けを追加しました'); } },
   exportData:()=>exportData(),
   importData:()=>$('#importFile').click(),
-  resetAll:()=>{ if(confirm('すべてのデータ（ストック・お気に入り・献立履歴）を消去します。元に戻せません。よろしいですか？')){ try{localStorage.removeItem(LS_KEY);}catch(e){} S=DEFAULT_STATE(); rebuildBases(); $('#sheet').innerHTML=''; render(); TUT={i:0,dontShow:true}; renderTutorial(); } },
+  resetAll:()=>{ if(confirm(`「${curProfile().name}」のデータ（ストック・お気に入り・献立履歴・設定）を消去します。元に戻せません。よろしいですか？`)){ try{localStorage.removeItem(dataKey(PROF.current));}catch(e){} S=DEFAULT_STATE(); rebuildBases(); $('#sheet').innerHTML=''; render(); tipsReady=false; TOUR={ steps:WELCOME_TOUR, i:0, kind:'welcome', dontShow:true }; document.body.style.overflow='hidden'; showTourStep(); } },
   // stock
   openAdd:()=>{ renderAddSheet(); pushOv(); },
   presetSheet:()=>{ renderPresetSheet(); pushOv(); },
@@ -2169,10 +2282,10 @@ document.addEventListener('click',e=>{
   if(a==='backdrop'){ if(e.target!==el) return; if(el.dataset.close==='sheet') closeSheetUI(); else closeModalUI(); return; }
   const fn=ACTIONS[a]; if(fn){ e.preventDefault(); fn(el.dataset,el,e); }
 });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if(TUT) endTutorial(); else if(MODAL) closeModalUI(); else if($('#sheet').innerHTML) closeSheetUI(); } });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if(TOUR) endTour(); else if(MODAL) closeModalUI(); else if($('#sheet').innerHTML) closeSheetUI(); } });
 
 render();
-if(!S.tutorialSeen) openTutorial();
+if(!S.tutorialSeen) startWelcome(); else { tipsReady=true; maybeTip(); }
 </script>
 </body>
 </html>
