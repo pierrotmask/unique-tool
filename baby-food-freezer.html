@@ -138,6 +138,8 @@ p.lead{margin:0 0 12px;color:var(--muted);font-size:14px}
 .ctr.has{border-color:var(--sage);background:var(--sage-soft)}
 .ctr .lb{font-size:11px;color:var(--muted);text-align:center;line-height:1.2}
 .ctr .lb b{display:block;font-size:15px;color:var(--ink)}
+.ctr .num{display:block;width:64px;height:38px;margin:2px auto 0;border:1px solid var(--line);border-radius:8px;background:#fff;text-align:center;font-size:16px;font-weight:700;color:var(--ink);font-family:inherit;padding:0 2px}
+.ctr .num:focus{outline:2px solid var(--sage);border-color:var(--sage)}
 .ctr button{width:44px;height:44px;border-radius:10px;border:0;background:#fff;font-size:22px;font-weight:700;color:var(--sage);box-shadow:0 1px 3px rgba(0,0,0,.08);cursor:pointer}
 .ctr.dis{opacity:.45}
 
@@ -582,23 +584,66 @@ function defaultState(){
   return {
     settings:{stage:1, ng:[], challenge:false, tried:DEFAULT_TRIED.slice()},
     stock:{fresh:{}, cubes:{}},
-    plan:null, history:[], checks:{}, tab:'plan',
+    schema:2, plan:null, history:[], checks:{}, tab:'plan',
     invFilter:'all', invOnly:false
   };
 }
+/* 保存データの版数。データ構造を変えるときはここを上げ、migrate() に変換処理を足す。
+   保存キー LS_KEY は今後も変えない（変えると既存の在庫・履歴が読めなくなるため）。 */
+const SCHEMA = 2;
+function toNum(v, int){
+  const n = Number(v);
+  if(!isFinite(n) || n<=0) return 0;
+  return int ? Math.round(n) : Math.round(n*10)/10;
+}
+/* 在庫は食材IDごとの数値。今のバージョンに無い食材IDも消さずに残す（将来戻っても失われない） */
+function cleanStock(st){
+  const out = {fresh:{}, cubes:{}};
+  ['fresh','cubes'].forEach(k=>{
+    const src = (st && typeof st[k]==='object' && st[k]) || {};
+    Object.keys(src).forEach(id=>{ const n=toNum(src[id], k==='cubes'); if(n) out[k][id]=n; });
+  });
+  return out;
+}
+function migrate(d){
+  const base = defaultState();
+  const out = Object.assign(base, d);           /* 知らない項目もそのまま保持 */
+  out.settings = Object.assign(defaultState().settings, (d && d.settings) || {});
+  const stg = Number(out.settings.stage);
+  out.settings.stage = [0,1,2,3].includes(stg) ? stg : 1;
+  if(!Array.isArray(out.settings.ng)) out.settings.ng = [];
+  if(!Array.isArray(out.settings.tried)) out.settings.tried = DEFAULT_TRIED.slice();
+  out.settings.challenge = !!out.settings.challenge;
+  out.stock = cleanStock(d && d.stock);
+  out.history = Array.isArray(d && d.history) ? d.history.filter(h=>h && Array.isArray(h.days)) : [];
+  out.checks = (d && d.checks && typeof d.checks==='object') ? d.checks : {};
+  if(out.plan && !(Array.isArray(out.plan.days) && out.plan.ctx && out.plan.ctx.core)) out.plan = null;
+  if(!['settings','stock','plan','shop'].includes(out.tab)) out.tab = 'plan';
+  out.schema = SCHEMA;
+  return out;
+}
+let loadNotice = '';
 function load(){
+  let raw = null;
+  try{ raw = localStorage.getItem(LS_KEY); }catch(e){ loadNotice='このブラウザでは保存が使えません（プライベートモード等）。'; return defaultState(); }
+  if(!raw) return defaultState();
   try{
-    const raw = localStorage.getItem(LS_KEY);
-    if(!raw) return defaultState();
-    const d = JSON.parse(raw), base = defaultState();
-    return Object.assign(base, d, {
-      settings:Object.assign(base.settings, d.settings||{}),
-      stock:Object.assign(base.stock, d.stock||{})
-    });
-  }catch(e){ return defaultState(); }
+    const d = JSON.parse(raw);
+    const ver = Number(d && d.schema) || 1;
+    if(ver !== SCHEMA){ try{ localStorage.setItem(LS_KEY+'_backup_v'+ver, raw); }catch(e){} }  /* 移行前の状態を退避 */
+    return migrate(d || {});
+  }catch(e){
+    /* 読めないデータは上書きせず別キーに退避してから初期状態で起動 */
+    try{ localStorage.setItem(LS_KEY+'_broken_'+Date.now(), raw); }catch(_){}
+    loadNotice = '保存データを読み込めなかったため、初期状態で起動しました（元のデータは端末内に退避済み）。';
+    return defaultState();
+  }
 }
 let S = load();
-function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){} }
+function save(){
+  try{ S.schema = SCHEMA; localStorage.setItem(LS_KEY, JSON.stringify(S)); }
+  catch(e){ if(!save._warned){ save._warned=true; setTimeout(()=>toast('保存できませんでした（端末の空き容量・プライベートモードを確認）'),0); } }
+}
 
 /* =========================================================
    ユーティリティ
@@ -999,6 +1044,9 @@ function viewSettings(){
   }
   h+=`</div>`;
   h+=`<div class="card"><h3>データ</h3><p class="small muted mt0">設定・在庫・献立・履歴はこの端末のブラウザ（localStorage）に自動保存されています。</p>
+    <p class="small muted">データはこの端末・このブラウザごとに別々に保存され、他の人と共有されることはありません。機種変更やブラウザのデータ削除に備えて、バックアップファイルを保存しておくと安心です。</p>
+    <div class="btns2" style="margin-bottom:10px"><button class="btn ghost sage sm" data-act="exportData">💾 バックアップを保存</button><button class="btn ghost sage sm" data-act="importData">📂 バックアップから復元</button></div>
+    <input type="file" id="importFile" accept="application/json,.json" style="display:none">
     <button class="btn line sm" data-act="resetAll">すべてのデータを初期化</button></div>`;
   return h;
 }
@@ -1008,7 +1056,7 @@ function viewStock(){
   const stage=stageNow(), ng=ngSet();
   const f=S.invFilter;
   const nStock=ING_LIST.filter(g=>hasStock(g.id)).length;
-  let h=`<h2 class="ttl">家にある食材・冷凍ストック</h2><p class="lead">すでに家にある生鮮食材と、冷凍庫の下処理済みキューブを登録すると、献立づくりで最優先に使い切ります。</p>`;
+  let h=`<h2 class="ttl">家にある食材・冷凍ストック</h2><p class="lead">すでに家にある生鮮食材と、冷凍庫の下処理済みキューブを登録すると、献立づくりで最優先に使い切ります。＋−ボタンのほか、数字をタップして直接入力もできます。</p>`;
   h+=`<div class="banner ok">🧊 登録中の在庫：<b>${nStock}品目</b>　${nStock?'次回の献立作成で優先的に使います。':'＋ボタンをタップして登録できます。'}</div>`;
   h+=`<div class="seg">`;
   [['all','すべて'],['carb','炭水化物'],['veg','野菜'],['fruit','果物'],['protein','タンパク質']].forEach(([k,l])=>{
@@ -1024,8 +1072,8 @@ function viewStock(){
       const fr=S.stock.fresh[g.id]||0, cu=S.stock.cubes[g.id]||0, noF=g.freeze==='none';
       h+=`<div class="inv"><div class="row between"><div><div class="nm">${g.name}</div><div class="sub">購入単位：${g.unitLabel}</div></div>${(fr||cu)?'<span class="tag">在庫あり</span>':''}</div>
         <div class="ctrls">
-          <div class="ctr ${fr?'has':''}"><button data-act="inv" data-k="fresh" data-v="${g.id}" data-d="-0.5" aria-label="${g.name}の生鮮を減らす">−</button><div class="lb">生鮮<b>${fr}${g.unit}</b></div><button data-act="inv" data-k="fresh" data-v="${g.id}" data-d="0.5" aria-label="${g.name}の生鮮を増やす">＋</button></div>
-          <div class="ctr ${cu?'has':''} ${noF?'dis':''}">${noF?`<div class="lb" style="width:100%;padding:10px 0">冷凍しない食材</div>`:`<button data-act="inv" data-k="cubes" data-v="${g.id}" data-d="-1" aria-label="${g.name}の冷凍を減らす">−</button><div class="lb">冷凍${cubeWord(g)}<b>${cu}個</b></div><button data-act="inv" data-k="cubes" data-v="${g.id}" data-d="1" aria-label="${g.name}の冷凍を増やす">＋</button>`}</div>
+          <div class="ctr ${fr?'has':''}"><button data-act="inv" data-k="fresh" data-v="${g.id}" data-d="-0.5" aria-label="${g.name}の生鮮を減らす">−</button><label class="lb">生鮮（${g.unit}）<input class="num" type="number" inputmode="decimal" min="0" step="0.5" value="${fr}" data-inv="fresh" data-v="${g.id}" aria-label="${g.name}の生鮮の数量"></label><button data-act="inv" data-k="fresh" data-v="${g.id}" data-d="0.5" aria-label="${g.name}の生鮮を増やす">＋</button></div>
+          <div class="ctr ${cu?'has':''} ${noF?'dis':''}">${noF?`<div class="lb" style="width:100%;padding:10px 0">冷凍しない食材</div>`:`<button data-act="inv" data-k="cubes" data-v="${g.id}" data-d="-1" aria-label="${g.name}の冷凍を減らす">−</button><label class="lb">冷凍${cubeWord(g)}（個）<input class="num" type="number" inputmode="numeric" min="0" step="1" value="${cu}" data-inv="cubes" data-v="${g.id}" aria-label="${g.name}の冷凍の個数"></label><button data-act="inv" data-k="cubes" data-v="${g.id}" data-d="1" aria-label="${g.name}の冷凍を増やす">＋</button>`}</div>
         </div></div>`;
     });
     h+=`</div>`;
@@ -1081,7 +1129,7 @@ function viewPlan(){
     const end=addDays(plan.weekStart,6);
     h+=`<div class="banner ${plan.saved?'ok':''}">${plan.saved?'✅ 確定済み（履歴に保存されています）':'📝 未確定の献立です。気に入ったら「確定・履歴に保存」を押すと、次回のローテーションに使われます。'}<br><b>${md(plan.weekStart)}（月）〜 ${md(end)}（日）</b>・${st.label} ${st.meals}回食</div>`;
     const core=plan.ctx.core.items.filter(id=>ING[id]);
-    h+=`<div class="card"><h3>今週の冷凍パーツ<small>このパーツを使い回します</small></h3><div class="chips">${core.map(id=>`<span class="tag ${ING[id].cat==='protein'?'t':(ING[id].cat==='fruit'?'y':'')}" style="font-size:13px;padding:4px 10px">${ING[id].name}</span>`).join('')}${plan.ctx.core.carbs.map(id=>`<span class="tag y" style="font-size:13px;padding:4px 10px">${ING[id].name}</span>`).join('')}</div></div>`;
+    h+=`<div class="card"><h3>今週の冷凍パーツ<small>このパーツを使い回します</small></h3><div class="chips">${core.map(id=>`<span class="tag ${ING[id].cat==='protein'?'t':(ING[id].cat==='fruit'?'y':'')}" style="font-size:13px;padding:4px 10px">${ING[id].name}</span>`).join('')}${plan.ctx.core.carbs.filter(id=>ING[id]).map(id=>`<span class="tag y" style="font-size:13px;padding:4px 10px">${ING[id].name}</span>`).join('')}</div></div>`;
     plan.days.forEach((day,d)=>{
       const we=d>=5;
       h+=`<div class="day"><div class="dayhd"><span class="d">${md(day.date)}（${WEEKDAYS[d]}）</span><span class="w ${we?'we':''}">${we?'週末・新食材なし':'平日'}</span></div>`;
@@ -1246,6 +1294,17 @@ document.getElementById('app').addEventListener('click',e=>{
       toast('履歴の献立を表示しました'); window.scrollTo(0,0); break;
     }
     case 'delHist': if(confirm('この週の履歴を削除しますか？')){ S.history=S.history.filter(x=>x.id!==v); if(S.plan&&S.plan.id===v) S.plan.saved=false; toast('削除しました'); } break;
+    case 'exportData': {
+      try{
+        const blob = new Blob([JSON.stringify(S,null,1)], {type:'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download = 'rinyushoku-backup-'+ymd(new Date())+'.json';
+        document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+        toast('バックアップファイルを保存しました');
+      }catch(err){ toast('保存できませんでした'); }
+      return;
+    }
+    case 'importData': document.getElementById('importFile').click(); return;
     case 'swap': swapMeal(Number(b.dataset.d), Number(b.dataset.m)); return;
     case 'chk': { const k=checkKey(v); if(S.checks[k]) delete S.checks[k]; else S.checks[k]=true; break; }
     case 'resetChecks': if(S.plan){ Object.keys(S.checks).forEach(k=>{ if(k.startsWith(S.plan.id+':')) delete S.checks[k]; }); } break;
@@ -1256,7 +1315,37 @@ document.getElementById('app').addEventListener('click',e=>{
   save(); render();
 });
 
+/* 入力欄（在庫の数値・バックアップ読み込み） */
+document.getElementById('app').addEventListener('change',e=>{
+  const t = e.target;
+  if(t.dataset && t.dataset.inv){
+    const k = t.dataset.inv, id = t.dataset.v;
+    const n = toNum(String(t.value).replace(/[０-９．]/g, c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)), k==='cubes');
+    if(n) S.stock[k][id] = Math.min(n, 999); else delete S.stock[k][id];
+    save(); render();
+    return;
+  }
+  if(t.id==='importFile' && t.files && t.files[0]){
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const d = JSON.parse(reader.result);
+        if(!d || typeof d!=='object' || !d.settings) throw new Error('format');
+        if(!confirm('バックアップの内容で、今のデータ（設定・在庫・献立・履歴）を置き換えますか？')) return;
+        S = migrate(d); save(); render(); toast('バックアップから復元しました');
+      }catch(err){ toast('このファイルは読み込めませんでした'); }
+    };
+    reader.readAsText(t.files[0]);
+    t.value = '';
+  }
+});
+/* 数値入力欄でEnterを押したら確定してキーボードを閉じる */
+document.getElementById('app').addEventListener('keydown',e=>{
+  if(e.key==='Enter' && e.target.dataset && e.target.dataset.inv) e.target.blur();
+});
+
 render();
+if(loadNotice) toast(loadNotice);
 </script>
 </body>
 </html>
