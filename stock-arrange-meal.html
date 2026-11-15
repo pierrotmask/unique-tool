@@ -239,6 +239,25 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer;pad
 .preset:active{border-color:var(--green)}
 #toast .undo{margin-left:12px;color:#F7C59F;font-weight:800;text-decoration:underline;pointer-events:auto;padding:4px 2px}
 #toast:not(.show) .undo{pointer-events:none}
+.inp{width:100%;height:44px;border:1.5px solid var(--line);border-radius:12px;padding:0 12px;font:inherit;font-size:16px;background:#fff;color:var(--ink);-webkit-appearance:none;appearance:none}
+select.inp{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2356625B' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 10px center;padding-right:28px}
+textarea.inp{height:auto;padding:10px 12px;line-height:1.6;resize:vertical}
+.inp:focus{outline:none;border-color:var(--green)}
+.fl{display:block;font-size:13px;font-weight:800;color:var(--green);margin:14px 0 6px}
+.fl small{display:block;font-weight:500;color:var(--muted);font-size:11.5px;margin:2px 0 6px}
+.fl .inp{margin-top:6px}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cf-row{display:grid;grid-template-columns:1fr 64px 92px 30px;gap:6px;margin-bottom:6px;align-items:center}
+.cf-row .inp{padding:0 8px;font-size:15px}
+.cf-row select.inp{padding-right:22px;background-position:right 6px center;font-size:13px}
+.cf-row .x{width:30px}
+.pk-row{display:flex;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line2)}
+.pk-row:last-child{border-bottom:none}
+.pk-row .tx{flex:1;min-width:0}
+.pk-row b{font-size:15px}
+.pk-row small{display:block;font-size:12px;color:var(--muted);margin:2px 0 6px;line-height:1.5}
+.tagb{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px}
+.tagx{font-size:10px;font-weight:800;color:var(--orange-d);background:var(--orange-l);padding:1px 6px;border-radius:6px;margin-left:3px;white-space:nowrap}
 /* nav */
 #nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:var(--safe-b)}
 .nav-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav-h)}
@@ -742,6 +761,140 @@ const BASES = [
 ];
 
 /* ---------------------------------------------------------------------
+   2-b. 追加調味料パック（上級者向け・初期状態はすべてOFF）
+   「使い方・設定」→「調味料をカスタマイズ」でONにした調味料の味付けだけが
+   提案・1週間献立・図鑑に加わる。
+   --------------------------------------------------------------------- */
+const EXTRA_PACKS = [
+  { id:'shiokoji', name:'塩麹', emoji:'🍶', desc:'塩の代わりに。肉や魚がしっとりやわらかく、うまみが増します',
+    bases:[
+      { id:'x_shiokoji_yaki', name:'塩麹焼き', suffix:'塩麹焼き', genre:'和風', dishType:'主菜', method:'フライパン', time:'6分',
+        requiredCategories:MAIN,
+        pOnly:'momo butakoma sake shiromi sasami butabara atsuage',
+        vOnly:'kinoko tamanegi broccoli cabbage piman paprika nasu negi kabocha',
+        seasonings:[sp('塩麹',2),sp('酒',1),sp('サラダ油',1,'oil'),tx('粗びき黒こしょう','少々')],
+        finishSteps:['{PREP}','塩麹と酒を混ぜておく（時間があれば{P}に揉み込んで10分置くと、さらにやわらかく仕上がる）。','フライパンにサラダ油を中火で熱し、{FRY}。','塩麹だれを加え、焦げやすいので弱めの中火で全体にからめながら1分焼く。','黒こしょうを振って完成。'] },
+      { id:'x_shiokoji_soup', name:'塩麹ポトフ風スープ', suffix:'塩麹ポトフ風スープ', genre:'洋風', dishType:'汁物', method:'鍋', time:'8分',
+        requiredCategories:{protein:[0,1],veg:[1,2]},
+        pOnly:'mushidori butakoma momo sasami butabara',
+        vOnly:'cabbage tamanegi ninjin jagaimo broccoli kinoko daikon hakusai kabocha',
+        seasonings:[ml('水',180,'x'),sp('塩麹',2),sp('コンソメ顆粒',0.5),tx('粗びき黒こしょう','少々')],
+        finishSteps:['鍋に水とコンソメを入れて中火にかける。','{SIMMER}。','塩麹を溶き入れて1分煮て、黒こしょうを振って完成（塩麹のやさしい塩気で味が決まる）。'] },
+    ] },
+  { id:'shoyukoji', name:'醤油麹', emoji:'🫙', desc:'醤油の代わりに。まろやかなコクとうまみで、調味料が少なくても味が決まります',
+    bases:[
+      { id:'x_shoyukoji_itame', name:'醤油麹炒め', suffix:'醤油麹炒め', genre:'和風', dishType:'主菜', method:'フライパン', time:'5分',
+        requiredCategories:MAIN,
+        pOnly:'butakoma momo butabara sasami ebi atsuage mushidori hikiniku',
+        vOnly:'cabbage piman kinoko tamanegi moyashi negi komatsuna nasu broccoli paprika',
+        seasonings:[sp('醤油麹',2),sp('みりん',1),sp('ごま油',1,'oil')],
+        finishSteps:['{PREP}','醤油麹とみりんを混ぜておく。','フライパンにごま油を中火で熱し、{FRY}。','醤油麹だれを回し入れ、焦がさないよう30秒〜1分炒め合わせて完成。'] },
+      { id:'x_shoyukoji_ae', name:'醤油麹のおかか和え', suffix:'醤油麹おかか和え', genre:'和風', dishType:'副菜', method:'和えるだけ', time:'3分',
+        requiredCategories:{protein:[0,1],veg:[1,2],proteinReady:true},
+        pOnly:'mushidori tuna',
+        vOnly:'horenso komatsuna broccoli moyashi cabbage nasu tomato kabocha',
+        seasonings:[sp('醤油麹',1.5),sp('ごま油',0.5,'x'),tx('かつお節','ひとつまみ')],
+        finishSteps:['{PREP}','ボウルに醤油麹とごま油を入れ、{ALL}の水気を絞って加えて和える。','かつお節をのせて完成（醤油麹のうまみで、調味料はこれだけでOK）。'] },
+    ] },
+  { id:'yuzukosho', name:'柚子胡椒', emoji:'🍋', desc:'さわやかな香りとピリッとした辛み。いつもの味を大人向けに',
+    bases:[
+      { id:'x_yuzu_ponzu', name:'柚子胡椒ポン酢', suffix:'柚子胡椒ポン酢がけ', genre:'和風', dishType:'主菜', method:'フライパン', time:'5分',
+        requiredCategories:MAIN,
+        pOnly:'momo butakoma butabara sake shiromi sasami atsuage tofu',
+        vOnly:'kinoko cabbage moyashi negi hakusai nasu komatsuna piman',
+        seasonings:[sp('ポン酢',3),sp('柚子胡椒（チューブ）',0.5),sp('サラダ油',1,'oil')],
+        finishSteps:['{PREP}','ポン酢と柚子胡椒をよく混ぜておく。','フライパンにサラダ油を中火で熱し、{FRY}。','火を止めて柚子胡椒ポン酢を回しかけ、さっとからめて完成。'] },
+      { id:'x_yuzu_mayo', name:'柚子胡椒マヨ和え', suffix:'柚子胡椒マヨ和え', genre:'和風', dishType:'副菜', method:'和えるだけ', time:'3分',
+        requiredCategories:{protein:[0,1],veg:[1,2],proteinReady:true},
+        pOnly:'mushidori tuna egg',
+        vOnly:'broccoli cabbage kabocha jagaimo ninjin kinoko paprika',
+        seasonings:[sp('マヨネーズ',2),sp('醤油',0.5),sp('柚子胡椒（チューブ）',0.25,'x')],
+        finishSteps:['{PREP}','ボウルにマヨネーズ・醤油・柚子胡椒を混ぜる。','{ALL}の水気をしっかり切って加え、ざっくり和えて完成。'] },
+    ] },
+  { id:'shiromiso', name:'白味噌（西京味噌）', emoji:'🤍', desc:'甘くまろやかな京風の味噌。漬け焼きやポタージュ風スープに',
+    bases:[
+      { id:'x_saikyo', name:'西京焼き風', suffix:'西京焼き風', genre:'和風', dishType:'主菜', method:'フライパン', time:'7分',
+        requiredCategories:MAIN,
+        pOnly:'sake shiromi momo butakoma sasami atsuage tofu',
+        vOnly:'broccoli kinoko negi kabocha nasu paprika piman tamanegi',
+        seasonings:[sp('白味噌',3),sp('みりん',1.5),sp('酒',1),sp('サラダ油',0.5,'oil')],
+        finishSteps:['{PREP}','白味噌・みりん・酒を混ぜて西京みそだれを作る（前日の夜に{P}を漬けておくと本格的）。','フライパンにクッキングシートを敷いてサラダ油を薄くひき、中火で熱して{FRY}。','みそだれを全体に塗り、弱火で1〜2分、焼き色がつくまで焼いて完成（みそは焦げやすいので注意）。'] },
+      { id:'x_shiromiso_soup', name:'白味噌豆乳スープ', suffix:'白味噌豆乳スープ', genre:'和風', dishType:'汁物', method:'鍋', time:'7分',
+        requiredCategories:{protein:[0,1],veg:[1,2]},
+        pOnly:'mushidori butakoma tofu atsuage sake',
+        vOnly:'hakusai kabocha kinoko negi komatsuna horenso tamanegi jagaimo ninjin',
+        seasonings:[ml('無調整豆乳',120,'x'),ml('水',60,'x'),sp('白味噌',3),sp('顆粒和風だし',0.5)],
+        finishSteps:['鍋に水と顆粒だしを入れて中火にかける。','{SIMMER}。','弱火にして白味噌を溶き入れ、豆乳を加えて沸騰直前まで温めて完成（煮立てると分離するので注意）。'] },
+    ] },
+  { id:'tenmenjan', name:'甜麺醤', emoji:'🥢', desc:'甘くコクのある中華みそ。回鍋肉やジャージャン風に',
+    bases:[
+      { id:'x_hoikoro', name:'回鍋肉風甘みそ炒め', suffix:'回鍋肉風甘みそ炒め', genre:'中華', dishType:'主菜', method:'フライパン', time:'6分',
+        requiredCategories:MAIN,
+        pOnly:'butakoma butabara momo atsuage hikiniku',
+        vOnly:'cabbage piman negi nasu tamanegi paprika kinoko moyashi',
+        seasonings:[sp('甜麺醤',2),sp('酒',1),sp('醤油',0.5),sp('砂糖',0.5),sp('豆板醤',0.25,'x'),cm('おろしにんにく（チューブ）',1),sp('ごま油',1,'oil')],
+        finishSteps:['{PREP}','甜麺醤・酒・醤油・砂糖・豆板醤・にんにくを混ぜておく。','フライパンにごま油を強めの中火で熱し、{FRY}。','合わせ調味料を加え、香ばしい香りが立つまで手早く1分炒め合わせて完成。'] },
+      { id:'x_jajan', name:'ジャージャン風肉みそあん', suffix:'ジャージャン風肉みそあん', genre:'中華', dishType:'主菜', method:'フライパン', time:'6分',
+        requiredCategories:MAIN,
+        pOnly:'hikiniku butakoma tofu atsuage',
+        vOnly:'nasu negi kinoko moyashi piman hakusai',
+        seasonings:[sp('甜麺醤',2),sp('醤油',0.5),sp('鶏がらスープの素',0.5),ml('水',40,'x'),sp('片栗粉（同量の水で溶く）',0.5,'x'),sp('ごま油',1,'oil')],
+        finishSteps:['{PREP}','甜麺醤・醤油・鶏がらスープの素・水を混ぜておく。','フライパンにごま油を中火で熱し、{FRY}。','混ぜておいた調味料を加えて1分煮て、水溶き片栗粉でとろみをつけて完成（ごはんや麺にのせても）。'] },
+    ] },
+  { id:'kurozu', name:'黒酢', emoji:'🍯', desc:'まろやかな酸味とコク。甘酢あんをワンランク上の味に',
+    bases:[
+      { id:'x_kurozu', name:'黒酢あん炒め', suffix:'黒酢あん炒め', genre:'中華', dishType:'主菜', method:'フライパン', time:'6分',
+        requiredCategories:MAIN,
+        pOnly:'momo butakoma sake shiromi sasami atsuage ebi',
+        vOnly:'tamanegi piman paprika kabocha nasu kinoko ninjin broccoli',
+        seasonings:[sp('黒酢',3),sp('砂糖',2),sp('醤油',1.5),sp('水',3,'x'),sp('片栗粉',0.5,'x'),sp('サラダ油',1,'oil')],
+        finishSteps:['{PREP}','黒酢・砂糖・醤油・水・片栗粉を混ぜて黒酢あんを作る。','フライパンにサラダ油を中火で熱し、{FRY}。','黒酢あんをよく混ぜてから加え、とろみと照りが出るまで1分炒め合わせて完成。'] },
+    ] },
+  { id:'balsamico', name:'バルサミコ酢', emoji:'🍇', desc:'ぶどう由来の甘酸っぱいコク。ソテーやマリネがお店風に',
+    bases:[
+      { id:'x_balsamico', name:'バルサミコソテー', suffix:'バルサミコソテー', genre:'洋風', dishType:'主菜', method:'フライパン', time:'6分',
+        requiredCategories:MAIN,
+        pOnly:'momo butakoma sake sasami butabara atsuage',
+        vOnly:'kinoko tamanegi paprika nasu kabocha broccoli piman jagaimo tomato',
+        seasonings:[sp('バルサミコ酢',3),sp('醤油',1),sp('はちみつ',1),sp('オリーブオイル',1,'oil'),tx('塩こしょう','少々')],
+        finishSteps:['{PREP}','バルサミコ酢・醤油・はちみつを混ぜておく。','フライパンにオリーブオイルを中火で熱し、{FRY}。塩こしょうを振る。','合わせ調味料を加え、とろりと煮詰まるまで1〜2分からめて完成。'] },
+      { id:'x_balsamico_marine', name:'バルサミコマリネ', suffix:'バルサミコマリネ', genre:'洋風', dishType:'副菜', method:'和えるだけ', time:'5分',
+        requiredCategories:{protein:[0,1],veg:[1,2],proteinReady:true},
+        pOnly:'tuna mushidori',
+        vOnly:'tomato paprika tamanegi kinoko kabocha nasu broccoli',
+        seasonings:[sp('バルサミコ酢',2),sp('オリーブオイル',1),sp('はちみつ',0.5),tx('塩','ひとつまみ')],
+        finishSteps:['{PREP}','ボウルにバルサミコ酢・オリーブオイル・はちみつ・塩を混ぜる。','{ALL}を加えて和え、10分ほど置いてなじませたら完成。'] },
+    ] },
+  { id:'shiokonbu', name:'塩昆布', emoji:'🌊', desc:'和えるだけで味が決まる万能うまみ調味料',
+    bases:[
+      { id:'x_shiokonbu_ae', name:'塩昆布和え', suffix:'塩昆布和え', genre:'和風', dishType:'副菜', method:'和えるだけ', time:'3分', rawOk:['v_cabbage','v_hakusai'],
+        requiredCategories:{protein:[0,1],veg:[1,2],proteinReady:true},
+        pOnly:'tuna mushidori',
+        vOnly:'cabbage komatsuna horenso moyashi broccoli tomato nasu ninjin piman hakusai',
+        seasonings:[gr('塩昆布',4,'x'),sp('ごま油',1),tx('白ごま','少々')],
+        finishSteps:['{PREP}','ボウルに{ALL}を入れ、塩昆布とごま油を加えて手でもみ込むように和える（キャベツ・白菜は生のままでOK）。','5分ほど置いてなじませ、白ごまを振って完成。'] },
+    ] },
+  { id:'dashida', name:'ダシダ（牛だしの素）', emoji:'🐂', desc:'韓国の定番だし。スープやナムルが本場の味に',
+    bases:[
+      { id:'x_dashida_soup', name:'ダシダのうま塩スープ', suffix:'ダシダうま塩スープ', genre:'韓国風', dishType:'汁物', method:'鍋', time:'6分',
+        requiredCategories:{protein:[0,1],veg:[1,2]},
+        pOnly:'butakoma tofu mushidori hikiniku butabara',
+        vOnly:'negi moyashi kinoko komatsuna hakusai cabbage daikon',
+        seasonings:[ml('水',180,'x'),sp('ダシダ',1),sp('醤油',0.5),tx('ごま油','仕上げに少々'),tx('白ごま','少々')],
+        finishSteps:['鍋に水とダシダを入れて中火にかける。','{SIMMER}。','醤油で味をととのえ、ごま油を垂らして白ごまを振ったら完成。'] },
+    ] },
+];
+// 自作の味付け：調理法ごとの手順テンプレート
+const CUSTOM_STEPS = {
+  'フライパン':['{PREP}','調味料をすべて混ぜて合わせ調味料を作る。','フライパンに油（小さじ1）を中火で熱し、{FRY}。','合わせ調味料を回し入れ、全体にからめながら1〜2分炒めて完成。'],
+  'レンジ':['耐熱容器に調味料をすべて入れて混ぜ、{ALL}を加える（冷凍ストックは凍ったままでOK）。','ふんわりラップをしてレンジ600Wで{MW}分加熱する（生の肉・魚は中まで火が通ったか確認）。','全体を混ぜ、2分ほど置いて味をなじませたら完成。'],
+  '和えるだけ':['{PREP}','ボウルに調味料をすべて入れて混ぜる。','{ALL}の水気をしっかり切って加え、さっくり和えて完成。'],
+  '鍋':['鍋に水を入れて中火にかける。','{SIMMER}。','調味料を加えて味をととのえ、ひと煮立ちさせて完成。'],
+};
+const CUSTOM_TIME = { 'フライパン':'5分', 'レンジ':'5分', '和えるだけ':'3分', '鍋':'7分' };
+const SEASON_SUGGEST = ['塩麹','醤油麹','玉ねぎ麹','甘酒','柚子胡椒','白味噌','赤味噌','甜麺醤','黒酢','バルサミコ酢','塩昆布','ダシダ','ナンプラー','魚醤','XO醤','花椒','粉山椒','めんつゆ','白だし','ポン酢','オイスターソース','コチュジャン','豆板醤','練りごま','すりごま','レモン汁','はちみつ','粒マスタード','カレー粉','クミン','バター','オリーブオイル','ごま油','醤油','みりん','酒','砂糖','味噌','塩','こしょう','酢','ケチャップ','マヨネーズ','鶏がらスープの素','コンソメ顆粒','顆粒和風だし','おろしにんにく（チューブ）','おろし生姜（チューブ）'];
+
+/* ---------------------------------------------------------------------
    3. アレンジルール（ジャンル・調理法・売り場・デモ在庫）
    --------------------------------------------------------------------- */
 const GENRES = ['和風','洋風','中華','韓国風'];
@@ -777,11 +930,12 @@ const PRESETS = [
 
 /* ---------- master post-processing ---------- */
 const PART = Object.fromEntries(PARTS.map(p=>[p.id,p]));
-BASES.forEach(b=>{
-  b.pOnly = (b.pOnly||'').split(/\s+/).filter(Boolean).map(x=>'p_'+x);
-  b.vOnly = (b.vOnly||'').split(/\s+/).filter(Boolean).map(x=>'v_'+x);
-});
-const BASE = Object.fromEntries(BASES.map(b=>[b.id,b]));
+const splitIds=(v,pre)=>Array.isArray(v)?v:(v||'').split(/\s+/).filter(Boolean).map(x=>pre+x);
+function normBase(b){ b.pOnly=splitIds(b.pOnly,'p_'); b.vOnly=splitIds(b.vOnly,'v_'); return b; }
+BASES.forEach(normBase);
+EXTRA_PACKS.forEach(pk=>pk.bases.forEach(b=>{ normBase(b); b.extra=pk.id; }));
+const CORE_BASES = BASES.slice();   // 基本の味付け（常に有効）
+const BASE = {};                     // 既知の全味付け（OFFの追加パック・削除済み自作も含む＝履歴表示用）
 
 /* =====================================================================
    4. 状態管理（localStorage 自動保存）
@@ -797,9 +951,31 @@ const DEFAULT_STATE = () => ({
   activePlanId:null,
   suggestions:null, seenKeys:[], cooked:[],
   stockFilter:'all', addQty:1, dictMode:'part', dictSel:null,
-  tutorialSeen:false, addLog:{},
+  tutorialSeen:false, addLog:{}, extraOn:[], customBases:[],
 });
 let S = load();
+// 有効な味付け一覧（BASES）を、基本＋ONの追加調味料＋自作で組み立て直す
+function customToBase(c){
+  const req={ protein:c.dishType==='主菜'?[1,1]:[0,1], veg:[1,2], proteinReady:c.method==='和えるだけ' };
+  const seas=c.seasonings.map(x=>Object.assign({},x));
+  if(c.method==='鍋' && !seas.some(x=>x.n==='水')) seas.unshift({n:'水',ml:180,k:'x',auto:true});
+  return normBase({ id:c.id, name:c.name, suffix:c.name, genre:c.genre, dishType:c.dishType, method:c.method, time:CUSTOM_TIME[c.method]||'5分',
+    requiredCategories:req, pOnly:c.method==='和えるだけ'?[]:PARTS.filter(p=>p.category==='protein'&&!['p_egg','p_tuna','p_saba'].includes(p.id)).map(p=>p.id), vOnly:[], seasonings:seas, finishSteps:(c.steps&&c.steps.length)?c.steps:CUSTOM_STEPS[c.method],
+    mwBase:3, mwRaw:2, custom:true, hidden:!!c.hidden });
+}
+function rebuildBases(){
+  S.extraOn=(S.extraOn||[]).filter(id=>EXTRA_PACKS.some(p=>p.id===id));
+  const customs=(S.customBases||[]).map(customToBase);
+  BASES.length=0;
+  CORE_BASES.forEach(b=>BASES.push(b));
+  EXTRA_PACKS.forEach(pk=>{ if(S.extraOn.includes(pk.id)) pk.bases.forEach(b=>BASES.push(b)); });
+  customs.forEach(b=>{ if(!b.hidden) BASES.push(b); });
+  Object.keys(BASE).forEach(k=>delete BASE[k]);
+  CORE_BASES.forEach(b=>BASE[b.id]=b);
+  EXTRA_PACKS.forEach(pk=>pk.bases.forEach(b=>BASE[b.id]=b));
+  customs.forEach(b=>BASE[b.id]=b);
+}
+rebuildBases();
 function load(){
   try{
     const raw = localStorage.getItem(LS_KEY);
@@ -1367,7 +1543,7 @@ function renderFav(){
     if(sel) html+=dictByPart(sel); else html+=`<p class="hint">パーツを選ぶと、そのパーツを使ったアレンジを全味付け分表示します。</p>`;
   } else {
     const sel=BASE[S.dictSel]?S.dictSel:null;
-    html+=GENRES.map(g=>`<div class="grp-h mt0" style="margin-top:12px">${gBadge(g)}</div><div class="gtab">${BASES.filter(b=>b.genre===g).map(b=>`<button class="bbtn g-${GCLS[g]} ${sel===b.id?'on':''}" data-act="dictSel" data-id="${b.id}">${esc(b.name)}</button>`).join('')}</div>`).join('');
+    html+=GENRES.map(g=>`<div class="grp-h mt0" style="margin-top:12px">${gBadge(g)}</div><div class="gtab">${BASES.filter(b=>b.genre===g).map(b=>`<button class="bbtn g-${GCLS[g]} ${sel===b.id?'on':''}" data-act="dictSel" data-id="${b.id}">${esc(b.name)}${b.custom?'<span class="tagx">自作</span>':b.extra?'<span class="tagx">追加</span>':''}</button>`).join('')}</div>`).join('');
     if(sel) html+=dictByBase(sel); else html+=`<p class="hint">味付けベースを選ぶと、合わせられるパーツの全組み合わせを表示します。</p>`;
   }
   return html;
@@ -1467,7 +1643,7 @@ function renderModal(){
   const steps=buildSteps(d,n), ratio=goldenRatio(b);
   const prev=$('#modal .kit'); const top=prev?prev.scrollTop:0;
   $('#modal').innerHTML=`<div class="bk" data-act="backdrop" data-close="modal"><div class="kit" role="dialog" aria-modal="true">
-    <div class="kit-top">${gBadge(d.genre)}<span class="typ">${d.type}</span>${mLabel(b)}<span class="sp"></span><button class="close" data-act="closeModal" aria-label="閉じる">✕</button></div>
+    <div class="kit-top">${gBadge(d.genre)}<span class="typ">${d.type}</span>${mLabel(b)}${b.custom?'<span class="tagx">自作</span>':b.extra?'<span class="tagx">追加調味料</span>':''}<span class="sp"></span><button class="close" data-act="closeModal" aria-label="閉じる">✕</button></div>
     <div class="kit-body">
       <h1>${esc(dishName(d))}</h1>
       ${formulaHTML(d,false)}
@@ -1558,6 +1734,7 @@ function sheetShell(title,inner){
 function renderMenuSheet(){
   sheetShell('使い方・設定',`
     <button class="menu-item" data-act="tutorial"><span class="mi">📖</span><span>使い方（チュートリアル）を見る<small>初回に表示された説明をもう一度見られます</small></span></button>
+    <button class="menu-item" data-act="seasonSheet"><span class="mi">🧂</span><span>調味料をカスタマイズ<span class="tagx">上級者向け</span><small>塩麹・醤油麹など手持ちの調味料を追加／自分だけの味付けを作る</small></span></button>
     <button class="menu-item" data-act="exportData"><span class="mi">💾</span><span>データをバックアップ<small>ストック・お気に入り・履歴をファイルに保存</small></span></button>
     <button class="menu-item" data-act="importData"><span class="mi">📂</span><span>バックアップから復元<small>保存したファイルを読み込みます（機種変更時にも）</small></span></button>
     <button class="menu-item danger" data-act="resetAll"><span class="mi">🗑️</span><span>すべてのデータを初期化<small>この端末に保存した内容をすべて消去します</small></span></button>
@@ -1593,14 +1770,86 @@ $('#importFile').addEventListener('change',e=>{
       if(!obj||!Array.isArray(obj.stock)||!Array.isArray(obj.favorites)) throw new Error('format');
       if(!confirm('現在のデータをバックアップの内容で置き換えます。よろしいですか？')) return;
       obj.stock=obj.stock.filter(b=>PART[b.partId]);
-      obj.favorites=obj.favorites.filter(f=>BASE[f.baseId]);
       S=Object.assign(DEFAULT_STATE(),obj,{tutorialSeen:true});
+      rebuildBases();
+      S.favorites=S.favorites.filter(f=>BASE[f.baseId]);
       closeSheetUI(); render(); toast('📂 バックアップから復元しました');
     }catch(err){ toast('このファイルは読み込めませんでした'); }
   };
   rd.readAsText(file);
 });
 
+/* =====================================================================
+   11-b. 調味料のカスタマイズ（上級者向け）
+   ===================================================================== */
+const UNIT_OPTS = [['tsp','小さじ'],['tbsp','大さじ'],['ml','ml'],['g','g'],['cm','cm(チューブ)'],['少々','少々'],['適量','適量']];
+function renderSeasonSheet(){
+  const prevSc=$('#sheet .sheet')?$('#sheet .sheet').scrollTop:0;
+  const customs=(S.customBases||[]).filter(c=>!c.hidden);
+  sheetShell('調味料をカスタマイズ',`
+    <div class="info-box">基本の<b>${CORE_BASES.length}種の味付け</b>は、どの家庭にもある調味料だけで作れるようにしてあります。<b>ふだんはこのままでOK</b>です。<br>塩麹など手持ちの調味料をONにすると、それを使った味付けが「今日のアレンジ」「1週間献立」「図鑑」に加わります。</div>
+    <div class="grp-h">🧂 追加できる調味料（上級者向け）</div>
+    <div class="list">${EXTRA_PACKS.map(pk=>{ const on=S.extraOn.includes(pk.id);
+      return `<div class="pk-row"><div class="tx"><b>${pk.emoji} ${esc(pk.name)}</b><small>${esc(pk.desc)}</small>
+        <div class="mini">${pk.bases.map(b=>`<span class="tagb g-${GCLS[b.genre]}">${esc(b.name)}</span>`).join('')}</div></div>
+        <button class="sw ${on?'on':''}" data-act="togglePack" data-id="${pk.id}" aria-label="${esc(pk.name)}を使う"></button></div>`; }).join('')}</div>
+    <div class="grp-h">✍️ 自分で作った味付け（${customs.length}）</div>
+    ${customs.length?`<div class="list">${customs.map(c=>`<div class="pk-row"><div class="tx"><div class="d-top">${gBadge(c.genre)}<span class="typ">${c.dishType}</span><span class="mth">${METHOD_ICON[c.method]||''} ${c.method}</span></div>
+        <b style="display:block;margin-top:4px">${esc(c.name)}</b><small>${c.seasonings.map(s=>esc(s.n)).join('・')}</small></div>
+        <button class="swap" data-act="customEdit" data-id="${c.id}">編集</button><button class="x" data-act="customDel" data-id="${c.id}" aria-label="削除">×</button></div>`).join('')}</div>`
+      :`<p class="hint mt0">お気に入りの調味料で、オリジナルの味付けを作れます。料理名・分量・手順はパーツに合わせて自動で組み立てられます。</p>`}
+    <div class="btn-col"><button class="btn outline" data-act="customNew">＋ 味付けを自分で作る</button></div>`);
+  $('#sheet .sheet').scrollTop=prevSc;
+}
+function seasonToRow(s){
+  if(s.tsp!=null){ return s.tsp>=3&&Math.abs(s.tsp/3-Math.round(s.tsp/3*2)/2)<1e-9 ? {n:s.n,a:s.tsp/3,u:'tbsp'} : {n:s.n,a:s.tsp,u:'tsp'}; }
+  if(s.ml!=null) return {n:s.n,a:s.ml,u:'ml'};
+  if(s.g!=null) return {n:s.n,a:s.g,u:'g'};
+  if(s.cm!=null) return {n:s.n,a:s.cm,u:'cm'};
+  return {n:s.n,a:'',u:s.text==='適量'?'適量':'少々'};
+}
+function cfRowHTML(r){
+  r=r||{n:'',a:'',u:'tsp'};
+  return `<div class="cf-row"><input class="inp sn" list="seasonList" placeholder="例：塩麹" value="${esc(r.n)}" aria-label="調味料名">
+    <input class="inp sa" type="number" inputmode="decimal" step="0.25" min="0" placeholder="量" value="${esc(r.a)}" aria-label="量">
+    <select class="inp su" aria-label="単位">${UNIT_OPTS.map(([v,l])=>`<option value="${v}" ${r.u===v?'selected':''}>${l}</option>`).join('')}</select>
+    <button class="x" data-act="cfDelRow" aria-label="この行を削除">×</button></div>`;
+}
+function renderCustomForm(id){
+  const c=(S.customBases||[]).find(x=>x.id===id);
+  const rows=c?c.seasonings.filter(s=>!(c.method==='鍋'&&s.n==='水'&&s.auto)).map(seasonToRow):[{n:'',a:'',u:'tsp'},{n:'',a:'',u:'tsp'}];
+  const sel=(idn,opts,val)=>`<select id="${idn}" class="inp">${opts.map(o=>`<option ${o===val?'selected':''}>${o}</option>`).join('')}</select>`;
+  sheetShell(c?'味付けを編集':'味付けを自分で作る',`
+    <label class="fl">味付けの名前<small>料理名の最後につきます（例：「塩麹レモン焼き」→「鶏ももときのこの塩麹レモン焼き」）</small><input id="cf_name" class="inp" maxlength="20" placeholder="例：塩麹レモン焼き" value="${esc(c?c.name:'')}"></label>
+    <div class="f2"><label class="fl">ジャンル${sel('cf_genre',GENRES,c?c.genre:'和風')}</label><label class="fl">種類${sel('cf_type',['主菜','副菜','汁物'],c?c.dishType:'主菜')}</label></div>
+    <label class="fl">調理法${sel('cf_method',['フライパン','レンジ','和えるだけ','鍋'],c?c.method:'フライパン')}</label>
+    <div class="fl">調味料（1人分）<small>人数に合わせて自動で換算されます。名前は候補から選ぶか自由に入力できます。</small></div>
+    <div id="cf_rows">${rows.map(cfRowHTML).join('')}</div>
+    <button class="btn soft sm" data-act="cfAddRow">＋ 調味料を追加</button>
+    <label class="fl">作り方（任意）<small>空欄なら調理法に合わせて自動で作ります。1行＝1手順。</small><textarea id="cf_steps" class="inp" rows="4" placeholder="空欄でOK">${esc(c&&c.steps?c.steps.join('\n'):'')}</textarea></label>
+    <div class="btn-col"><button class="btn primary" data-act="cfSave" data-id="${c?c.id:''}">保存する</button><button class="btn ghost" data-act="seasonSheet">キャンセル</button></div>
+    <datalist id="seasonList">${SEASON_SUGGEST.map(n=>`<option value="${esc(n)}">`).join('')}</datalist>`);
+}
+function saveCustomForm(id){
+  const name=$('#cf_name').value.trim().replace(/\s+/g,' ');
+  if(!name){ toast('味付けの名前を入力してください'); $('#cf_name').focus(); return false; }
+  const seasonings=[];
+  document.querySelectorAll('#cf_rows .cf-row').forEach(r=>{
+    const n=r.querySelector('.sn').value.trim(); if(!n) return;
+    const a=parseFloat(r.querySelector('.sa').value), u=r.querySelector('.su').value;
+    if(u==='少々'||u==='適量'){ seasonings.push({n,text:u,k:'x'}); return; }
+    if(!(a>0)){ seasonings.push({n,text:'少々',k:'x'}); return; }
+    if(u==='tsp') seasonings.push({n,tsp:a}); else if(u==='tbsp') seasonings.push({n,tsp:a*3});
+    else if(u==='ml') seasonings.push({n,ml:a,k:'x'}); else if(u==='g') seasonings.push({n,g:a,k:'x'}); else seasonings.push({n,cm:a,k:'x'});
+  });
+  if(!seasonings.length){ toast('調味料を1つ以上入力してください'); return false; }
+  const steps=$('#cf_steps').value.split('\n').map(x=>x.trim()).filter(Boolean);
+  const obj={ id:id||'u_'+uid(), name, genre:$('#cf_genre').value, dishType:$('#cf_type').value, method:$('#cf_method').value, seasonings, steps:steps.length?steps:null, createdAt:Date.now() };
+  S.customBases=S.customBases||[];
+  const i=S.customBases.findIndex(x=>x.id===obj.id);
+  if(i>=0) S.customBases[i]=obj; else S.customBases.push(obj);
+  rebuildBases(); S.suggestions=null; return true;
+}
 /* =====================================================================
    12. オーバーレイ（スマホの「戻る」で閉じられるように履歴と連動）
    ===================================================================== */
@@ -1647,9 +1896,20 @@ const ACTIONS={
   tutCk:()=>{ TUT.dontShow=!TUT.dontShow; renderTutorial(); },
   tutEnd:()=>endTutorial(),
   tutStart:ds=>{ const demo=ds.demo; endTutorial(); if(demo){ S.tab='stock'; addPreset('basic'); } },
+  seasonSheet:()=>{ const had=!!$('#sheet').innerHTML; renderSeasonSheet(); if(!had) pushOv(); },
+  togglePack:ds=>{ const on=S.extraOn.includes(ds.id); S.extraOn=on?S.extraOn.filter(x=>x!==ds.id):[...S.extraOn,ds.id];
+    rebuildBases(); S.suggestions=null; renderSeasonSheet(); render();
+    const pk=EXTRA_PACKS.find(p=>p.id===ds.id); toast(on?`${pk.name}の味付けをOFFにしました`:`🧂 ${pk.name}の味付け${pk.bases.length}種を追加しました`); },
+  customNew:()=>{ renderCustomForm(null); },
+  customEdit:ds=>{ renderCustomForm(ds.id); },
+  customDel:ds=>{ const c=S.customBases.find(x=>x.id===ds.id); if(!c||!confirm(`「${c.name}」を削除しますか？`)) return;
+    c.hidden=true; S.favorites=S.favorites.filter(f=>f.baseId!==c.id); rebuildBases(); S.suggestions=null; renderSeasonSheet(); render(); toast('削除しました'); },
+  cfAddRow:()=>{ $('#cf_rows').insertAdjacentHTML('beforeend',cfRowHTML()); const r=$('#cf_rows').lastElementChild; r.querySelector('.sn').focus(); },
+  cfDelRow:(ds,el)=>{ const rows=document.querySelectorAll('#cf_rows .cf-row'); if(rows.length<=1){ el.closest('.cf-row').querySelectorAll('input').forEach(i=>i.value=''); return; } el.closest('.cf-row').remove(); },
+  cfSave:ds=>{ if(saveCustomForm(ds.id)){ renderSeasonSheet(); render(); toast(ds.id?'✍️ 味付けを更新しました':'✍️ オリジナルの味付けを追加しました'); } },
   exportData:()=>exportData(),
   importData:()=>$('#importFile').click(),
-  resetAll:()=>{ if(confirm('すべてのデータ（ストック・お気に入り・献立履歴）を消去します。元に戻せません。よろしいですか？')){ try{localStorage.removeItem(LS_KEY);}catch(e){} S=DEFAULT_STATE(); $('#sheet').innerHTML=''; render(); TUT={i:0,dontShow:true}; renderTutorial(); } },
+  resetAll:()=>{ if(confirm('すべてのデータ（ストック・お気に入り・献立履歴）を消去します。元に戻せません。よろしいですか？')){ try{localStorage.removeItem(LS_KEY);}catch(e){} S=DEFAULT_STATE(); rebuildBases(); $('#sheet').innerHTML=''; render(); TUT={i:0,dontShow:true}; renderTutorial(); } },
   // stock
   openAdd:()=>{ renderAddSheet(); pushOv(); },
   presetSheet:()=>{ renderPresetSheet(); pushOv(); },
