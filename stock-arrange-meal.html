@@ -13,7 +13,7 @@
   --bg:#F8F7F4; --card:#FFFFFF; --green:#2E5A44; --green-l:#E6EFE9; --green-ll:#F1F6F2;
   --orange:#D96B27; --orange-d:#B9551A; --orange-l:#FBEDE3;
   --ink:#1F2A24; --sub:#56625B; --muted:#89928C; --line:#E9E5DD; --line2:#F1EEE8;
-  --wa:#3B5BA9; --wa-l:#E7ECF8; --yo:#A8750A; --yo-l:#FBF0D6; --chu:#C0392B; --chu-l:#FBE4E1; --kan:#8E44AD; --kan-l:#F3E5F8;
+  --wa:#3B5BA9; --wa-l:#E7ECF8; --yo:#A8750A; --yo-l:#FBF0D6; --chu:#C0392B; --chu-l:#FBE4E1; --kan:#8E44AD; --kan-l:#F3E5F8; --eth:#0E7C7B; --eth-l:#DDF1F0;
   --ok:#2E7D4F; --ok-l:#E3F2E8; --soon:#B7791F; --soon-l:#FCF1DC; --over:#C0392B; --over-l:#FBE4E1;
   --radius:18px; --shadow:0 1px 2px rgba(31,42,36,.05),0 4px 14px rgba(31,42,36,.06);
   --nav-h:66px; --safe-b:env(safe-area-inset-bottom,0px);
@@ -99,8 +99,8 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer;pad
 .link{color:var(--sub);font-size:12.5px;text-decoration:underline;padding:10px;display:block;margin:10px auto 0}
 /* genre */
 .g{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:7px;font-size:11.5px;font-weight:800;letter-spacing:.04em;white-space:nowrap}
-.g-wa{background:var(--wa-l);color:var(--wa)} .g-yo{background:var(--yo-l);color:var(--yo)} .g-chu{background:var(--chu-l);color:var(--chu)} .g-kan{background:var(--kan-l);color:var(--kan)}
-.gb-wa{background:var(--wa)} .gb-yo{background:var(--yo)} .gb-chu{background:var(--chu)} .gb-kan{background:var(--kan)}
+.g-wa{background:var(--wa-l);color:var(--wa)} .g-yo{background:var(--yo-l);color:var(--yo)} .g-chu{background:var(--chu-l);color:var(--chu)} .g-kan{background:var(--kan-l);color:var(--kan)} .g-eth{background:var(--eth-l);color:var(--eth)}
+.gb-wa{background:var(--wa)} .gb-yo{background:var(--yo)} .gb-chu{background:var(--chu)} .gb-kan{background:var(--kan)} .gb-eth{background:var(--eth)}
 .typ{font-size:11.5px;font-weight:700;color:var(--sub);background:var(--line2);padding:2px 8px;border-radius:7px}
 .mth{font-size:11.5px;color:var(--muted);font-weight:600}
 /* mode seg */
@@ -110,7 +110,7 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer;pad
 /* dish card */
 .dish{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 14px 12px;position:relative;border-left:5px solid transparent}
 .dish+.dish{margin-top:12px}
-.dish.b-wa{border-left-color:var(--wa)} .dish.b-yo{border-left-color:var(--yo)} .dish.b-chu{border-left-color:var(--chu)} .dish.b-kan{border-left-color:var(--kan)}
+.dish.b-wa{border-left-color:var(--wa)} .dish.b-yo{border-left-color:var(--yo)} .dish.b-chu{border-left-color:var(--chu)} .dish.b-kan{border-left-color:var(--kan)} .dish.b-eth{border-left-color:var(--eth)}
 .dish.done{opacity:.6}
 .d-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .d-top .sp{flex:1}
@@ -372,98 +372,98 @@ const PARTS = [
     storageType:'freeze', shelfLifeDays:21, fridgeDays:3, unitName:'1食分[約80g]', grams:80, ready:true,
     purchaseUnit:{ item:'鶏むね肉', unit:'枚', grams:300, step:1, section:'精肉' },
     prepInstruction:'皮を除き厚い部分に切り込みを入れる。耐熱容器にのせて酒大さじ1・塩少々を振り、ふんわりラップでレンジ600W4分→裏返して2分。そのまま10分置いて余熱で火を通し、粗熱が取れたら手で細かくほぐして蒸し汁ごと{n}食分に小分けして冷凍',
-    prepMin:20, compatibleTags:['和風','洋風','中華','韓国風'],
+    prepMin:20, compatibleTags:['和風','洋風','中華','韓国風','エスニック'],
     fry:'ほぐし蒸し鶏を加え、温める程度にさっと炒め合わせる（加熱済みなので火を入れすぎない）',
     simmer:'ほぐし蒸し鶏を加えてひと煮立ちさせる' },
   { id:'p_butakoma', name:'下味なし小分け豚こま', short:'豚こま', emoji:'🐖', category:'protein',
     storageType:'freeze', shelfLifeDays:21, fridgeDays:2, unitName:'1食分[約80g]', grams:80, ready:false,
     purchaseUnit:{ item:'豚こま切れ肉', unit:'パック', grams:300, step:1, section:'精肉' },
-    prepInstruction:'パックから出してペーパーで水気を拭く。大きいものは食べやすく切り、約80gずつラップに薄く平らに広げて包み、{n}食分を保存袋に入れて冷凍（下味なしなので和洋中韓どれにも使える）',
-    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風'],
+    prepInstruction:'パックから出してペーパーで水気を拭く。大きいものは食べやすく切り、約80gずつラップに薄く平らに広げて包み、{n}食分を保存袋に入れて冷凍（下味なしなのでどの味付けにも使える）',
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風','エスニック'],
     fry:'豚こまを凍ったまま広げ入れ、ほぐしながら中火で2〜3分、色が変わるまで炒める',
     simmer:'豚こまをほぐしながら加え、アクを取りつつ2〜3分煮て火を通す' },
   { id:'p_momo', name:'カット済み鶏もも', short:'鶏もも', emoji:'🍗', category:'protein',
     storageType:'freeze', shelfLifeDays:21, fridgeDays:2, unitName:'1食分[約90g]', grams:90, ready:false,
     purchaseUnit:{ item:'鶏もも肉', unit:'枚', grams:280, step:1, section:'精肉' },
     prepInstruction:'余分な脂と筋を除き、ひと口大（約3cm角）に切る。ペーパーで水気を拭き、{n}食分ずつ保存袋に重ならないよう平らに並べて冷凍',
-    prepMin:10, compatibleTags:['和風','洋風','中華','韓国風'],
+    prepMin:10, compatibleTags:['和風','洋風','中華','韓国風','エスニック'],
     fry:'鶏ももを皮目を下にして並べ、ふたをして中火で4分→返して2分焼き、中まで火を通す',
     simmer:'鶏ももを加え、ふたをして5分ほど中まで火が通るまで煮る' },
   { id:'p_hikiniku', name:'パラパラ炒めひき肉', short:'ひき肉', emoji:'🥩', category:'protein',
     storageType:'freeze', shelfLifeDays:21, fridgeDays:3, unitName:'1食分[約60g]', grams:60, ready:true,
     purchaseUnit:{ item:'合いびき肉', unit:'パック', grams:300, step:1, section:'精肉' },
     prepInstruction:'フライパンに油をひかずに入れて中火で炒め、出た脂をペーパーで拭き取りながらポロポロになるまで火を通す。冷めたら{n}食分ずつ保存袋に薄く平らに入れて冷凍（パキッと割って使える）',
-    prepMin:12, compatibleTags:['和風','洋風','中華','韓国風'],
+    prepMin:12, compatibleTags:['和風','洋風','中華','韓国風','エスニック'],
     fry:'パラパラひき肉を凍ったまま加え、ほぐしながら温める',
     simmer:'パラパラひき肉を加えてほぐし、ひと煮立ちさせる' },
   { id:'p_sake', name:'骨取り鮭切り身', short:'鮭', emoji:'🐟', category:'protein',
     storageType:'freeze', shelfLifeDays:14, fridgeDays:2, unitName:'1食分[1切れ・約80g]', grams:80, ready:false,
     purchaseUnit:{ item:'生鮭切り身', unit:'切れ', grams:80, step:1, section:'鮮魚' },
     prepInstruction:'ペーパーで水気を拭き、骨抜きで小骨を除く。ひと口大のそぎ切りにして酒少々を振り、1切れずつラップでぴったり包んで{n}食分を保存袋に入れて冷凍',
-    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風'],
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風','エスニック'],
     fry:'鮭を並べ、ふたをして中火で3分→返して2分蒸し焼きにする（凍ったままなら+1分）',
     simmer:'鮭を加え、崩さないように3〜4分煮る' },
   { id:'p_shiromi', name:'骨取り白身魚（たら）', short:'白身魚', emoji:'🐟', category:'protein',
     storageType:'freeze', shelfLifeDays:14, fridgeDays:2, unitName:'1食分[1切れ・約80g]', grams:80, ready:false,
     purchaseUnit:{ item:'生たら切り身', unit:'切れ', grams:80, step:1, section:'鮮魚' },
     prepInstruction:'塩少々を振って10分置き、出た水分をペーパーでしっかり拭き取る（臭み抜き）。骨を除いてひと口大に切り、1切れずつラップで包んで{n}食分を冷凍',
-    prepMin:15, compatibleTags:['和風','洋風','中華','韓国風'],
+    prepMin:15, compatibleTags:['和風','洋風','中華','韓国風','エスニック'],
     fry:'白身魚に片栗粉を薄くまぶして並べ、中火で両面2分ずつ焼く',
     simmer:'白身魚を加え、崩さないように3分ほど煮る' },
   { id:'p_tofu', name:'水切り木綿豆腐', short:'豆腐', emoji:'🧈', category:'protein',
     storageType:'fridge', shelfLifeDays:3, freezeDays:30, unitName:'1食分[約1/3丁・100g]', grams:100, ready:true,
     purchaseUnit:{ item:'木綿豆腐', unit:'丁', grams:350, step:1, section:'豆腐・卵' },
     prepInstruction:'ペーパーで包んで耐熱皿にのせ、レンジ600Wで3分加熱して水切りする。2cm角に切って{n}食分ずつ保存容器に入れて冷蔵（3日以内に。冷凍すると高野豆腐風の食感に）',
-    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風'],
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風','エスニック'],
     fry:'豆腐を並べ、表面に焼き色がつくまで2〜3分焼きつける',
     simmer:'豆腐を加え、2分ほど温める' },
   { id:'p_egg', name:'ゆで卵', short:'ゆで卵', emoji:'🥚', category:'protein',
     storageType:'fridge', shelfLifeDays:4, unitName:'1食分[1個]', grams:60, ready:true,
     purchaseUnit:{ item:'卵', unit:'個', grams:60, step:1, section:'豆腐・卵' },
     prepInstruction:'冷蔵庫から出したての卵を沸騰した湯に静かに入れ、中火で8分（半熟は7分）茹でて冷水に取る。殻をむいて{n}個を保存容器で冷蔵（殻付きのままなら5日）',
-    prepMin:15, compatibleTags:['和風','洋風','中華','韓国風'],
+    prepMin:15, compatibleTags:['和風','洋風','中華','韓国風','エスニック'],
     fry:'ゆで卵を半分に切り、最後に加えてたれをからめる',
     simmer:'ゆで卵を半分に切って加え、温める' },
   { id:'p_tuna', name:'ツナ缶', short:'ツナ', emoji:'🥫', category:'protein',
     storageType:'pantry', shelfLifeDays:365, fridgeDays:2, unitName:'1食分[1缶・約70g]', grams:70, ready:true,
     purchaseUnit:{ item:'ツナ缶（70g）', unit:'缶', grams:70, step:1, section:'缶詰・乾物' },
     prepInstruction:'下処理不要。{n}缶を常備棚へ（開封後は保存容器に移して冷蔵し2日以内に）',
-    prepMin:0, compatibleTags:['和風','洋風','中華','韓国風'],
+    prepMin:0, compatibleTags:['和風','洋風','中華','韓国風','エスニック'],
     fry:'ツナを軽く油を切って加え、さっと炒め合わせる',
     simmer:'ツナを油ごと加え、ひと煮立ちさせる' },
   { id:'p_saba', name:'サバ水煮缶', short:'サバ', emoji:'🥫', category:'protein',
     storageType:'pantry', shelfLifeDays:365, fridgeDays:2, unitName:'1食分[1/2缶・約95g]', grams:95, ready:true,
     purchaseUnit:{ item:'サバ水煮缶（190g）', unit:'缶', grams:190, step:1, section:'缶詰・乾物' },
     prepInstruction:'下処理不要。常備棚へ（1缶＝2食分。{n}食分。開封後は汁ごと保存容器に移して冷蔵し翌日までに）',
-    prepMin:0, compatibleTags:['和風','洋風','中華','韓国風'],
+    prepMin:0, compatibleTags:['和風','洋風','中華','韓国風','エスニック'],
     fry:'サバ缶の身を大きめにほぐして加え、汁大さじ1も一緒に入れて温める',
     simmer:'サバ缶を汁ごと加え、身を大きめにほぐしてひと煮立ちさせる' },
   { id:'p_butabara', name:'カット豚バラ薄切り', short:'豚バラ', emoji:'🥓', category:'protein',
     storageType:'freeze', shelfLifeDays:21, fridgeDays:2, unitName:'1食分[約70g]', grams:70, ready:false,
     purchaseUnit:{ item:'豚バラ薄切り肉', unit:'パック', grams:200, step:1, section:'精肉' },
     prepInstruction:'4cm幅に切り、約70gずつラップに広げて包む。{n}食分を保存袋に入れて冷凍',
-    prepMin:6, compatibleTags:['和風','洋風','中華','韓国風'],
+    prepMin:6, compatibleTags:['和風','洋風','中華','韓国風','エスニック'],
     fry:'豚バラを広げ入れ、脂が出てカリッとするまで中火で3分炒める（油は不要）',
     simmer:'豚バラを加え、アクを取りながら3分ほど煮る' },
   { id:'p_sasami', name:'筋取りそぎ切りささみ', short:'ささみ', emoji:'🍗', category:'protein',
     storageType:'freeze', shelfLifeDays:21, fridgeDays:2, unitName:'1食分[2本・約100g]', grams:100, ready:false,
     purchaseUnit:{ item:'鶏ささみ（4本入り）', unit:'パック', grams:200, step:1, section:'精肉' },
     prepInstruction:'フォークで筋を押さえて引き抜き、斜めにそぎ切りにする。2本分ずつラップで包み、{n}食分を保存袋に入れて冷凍',
-    prepMin:10, compatibleTags:['和風','洋風','中華','韓国風'],
+    prepMin:10, compatibleTags:['和風','洋風','中華','韓国風','エスニック'],
     fry:'ささみに片栗粉を薄くまぶして並べ、中火で両面2分ずつ焼く',
     simmer:'ささみを加え、3分ほど煮て火を通す' },
   { id:'p_atsuage', name:'油抜き厚揚げ', short:'厚揚げ', emoji:'🟫', category:'protein',
     storageType:'fridge', shelfLifeDays:4, freezeDays:30, unitName:'1食分[1/2枚・約100g]', grams:100, ready:false,
     purchaseUnit:{ item:'厚揚げ', unit:'枚', grams:200, step:1, section:'豆腐・卵' },
     prepInstruction:'ザルにのせて熱湯を回しかけて油抜きし、水気を拭いてひと口大に切る。{n}食分ずつ保存容器に入れて冷蔵（冷凍も可）',
-    prepMin:6, compatibleTags:['和風','洋風','中華','韓国風'],
+    prepMin:6, compatibleTags:['和風','洋風','中華','韓国風','エスニック'],
     fry:'厚揚げを並べ、表面がカリッとするまで中火で3分焼く',
     simmer:'厚揚げを加え、3分ほど煮て味を含ませる' },
   { id:'p_ebi', name:'背ワタ取りむきえび', short:'えび', emoji:'🦐', category:'protein',
     storageType:'freeze', shelfLifeDays:30, fridgeDays:1, unitName:'1食分[約70g]', grams:70, ready:false,
     purchaseUnit:{ item:'冷凍むきえび', unit:'袋', grams:200, step:1, section:'冷凍食品' },
     prepInstruction:'半解凍して片栗粉と塩少々で揉み洗いし、背ワタが残っていれば除く。水気をしっかり拭いて酒少々を振り、{n}食分ずつ保存袋に平らに入れて冷凍',
-    prepMin:12, compatibleTags:['和風','洋風','中華','韓国風'],
+    prepMin:12, compatibleTags:['和風','洋風','中華','韓国風','エスニック'],
     fry:'えびを凍ったまま加え、色が変わるまで中火で2〜3分炒める（出た水分はペーパーで拭く）',
     simmer:'えびを加え、色が変わるまで2分煮る' },
 
@@ -472,87 +472,87 @@ const PARTS = [
     storageType:'fridge', shelfLifeDays:5, freezeDays:30, unitName:'1食分[約40g]', grams:40, ready:true,
     purchaseUnit:{ item:'にんじん', unit:'本', grams:150, step:1, section:'青果' },
     prepInstruction:'皮をむいてスライサーで千切りにし、塩ひとつまみで軽く揉んで5分置き、水気をぎゅっと絞る。{n}食分ずつ保存袋に入れて冷蔵（冷凍も可）',
-    prepMin:10, compatibleTags:['和風','洋風','中華','韓国風'] },
+    prepMin:10, compatibleTags:['和風','洋風','中華','韓国風','エスニック'] },
   { id:'v_cabbage', name:'ざく切りキャベツ', short:'キャベツ', emoji:'🥬', category:'veg', group:'cabbage',
     storageType:'fridge', shelfLifeDays:5, freezeDays:30, unitName:'1食分[約80g]', grams:80, ready:false,
     purchaseUnit:{ item:'キャベツ', unit:'玉', grams:1000, step:0.25, section:'青果' },
     prepInstruction:'芯を除いて4cm角のざく切りにし、洗って水気をしっかり切る。キッチンペーパーを敷いた保存袋に{n}食分ずつ入れて冷蔵（冷凍する場合は軽く塩揉みしてから）',
-    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風'] },
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風','エスニック'] },
   { id:'v_tamanegi', name:'くし切り玉ねぎ', short:'玉ねぎ', emoji:'🧅', category:'veg', group:'allium',
     storageType:'freeze', shelfLifeDays:30, fridgeDays:5, unitName:'1食分[約50g]', grams:50, ready:false,
     purchaseUnit:{ item:'玉ねぎ', unit:'個', grams:200, step:1, section:'青果' },
     prepInstruction:'皮をむいて縦半分に切り、1cm幅のくし切りにしてバラバラにほぐす。{n}食分ずつ保存袋に平らに入れて冷凍（凍ったまま使えて、冷凍すると甘みが出やすい）',
-    prepMin:6, compatibleTags:['和風','洋風','中華','韓国風'] },
+    prepMin:6, compatibleTags:['和風','洋風','中華','韓国風','エスニック'] },
   { id:'v_broccoli', name:'小房冷凍ブロッコリー', short:'ブロッコリー', emoji:'🥦', category:'veg', group:'green',
     storageType:'freeze', shelfLifeDays:30, fridgeDays:3, unitName:'1食分[約60g]', grams:60, ready:true,
     purchaseUnit:{ item:'ブロッコリー', unit:'株', grams:250, step:1, section:'青果' },
     prepInstruction:'小房に分け、茎は皮を厚くむいて薄切りにする。塩を入れた熱湯で1分半固めに茹でてザルに上げ、冷めたら水気を拭いて{n}食分ずつ保存袋に入れて冷凍',
-    prepMin:10, compatibleTags:['和風','洋風','中華','韓国風'] },
+    prepMin:10, compatibleTags:['和風','洋風','中華','韓国風','エスニック'] },
   { id:'v_kinoko', name:'ほぐし冷凍きのこミックス', short:'きのこ', emoji:'🍄', category:'veg', group:'mushroom',
     storageType:'freeze', shelfLifeDays:30, fridgeDays:4, unitName:'1食分[約50g]', grams:50, ready:false,
     purchaseUnit:{ item:'きのこ（しめじ・まいたけ・えのき等）', unit:'パック', grams:100, step:1, section:'青果' },
     prepInstruction:'石づきを落とし、しめじ・まいたけ・えのき等を食べやすくほぐす（洗わない）。混ぜ合わせて{n}食分ずつ保存袋に入れ、空気を抜いて冷凍（冷凍で旨みがアップ）',
-    prepMin:6, compatibleTags:['和風','洋風','中華','韓国風'] },
+    prepMin:6, compatibleTags:['和風','洋風','中華','韓国風','エスニック'] },
   { id:'v_horenso', name:'茹でほうれん草', short:'ほうれん草', emoji:'🌿', category:'veg', group:'leafy',
     storageType:'freeze', shelfLifeDays:21, fridgeDays:3, unitName:'1食分[約50g]', grams:50, ready:true,
     purchaseUnit:{ item:'ほうれん草', unit:'束', grams:200, step:1, section:'青果' },
     prepInstruction:'根元をよく洗い、塩を入れた熱湯で根元から30秒→葉も沈めて30秒茹でて冷水に取る。水気をしっかり絞って4cm長さに切り、{n}食分ずつラップで包んで冷凍',
-    prepMin:10, compatibleTags:['和風','洋風','中華','韓国風'] },
+    prepMin:10, compatibleTags:['和風','洋風','中華','韓国風','エスニック'] },
   { id:'v_komatsuna', name:'茹で小松菜', short:'小松菜', emoji:'🥬', category:'veg', group:'leafy',
     storageType:'freeze', shelfLifeDays:21, fridgeDays:3, unitName:'1食分[約50g]', grams:50, ready:true,
     purchaseUnit:{ item:'小松菜', unit:'束', grams:200, step:1, section:'青果' },
     prepInstruction:'根元を落として洗い、熱湯で茎30秒→葉20秒さっと茹でて冷水に取る。水気を絞って4cm長さに切り、{n}食分ずつラップで包んで冷凍（アクが少ないので生のまま冷凍も可）',
-    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風'] },
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風','エスニック'] },
   { id:'v_nasu', name:'カットなす', short:'なす', emoji:'🍆', category:'veg', group:'fruit',
     storageType:'freeze', shelfLifeDays:21, fridgeDays:2, unitName:'1食分[1本・約80g]', grams:80, ready:false,
     purchaseUnit:{ item:'なす', unit:'本', grams:80, step:1, section:'青果' },
     prepInstruction:'ヘタを落として縦半分→斜め1cm幅に切り、水に5分さらしてアク抜きする。水気をよく拭いて{n}食分ずつ保存袋に平らに入れて冷凍',
-    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風'] },
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風','エスニック'] },
   { id:'v_jagaimo', name:'レンチンじゃがいも', short:'じゃがいも', emoji:'🥔', category:'veg', group:'starch',
     storageType:'fridge', shelfLifeDays:3, unitName:'1食分[約100g]', grams:100, ready:true,
     purchaseUnit:{ item:'じゃがいも', unit:'個', grams:150, step:1, section:'青果' },
     prepInstruction:'皮をむいてひと口大に切り、水に3分さらす。耐熱容器に入れてふんわりラップし、レンジ600Wで1個あたり2分半加熱（竹串がすっと通ればOK）。粗熱を取って{n}食分ずつ保存容器で冷蔵（冷凍すると食感が落ちるので冷蔵で3日以内に）',
-    prepMin:12, compatibleTags:['和風','洋風','中華','韓国風'] },
+    prepMin:12, compatibleTags:['和風','洋風','中華','韓国風','エスニック'] },
   { id:'v_piman', name:'細切りピーマン', short:'ピーマン', emoji:'🫑', category:'veg', group:'pepper',
     storageType:'freeze', shelfLifeDays:30, fridgeDays:5, unitName:'1食分[約35g]', grams:35, ready:false,
     purchaseUnit:{ item:'ピーマン（4〜5個入り）', unit:'袋', grams:150, step:1, section:'青果' },
     prepInstruction:'縦半分に切ってヘタと種を除き、縦に5mm幅の細切りにする。水気を拭いて{n}食分ずつ保存袋に入れて冷凍',
-    prepMin:6, compatibleTags:['和風','洋風','中華','韓国風'] },
+    prepMin:6, compatibleTags:['和風','洋風','中華','韓国風','エスニック'] },
   { id:'v_moyashi', name:'下茹でもやし', short:'もやし', emoji:'🌱', category:'veg', group:'sprout',
     storageType:'fridge', shelfLifeDays:2, unitName:'1食分[約70g]', grams:70, ready:true,
     purchaseUnit:{ item:'もやし', unit:'袋', grams:200, step:1, section:'青果' },
     prepInstruction:'さっと洗い、熱湯で30秒茹でる（またはレンジ600Wで2分）。ザルで水気をしっかり切り、ペーパーを敷いた保存容器に入れて冷蔵（{n}食分・2日以内に使い切る）',
-    prepMin:5, compatibleTags:['和風','洋風','中華','韓国風'] },
+    prepMin:5, compatibleTags:['和風','洋風','中華','韓国風','エスニック'] },
   { id:'v_negi', name:'斜め切り冷凍長ねぎ', short:'長ねぎ', emoji:'🎋', category:'veg', group:'allium',
     storageType:'freeze', shelfLifeDays:30, fridgeDays:5, unitName:'1食分[約20g]', grams:20, ready:false,
     purchaseUnit:{ item:'長ねぎ', unit:'本', grams:100, step:1, section:'青果' },
     prepInstruction:'斜め薄切りにして水気を拭き、保存袋に平らに入れて冷凍（{n}食分。使う分だけパキッと折って凍ったまま使う）',
-    prepMin:4, compatibleTags:['和風','洋風','中華','韓国風'] },
+    prepMin:4, compatibleTags:['和風','洋風','中華','韓国風','エスニック'] },
   { id:'v_kabocha', name:'レンチン角切りかぼちゃ', short:'かぼちゃ', emoji:'🎃', category:'veg', group:'starch',
     storageType:'freeze', shelfLifeDays:30, fridgeDays:4, unitName:'1食分[約80g]', grams:80, ready:true,
     purchaseUnit:{ item:'かぼちゃ', unit:'個', grams:1200, step:0.25, section:'青果' },
     prepInstruction:'種とワタを取り除き2cm角に切る。耐熱容器でふんわりラップしてレンジ600Wで4〜5分、竹串が通るまで加熱。冷めたら{n}食分ずつ保存袋に入れて冷凍',
-    prepMin:12, compatibleTags:['和風','洋風','中華','韓国風'] },
+    prepMin:12, compatibleTags:['和風','洋風','中華','韓国風','エスニック'] },
   { id:'v_hakusai', name:'ざく切り白菜', short:'白菜', emoji:'🥬', category:'veg', group:'cabbage',
     storageType:'fridge', shelfLifeDays:5, freezeDays:30, unitName:'1食分[約100g]', grams:100, ready:false,
     purchaseUnit:{ item:'白菜', unit:'株', grams:2000, step:0.25, section:'青果' },
     prepInstruction:'芯はそぎ切り、葉はざく切りにして洗い、水気をしっかり切る。{n}食分ずつ保存袋に入れて冷蔵（冷凍すると繊維が壊れて煮込みが時短に）',
-    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風'] },
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風','エスニック'] },
   { id:'v_tomato', name:'くし切りトマト', short:'トマト', emoji:'🍅', category:'veg', group:'fruit',
     storageType:'fridge', shelfLifeDays:3, unitName:'1食分[約1/2個・75g]', grams:75, ready:true,
     purchaseUnit:{ item:'トマト', unit:'個', grams:150, step:1, section:'青果' },
     prepInstruction:'ヘタを取って8等分のくし切りにし、キッチンペーパーを敷いた保存容器に入れて冷蔵（{n}食分・3日以内に）',
-    prepMin:4, compatibleTags:['和風','洋風','中華','韓国風'] },
+    prepMin:4, compatibleTags:['和風','洋風','中華','韓国風','エスニック'] },
   { id:'v_daikon', name:'いちょう切り冷凍大根', short:'大根', emoji:'⚪', category:'veg', group:'root',
     storageType:'freeze', shelfLifeDays:30, fridgeDays:5, unitName:'1食分[約80g]', grams:80, ready:false,
     purchaseUnit:{ item:'大根', unit:'本', grams:1000, step:0.25, section:'青果' },
     prepInstruction:'皮をむいて5mm厚のいちょう切りにする。生のまま{n}食分ずつ保存袋に入れて冷凍（冷凍すると繊維が壊れて味しみ＆煮込み時短）',
-    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風'] },
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風','エスニック'] },
   { id:'v_paprika', name:'細切りパプリカ', short:'パプリカ', emoji:'🌶️', category:'veg', group:'pepper',
     storageType:'freeze', shelfLifeDays:30, fridgeDays:5, unitName:'1食分[約40g]', grams:40, ready:true,
     purchaseUnit:{ item:'パプリカ', unit:'個', grams:150, step:1, section:'青果' },
     prepInstruction:'縦半分に切ってヘタと種を除き、5mm幅の細切りにする。{n}食分ずつ保存袋に入れて冷凍（生食するなら冷蔵で3日）',
-    prepMin:5, compatibleTags:['和風','洋風','中華','韓国風'] },
+    prepMin:5, compatibleTags:['和風','洋風','中華','韓国風','エスニック'] },
   { id:'v_gobo', name:'ささがき冷凍ごぼう', short:'ごぼう', emoji:'🪵', category:'veg', group:'root',
     storageType:'freeze', shelfLifeDays:30, fridgeDays:3, unitName:'1食分[約40g]', grams:40, ready:false,
     purchaseUnit:{ item:'ごぼう', unit:'本', grams:150, step:1, section:'青果' },
@@ -789,6 +789,45 @@ const BASES = [
     vOnly:'hakusai kinoko negi moyashi komatsuna nasu tamanegi cabbage',
     seasonings:[ml('水',180,'x'),sp('コチュジャン',1),sp('鶏がらスープの素',0.5),sp('醤油',0.5),sp('味噌',0.5),cm('おろしにんにく（チューブ）',0.5),sp('ごま油',0.5,'oil'),tx('一味唐辛子','お好みで')],
     finishSteps:['鍋にごま油とにんにくを入れて弱火で香りを出し、水と鶏がらスープの素を加えて中火にする。','{SIMMER}。','コチュジャン・味噌・醤油を溶き入れて1分煮る。','好みで一味を振って完成（溶き卵を加えると本格的に）。'] },
+
+  // ============================ エスニック ============================
+  // ナンプラー・スイートチリなどが無い場合の代用を調味料名に併記（家にある調味料でも作れるように）
+  { id:'t_gapao', name:'ガパオ風炒め', suffix:'ガパオ風炒め', genre:'エスニック', dishType:'主菜', method:'フライパン', time:'6分',
+    requiredCategories:MAIN,
+    pOnly:'hikiniku butakoma momo ebi sasami mushidori',
+    vOnly:'piman paprika tamanegi kinoko negi nasu',
+    seasonings:[sp('ナンプラー（なければ醤油）',1),sp('オイスターソース',1),sp('砂糖',0.5),cm('おろしにんにく（チューブ）',1),sp('サラダ油',1,'oil'),tx('乾燥バジル（あれば生バジル）','少々'),tx('一味唐辛子','お好みで')],
+    finishSteps:['{PREP}','ナンプラー・オイスターソース・砂糖を混ぜておく。','フライパンにサラダ油とにんにくを入れて弱火で香りを出し、中火にして{FRY}。','合わせ調味料を加えて汁気がなくなるまで炒め、火を止めてバジルを混ぜたら完成（目玉焼きとごはんを添えるとガパオライスに）。'] },
+  { id:'t_sweetchili', name:'スイートチリ炒め', suffix:'スイートチリ炒め', genre:'エスニック', dishType:'主菜', method:'フライパン', time:'5分',
+    requiredCategories:MAIN,
+    pOnly:'ebi momo butakoma sasami sake shiromi atsuage',
+    vOnly:'paprika piman tamanegi kabocha broccoli kinoko cabbage',
+    seasonings:[sp('スイートチリソース（なければケチャップ＋酢＋砂糖を同量ずつ）',2),sp('ナンプラー（なければ醤油）',0.5),sp('レモン汁',0.5),sp('サラダ油',1,'oil')],
+    finishSteps:['{PREP}','スイートチリソース・ナンプラー・レモン汁を混ぜておく。','フライパンにサラダ油を中火で熱し、{FRY}。','合わせ調味料を加え、照りが出るまで30秒〜1分からめて完成。'] },
+  { id:'t_coconut', name:'ココナッツカレー煮', suffix:'ココナッツカレー煮', genre:'エスニック', dishType:'主菜', method:'フライパン', time:'10分',
+    requiredCategories:MAIN,
+    pOnly:'momo ebi butakoma mushidori sasami atsuage shiromi',
+    vOnly:'kabocha nasu tamanegi paprika broccoli jagaimo kinoko piman',
+    seasonings:[ml('ココナッツミルク（なければ無調整豆乳）',80,'x'),sp('カレー粉',1),sp('ナンプラー（なければ醤油）',0.5),sp('砂糖',0.5),sp('サラダ油',1,'oil')],
+    finishSteps:['{PREP}','フライパンにサラダ油を中火で熱し、{FRY}。','カレー粉を振り入れて香りが立つまで30秒炒める。','ココナッツミルク・ナンプラー・砂糖を加え、弱めの中火で3〜4分、少しとろみがつくまで煮て完成（ごはんにかけてグリーンカレー風にも）。'] },
+  { id:'t_kaomangai', name:'カオマンガイ風ねぎ生姜だれ', suffix:'カオマンガイ風ねぎ生姜だれ', genre:'エスニック', dishType:'主菜', method:'和えるだけ', time:'5分',
+    requiredCategories:{protein:[1,1],veg:[1,2],proteinReady:true},
+    pOnly:'mushidori tofu egg',
+    vOnly:'cabbage tomato moyashi broccoli komatsuna paprika',
+    seasonings:[sp('醤油',1),sp('酢',1),sp('砂糖',0.5),sp('ナンプラー（なければ醤油）',0.5),sp('長ねぎ（みじん切り）',3,'x'),cm('おろし生姜（チューブ）',2)],
+    finishSteps:['{PREP}','ボウルに醤油・酢・砂糖・ナンプラー・長ねぎ・生姜を混ぜて、ねぎ生姜だれを作る。','器に{V}を敷き、{P}を盛りつける。','ねぎ生姜だれをたっぷりかけて完成（ごはんにのせればカオマンガイ風）。'] },
+  { id:'t_yam', name:'ヤム風エスニックサラダ', suffix:'ヤム風エスニックサラダ', genre:'エスニック', dishType:'副菜', method:'和えるだけ', time:'5分', rawOk:['v_cabbage'],
+    requiredCategories:{protein:[0,1],veg:[1,2],proteinReady:true},
+    pOnly:'mushidori tuna',
+    vOnly:'tomato paprika tamanegi ninjin cabbage moyashi kinoko',
+    seasonings:[sp('レモン汁',1.5),sp('ナンプラー（なければ醤油）',1),sp('砂糖',1),tx('一味唐辛子','少々'),tx('パクチー（あれば）','適量')],
+    finishSteps:['{PREP}','ボウルにレモン汁・ナンプラー・砂糖・一味を混ぜてドレッシングを作る。','{ALL}を加えて和え（キャベツは生のままでOK）、5分ほど置いてなじませる。','器に盛り、あればパクチーをのせて完成。'] },
+  { id:'t_tomyum', name:'トムヤム風スープ', suffix:'トムヤム風スープ', genre:'エスニック', dishType:'汁物', method:'鍋', time:'7分',
+    requiredCategories:{protein:[0,1],veg:[1,2]},
+    pOnly:'ebi butakoma mushidori shiromi tofu',
+    vOnly:'kinoko tomato tamanegi hakusai moyashi negi',
+    seasonings:[ml('水',180,'x'),sp('鶏がらスープの素',1),sp('ナンプラー（なければ醤油）',1),sp('レモン汁',1),sp('砂糖',0.5),sp('豆板醤（またはラー油）',0.5)],
+    finishSteps:['鍋に水と鶏がらスープの素を入れて中火にかける。','{SIMMER}。','ナンプラー・砂糖・豆板醤を加えて1分煮て、火を止めてからレモン汁を加えたら完成（酸っぱ辛い味に。牛乳を少し足すとマイルドに）。'] },
 ];
 
 /* ---------------------------------------------------------------------
@@ -1029,9 +1068,9 @@ const SEASON_SUGGEST = ['塩麹','醤油麹','玉ねぎ麹','甘酒','柚子胡�
 /* ---------------------------------------------------------------------
    3. アレンジルール（ジャンル・調理法・売り場・デモ在庫）
    --------------------------------------------------------------------- */
-const GENRES = ['和風','洋風','中華','韓国風'];
-const GCLS = { '和風':'wa', '洋風':'yo', '中華':'chu', '韓国風':'kan' };
-const GSHORT = { '和風':'和', '洋風':'洋', '中華':'中', '韓国風':'韓' };
+const GENRES = ['和風','洋風','中華','韓国風','エスニック'];
+const GCLS = { '和風':'wa', '洋風':'yo', '中華':'chu', '韓国風':'kan', 'エスニック':'eth' };
+const GSHORT = { '和風':'和', '洋風':'洋', '中華':'中', '韓国風':'韓', 'エスニック':'エ' };
 const METHOD_ICON = { 'フライパン':'🍳', 'レンジ':'⚡', '和えるだけ':'🥣', '鍋':'🍲', 'レンジ＋トースター':'🔥', 'オーブン':'🔥', '魚焼きグリル':'🐟', 'せいろ':'♨️', 'ノンフライヤー':'💨', '自動調理鍋':'⏲️' };
 const STORAGE = { freeze:{label:'冷凍', icon:'❄️'}, fridge:{label:'冷蔵', icon:'🧊'}, pantry:{label:'常備', icon:'🗄️'} };
 const STORAGE_ORDER = ['freeze','fridge','pantry'];
@@ -1084,7 +1123,7 @@ const DEFAULT_STATE = () => ({
   activePlanId:null,
   suggestions:null, seenKeys:[], cooked:[],
   stockFilter:'all', addQty:1, dictMode:'part', dictSel:null,
-  tutorialSeen:false, addLog:{}, tipsOn:true, tipsSeen:{}, lastBackupAt:null, extraOn:[], customBases:[], equip:Object.assign({},DEFAULT_EQUIP),
+  tutorialSeen:false, addLog:{}, tipsOn:true, tipsSeen:{}, ethnicOn:true, lastBackupAt:null, extraOn:[], customBases:[], equip:Object.assign({},DEFAULT_EQUIP),
 });
 // ユーザー一覧（同じブラウザで家族が別々に保存できるように、ユーザーごとに保存先を分ける）
 const PROF_KEY = 'kakezan-gohan-profiles';
@@ -1115,7 +1154,7 @@ function rebuildBases(){
   S.equip=Object.assign({},DEFAULT_EQUIP,S.equip||{});
   const customs=(S.customBases||[]).map(customToBase);
   BASES.length=0;
-  CORE_BASES.forEach(b=>{ if(equipOK(b)) BASES.push(b); });
+  CORE_BASES.forEach(b=>{ if(equipOK(b) && (b.genre!=='エスニック'||S.ethnicOn!==false)) BASES.push(b); });
   EXTRA_PACKS.forEach(pk=>{ if(S.extraOn.includes(pk.id)) pk.bases.forEach(b=>{ if(equipOK(b)) BASES.push(b); }); });
   EQUIPMENT.forEach(eq=>eq.bases.forEach(b=>{ if(equipOK(b)) BASES.push(b); }));
   customs.forEach(b=>{ if(!b.hidden && equipOK(b)) BASES.push(b); });
@@ -1860,7 +1899,7 @@ const TIPS = {
     { sel:'#main .dish [data-act=cook]', title:'作ったらここを押す', text:'使ったストックが自動で減ります。間違えても「取り消す」で戻せます。' },
     { sel:'#main [data-act=shuffle]', title:'気分じゃなければ', text:'別の組み合わせを提案します。1品だけ替えたいときはカードの「↻」を。' } ] },
   planB:{ cond:()=>S.tab==='plan'&&S.mode==='B'&&!S.draft, steps:[
-    { sel:'#main [data-act=genWeek]', title:'ボタン1つで7日分', text:'和・洋・中・韓が毎日変わるように、ストックを優先して自動で作ります。' } ] },
+    { sel:'#main [data-act=genWeek]', title:'ボタン1つで7日分', text:'和・洋・中・韓・エスニックが毎日変わるように、ストックを優先して自動で作ります。' } ] },
   planB2:{ cond:()=>S.tab==='plan'&&S.mode==='B'&&S.draft&&document.querySelector('#main [data-act=confirm]'), steps:[
     { sel:'#main .day .swap', title:'気分に合わない日は', text:'その料理だけ別のアレンジに差し替えられます。' },
     { sel:'#main [data-act=confirm]', title:'決まったら確定', text:'買い物リストと週末の仕込み手順が自動で作られます。' } ] },
@@ -2041,6 +2080,8 @@ function renderSeasonSheet(){
   const customs=(S.customBases||[]).filter(c=>!c.hidden);
   sheetShell('調味料をカスタマイズ',`
     <div class="info-box">基本の<b>${CORE_BASES.length}種の味付け</b>は、どの家庭にもある調味料だけで作れるようにしてあります。<b>ふだんはこのままでOK</b>です。<br>塩麹など手持ちの調味料をONにすると、それを使った味付けが「今日のアレンジ」「1週間献立」「図鑑」に加わります。</div>
+    <div class="list" style="margin-top:12px"><div class="pk-row"><div class="tx"><b>🌶️ エスニック風の味付け</b><small>ガパオ・トムヤム・ココナッツカレーなど${CORE_BASES.filter(b=>b.genre==='エスニック').length}種。ナンプラーなどがなくても、醤油などで代用できる分量を表示します</small></div>
+      <button class="sw ${S.ethnicOn!==false?'on':''}" data-act="toggleEthnic" aria-label="エスニック風の味付けを使う"></button></div></div>
     <div class="grp-h">🧂 追加できる調味料（上級者向け）</div>
     <div class="list">${EXTRA_PACKS.map(pk=>{ const on=S.extraOn.includes(pk.id);
       return `<div class="pk-row"><div class="tx"><b>${pk.emoji} ${esc(pk.name)}</b><small>${esc(pk.desc)}</small>
@@ -2191,6 +2232,7 @@ const ACTIONS={
     if(!hasEq(ds.id) && S.draft && S.draft.days.some(d=>d.dishes.some(x=>!equipOK(BASE[x.baseId])))) setTimeout(()=>toast('作成済みの1週間献立に、この器具を使う料理があります。献立画面から差し替えできます'),2300);
     renderEquipSheet(); render(); },
   seasonSheet:()=>{ const had=!!$('#sheet').innerHTML; renderSeasonSheet(); if(!had) pushOv(); },
+  toggleEthnic:()=>{ S.ethnicOn=S.ethnicOn===false; rebuildBases(); S.suggestions=null; renderSeasonSheet(); render(); toast(S.ethnicOn?'🌶️ エスニック風の味付けを使います':'エスニック風の味付けを提案から外しました'); },
   togglePack:ds=>{ const on=S.extraOn.includes(ds.id); S.extraOn=on?S.extraOn.filter(x=>x!==ds.id):[...S.extraOn,ds.id];
     rebuildBases(); S.suggestions=null; renderSeasonSheet(); render();
     const pk=EXTRA_PACKS.find(p=>p.id===ds.id); toast(on?`${pk.name}の味付けをOFFにしました`:`🧂 ${pk.name}の味付け${pk.bases.length}種を追加しました`); },
