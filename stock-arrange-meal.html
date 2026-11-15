@@ -206,6 +206,8 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer;pad
 .stag button{height:32px;padding:0 11px;border-radius:99px;font-size:12.5px;font-weight:600;border:1px solid var(--line);background:#fff;color:var(--sub)}
 .stag button.on{background:var(--green-l);border-color:var(--green-l);color:var(--green);text-decoration:line-through}
 .tip{font-size:12px;color:var(--sub);background:var(--bg);border-radius:12px;padding:10px 12px;margin-top:8px}
+.intro{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:14px 16px;margin-bottom:14px;font-size:13.5px;line-height:1.7;color:var(--sub)}
+.intro b{color:var(--green)}
 /* nav */
 #nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:var(--safe-b)}
 .nav-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav-h)}
@@ -1187,7 +1189,7 @@ function renderStock(){
   const list = S.stock.length ? (grp('protein','タンパク質パーツ','🍖')+grp('veg','野菜・きのこパーツ','🥕') || `<div class="card empty"><p>該当するストックはありません</p></div>`)
     : `<div class="card empty" style="margin-top:14px"><div class="big">🧊</div><b>まだストックがありません</b><p>週末に下処理したパーツを登録すると、<br>毎日の「かけ算アレンジ」が自動で提案されます。</p>
        <button class="btn primary" data-act="demo">✨ よくある週末仕込みセットを一括追加</button></div>`;
-  return `<div class="hero"><h1>冷蔵庫・冷凍庫のストック</h1><p>下処理済みパーツを登録して、平日は5〜10分で仕上げるだけ。</p>
+  return `<div class="intro"><b>かけ算ごはん</b>は、週末にまとめて下処理した食材（ストックパーツ）を登録すると、「パーツ×味付け」の掛け算で毎日違うアレンジ料理を自動で提案するアプリです。1週間の献立づくりから、買い物リスト・週末の下処理手順まで逆算して作れます。</div><div class="hero"><h1>冷蔵庫・冷凍庫のストック</h1><p>下処理済みパーツを登録して、平日は5〜10分で仕上げるだけ。</p>
     <div class="stats"><div class="stat"><b>${pS}</b><span>タンパク質（食分）</span></div><div class="stat"><b>${vS}</b><span>野菜・きのこ（食分）</span></div><div class="stat"><b>${soon}</b><span>早めに使う</span></div></div></div>
     <div class="btn-row"><button class="btn primary" data-act="openAdd">＋ ストックを追加</button><button class="btn outline" data-act="demo">✨ 週末仕込み<br>セットを一括追加</button></div>
     ${S.stock.length?`<div class="chips" style="margin-top:16px">${[['all','すべて',S.stock.length],['protein','タンパク質',null],['veg','野菜・きのこ',null],['soon','期限が近い',soon]].map(([k,l,c])=>`<button class="chip ${S.stockFilter===k?'on':''}" data-act="sfilter" data-f="${k}">${l}${c!=null?`<span class="c">${c}</span>`:''}</button>`).join('')}</div>`:''}
