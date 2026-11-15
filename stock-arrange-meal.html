@@ -2261,7 +2261,7 @@ function closeModalUI(){ closeModal(); popOv(); }
 /* =====================================================================
    14. PWA（ホーム画面に追加・オフライン・自動アップデート・引き継ぎ）
    ===================================================================== */
-const APP_VERSION = '2026.11.15.3';
+const APP_VERSION = '2026.11.15.4';
 const SW_FILE = 'stock-arrange-meal-sw.js', SW_SCOPE = './stock-arrange-meal';
 const PWA = { deferred:null };
 const isHttp = ()=>/^https?:$/.test(location.protocol);
@@ -2482,38 +2482,101 @@ document.addEventListener('input',e=>{
 
 // ---------- 家族への献立共有（サーバーなしで「送る」方式） ----------
 function planText(p){
-  const L=[`【かけ算ごはん】${fmtDate(p.weekStart)}〜${fmtDate(addDays(p.weekStart,6))}の献立（${p.people}人分）`];
+  const L=[`${fmtMD(p.weekStart)}〜${fmtMD(addDays(p.weekStart,6))}の献立（${p.people}人分）`];
   p.days.forEach(d=>{ L.push('',`■ ${fmtDate(d.date)}`); d.dishes.forEach(x=>L.push(`・${x.type}：${dishName(x)}`)); });
   const ap=activePlan();
   if(ap&&ap.id===p.id){
     const sh=computeShopping(ap);
     if(sh.items.length){ L.push('','【買い物リスト】'); SECTIONS.forEach(sec=>{ const its=sh.items.filter(i=>i.section===sec); if(its.length){ L.push(`〈${sec}〉`); its.forEach(i=>L.push(`□ ${PART[i.id].purchaseUnit.item} ${frac(i.units)}${PART[i.id].purchaseUnit.unit}`)); } }); }
   }
+  const lk=planLink(p); L.push('',`▼アプリに取り込む`,lk.url);
   return L.join('\n');
 }
-const planCode = p=>'KKZP1:'+b64e(JSON.stringify({ app:'kakezan-gohan', kind:'plan', v:1, weekStart:p.weekStart, people:p.people, core:p.core,
-  days:p.days.map(d=>({date:d.date, dishes:d.dishes.map(x=>({baseId:x.baseId,p:x.p,v:x.v}))})) }));
+// ---- 献立リンク（短縮形式）----
+// 料理・食材を固定の番号表で数字英字に置き換え、1品＝5文字に圧縮する。
+// ※番号表は互換性のため並びを変えない。新しい味付け・食材は必ず末尾に追加すること。
+const SHARE_BASES = ["w_teriyaki", "w_negishio", "w_shoga", "w_misomayo", "w_dashiankake", "w_oroshiponzu", "w_nimono", "w_kinpira", "w_gomaae", "w_nibitashi", "w_misoshiru", "y_garibata", "y_tomatogarlic", "y_tonyu", "y_curry", "y_cheeseyaki", "y_lemonbutter", "y_mustardmayo", "y_marine", "y_consomme", "c_oyster", "c_toban", "c_umashioan", "c_mabo", "c_amazu", "c_banbanji", "c_gomatonyu", "c_chukasoup", "k_yangnyeom", "k_bulgogi", "k_chijimi", "k_jjim", "k_namul", "k_chorogi", "k_sundubu", "t_gapao", "t_sweetchili", "t_coconut", "t_kaomangai", "t_yam", "t_tomyum", "x_shiokoji_yaki", "x_shiokoji_soup", "x_shoyukoji_itame", "x_shoyukoji_ae", "x_yuzu_ponzu", "x_yuzu_mayo", "x_saikyo", "x_shiromiso_soup", "x_hoikoro", "x_jajan", "x_kurozu", "x_balsamico", "x_balsamico_marine", "x_shiokonbu_ae", "x_dashida_soup", "e_yuan", "e_spicegrill", "e_panko", "e_gochumayo", "e_seiro_goma", "e_seiro_chuka", "e_af_karaage", "e_af_curry", "e_auto_tomato", "e_auto_wa"];
+const SHARE_PARTS = ["p_mushidori", "p_butakoma", "p_momo", "p_hikiniku", "p_sake", "p_shiromi", "p_tofu", "p_egg", "p_tuna", "p_saba", "p_butabara", "p_sasami", "p_atsuage", "p_ebi", "v_ninjin", "v_cabbage", "v_tamanegi", "v_broccoli", "v_kinoko", "v_horenso", "v_komatsuna", "v_nasu", "v_jagaimo", "v_piman", "v_moyashi", "v_negi", "v_kabocha", "v_hakusai", "v_tomato", "v_daikon", "v_paprika", "v_gobo"];
+const APP_URL = 'https://pierrotmask.github.io/unique-tool/stock-arrange-meal.html';
+const B62 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const e62 = (n,w)=>{ let r=''; for(let i=0;i<w;i++){ r=B62[n%62]+r; n=Math.floor(n/62); } return r; };
+const d62 = str=>[...str].reduce((a,c)=>{ const v=B62.indexOf(c); if(v<0) throw new Error('char'); return a*62+v; },0);
+const SHARE_EPOCH = '2024-01-01';
+function planToShort(p){
+  let out='A'+String(p.people)+e62(Math.round((parseYmd(p.weekStart)-parseYmd(SHARE_EPOCH))/864e5),3), skipped=0;
+  p.days.forEach(day=>{
+    const ds=day.dishes.filter(x=>{ const ok=SHARE_BASES.includes(x.baseId)&&(!x.p||SHARE_PARTS.includes(x.p))&&x.v.every(v=>SHARE_PARTS.includes(v)); if(!ok) skipped++; return ok; });
+    out+=B62[ds.length];
+    ds.forEach(x=>{ out+=e62(SHARE_BASES.indexOf(x.baseId),2)+B62[x.p?SHARE_PARTS.indexOf(x.p)+1:0]+B62[SHARE_PARTS.indexOf(x.v[0])+1]+B62[x.v[1]?SHARE_PARTS.indexOf(x.v[1])+1:0]; });
+  });
+  return { code:out, skipped };
+}
+const shareBaseUrl = ()=>isHttp()?location.origin+location.pathname:APP_URL;
+const planLink = p=>{ const r=planToShort(p); return { url:`${shareBaseUrl()}#m=${r.code}`, skipped:r.skipped }; };
+function shortToPlan(code){
+  if(code[0]!=='A') throw new Error('ver');
+  const people=+code[1]; let i=5;
+  const weekStart=addDays(SHARE_EPOCH,d62(code.slice(2,5)));
+  const days=[]; let missing=0;
+  for(let k=0;k<7;k++){
+    const n=d62(code[i++]); const dishes=[];
+    for(let m=0;m<n;m++){
+      const bi=d62(code.slice(i,i+2)), pi=d62(code[i+2]), v1=d62(code[i+3]), v2=d62(code[i+4]); i+=5;
+      const b=BASE[SHARE_BASES[bi]], P=pi?SHARE_PARTS[pi-1]:null, V=[SHARE_PARTS[v1-1]].concat(v2?[SHARE_PARTS[v2-1]]:[]);
+      if(!b||(pi&&!PART[P])||!V.every(v=>PART[v])){ missing++; continue; }
+      dishes.push(makeDish(b,P,V));
+    }
+    days.push({date:addDays(weekStart,k),dishes});
+  }
+  if(i!==code.length) throw new Error('len');
+  return { plan:{ id:uid(), weekStart, people:[1,2,3,4].includes(people)?people:S.people, core:{protein:[],veg:[]}, days, createdAt:Date.now(), shared:true, confirmed:false }, missing };
+}
+// 貼り付けられた文章からリンク（#m=…）または旧形式コード（KKZP1:…）を探して読み込む
 function parsePlanCode(text){
-  text=(text||'').trim(); const i=text.indexOf('KKZP1:'); if(i<0) throw new Error('nocode');
+  text=(text||'').trim();
+  const m=text.match(/[#?&]m=([0-9A-Za-z]+)/)||text.match(/^([A][1-4][0-9A-Za-z]{4,})$/);
+  if(m) return shortToPlan(m[1]);
+  const i=text.indexOf('KKZP1:'); if(i<0) throw new Error('nocode');
   const o=JSON.parse(b64d(text.slice(i+6).split(/\s/)[0]));
   if(!o||o.kind!=='plan'||!Array.isArray(o.days)) throw new Error('format');
-  const missing=new Set();
-  const days=o.days.map(d=>({ date:d.date, dishes:d.dishes.filter(x=>{ const b=BASE[x.baseId]; const ok=b&&(!x.p||PART[x.p])&&x.v.every(v=>PART[v]); if(!ok) missing.add(x.baseId); return ok; }).map(x=>makeDish(BASE[x.baseId],x.p,x.v)) }));
-  return { plan:{ id:uid(), weekStart:o.weekStart, people:[1,2,3,4].includes(o.people)?o.people:S.people, core:o.core||{protein:[],veg:[]}, days, createdAt:Date.now(), shared:true, confirmed:false }, missing:missing.size };
+  let missing=0;
+  const days=o.days.map(d=>({ date:d.date, dishes:d.dishes.filter(x=>{ const b=BASE[x.baseId]; const ok=b&&(!x.p||PART[x.p])&&x.v.every(v=>PART[v]); if(!ok) missing++; return ok; }).map(x=>makeDish(BASE[x.baseId],x.p,x.v)) }));
+  return { plan:{ id:uid(), weekStart:o.weekStart, people:[1,2,3,4].includes(o.people)?o.people:S.people, core:o.core||{protein:[],veg:[]}, days, createdAt:Date.now(), shared:true, confirmed:false }, missing };
+}
+function planPreview(p){
+  return `<div class="list" style="margin-top:10px">${p.days.map(d=>`<div class="dict-row" style="padding:9px 12px"><div style="font-size:12px;font-weight:800;color:var(--green)">${fmtDate(d.date)}</div>${d.dishes.map(x=>`<div style="font-size:13.5px;line-height:1.6"><span class="g g-${GCLS[x.genre]}" style="height:18px;font-size:10px;padding:0 6px">${GSHORT[x.genre]}</span> ${esc(dishName(x))}</div>`).join('')||'<div class="hint mt0">（料理なし）</div>'}</div>`).join('')}</div>`;
 }
 function renderShareSheet(){
-  const p=S.draft;
+  const p=S.draft; const lk=p?planLink(p):null;
   sheetShell('家族と献立を共有',`
-    <div class="info-box">一緒に住んでいる人に、<b>献立と買い物リストを送ったり</b>、<b>相手のアプリに同じ献立を取り込んでもらったり</b>できます。<br><small style="color:var(--sub)">※自動で同期する機能はありません（サーバーを使わないアプリのため）。変更したら、もう一度送ってください。</small></div>
-    ${p?`<div class="fl">送る（${fmtMD(p.weekStart)}〜の献立）</div>
-      <div class="btn-col mt0"><button class="btn green sm" data-act="shareText">💬 献立と買い物リストをLINEなどで送る</button>
-      <button class="btn outline sm" data-act="shareCode">📋 相手のアプリに取り込める「献立コード」を送る</button></div>`
-      :`<p class="hint">送るには、先に「アレンジ献立」→「1週間献立」で献立を作成してください。</p>`}
-    <div class="fl" style="margin-top:18px">受け取る（届いた献立コードを取り込む）</div>
-    <textarea id="plan_code" class="inp" rows="3" placeholder="届いたメッセージ（KKZP1:〜）をそのまま貼り付け"></textarea>
+    ${p?`<div class="fl mt0">送る（${fmtMD(p.weekStart)}〜の献立）</div>
+      <div class="btn-col mt0"><button class="btn green" data-act="shareText">💬 献立と買い物リストを送る（LINEなど）</button>
+      <button class="btn outline sm" data-act="shareLink">🔗 取り込み用のリンクだけ送る</button></div>
+      <p class="hint">メッセージの最後に、相手がタップするだけで同じ献立を取り込めるリンク（約${lk.url.length}文字）が付きます。${lk.skipped?`※自作の味付け${lk.skipped}品はリンクに含められません。`:''}</p>`
+      :`<p class="hint mt0">送るには、先に「アレンジ献立」→「1週間献立」で献立を作成してください。</p>`}
+    <div class="fl" style="margin-top:18px">受け取る</div>
+    <p class="hint mt0">届いたリンクをタップすれば取り込めます。ホーム画面のアプリで取り込むときは、リンクを長押しでコピーして、ここに貼り付けてください。</p>
+    <textarea id="plan_code" class="inp" rows="2" placeholder="届いたリンク（またはメッセージ全体）を貼り付け"></textarea>
     <div class="btn-col">${navigator.clipboard&&navigator.clipboard.readText?'<button class="btn soft sm" data-act="planPaste">📋 クリップボードから貼り付け</button>':''}
       <button class="btn primary" data-act="planImport">この献立を取り込む</button></div>
-    <p class="hint">取り込むと、今の「1週間献立」の下書きが置き換わります（確定済みの献立や買い物リストはそのまま）。</p>`);
+    <p class="hint">※自動で同期はされません（サーバーを使わないアプリのため）。献立を変えたら、もう一度送ってください。取り込むと「1週間献立」の下書きが置き換わります（確定済みの献立・買い物リストはそのまま）。</p>`);
+}
+// リンクから開いたとき：内容を確認してから取り込む
+let INCOMING=null;
+function renderIncomingSheet(){
+  const r=INCOMING; if(!r) return;
+  const iosSafari=isIOS()&&!isStandalone()&&isHttp();
+  sheetShell('献立が届きました',`
+    <div class="info-box">${fmtDate(r.plan.weekStart)}〜の献立（${r.plan.people}人分）です。取り込むと「1週間献立」に入り、確定すると買い物リストに反映されます。${r.missing?`<br><small>※${r.missing}品はこの端末にない味付けのため取り込めません。</small>`:''}</div>
+    ${iosSafari?`<div class="warnbox">📲 ホーム画面のアプリを使っている場合は、ここではなく、LINEでリンクを長押し→コピーして、アプリの歯車⚙→「家族と献立を共有」に貼り付けてください（iPhoneではSafariとアプリのデータが別のため）。</div>`:''}
+    ${planPreview(r.plan)}
+    <div class="btn-col"><button class="btn primary" data-act="incomingAccept">この献立を取り込む</button><button class="btn ghost sm" data-act="incomingDecline">取り込まない</button></div>`);
+}
+function importPlan(r){
+  if(S.draft&&!S.draft.shared&&!confirm('今の1週間献立（下書き）を、届いた献立に置き換えます。よろしいですか？')) return false;
+  S.draft=r.plan; S.tab='plan'; S.mode='B'; render(); window.scrollTo(0,0);
+  toast(r.missing?`献立を取り込みました（${r.missing}品は取り込めませんでした）`:'👪 献立を取り込みました。確定すると買い物リストに反映されます');
+  return true;
 }
 async function shareTextOut(text,title){
   try{ if(isMobile()&&navigator.share){ await navigator.share({text,title}); return 'shared'; } }catch(e){ if(e&&e.name==='AbortError') return 'cancel'; }
@@ -2595,14 +2658,13 @@ const ACTIONS={
     toast(off.has(g)?`${g}を提案から外しました`:`${g}を使います`);
     if(off.has(g) && S.draft && S.draft.days.some(d=>d.dishes.some(x=>!baseUsable(BASE[x.baseId])))) setTimeout(()=>toast('作成済みの1週間献立に、このジャンルの料理があります。献立画面から差し替えできます'),2300); },
   shareSheet:()=>{ const had=!!$('#sheet').innerHTML; renderShareSheet(); if(!had) pushOv(); },
-  shareText:async()=>{ const r=await shareTextOut(planText(S.draft),'今週の献立'); if(r==='copied') toast('📋 コピーしました。LINEなどに貼り付けて送ってください'); else if(r==='shared') toast('送信画面を開きました'); },
-  shareCode:async()=>{ const t=`かけ算ごはんの献立コードです。アプリの歯車⚙→「家族と献立を共有」→「受け取る」に、このメッセージをそのまま貼り付けてください。\n${planCode(S.draft)}`;
-    const r=await shareTextOut(t,'献立コード'); if(r==='copied') toast('📋 献立コードをコピーしました。LINEなどで送ってください'); },
+  shareText:async()=>{ const r=await shareTextOut(planText(S.draft),'今週の献立'); if(r==='copied') toast('📋 コピーしました。LINEなどに貼り付けて送ってください'); },
+  shareLink:async()=>{ const r=await shareTextOut(planLink(S.draft).url,'献立'); if(r==='copied') toast('📋 リンクをコピーしました。LINEなどに貼り付けて送ってください'); },
   planPaste:async()=>{ try{ $('#plan_code').value=await navigator.clipboard.readText(); toast('貼り付けました'); }catch(e){ toast('入力欄を長押しして「ペースト」してください'); $('#plan_code').focus(); } },
-  planImport:()=>{ let r; try{ r=parsePlanCode($('#plan_code').value); }catch(e){ toast('献立コードを読み取れませんでした。メッセージ全体を貼り付けてください'); return; }
-    if(S.draft&&!confirm('今の1週間献立（下書き）を、届いた献立に置き換えます。よろしいですか？')) return;
-    S.draft=r.plan; S.tab='plan'; S.mode='B'; closeSheetUI(); render(); window.scrollTo(0,0);
-    toast(r.missing?`献立を取り込みました（相手だけが持つ自作の味付けなど${r.missing}品は取り込めませんでした）`:'👪 献立を取り込みました。確定すると買い物リストに反映されます'); },
+  planImport:()=>{ let r; try{ r=parsePlanCode($('#plan_code').value); }catch(e){ toast('リンクを読み取れませんでした。届いたリンクをそのまま貼り付けてください'); return; }
+    if(importPlan(r)) closeSheetUI(); },
+  incomingAccept:()=>{ const r=INCOMING; INCOMING=null; $('#sheet').innerHTML=''; popOv(); importPlan(r); if(!S.tutorialSeen) setTimeout(startWelcome,400); },
+  incomingDecline:()=>{ INCOMING=null; ACTIONS.closeSheet(); },
   partDict:ds=>{ S.tab='fav'; S.dictMode='part'; S.dictSel=ds.id; render(); setTimeout(()=>{ const el=document.querySelector('#main .dict-row'); const h=document.querySelector('#main .sec-t:last-of-type'); (h||el)&&(h||el).scrollIntoView({block:'start'}); window.scrollBy(0,-70); },60); },
   installGuide:()=>{ const had=!!$('#sheet').innerHTML; renderInstallGuide(); if(!had) pushOv(); },
   installSnooze:()=>{ setInst({snoozeUntil:addDays(todayStr(),14)}); render(); toast('2週間後にまたお知らせします（メニューからいつでも追加できます）'); },
@@ -2627,7 +2689,7 @@ const ACTIONS={
   presetSheet:()=>{ renderPresetSheet(); pushOv(); },
   addPreset:ds=>{ $('#sheet').innerHTML=''; popOv(); addPreset(ds.id); },
   demo:()=>addPreset('basic'),
-  closeSheet:()=>{ if(MIG_FIRST){ MIG_FIRST=false; ACTIONS.migSkip(); return; } closeSheetUI(); },
+  closeSheet:()=>{ if(MIG_FIRST){ MIG_FIRST=false; ACTIONS.migSkip(); return; } INCOMING=null; closeSheetUI(); if(!S.tutorialSeen&&!TOUR&&!tipsReady) setTimeout(startWelcome,300); },
   addQty:ds=>{ S.addQty=+ds.n; const sc=$('#sheet .sheet').scrollTop; renderAddSheet(); $('#sheet .sheet').scrollTop=sc; save(); },
   addPart:ds=>{
     const snap=snapshot();
@@ -2708,7 +2770,11 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if(TOUR) endTour(
 render();
 (()=>{ let msg=null; try{ msg=sessionStorage.getItem('kakezan-msg'); sessionStorage.removeItem('kakezan-msg'); }catch(e){} if(msg) setTimeout(()=>toast(msg),300); })();
 if(isStandalone()) askPersist();
-if(FRESH_INSTALL && isStandalone() && isIOS() && !instState().importAsked){ renderMigrateSheet(true); pushOv(); }
+const INCOMING_HASH=(()=>{ const m=location.hash.match(/^#m=([0-9A-Za-z]+)/); if(!m) return null; try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){} try{ return shortToPlan(m[1]); }catch(e){ setTimeout(()=>toast('献立リンクを読み取れませんでした'),300); return null; } })();
+window.addEventListener('hashchange',()=>{ const m=location.hash.match(/^#m=([0-9A-Za-z]+)/); if(!m) return; try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+  try{ INCOMING=shortToPlan(m[1]); if(TOUR) endTour(true); renderIncomingSheet(); pushOv(); }catch(e){ toast('献立リンクを読み取れませんでした'); } });
+if(INCOMING_HASH){ INCOMING=INCOMING_HASH; S.tutorialSeen||(tipsReady=false); renderIncomingSheet(); pushOv(); }
+else if(FRESH_INSTALL && isStandalone() && isIOS() && !instState().importAsked){ renderMigrateSheet(true); pushOv(); }
 else if(!S.tutorialSeen) startWelcome(); else { tipsReady=true; maybeTip(); }
 setTimeout(()=>updateFlow(false),3000);
 </script>
