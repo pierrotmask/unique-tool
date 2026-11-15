@@ -1616,16 +1616,18 @@ function renderModeB(){
     <div class="gcount">${GENRES.map(g=>`<span class="g g-${GCLS[g]}">${g} ${gc[g]||0}</span>`).join('')}</div>
     <div class="wk-meta">🔁 使い回すパーツ：タンパク質${usedP.size}種・野菜${usedV.size}種 ／ 📦 ストック活用 ${fromStock}/${total}品</div>
   </div>
-  ${p.confirmed?`<div class="status">✓ この献立は確定済みです（買い物＆仕込みリストに反映中）</div>`:(S.history.some(h=>h.id===p.id)?`<div class="status chg">✎ 確定後に変更があります。再確定するとリストが更新されます</div>`:'')}`;
+  ${p.confirmed?`<div class="status">✓ この献立は確定済みです（買い物＆仕込みリストに反映中）</div>`:(S.history.some(h=>h.id===p.id)?`<div class="status chg">✎ 確定後に変更があります。再確定するとリストが更新されます</div>`:'')}
+  ${(()=>{ const ng=p.days.reduce((a,d)=>a+d.dishes.filter(x=>!equipOK(BASE[x.baseId])).length,0);
+    return ng?`<div class="status chg" style="flex-wrap:wrap">⚠ 今の調理器具の設定では作れない料理が${ng}品あります<button class="btn primary sm" style="margin-top:6px" data-act="fixEquip">今の器具で作れる料理に差し替える</button></div>`:''; })()}`;
   html+=p.days.map((d,di)=>{
     const m=d.dishes[0];
     return `<div class="day"><div class="day-h"><span class="dot gb-${m?GCLS[m.genre]:'wa'}"></span>${fmtDate(d.date)}<span style="flex:1"></span><span style="font-size:11.5px;font-weight:700;color:var(--sub)">主菜＋${d.dishes.length-1}品</span></div>
       <div class="day-b">${d.dishes.map((x,j)=>{
         const b=BASE[x.baseId], ref=`W:${di}:${j}`, fav=favKeySet().has(x.key);
-        if(j===0) return `<div class="day-main"><div class="d-top">${gBadge(x.genre)}<span class="typ">主菜</span>${mLabel(b)}<span class="sp"></span><button class="star ${fav?'on':''}" data-act="fav" data-ref="${ref}">${fav?'★':'☆'}</button></div>
+        if(j===0) return `<div class="day-main"><div class="d-top">${gBadge(x.genre)}<span class="typ">主菜</span>${mLabel(b)}${equipOK(b)?'':'<span class="tagx">器具がOFF</span>'}<span class="sp"></span><button class="star ${fav?'on':''}" data-act="fav" data-ref="${ref}">${fav?'★':'☆'}</button></div>
           <button class="d-name" data-act="open" data-ref="${ref}">${esc(dishName(x))}</button>${formulaHTML(x,true)}
           <div class="d-act"><button class="swap" data-act="swap" data-d="${di}" data-j="${j}">↻ 別アレンジに変更</button></div></div>`;
-        return `<div class="sub-dish"><button class="sdn" data-act="open" data-ref="${ref}"><div class="d-top">${gBadge(x.genre)}<span class="typ">${x.type}</span>${mLabel(b)}${fav?'<span style="color:#E8A317">★</span>':''}</div><b>${esc(dishName(x))}</b></button>
+        return `<div class="sub-dish"><button class="sdn" data-act="open" data-ref="${ref}"><div class="d-top">${gBadge(x.genre)}<span class="typ">${x.type}</span>${mLabel(b)}${equipOK(b)?'':'<span class="tagx">器具がOFF</span>'}${fav?'<span style="color:#E8A317">★</span>':''}</div><b>${esc(dishName(x))}</b></button>
           <button class="swap" data-act="swap" data-d="${di}" data-j="${j}">↻ 変更</button></div>`;
       }).join('')}</div></div>`;
   }).join('');
@@ -1760,6 +1762,7 @@ function renderModal(){
   $('#modal').innerHTML=`<div class="bk" data-act="backdrop" data-close="modal"><div class="kit" role="dialog" aria-modal="true">
     <div class="kit-top">${gBadge(d.genre)}<span class="typ">${d.type}</span>${mLabel(b)}${b.custom?'<span class="tagx">自作</span>':b.extra?'<span class="tagx">追加調味料</span>':''}<span class="sp"></span><button class="close" data-act="closeModal" aria-label="閉じる">✕</button></div>
     <div class="kit-body">
+      ${equipOK(b)?'':`<div class="warn" style="font-size:13px">⚠ この料理は、OFFにしている調理器具（${equipReq(b).all.concat(equipReq(b).any||[]).filter(id=>!hasEq(id)).map(id=>EQUIPMENT.find(e=>e.id===id).name).join('・')}）を使います</div>`}
       <h1>${esc(dishName(d))}</h1>
       ${formulaHTML(d,false)}
       <div class="kit-ppl"><b>何人分つくる？</b><div class="seg">${[1,2,3,4].map(k=>`<button class="${n===k?'on':''}" data-act="people" data-n="${k}">${k}人</button>`).join('')}</div></div>
@@ -2033,6 +2036,7 @@ const ACTIONS={
     const e=EQUIPMENT.find(x=>x.id===ds.id);
     if(!BASES.some(b=>b.dishType==='主菜')) toast('⚠ 主菜を作れる器具がありません。フライパンなどをONにしてください');
     else toast(hasEq(ds.id)?`${e.emoji} ${e.name}をONにしました${e.bases.length?`（専用の料理${e.bases.length}種が追加）`:''}`:`${e.name}を使う料理を提案から外しました`);
+    if(!hasEq(ds.id) && S.draft && S.draft.days.some(d=>d.dishes.some(x=>!equipOK(BASE[x.baseId])))) setTimeout(()=>toast('作成済みの1週間献立に、この器具を使う料理があります。献立画面から差し替えできます'),2300);
     renderEquipSheet(); render(); },
   seasonSheet:()=>{ const had=!!$('#sheet').innerHTML; renderSeasonSheet(); if(!had) pushOv(); },
   togglePack:ds=>{ const on=S.extraOn.includes(ds.id); S.extraOn=on?S.extraOn.filter(x=>x!==ds.id):[...S.extraOn,ds.id];
@@ -2082,6 +2086,9 @@ const ACTIONS={
   },
   genWeek:()=>{ S.draft=generateWeek(false); render(); toast('📅 1週間の献立を作成しました'); },
   genNext:()=>{ if(!S.history.length) toast('確定済みの履歴がないため、新規で作成しました'); else toast('🔄 先週と違う組み合わせで作成しました'); S.draft=generateWeek(true); render(); },
+  fixEquip:()=>{ const p=S.draft; let ok=0, ng=0;
+    p.days.forEach((d,di)=>d.dishes.forEach((x,j)=>{ if(!equipOK(BASE[x.baseId])){ if(swapDish(di,j)) ok++; else ng++; } }));
+    render(); toast(ng?`${ok}品を差し替えました（${ng}品は代わりが見つかりませんでした）`:`↻ ${ok}品を今の器具で作れる料理に差し替えました`); },
   swap:ds=>{ if(swapDish(+ds.d,+ds.j)){ render(); toast('↻ 別のアレンジに差し替えました'); } else toast('他に条件を満たす組み合わせがありません'); },
   confirm:()=>{
     const p=S.draft; if(!p) return;
