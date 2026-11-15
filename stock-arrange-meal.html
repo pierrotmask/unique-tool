@@ -1261,7 +1261,11 @@ function load(){
     return Object.assign(DEFAULT_STATE(), JSON.parse(raw));
   }catch(e){ return DEFAULT_STATE(); }
 }
-function save(){ try{ localStorage.setItem(dataKey(PROF.current), JSON.stringify(S)); }catch(e){} }
+let saveWarned=false;
+function save(){
+  try{ localStorage.setItem(dataKey(PROF.current), JSON.stringify(S)); saveWarned=false; }
+  catch(e){ if(!saveWarned){ saveWarned=true; setTimeout(()=>{ try{ toast('⚠ 端末の保存容量がいっぱいで保存できませんでした。バックアップ後、不要なデータを整理してください'); }catch(_){} },50); } }
+}
 
 /* =====================================================================
    5. ユーティリティ
@@ -1430,7 +1434,7 @@ function searchDish(o,h){
   if(S.favPriority){
     const inPool=new Set([...o.pool.protein,...o.pool.veg]);
     S.favorites.forEach(f=>{
-      const b=BASE[f.baseId]; if(!b||b.dishType!==o.type) return;
+      const b=BASE[f.baseId]; if(!b||b.dishType!==o.type||!BASES.includes(b)) return;   // OFFのジャンル・器具の料理は採用しない
       const d=makeDish(b,f.p,f.v);
       if(!dishParts(d).every(id=>inPool.has(id))) return;
       if(!dishAllowed(d,h)) return;
@@ -1776,8 +1780,9 @@ function renderModeA(){
 function renderModeB(){
   const p=S.draft;
   const last=S.history[0];
-  let html=`<div class="btn-col mt0"><button class="btn soft sm" data-act="pasteIncoming">📥 届いた献立を貼り付け</button><button class="btn primary" data-act="genWeek">📅 1週間分の献立を自動作成</button>
+  let html=`<div class="btn-col mt0"><button class="btn primary" data-act="genWeek">📅 1週間分の献立を自動作成</button>
     <button class="btn outline" data-act="genNext">🔄 先週と違うバリエーションで来週分を作成</button></div>
+    <div class="btn-row" style="margin-top:6px"><button class="btn ghost sm" data-act="pasteIncoming">📥 献立を受け取る</button><button class="btn ghost sm" data-act="shareSheet">👪 家族と共有</button></div>
     ${last?`<p class="hint">直近の確定献立：${fmtMD(last.weekStart)}〜${fmtMD(addDays(last.weekStart,6))}（同じパーツ×味付けを避けて作成します）</p>`:''}`;
   if(!p){
     return html+`<div class="card empty" style="margin-top:14px"><div class="big">🗓️</div><b>まだ献立がありません</b><p>ボタンを押すと月〜日の7日分（主菜＋副菜1〜2品）を<br>ストック優先・ジャンル被りなしで自動作成します。</p></div>`;
@@ -1825,7 +1830,7 @@ function renderFav(){
   let html=`<div class="sec-t" style="margin-top:4px"><h2>★ お気に入りアレンジ一覧 <span class="num">${favs.length}</span></h2></div>
   ${favs.length>=5?`<div class="search" style="margin-bottom:10px"><span aria-hidden="true">🔍</span><input id="fav_q" type="search" class="inp" placeholder="料理名・食材・ジャンルで探す" value="${esc(FAV_Q)}" autocomplete="off"></div><div id="fav_empty" class="card empty" style="display:none;margin-bottom:10px"><p>見つかりませんでした</p></div>`:''}
   <div class="list">${favs.length?favs.map(f=>{ const d=makeDish(BASE[f.baseId],f.p,f.v); const b=BASE[f.baseId];
-    return `<div class="fav-row" data-k="${esc(kana(dishName(d)+' '+d.genre+' '+d.type+' '+dishParts(d).map(id=>YOMI[id]||'').join(' ')))}"><button class="fx2" data-act="open" data-ref="F:${esc(f.key)}"><div class="d-top">${gBadge(d.genre)}<span class="typ">${d.type}</span>${mLabel(b)}</div><b>${esc(dishName(d))}</b></button><button class="x" data-act="unfav" data-key="${esc(f.key)}" aria-label="削除">×</button></div>`; }).join('')
+    return `<div class="fav-row" data-k="${esc(kana(dishName(d)+' '+d.genre+' '+d.type+' '+dishParts(d).map(id=>YOMI[id]||'').join(' ')))}"><button class="fx2" data-act="open" data-ref="F:${esc(f.key)}"><div class="d-top">${gBadge(d.genre)}<span class="typ">${d.type}</span>${mLabel(b)}${baseUsable(b)?'':'<span class="tagx">設定でOFF</span>'}</div><b>${esc(dishName(d))}</b></button><button class="x" data-act="unfav" data-key="${esc(f.key)}" aria-label="削除">×</button></div>`; }).join('')
     :`<div class="empty"><div class="big">⭐</div><b>お気に入りはまだありません</b><p>料理カードの☆や、キッチンモードの<br>「★ お気に入りに保存」で神組み合わせを保存できます。</p></div>`}</div>
   <div class="switch-row"><div class="tx">献立作成時にお気に入りを優先採用<small>ONにすると提案・1週間献立でお気に入りの組み合わせが選ばれやすくなります</small></div><button class="sw ${S.favPriority?'on':''}" data-act="favPri" aria-label="切り替え"></button></div>`;
 
@@ -1838,7 +1843,7 @@ function renderFav(){
     html+=`<div class="grp-h mt0">🍖 タンパク質</div>${grid('protein')}<div class="grp-h">🥕 野菜・きのこ</div>${grid('veg')}`;
     if(sel) html+=dictByPart(sel); else html+=`<p class="hint">パーツを選ぶと、そのパーツを使ったアレンジを全味付け分表示します。</p>`;
   } else {
-    const sel=BASE[S.dictSel]?S.dictSel:null;
+    const sel=BASES.some(b=>b.id===S.dictSel)?S.dictSel:null;
     html+=activeGenres().filter(g=>BASES.some(b=>b.genre===g)).map(g=>`<div class="grp-h mt0" style="margin-top:12px">${gBadge(g)}</div><div class="gtab">${BASES.filter(b=>b.genre===g).map(b=>`<button class="bbtn g-${GCLS[g]} ${sel===b.id?'on':''}" data-act="dictSel" data-id="${b.id}">${esc(b.name)}${b.custom?'<span class="tagx">自作</span>':b.extra?'<span class="tagx">追加</span>':''}</button>`).join('')}</div>`).join('');
     if(sel) html+=dictByBase(sel); else html+=`<p class="hint">味付けベースを選ぶと、合わせられるパーツの全組み合わせを表示します。</p>`;
   }
@@ -2266,7 +2271,7 @@ function closeModalUI(){ closeModal(); popOv(); }
 /* =====================================================================
    14. PWA（ホーム画面に追加・オフライン・自動アップデート・引き継ぎ）
    ===================================================================== */
-const APP_VERSION = '2026.11.15.6';
+const APP_VERSION = '2026.11.15.7';
 const SW_FILE = 'stock-arrange-meal-sw.js', SW_SCOPE = './stock-arrange-meal';
 const PWA = { deferred:null };
 const isHttp = ()=>/^https?:$/.test(location.protocol);
@@ -2295,7 +2300,7 @@ function safariGate(){
   try{ if(sessionStorage.getItem('kakezan-safari-ok')) return ''; }catch(e){}
   return `<div class="card empty" style="margin-top:8px"><div class="big">📲</div><b>ホーム画面のアプリで開いてください</b>
     <p>この端末では、ホーム画面の「かけ算ごはん」に移行済みです。<br>Safariとアプリはデータが別のため、Safariでは使えないようにしています。</p>
-    <div class="tip" style="text-align:left">👪 家族から届いた献立リンクを開いた場合は、表示された画面の「リンクをコピー」を押してから、アプリの「アレンジ献立」→「1週間献立」→「📥 届いた献立を貼り付け」で取り込めます。</div>
+    <div class="tip" style="text-align:left">👪 家族から届いた献立リンクを開いた場合は、表示された画面の「リンクをコピー」を押してから、アプリの「アレンジ献立」→「1週間献立」→「📥 献立を受け取る」で取り込めます。</div>
     <div class="btn-col"><button class="btn ghost sm" data-act="installGuide">移行について</button><button class="link" data-act="safariAnyway">今回だけSafariで使う</button></div></div>`;
 }
 function topBanners(){
@@ -2584,7 +2589,7 @@ function renderIncomingSheet(){
   sheetShell('献立が届きました',`
     <div class="info-box">${fmtDate(r.plan.weekStart)}〜の献立（${r.plan.people}人分）です。取り込むと「1週間献立」に入り、確定すると買い物リストに反映されます。${r.missing?`<br><small>※${r.missing}品はこの端末にない味付けのため取り込めません。</small>`:''}</div>
     ${iosSafari?`<div class="handoff"><b>📲 ホーム画面のアプリで取り込む</b>
-        <ol><li>下のボタンでリンクをコピー</li><li>ホーム画面の「かけ算ごはん」を開く</li><li>「アレンジ献立」→「1週間献立」の<b>「📥 届いた献立を貼り付け」</b>を押す</li></ol>
+        <ol><li>下のボタンでリンクをコピー</li><li>ホーム画面の「かけ算ごはん」を開く</li><li>「アレンジ献立」→「1週間献立」の<b>「📥 献立を受け取る」</b>を押す</li></ol>
         <button class="btn green" data-act="incomingCopy">📋 リンクをコピー</button></div>`:''}
     ${planPreview(r.plan)}
     <div class="btn-col"><button class="btn ${iosSafari?'outline':'primary'}" data-act="incomingAccept">${iosSafari?'このSafariで取り込む':'この献立を取り込む'}</button><button class="btn ghost sm" data-act="incomingDecline">取り込まない</button></div>`);
@@ -2626,7 +2631,7 @@ const ACTIONS={
   // help / tutorial
   menu:()=>{ renderMenuSheet(); pushOv(); },
   tutorial:()=>{ $('#sheet').innerHTML=''; S.tipsSeen={}; S.tipsOn=true; tipsReady=false; S.tab='stock'; render(); window.scrollTo(0,0);
-    TOUR={ steps:WELCOME_TOUR, i:0, kind:'welcome', dontShow:true }; document.body.style.overflow='hidden'; showTourStep(); },
+    TOUR={ steps:WELCOME_TOUR, i:0, kind:'welcome', dontShow:true }; document.body.style.overflow='hidden'; pushOv(); showTourStep(); },
   tourNext:()=>{ if(TOUR.i<TOUR.steps.length-1){ TOUR.i++; showTourStep(); } else endTour(); },
   tourTap:()=>{ ACTIONS.tourNext(); },
   tourCk:()=>{ TOUR.dontShow=!TOUR.dontShow; drawTour(); },
