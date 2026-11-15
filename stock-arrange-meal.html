@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#2E5A44">
+<meta name="theme-color" content="#F8F7F4">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="かけ算ごはん">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="stock-arrange-meal.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="stock-arrange-meal-icon-192.png">
+<link rel="apple-touch-icon" href="stock-arrange-meal-apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="robots" content="noindex, nofollow">
 <meta name="googlebot" content="noindex, nofollow">
@@ -289,6 +295,21 @@ textarea.inp{height:auto;padding:10px 12px;line-height:1.6;resize:vertical}
   .kit h1{font-size:22px}
   .krow,.ksteps li{font-size:17px}
 }
+.inst-card{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--orange);border-radius:16px;padding:10px 8px 10px 12px;margin-bottom:12px;box-shadow:var(--shadow)}
+.inst-card .ic{font-size:26px}
+.inst-card .tx{flex:1;min-width:0}
+.inst-card b{display:block;font-size:13.5px;line-height:1.4}
+.inst-card small{display:block;font-size:11.5px;color:var(--muted);line-height:1.4}
+.inst-card .acts{width:100%;display:flex;gap:8px}
+.inst-card .acts .btn{flex:1;min-height:40px}
+.warnbox{background:var(--soon-l);color:#7a4f0d;border-radius:14px;padding:11px 13px;font-size:13px;margin-top:10px;line-height:1.6}
+.isteps{list-style:none;margin:14px 0 0;padding:0;counter-reset:i}
+.isteps li{counter-increment:i;position:relative;padding:0 0 14px 40px;font-size:14px}
+.isteps li:before{content:counter(i);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:50%;background:var(--green);color:#fff;font-weight:800;display:grid;place-items:center;font-size:14px}
+.isteps li>b{display:block;font-size:15px;line-height:1.5}
+.isteps li>span{display:block;color:var(--sub);font-size:13px;line-height:1.7}
+.kbd{display:inline-flex;align-items:center;gap:3px;background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:0 6px;font-weight:700;color:var(--ink);white-space:nowrap}
+button,#nav,.chip,.pill{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 /* nav */
 #nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:var(--safe-b)}
 .nav-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav-h)}
@@ -1132,6 +1153,8 @@ function loadProfiles(){
   return { current:'default', list:[{ id:'default', name:'わたし', emoji:'🙂', createdAt:Date.now() }] };
 }
 let PROF = loadProfiles();
+// この端末（この保存領域）で初めて開いたか（iPhoneのホーム画面版の初回引き継ぎ案内に使う）
+const FRESH_INSTALL = (()=>{ try{ return !localStorage.getItem(LS_KEY)&&!localStorage.getItem(PROF_KEY); }catch(e){ return false; } })();
 const dataKey = id=>id==='default' ? LS_KEY : LS_KEY+':'+id;   // 既存データは default としてそのまま引き継ぐ
 const curProfile = ()=>PROF.list.find(p=>p.id===PROF.current)||PROF.list[0];
 function saveProfiles(){ try{ localStorage.setItem(PROF_KEY, JSON.stringify(PROF)); }catch(e){} }
@@ -1580,7 +1603,7 @@ function render(){
   renderHeader(); renderNav();
   const m=$('#main');
   const body = S.tab==='stock'?renderStock() : S.tab==='plan'?renderPlan() : S.tab==='fav'?renderFav() : renderShop();
-  m.innerHTML=profileBar()+body;
+  m.innerHTML=updateBar()+topBanners()+body;
   save();
   if(TOUR) drawTour(); else maybeTip();
 }
@@ -1994,10 +2017,13 @@ function renderMenuSheet(){
     <button class="menu-item" data-act="profileSheet"><span class="mi">${curProfile().emoji}</span><span>ユーザー切り替え（${esc(curProfile().name)}）<small>家族で同じブラウザを使うとき、データを人ごとに分けて保存</small></span></button>
     <button class="menu-item" data-act="equipSheet"><span class="mi">🍳</span><span>調理器具の設定<small>持っている器具に合わせて料理を提案（オーブン・せいろ・ノンフライヤーなど）</small></span></button>
     <button class="menu-item" data-act="seasonSheet"><span class="mi">🧂</span><span>調味料をカスタマイズ<span class="tagx">上級者向け</span><small>塩麹・醤油麹など手持ちの調味料を追加／自分だけの味付けを作る</small></span></button>
+    ${isStandalone()?'':`<button class="menu-item" data-act="installGuide"><span class="mi">📲</span><span>ホーム画面に追加（アプリとして使う）<small>データが消えにくくなり、オフラインでも使えます</small></span></button>`}
+    <button class="menu-item" data-act="migrateSheet"><span class="mi">🔁</span><span>引き継ぎ（別の端末・ホーム画面版へ）<small>全ユーザーのデータを引き継ぎコードで移します</small></span></button>
     <button class="menu-item" data-act="exportData"><span class="mi">💾</span><span>データをバックアップ<small>${esc(curProfile().name)}のストック・お気に入り・履歴・設定をファイルに保存／前回：${S.lastBackupAt?fmtMD(S.lastBackupAt)+'（'+daysSince(S.lastBackupAt)+'日前）':'まだしていません'}</small></span></button>
     <button class="menu-item" data-act="importData"><span class="mi">📂</span><span>バックアップから復元<small>保存したファイルを読み込みます（機種変更時にも）</small></span></button>
     <button class="menu-item danger" data-act="resetAll"><span class="mi">🗑️</span><span>データを初期化<small>${esc(curProfile().name)}のデータを消去します（他のユーザーのデータは残ります）</small></span></button>
-    <p class="hint" style="margin-top:14px">データはこの端末のブラウザ内だけに保存され、外部には送信されません。ブラウザの履歴・サイトデータを消すと失われるため、ときどきバックアップしておくと安心です。</p>`);
+    <p class="hint" style="margin-top:14px">データはこの端末のブラウザ内だけに保存され、外部には送信されません。ブラウザの履歴・サイトデータを消すと失われるため、ときどきバックアップしておくと安心です。</p>
+    <p class="hint" style="display:flex;align-items:center;gap:8px">バージョン ${APP_VERSION}${isStandalone()?'（ホーム画面版）':''}<span style="flex:1"></span>${isHttp()?'<button class="swap" data-act="checkUpdateNow">最新版を確認</button>':''}</p>`);
 }
 /* ---------- ユーザー（同じブラウザを家族で共有するとき用） ---------- */
 const PROFILE_EMOJI = ['🙂','👩','👨','👧','👦','👵','👴','🧑‍🍳','🐱','🐶'];
@@ -2043,14 +2069,14 @@ function addPreset(id){
   S.suggestions=null; S.seenKeys=[];
   render(); toast(`✨ ${ps.name}を追加しました`, ()=>restore(snap));
 }
-function exportData(){
+async function exportData(){
   try{
-    S.lastBackupAt=todayStr(); save();
-    const blob=new Blob([JSON.stringify(Object.assign({},S,{_profile:{name:curProfile().name,emoji:curProfile().emoji},_app:'kakezan-gohan'}),null,1)],{type:'application/json'});
-    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-    a.download=`kakezan-gohan-backup-${todayStr()}${PROF.list.length>1?'-user'+(PROF.list.indexOf(curProfile())+1):''}.json`; document.body.appendChild(a); a.click();
-    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500);
-    toast(`💾 ${a.download} を保存しました`); if($('#sheet').innerHTML) renderMenuSheet();
+    const name=`kakezan-gohan-backup-${todayStr()}${PROF.list.length>1?'-user'+(PROF.list.indexOf(curProfile())+1):''}.json`;
+    const text=JSON.stringify(Object.assign({},S,{_profile:{name:curProfile().name,emoji:curProfile().emoji},_app:'kakezan-gohan'}),null,1);
+    const r=await shareOrDownload(name,text);
+    if(r==='cancel') return;
+    S.lastBackupAt=todayStr(); save(); render();
+    toast(r==='shared'?'💾 共有メニューから「ファイルに保存」を選んでください':`💾 ${name} を保存しました`); if($('#sheet').innerHTML) renderMenuSheet();
   }catch(e){ toast('保存できませんでした'); }
 }
 $('#importFile').addEventListener('change',e=>{
@@ -2059,6 +2085,7 @@ $('#importFile').addEventListener('change',e=>{
   rd.onload=()=>{
     try{
       const obj=JSON.parse(rd.result);
+      if(obj&&obj.kind==='migration'){ const m=parseMigration(rd.result); if(confirm(`引き継ぎファイルです（ユーザー${m.profiles.list.length}人分）。この画面のデータを置き換えて引き継ぎますか？`)) applyMigration(m); return; }
       if(!obj||!Array.isArray(obj.stock)||!Array.isArray(obj.favorites)) throw new Error('format');
       if(!confirm(`「${curProfile().name}」のデータを、バックアップの内容で置き換えます。よろしいですか？`)) return;
       delete obj._profile; delete obj._app;
@@ -2176,6 +2203,174 @@ function closeSheetUI(){ $('#sheet').innerHTML=''; popOv(); }
 function closeModalUI(){ closeModal(); popOv(); }
 
 /* =====================================================================
+   14. PWA（ホーム画面に追加・オフライン・自動アップデート・引き継ぎ）
+   ===================================================================== */
+const APP_VERSION = '2026.11.15.1';
+const SW_FILE = 'stock-arrange-meal-sw.js', SW_SCOPE = './stock-arrange-meal';
+const PWA = { deferred:null };
+const isHttp = ()=>/^https?:$/.test(location.protocol);
+const isStandalone = ()=>(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+const isIOS = ()=>/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const isAndroid = ()=>/Android/.test(navigator.userAgent);
+const isMobile = ()=>isIOS()||isAndroid();
+// 端末ごとの案内状態（ユーザー切り替えとは別）
+const INSTALL_KEY = 'kakezan-gohan-install';
+function instState(){ try{ return JSON.parse(localStorage.getItem(INSTALL_KEY))||{}; }catch(e){ return {}; } }
+function setInst(o){ try{ localStorage.setItem(INSTALL_KEY, JSON.stringify(Object.assign(instState(),o))); }catch(e){} }
+
+// ---------- サービスワーカー登録（このアプリのURLだけを担当） ----------
+if('serviceWorker' in navigator && isHttp()){
+  window.addEventListener('load',()=>{ navigator.serviceWorker.register(SW_FILE,{scope:SW_SCOPE}).catch(()=>{}); });
+}
+window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); PWA.deferred=e; if(!TOUR&&!MODAL) render(); });
+window.addEventListener('appinstalled',()=>{ PWA.deferred=null; setInst({installed:true}); askPersist(); toast('📲 ホーム画面に追加しました'); render(); });
+function askPersist(){ try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persisted().then(p=>{ if(!p) navigator.storage.persist(); }); }catch(e){} }
+
+// ---------- ホーム画面への追加の案内 ----------
+const canOfferInstall = ()=>isHttp() && !isStandalone();
+function topBanners(){
+  let h='';
+  const st=instState();
+  if(isIOS() && !isStandalone() && st.migrated){
+    h+=`<div class="status chg" style="align-items:flex-start">📲<span style="flex:1">ホーム画面のアプリに移行済みです。このSafari版で記録した内容は、ホーム画面版には反映されません。</span><button class="swap" data-act="installGuide">詳細</button></div>`;
+  }
+  h+=profileBar();
+  if(S.tab==='stock' && canOfferInstall() && !st.never && !st.migrated && S.tutorialSeen && !(st.snoozeUntil&&st.snoozeUntil>todayStr()) && (isMobile()||PWA.deferred)){
+    h+=`<div class="inst-card"><div class="ic">📲</div><div class="tx"><b>ホーム画面に追加して、アプリとして使う</b><small>データが消えにくくなり、電波の弱い売り場でも開けます</small></div>
+      <div class="acts"><button class="btn primary sm" data-act="installGuide">方法を見る</button><button class="btn ghost sm" data-act="installSnooze">あとで</button></div></div>`;
+  }
+  return h;
+}
+function renderInstallGuide(){
+  const st=instState();
+  let body='';
+  if(isStandalone()){
+    body=`<div class="info-box">✅ いまはホーム画面のアプリとして使っています。オフラインでも開け、データも消えにくい状態です。</div>
+      ${isIOS()?`<p class="hint">Safari版で使っていたデータを移すときは、メニューの「引き継ぎ（別の端末・ホーム画面版へ）」から引き継ぎコードを貼り付けてください。</p>`:''}`;
+  } else if(isIOS()){
+    body=`<div class="info-box"><b>ホーム画面版のメリット</b>：Safariの「しばらく開かないサイトのデータを自動で消す」仕組みの対象外になり、データが消えにくくなります。電波がなくても開けます。</div>
+      <div class="warnbox">⚠ <b>iPhoneでは、Safari版とホーム画面版のデータは別々に保存されます。</b>今のデータを使い続けるには、下の手順で引き継いでください（Safari版のデータは消えずに残ります）。</div>
+      <ol class="isteps">
+        <li><b>引き継ぎコードをコピー</b><span>全ユーザーのストック・献立・お気に入り・設定をまとめてコピーします。</span>
+          <div class="btn-col" style="margin-top:8px"><button class="btn green sm" data-act="migCopy">📋 引き継ぎコードをコピー</button><button class="btn ghost sm" data-act="migFile">ファイルで保存する場合はこちら</button></div></li>
+        <li><b>ホーム画面に追加</b><span>Safariの <span class="kbd">共有ボタン <svg viewBox="0 0 24 24" width="15" height="15" style="vertical-align:-2px"><path d="M12 3v12M7 8l5-5 5 5M5 12v8h14v-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>（画面下または上）→「<b>ホーム画面に追加</b>」→「追加」。見つからないときは共有メニューを下にスクロールしてください。</span></li>
+        <li><b>ホーム画面の「かけ算ごはん」を開いて貼り付け</b><span>最初に「引き継ぎ」画面が出るので、コピーしたコードを貼り付ければ完了です。</span></li>
+      </ol>
+      <div class="tip">💡 移行したら、以後は<b>ホーム画面版だけ</b>を使ってください。Safari版を開くと、古いデータのまま別々に記録されてしまいます。</div>
+      <div class="btn-col">${st.migrated?`<button class="btn soft" data-act="migDone" data-v="0">移行済みの表示を取り消す</button>`:`<button class="btn outline" data-act="migDone" data-v="1">✅ 移行が終わった（Safari版の案内を止める）</button>`}</div>`;
+  } else if(PWA.deferred){
+    body=`<div class="info-box"><b>ホーム画面版のメリット</b>：アプリのように全画面で開け、電波がなくても使えます。<b>データはそのまま引き継がれます</b>（ブラウザ版と同じデータを使います）。</div>
+      <div class="btn-col"><button class="btn primary" data-act="installNow">📲 ホーム画面に追加する</button></div>`;
+  } else if(isAndroid()){
+    body=`<div class="info-box">ブラウザのメニュー（︙）から「<b>ホーム画面に追加</b>」または「<b>アプリをインストール</b>」を選んでください。<b>データはそのまま引き継がれます</b>（Chromeの場合）。</div>`;
+  } else {
+    body=`<div class="info-box">パソコンのChrome・Edgeでは、アドレスバー右端の「インストール」アイコン、またはメニューの「アプリをインストール」から追加できます。データはそのまま使えます。</div>`;
+  }
+  sheetShell('ホーム画面に追加',body+(isStandalone()?'':`<button class="link" data-act="installNever">${st.never?'案内を再び表示する':'今後この案内を表示しない'}</button>`));
+}
+
+// ---------- 引き継ぎ（全ユーザー分をまとめて移す） ----------
+const b64e = str=>btoa(unescape(encodeURIComponent(str)));
+const b64d = str=>decodeURIComponent(escape(atob(str)));
+function buildMigration(){
+  save();
+  const data={};
+  PROF.list.forEach(p=>{ try{ const v=localStorage.getItem(dataKey(p.id)); if(v) data[p.id]=JSON.parse(v); }catch(e){} });
+  return { app:'kakezan-gohan', kind:'migration', v:1, at:Date.now(), profiles:PROF, data };
+}
+const migrationCode = ()=>'KKZ1:'+b64e(JSON.stringify(buildMigration()));
+function parseMigration(text){
+  text=(text||'').trim();
+  if(text.startsWith('KKZ1:')) text=b64d(text.slice(5).replace(/\s+/g,''));
+  const o=JSON.parse(text);
+  if(!o||o.app!=='kakezan-gohan'||o.kind!=='migration'||!o.profiles||!Array.isArray(o.profiles.list)||!o.data) throw new Error('format');
+  return o;
+}
+function applyMigration(o){
+  // 既存ユーザーのデータを消してから書き込む
+  try{ PROF.list.forEach(p=>localStorage.removeItem(dataKey(p.id))); }catch(e){}
+  Object.entries(o.data).forEach(([id,st])=>{ if(o.profiles.list.some(p=>p.id===id)){ st.tutorialSeen=true; localStorage.setItem(dataKey(id),JSON.stringify(st)); } });
+  if(!o.profiles.list.some(p=>p.id===o.profiles.current)) o.profiles.current=o.profiles.list[0].id;
+  localStorage.setItem(PROF_KEY,JSON.stringify(o.profiles));
+  setInst({importAsked:true});
+  try{ sessionStorage.setItem('kakezan-msg','🔁 引き継ぎが完了しました'); }catch(e){}
+  location.reload();
+}
+let MIG_FIRST=false;
+function renderMigrateSheet(first){
+  MIG_FIRST=!!first;
+  sheetShell(first?'Safari版のデータを引き継ぐ':'引き継ぎ（別の端末・ホーム画面版へ）',`
+    ${first?`<div class="info-box">Safari版で使っていたデータがあれば、ここで引き継げます。Safari版の「ホーム画面に追加」の案内でコピーした<b>引き継ぎコード</b>を貼り付けてください。</div>`
+      :`<div class="info-box">全ユーザーのストック・献立・お気に入り・設定を、<b>引き継ぎコード</b>で別の端末やホーム画面版に移せます。</div>
+      <div class="fl">① 移す元で：コードを作る</div><div class="btn-col mt0"><button class="btn green sm" data-act="migCopy">📋 引き継ぎコードをコピー</button><button class="btn ghost sm" data-act="migFile">ファイルで保存する</button></div>
+      <div class="fl">② 移す先で：コードを貼り付ける</div>`}
+    <textarea id="mig_code" class="inp" rows="4" placeholder="ここに引き継ぎコード（KKZ1:〜）を貼り付け"></textarea>
+    <div class="btn-col">
+      ${navigator.clipboard&&navigator.clipboard.readText?'<button class="btn soft sm" data-act="migPaste">📋 クリップボードから貼り付け</button>':''}
+      <button class="btn primary" data-act="migApply">引き継ぐ</button>
+      <button class="btn ghost sm" data-act="importData">引き継ぎファイル・バックアップファイルから読み込む</button>
+      ${first?'<button class="btn outline sm" data-act="migSkip">引き継がずに新しく始める</button>':''}
+    </div>
+    <p class="hint">※引き継ぐと、この画面で使っているデータは引き継いだ内容に置き換わります。</p>`);
+}
+
+// ---------- ファイル保存（スマホは共有シートで「ファイルに保存」できるように） ----------
+async function shareOrDownload(name,text){
+  const blob=new Blob([text],{type:'application/json'});
+  try{
+    const file=new File([blob],name,{type:'application/json'});
+    if(isMobile()&&navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:name}); return 'shared'; }
+  }catch(e){ if(e&&e.name==='AbortError') return 'cancel'; }
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },800);
+  return 'downloaded';
+}
+
+// ---------- 自動アップデート ----------
+// オンラインで開けば常に最新版（ネット優先）。開いたまま更新が公開されたときは、
+// アプリに戻ってきたタイミングなど操作の邪魔にならない時に自動で切り替える。
+let updPending=null, lastUpdCheck=0;
+async function checkUpdate(force){
+  if(!isHttp()) return false;
+  if(!force && Date.now()-lastUpdCheck<10*60*1000) return false;
+  lastUpdCheck=Date.now();
+  try{
+    const r=await fetch(location.pathname+'?check='+Date.now(),{cache:'no-store'}); if(!r.ok) return false;
+    const m=(await r.text()).match(/const APP_VERSION = '([^']+)'/);
+    if(m&&m[1]!==APP_VERSION){ updPending=m[1]; return true; }
+  }catch(e){}
+  return false;
+}
+const isIdle=()=>!MODAL&&!TOUR&&!$('#sheet').innerHTML&&!(document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName));
+function applyUpdate(){
+  save();
+  try{ sessionStorage.setItem('kakezan-msg',`✨ 最新版（${updPending}）に更新しました`); }catch(e){}
+  try{ navigator.serviceWorker&&navigator.serviceWorker.getRegistration(SW_SCOPE).then(r=>r&&r.update()); }catch(e){}
+  location.reload();
+}
+function updateBar(){
+  if(!updPending) return '';
+  return `<div class="status" style="align-items:center">✨<span style="flex:1">新しいバージョンがあります</span><button class="btn primary sm" style="width:auto" data-act="applyUpdate">今すぐ更新</button></div>`;
+}
+async function updateFlow(onReturn){
+  const found=updPending||await checkUpdate(onReturn);
+  if(!found) return;
+  if(isIdle()) applyUpdate(); else render();
+}
+// ---------- アプリに戻ってきたとき ----------
+let lastDay=todayStr();
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState!=='visible') return;
+  if(todayStr()!==lastDay){ lastDay=todayStr(); if(!TOUR) render(); }   // 日付が変わったら消費期限バッジ等を更新
+  updateFlow(true);
+});
+// 別タブで同じデータが変更されたら取り込む（ブラウザで複数タブを開いた場合の上書き防止）
+window.addEventListener('storage',e=>{
+  if(e.key===PROF_KEY){ PROF=loadProfiles(); }
+  if(e.key===dataKey(PROF.current)||e.key===PROF_KEY){ S=load(); rebuildBases(); sanitizeState(); if(!TOUR) render(); if(MODAL) renderModal(); }
+});
+
+/* =====================================================================
    13. アクション
    ===================================================================== */
 let toastT=null, toastUndo=null;
@@ -2244,6 +2439,22 @@ const ACTIONS={
   cfDelRow:(ds,el)=>{ const rows=document.querySelectorAll('#cf_rows .cf-row'); if(rows.length<=1){ el.closest('.cf-row').querySelectorAll('input').forEach(i=>i.value=''); return; } el.closest('.cf-row').remove(); },
   cfSave:ds=>{ if(saveCustomForm(ds.id)){ renderSeasonSheet(); render(); toast(ds.id?'✍️ 味付けを更新しました':'✍️ オリジナルの味付けを追加しました'); } },
   exportData:()=>exportData(),
+  installGuide:()=>{ const had=!!$('#sheet').innerHTML; renderInstallGuide(); if(!had) pushOv(); },
+  installSnooze:()=>{ setInst({snoozeUntil:addDays(todayStr(),14)}); render(); toast('2週間後にまたお知らせします（メニューからいつでも追加できます）'); },
+  installNever:()=>{ const st=instState(); setInst({never:!st.never}); renderInstallGuide(); render(); toast(st.never?'案内を再び表示します':'この案内は表示しません（メニューからいつでも追加できます）'); },
+  installNow:async()=>{ const d=PWA.deferred; if(!d) return; d.prompt(); try{ const c=await d.userChoice; if(c&&c.outcome==='accepted'){ closeSheetUI(); } }catch(e){} PWA.deferred=null; render(); },
+  migrateSheet:()=>{ const had=!!$('#sheet').innerHTML; renderMigrateSheet(false); if(!had) pushOv(); },
+  migCopy:async()=>{ const code=migrationCode();
+    try{ await navigator.clipboard.writeText(code); toast('📋 引き継ぎコードをコピーしました'); }
+    catch(e){ const ta=$('#mig_code'); if(ta){ ta.value=code; ta.select(); } else { prompt('このコードをすべて選択してコピーしてください',code); } toast('コードを選択してコピーしてください'); } },
+  migFile:async()=>{ const r=await shareOrDownload(`kakezan-gohan-transfer-${todayStr()}.json`,JSON.stringify(buildMigration())); if(r!=='cancel') toast(r==='shared'?'共有メニューから「ファイルに保存」を選んでください':'💾 引き継ぎファイルを保存しました'); },
+  migPaste:async()=>{ try{ $('#mig_code').value=await navigator.clipboard.readText(); toast('貼り付けました'); }catch(e){ toast('入力欄を長押しして「ペースト」してください'); $('#mig_code').focus(); } },
+  migApply:()=>{ let m; try{ m=parseMigration($('#mig_code').value); }catch(e){ toast('引き継ぎコードを読み取れませんでした。全体をコピーできているか確認してください'); return; }
+    if(confirm(`ユーザー${m.profiles.list.length}人分のデータを引き継ぎます。この画面のデータは置き換わります。よろしいですか？`)) applyMigration(m); },
+  migSkip:()=>{ MIG_FIRST=false; setInst({importAsked:true}); $('#sheet').innerHTML=''; if(!S.tutorialSeen) startWelcome(); else popOv(); },
+  migDone:ds=>{ setInst({migrated:ds.v==='1'}); renderInstallGuide(); render(); toast(ds.v==='1'?'✅ 移行済みにしました。以後はホーム画面版を使ってください':'移行済みの表示を取り消しました'); },
+  applyUpdate:()=>applyUpdate(),
+  checkUpdateNow:async()=>{ const f=await checkUpdate(true); if(f){ applyUpdate(); } else toast(`最新版です（${APP_VERSION}）`); },
   importData:()=>$('#importFile').click(),
   resetAll:()=>{ if(confirm(`「${curProfile().name}」のデータ（ストック・お気に入り・献立履歴・設定）を消去します。元に戻せません。よろしいですか？`)){ try{localStorage.removeItem(dataKey(PROF.current));}catch(e){} S=DEFAULT_STATE(); rebuildBases(); $('#sheet').innerHTML=''; render(); tipsReady=false; TOUR={ steps:WELCOME_TOUR, i:0, kind:'welcome', dontShow:true }; document.body.style.overflow='hidden'; showTourStep(); } },
   // stock
@@ -2251,7 +2462,7 @@ const ACTIONS={
   presetSheet:()=>{ renderPresetSheet(); pushOv(); },
   addPreset:ds=>{ $('#sheet').innerHTML=''; popOv(); addPreset(ds.id); },
   demo:()=>addPreset('basic'),
-  closeSheet:()=>closeSheetUI(),
+  closeSheet:()=>{ if(MIG_FIRST){ MIG_FIRST=false; ACTIONS.migSkip(); return; } closeSheetUI(); },
   addQty:ds=>{ S.addQty=+ds.n; const sc=$('#sheet .sheet').scrollTop; renderAddSheet(); $('#sheet .sheet').scrollTop=sc; save(); },
   addPart:ds=>{
     const snap=snapshot();
@@ -2321,13 +2532,19 @@ const ACTIONS={
 document.addEventListener('click',e=>{
   const el=e.target.closest('[data-act]'); if(!el) return;
   const a=el.dataset.act;
-  if(a==='backdrop'){ if(e.target!==el) return; if(el.dataset.close==='sheet') closeSheetUI(); else closeModalUI(); return; }
+  if(a==='backdrop'){ if(e.target!==el) return; if(el.dataset.close==='sheet') ACTIONS.closeSheet(); else closeModalUI(); return; }
   const fn=ACTIONS[a]; if(fn){ e.preventDefault(); fn(el.dataset,el,e); }
 });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if(TOUR) endTour(); else if(MODAL) closeModalUI(); else if($('#sheet').innerHTML) closeSheetUI(); } });
 
+// ショートカット（?tab=plan など）から開いたとき
+(()=>{ const t=new URLSearchParams(location.search).get('tab'); if(['stock','plan','fav','shop'].includes(t)){ S.tab=t; try{ history.replaceState(null,'',location.pathname); }catch(e){} } })();
 render();
-if(!S.tutorialSeen) startWelcome(); else { tipsReady=true; maybeTip(); }
+(()=>{ let msg=null; try{ msg=sessionStorage.getItem('kakezan-msg'); sessionStorage.removeItem('kakezan-msg'); }catch(e){} if(msg) setTimeout(()=>toast(msg),300); })();
+if(isStandalone()) askPersist();
+if(FRESH_INSTALL && isStandalone() && isIOS() && !instState().importAsked){ renderMigrateSheet(true); pushOv(); }
+else if(!S.tutorialSeen) startWelcome(); else { tipsReady=true; maybeTip(); }
+setTimeout(()=>updateFlow(false),3000);
 </script>
 </body>
 </html>
