@@ -342,6 +342,22 @@ button.stat{font:inherit}
 .handoff b{display:block;color:var(--green);font-size:14.5px}
 .handoff ol{margin:6px 0 10px;padding-left:20px;font-size:13px;color:var(--sub);line-height:1.7}
 .handoff ol b{display:inline;color:var(--ink);font-size:inherit}
+.typ{white-space:nowrap}
+.kit-top{flex-wrap:wrap}
+.ksec.tips ul{margin:0;padding-left:20px}
+.ksec.tips li{font-size:15px;line-height:1.7;margin:4px 0}
+.kyou-btns{display:grid;gap:8px}
+a.btn{text-decoration:none;box-sizing:border-box}
+.tagx.gochi{background:#F6E7C9;color:#8A5A00}
+@media (prefers-color-scheme: dark){ .tagx.gochi{background:#3A2E12;color:#E9C46A} }
+.my-row{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-bottom:1px solid var(--line2)}
+.my-row:last-child{border-bottom:none}
+.my-main{flex:1;min-width:0}
+.my-main b{display:block;font-size:15px;line-height:1.4}
+.my-main small{display:block;font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
+.my-main .host{color:var(--green)}
+.my-acts{display:flex;flex-direction:column;gap:6px;flex:none}
+.my-acts .swap{text-align:center;text-decoration:none;display:grid;place-items:center}
 /* nav */
 #nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--nav-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:var(--safe-b)}
 .nav-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav-h)}
@@ -642,20 +658,20 @@ const BASES = [
     requiredCategories:MAIN,
     pOnly:'momo butakoma sake shiromi sasami atsuage tofu ebi butabara mushidori',
     vOnly:'tamanegi kinoko piman paprika nasu negi broccoli cabbage gobo ninjin kabocha',
-    seasonings:[sp('醤油',1.5),sp('みりん',1.5),sp('酒',1.5),sp('砂糖',0.5),sp('サラダ油',1,'oil'),tx('白ごま','少々')],
-    finishSteps:['{PREP}','醤油・みりん・酒・砂糖を混ぜて合わせだれを作る。','フライパンにサラダ油を中火で熱し、{FRY}。','合わせだれを回し入れ、強めの中火で汁気が半分になり照りが出るまで1〜2分煮からめる。','器に盛り、白ごまを振って完成。'] },
+    seasonings:[sp('醤油',1.5),sp('みりん',1.5),sp('酒',1.5),sp('砂糖',0.5),sp('片栗粉（まぶす用）',0.5,'x'),sp('サラダ油',1,'oil'),tx('白ごま','少々')],
+    finishSteps:['{PREP}','醤油・みりん・酒・砂糖を混ぜて合わせだれを作る。','{P}の水気をペーパーで拭き、片栗粉を薄くまぶす（たれがよく絡み、ふっくら仕上がる）。','フライパンにサラダ油を中火で熱し、{FRY}。','余分な脂をペーパーで拭き取り、合わせだれを回し入れる。スプーンでたれをかけながら、とろりと照りが出るまで1〜2分煮からめる。','器に盛り、白ごまを振って完成。'] },
   { id:'w_negishio', name:'ねぎ塩レモン和え', suffix:'ねぎ塩レモン和え', genre:'和風', dishType:'主菜', method:'和えるだけ', time:'5分',
     requiredCategories:{protein:[1,1],veg:[1,2],proteinReady:true},
     pOnly:'mushidori tofu egg tuna saba',
     vOnly:'cabbage broccoli moyashi hakusai kinoko komatsuna horenso tomato paprika nasu piman',
-    seasonings:[sp('長ねぎ（みじん切り）',3,'x'),sp('ごま油',1),sp('レモン汁',1),sp('鶏がらスープの素',0.5),tx('塩','ひとつまみ'),tx('粗びき黒こしょう','少々')],
+    seasonings:[sp('長ねぎ（みじん切り）',3,'x'),sp('ごま油',1),sp('レモン汁',1),sp('鶏がらスープの素',0.5),cm('おろしにんにく（チューブ）',0.5),tx('塩','ひとつまみ'),tx('粗びき黒こしょう','たっぷり')],
     finishSteps:['{PREP}','ボウルに長ねぎのみじん切りと調味料をすべて入れてよく混ぜ、ねぎ塩レモンだれを作る。','{ALL}の水気をしっかり切ってからボウルに加え、全体をさっくり和える。','5分ほど置いて味をなじませ、器に盛って完成（冷蔵で翌日までおいしい）。'] },
   { id:'w_shoga', name:'生姜焼き', suffix:'生姜焼き', genre:'和風', dishType:'主菜', method:'フライパン', time:'5分',
     requiredCategories:MAIN,
     pOnly:'butakoma butabara momo sake sasami atsuage tofu',
     vOnly:'tamanegi cabbage piman kinoko moyashi negi nasu ninjin komatsuna',
-    seasonings:[sp('醤油',2),sp('みりん',1.5),sp('酒',1),sp('砂糖',0.5),cm('おろし生姜（チューブ）',2),sp('サラダ油',1,'oil')],
-    finishSteps:['{PREP}','醤油・みりん・酒・砂糖・生姜を混ぜて合わせだれを作る。','フライパンにサラダ油を中火で熱し、{FRY}。','合わせだれを加えて全体にからめ、汁気が少なくなるまで1分炒め合わせて完成（せん切りキャベツを添えると定食風に）。'] },
+    seasonings:[sp('醤油',2),sp('みりん',1.5),sp('酒',1),sp('砂糖',0.5),cm('おろし生姜（チューブ）',3),sp('片栗粉（まぶす用）',0.5,'x'),sp('サラダ油',1,'oil')],
+    finishSteps:['{PREP}','醤油・みりん・酒・砂糖と、生姜の半量を混ぜて合わせだれを作る。','{P}に片栗粉を薄くまぶす（たれが絡み、冷めても固くなりにくい）。','フライパンにサラダ油を中火で熱し、{FRY}。','合わせだれを加えて強めの中火で煮からめ、照りが出たら残りの生姜を加えてさっと混ぜて完成（せん切りキャベツを添えると定食風に）。'] },
   { id:'w_misomayo', name:'味噌マヨ焼き', suffix:'味噌マヨ焼き', genre:'和風', dishType:'主菜', method:'フライパン', time:'6分',
     requiredCategories:MAIN,
     pOnly:'sake shiromi momo sasami mushidori tofu atsuage butakoma',
@@ -667,7 +683,7 @@ const BASES = [
     pOnly:'tofu shiromi sake mushidori hikiniku atsuage butakoma ebi sasami',
     vOnly:'hakusai cabbage kinoko ninjin tamanegi horenso komatsuna kabocha daikon negi broccoli nasu',
     seasonings:[ml('水',50,'x'),sp('白だし',2),sp('みりん',1),sp('片栗粉（同量の水で溶く）',1,'x'),cm('おろし生姜（チューブ）',1),sp('サラダ油',0.5,'oil')],
-    finishSteps:['{PREP}','フライパンにサラダ油を中火で熱し、{FRY}。','水・白だし・みりん・生姜を加えて煮立て、ふたをして2分煮る。','火を弱めて水溶き片栗粉を回し入れ、すぐに混ぜてとろみがついたら完成。'] },
+    finishSteps:['{PREP}','フライパンにサラダ油を中火で熱し、{FRY}。','水・白だし・みりん・生姜を加えて煮立て、ふたをして2分煮る。','いったん火を止めて水溶き片栗粉を回し入れ、すぐに混ぜる。再び中火にかけ、30秒しっかり煮立ててとろみを安定させたら完成。'] },
   { id:'w_oroshiponzu', name:'おろしポン酢', suffix:'おろしポン酢', genre:'和風', dishType:'主菜', method:'フライパン', time:'5分',
     requiredCategories:MAIN,
     pOnly:'momo butakoma butabara sake shiromi sasami atsuage tofu mushidori',
@@ -690,8 +706,8 @@ const BASES = [
     requiredCategories:{protein:[0,1],veg:[1,2],proteinReady:true},
     pOnly:'mushidori tuna',
     vOnly:'horenso komatsuna broccoli ninjin moyashi cabbage nasu kabocha hakusai',
-    seasonings:[sp('すりごま',2),sp('砂糖',1),sp('醤油',1)],
-    finishSteps:['{PREP}','ボウルにすりごま・砂糖・醤油を入れて混ぜる。','{ALL}の水気をぎゅっと絞って加え、さっくり和えて完成。'] },
+    seasonings:[sp('すりごま（できれば煎りたて）',3),sp('砂糖',1),sp('醤油',1),sp('だし（または水）',1,'x')],
+    finishSteps:['{PREP}','ボウルにすりごま・砂糖・醤油・だしを入れて混ぜ、しっとりしたごま衣を作る。','{ALL}の水気をぎゅっと絞って加え、さっくり和えて完成。'] },
   { id:'w_nibitashi', name:'だし煮びたし', suffix:'煮びたし', genre:'和風', dishType:'副菜', method:'レンジ', time:'3分', mwBase:2, mwRaw:1,
     requiredCategories:{protein:[0,1],veg:[1,2]},
     pOnly:'atsuage tuna',
@@ -716,8 +732,8 @@ const BASES = [
     requiredCategories:MAIN,
     pOnly:'momo butakoma sake shiromi ebi saba hikiniku mushidori atsuage sasami',
     vOnly:'tamanegi nasu kinoko piman paprika broccoli jagaimo kabocha cabbage tomato ninjin',
-    seasonings:[gr('カットトマト缶',80,'x'),sp('コンソメ顆粒',0.5),sp('砂糖',0.25),cm('おろしにんにく（チューブ）',1),sp('オリーブオイル',1,'oil'),tx('塩こしょう','少々')],
-    finishSteps:['{PREP}','フライパンにオリーブオイルとにんにくを入れて弱火で熱し、香りが立ったら中火にする。','{FRY}。','トマト缶・コンソメ・砂糖を加え、ふたをして弱めの中火で4分煮る。','ふたを取って1分煮詰め、塩こしょうで味をととのえて完成（粉チーズやパセリを振っても）。'] },
+    seasonings:[gr('カットトマト缶',80,'x'),sp('コンソメ顆粒',0.5),sp('ケチャップ',0.5),sp('砂糖',0.25),cm('おろしにんにく（チューブ）',1),sp('オリーブオイル',1,'oil'),tx('塩こしょう','少々'),tx('仕上げのオリーブオイル','少々')],
+    finishSteps:['{PREP}','フライパンにオリーブオイルとにんにくを入れて弱火で熱し、香りが立ったら中火にする。','{FRY}。','トマト缶・コンソメ・ケチャップ・砂糖を加え、ふたをして弱めの中火で4分煮る。','ふたを取って1分煮詰め、塩こしょうで味をととのえて完成（粉チーズやパセリを振っても）。'] },
   { id:'y_tonyu', name:'豆乳クリーム煮', suffix:'豆乳クリーム煮', genre:'洋風', dishType:'主菜', method:'フライパン', time:'8分',
     requiredCategories:MAIN,
     pOnly:'momo mushidori sake shiromi ebi butakoma sasami tuna',
@@ -784,7 +800,7 @@ const BASES = [
     requiredCategories:MAIN,
     pOnly:'tofu atsuage hikiniku butakoma ebi',
     vOnly:'nasu negi hakusai kinoko piman moyashi cabbage',
-    seasonings:[sp('味噌',1),sp('醤油',0.5),sp('砂糖',0.5),sp('鶏がらスープの素',0.5),sp('豆板醤',0.25),ml('水',50,'x'),sp('片栗粉（同量の水で溶く）',1,'x'),cm('おろしにんにく（チューブ）',1),sp('ごま油',1,'oil')],
+    seasonings:[sp('味噌',1),sp('醤油',0.5),sp('砂糖',0.5),sp('鶏がらスープの素',0.5),sp('豆板醤',0.25),ml('水',50,'x'),sp('片栗粉（同量の水で溶く）',1,'x'),cm('おろしにんにく（チューブ）',1),cm('おろし生姜（チューブ）',1),sp('ごま油',1,'oil'),tx('花椒・ラー油','お好みで')],
     finishSteps:['{PREP}','味噌・醤油・砂糖・鶏がらスープの素・水を混ぜておく。','フライパンにごま油・豆板醤・にんにくを入れて弱火で炒めて香りを出し、中火にして{FRY}。','混ぜておいた調味料を加え、ふたをして2〜3分煮る。','水溶き片栗粉でとろみをつけ、30秒しっかり煮立てて完成（ラー油や花椒で大人の辛さに）。'] },
   { id:'c_amazu', name:'甘酢あん炒め', suffix:'甘酢あん炒め', genre:'中華', dishType:'主菜', method:'フライパン', time:'6分',
     requiredCategories:MAIN,
@@ -893,6 +909,62 @@ const BASES = [
     vOnly:'kinoko tomato tamanegi hakusai moyashi negi',
     seasonings:[ml('水',180,'x'),sp('鶏がらスープの素',1),sp('ナンプラー（なければ醤油）',1),sp('レモン汁',1),sp('砂糖',0.5),sp('豆板醤（またはラー油）',0.5)],
     finishSteps:['鍋に水と鶏がらスープの素を入れて中火にかける。','{SIMMER}。','ナンプラー・砂糖・豆板醤を加えて1分煮て、火を止めてからレモン汁を加えたら完成（酸っぱ辛い味に。牛乳を少し足すとマイルドに）。'] },
+
+  // ============================ 週末ごちそう（少し手間をかけて、しっかりおいしく） ============================
+  { id:'g_nikujaga', name:'コトコト本格肉じゃが', suffix:'コトコト本格肉じゃが', genre:'和風', dishType:'主菜', method:'鍋', time:'25分', gochiso:true, twoVeg:0.95,
+    requiredCategories:MAIN,
+    pOnly:'butakoma momo butabara',
+    vOnly:'jagaimo tamanegi ninjin',
+    seasonings:[ml('だし汁（顆粒だし＋水でOK）',120,'x'),sp('酒',3),sp('砂糖',1.5),sp('醤油',3),sp('みりん',3),sp('サラダ油',1,'oil')],
+    finishSteps:['{PREP}','鍋にサラダ油を中火で熱し、{P}を炒めて色が変わったら{V}を加え、全体に油が回るまで炒める。','だし汁・酒・砂糖を加えて煮立て、アクを取ってから落としぶた（アルミホイルでOK）をして弱めの中火で8分煮る。','醤油・みりんを加え、さらに7〜8分、煮汁が1/3量になるまで煮る。','火を止めてそのまま10分置き、味を含ませたら完成。'] },
+  { id:'g_buta_daikon', name:'豚バラと大根のとろとろ煮', suffix:'とろとろ煮', genre:'和風', dishType:'主菜', method:'鍋', time:'30分', gochiso:true,
+    requiredCategories:MAIN,
+    pOnly:'butabara butakoma momo atsuage',
+    vOnly:'daikon negi kinoko',
+    seasonings:[ml('水',150,'x'),sp('酒',3),sp('砂糖',1.5),sp('醤油',3),sp('みりん',3),cm('おろし生姜（チューブ）',2)],
+    finishSteps:['{PREP}','鍋を中火で熱し、{P}を焼き付けて脂を出す（油は不要）。','{V}を加えて脂を絡めるように炒め、水・酒・砂糖・生姜を加えて煮立て、アクを取る。','落としぶたをして弱火で15分、大根が透き通るまで煮る（冷凍大根なら10分でOK）。','醤油・みりんを加え、煮汁にとろみが出るまで5分煮詰めて完成。'] },
+  { id:'g_aquapazza', name:'アクアパッツァ', suffix:'アクアパッツァ', genre:'洋風', dishType:'主菜', method:'フライパン', time:'15分', gochiso:true,
+    requiredCategories:MAIN,
+    pOnly:'shiromi sake ebi',
+    vOnly:'tomato kinoko broccoli tamanegi paprika',
+    seasonings:[sp('白ワイン（または酒）',6,'x'),ml('水',60,'x'),sp('オリーブオイル',2),cm('おろしにんにく（チューブ）',1),tx('塩','ひとつまみ'),tx('粗びき黒こしょう','少々'),tx('パセリ（あれば）','適量')],
+    finishSteps:['{PREP}','フライパンにオリーブオイルの半量とにんにくを入れて弱火で香りを出し、{P}を皮目から入れて中火で焼き色をつける。','{V}を加えて白ワインを注ぎ、アルコールを飛ばしてから水と塩を加え、ふたをして弱めの中火で6〜7分蒸し煮にする。','ふたを取り、スープをスプーンで魚にかけながら1分煮詰める。','残りのオリーブオイルを回しかけ、黒こしょうとパセリを振って完成（スープはパンに浸してどうぞ）。'] },
+  { id:'g_confit', name:'鶏ももの香草オイル煮（コンフィ風）', suffix:'香草オイル煮（コンフィ風）', genre:'洋風', dishType:'主菜', method:'鍋', time:'35分', gochiso:true,
+    requiredCategories:MAIN,
+    pOnly:'momo sake',
+    vOnly:'jagaimo tamanegi kinoko negi paprika',
+    seasonings:[sp('塩',0.75,'x'),cm('おろしにんにく（チューブ）',2),ml('オリーブオイル（またはサラダ油）',60,'x'),tx('乾燥ハーブ（タイム・ローズマリーなど）','少々'),tx('粗びき黒こしょう','少々')],
+    finishSteps:['{P}に塩・こしょう・にんにくをすり込み、10分以上置く（前の晩から冷蔵庫で置くと本格的）。','小さめの鍋に{P}を皮目を下にして並べ、{V}とハーブも入れて、油をひたひたに注ぐ。','ごく弱火にかけ、小さな泡がふつふつ出る状態を保って25分煮る（沸騰させない）。','{P}を取り出し、フライパンで皮目だけを中火で2分焼いてパリッとさせたら完成（煮た油は炒め物に再利用できる）。'] },
+  { id:'g_ebichili', name:'ぷりぷりえびチリ', suffix:'ぷりぷりチリソース', genre:'中華', dishType:'主菜', method:'フライパン', time:'12分', gochiso:true,
+    requiredCategories:MAIN,
+    pOnly:'ebi shiromi',
+    vOnly:'negi tamanegi broccoli paprika',
+    seasonings:[sp('ケチャップ',4),sp('砂糖',1),sp('豆板醤',0.5),sp('鶏がらスープの素',0.5),sp('酢',0.5),ml('水',40,'x'),sp('片栗粉（まぶす用）',1,'x'),sp('片栗粉（とろみ用・同量の水で溶く）',1,'x'),cm('おろし生姜（チューブ）',1),cm('おろしにんにく（チューブ）',1),sp('ごま油',1,'oil')],
+    finishSteps:['{PREP}','{P}の水気をよく拭き、片栗粉をまぶす（ぷりっと仕上がる）。','フライパンにごま油を中火で熱し、{P}を両面焼いて八分通り火を通したら、いったん取り出す。','同じフライパンで生姜・にんにく・豆板醤を弱火で炒めて香りを出し、{V}を加えてさっと炒める。','ケチャップ・砂糖・鶏がらスープの素・酢・水を加えて煮立て、{P}を戻し入れて30秒煮る。','火を止めて水溶き片栗粉を回し入れ、再び火にかけてとろみがついたら完成（溶き卵を加えるとまろやかに）。'] },
+  { id:'g_mapo', name:'本格麻婆豆腐', suffix:'本格麻婆', genre:'中華', dishType:'主菜', method:'フライパン', time:'15分', gochiso:true,
+    requiredCategories:MAIN,
+    pOnly:'tofu atsuage',
+    vOnly:'negi nasu kinoko',
+    seasonings:[sp('甜麺醤（なければ味噌＋砂糖少々）',2),sp('豆板醤',0.75),sp('醤油',1),sp('酒',1),sp('鶏がらスープの素',0.5),ml('水',80,'x'),sp('片栗粉（同量の水で溶く）',1.5,'x'),cm('おろしにんにく（チューブ）',1),cm('おろし生姜（チューブ）',1),sp('ごま油',1.5,'oil'),tx('花椒・ラー油','お好みで')],
+    finishSteps:['{P}は熱湯で1分ゆでて（または塩水に5分浸して）水気を切る（崩れにくくなる）。','フライパンにごま油・豆板醤・にんにく・生姜を入れて弱火でじっくり炒め、赤い油がにじんだら甜麺醤を加えて香りを出す（冷凍のパラパラひき肉があればここで加える）。','酒・水・鶏がらスープの素・醤油と{V}を加えて煮立て、{P}を入れて弱めの中火で3分煮る。','火を止めて水溶き片栗粉を3回に分けて加え、そのつど揺すり混ぜる。','再び強火で30秒しっかり煮立て、花椒・ラー油をかけたら完成。'] },
+  { id:'g_stew', name:'じっくり豆乳クリームシチュー', suffix:'豆乳クリームシチュー', genre:'洋風', dishType:'主菜', method:'鍋', time:'25分', gochiso:true, twoVeg:0.9,
+    requiredCategories:MAIN,
+    pOnly:'momo mushidori sake butakoma',
+    vOnly:'tamanegi ninjin jagaimo broccoli kabocha kinoko',
+    seasonings:[gr('バター',10,'x'),sp('薄力粉',6,'x'),ml('水',100,'x'),sp('コンソメ顆粒',1),ml('無調整豆乳',120,'x'),tx('塩こしょう','少々')],
+    finishSteps:['{PREP}','鍋にバターを中火で溶かし、{P}と{V}を炒めて表面に焼き色をつける。','弱火にして薄力粉を振り入れ、粉っぽさがなくなるまで2分炒める（とろみとコクの素）。','水を少しずつ加えて混ぜ、コンソメを入れてふたをし、弱めの中火で10分煮る。','豆乳を加えて沸騰直前まで温め、塩こしょうで味をととのえて完成（煮立たせると分離するので注意）。'] },
+  { id:'g_samgye', name:'参鶏湯風スープ煮', suffix:'参鶏湯風スープ煮', genre:'韓国風', dishType:'主菜', method:'鍋', time:'30分', gochiso:true,
+    requiredCategories:MAIN,
+    pOnly:'momo mushidori',
+    vOnly:'negi daikon kinoko',
+    seasonings:[ml('水',250,'x'),sp('酒',3),sp('鶏がらスープの素',1),cm('おろし生姜（チューブ）',2),cm('おろしにんにく（チューブ）',1),tx('ごはん（あれば）','大さじ2'),tx('塩・こしょう','お好みで'),tx('ごま油','仕上げに少々')],
+    finishSteps:['鍋に水・酒・生姜・にんにく・{P}を入れて中火にかけ、煮立ったらアクを取る。','{V}を加え（ごはんがあれば一緒に）、ふたをして弱火で20分、鶏がほろっとやわらかくなるまで煮る。','鶏がらスープの素で味をととのえ、器に盛ってごま油をたらし、塩・こしょうを添えて完成。'] },
+  { id:'g_roast', name:'鶏もものハーブロースト', suffix:'ハーブロースト', genre:'洋風', dishType:'主菜', method:'オーブン', time:'30分', gochiso:true,
+    requiredCategories:MAIN,
+    pOnly:'momo sake',
+    vOnly:'jagaimo tamanegi paprika kabocha broccoli kinoko tomato',
+    seasonings:[sp('塩',0.5,'x'),sp('オリーブオイル',2,'oil'),cm('おろしにんにく（チューブ）',1),tx('乾燥ハーブ（ローズマリーなど）','少々'),tx('粗びき黒こしょう','少々'),tx('レモン（あれば）','くし切り1切れ')],
+    finishSteps:['{P}に塩・こしょう・にんにく・ハーブをもみ込み、10分置く。','天板にクッキングシートを敷き、{V}を広げてオリーブオイルの半量をからめ、上に{P}を皮目を上にしてのせ、残りのオイルを塗る。','220℃に予熱したオーブンで20〜25分、皮がこんがりきつね色になるまで焼く（竹串を刺して透明な汁が出ればOK）。','5分ほど休ませてから切り分け、レモンを搾って完成。'] },
 ];
 
 /* ---------------------------------------------------------------------
@@ -1131,6 +1203,118 @@ const CUSTOM_TIME = { 'フライパン':'5分', 'レンジ':'5分', '和える�
 const SEASON_SUGGEST = ['塩麹','醤油麹','玉ねぎ麹','甘酒','柚子胡椒','白味噌','赤味噌','甜麺醤','黒酢','バルサミコ酢','塩昆布','ダシダ','ナンプラー','魚醤','XO醤','花椒','粉山椒','めんつゆ','白だし','ポン酢','オイスターソース','コチュジャン','豆板醤','練りごま','すりごま','レモン汁','はちみつ','粒マスタード','カレー粉','クミン','バター','オリーブオイル','ごま油','醤油','みりん','酒','砂糖','味噌','塩','こしょう','酢','ケチャップ','マヨネーズ','鶏がらスープの素','コンソメ顆粒','顆粒和風だし','おろしにんにく（チューブ）','おろし生姜（チューブ）'];
 
 /* ---------------------------------------------------------------------
+   2-d. おいしく作るコツ（味の刷新）
+   一般的な家庭料理の調理技術をもとに書き下ろしたオリジナルのコツ。
+   キッチンモードに「おいしく作るコツ」として表示する。
+   --------------------------------------------------------------------- */
+const BASE_TIPS = {
+  // ---- 和風 ----
+  w_teriyaki:['焼いている間はなるべく触らず、こんがり焼き色をつけると香ばしさが段違い','たれを入れる前に余分な脂をペーパーで拭くと、たれが薄まらず照りがきれいに出る','たれの大きな泡が小さく細かくなり、ツヤが出たら火を止める合図'],
+  w_negishio:['ねぎは細かく刻むほど香りが立つ。たれは5分置くと角が取れてまろやかに','レモンは最後に加えると香りが飛ばない','黒こしょうを多めにすると、ぐっと大人の味に'],
+  w_shoga:['生姜は半量を仕上げに加えると、香りがフレッシュに立つ','肉に片栗粉を薄くまぶすと、たれがよく絡んで冷めても固くならない','たれは強めの中火で一気に煮からめ、照りが出たらすぐ火を止める'],
+  w_misomayo:['味噌マヨは焦げやすいので、絡めてからは弱火で','仕上げにふたを取って水分を飛ばすと、表面が香ばしくなる','七味や粗びき黒こしょうを少し振ると味が締まる'],
+  w_dashiankake:['水溶き片栗粉は火を止めてから回し入れ、混ぜてから再加熱するとダマにならない','とろみをつけたら30秒しっかり煮立てると、時間がたってもゆるくならない','仕上げに生姜を少し足すと、体が温まる味に'],
+  w_oroshiponzu:['大根おろしは軽く水気を切る程度に。絞りすぎるとパサつく','焼き物はこんがりと焼き色をつけると、さっぱりしたおろしポン酢と好相性','柚子胡椒を少し添えると香りのアクセントに'],
+  w_nimono:['煮物は冷めるときに味がしみる。時間があれば一度冷まして温め直すと格段においしい','肉を上にのせて加熱すると、肉のうまみが野菜にしみ込む','仕上げにごま油を数滴たらすとコクが増す'],
+  w_kinpira:['最後は強火で汁気を飛ばし、照りが出るまで炒りつける','根菜は太さをそろえると、食感が均一に仕上がる','仕上げのごま油少々と一味で、香りとキレが出る'],
+  w_gomaae:['ごまは使う直前にフライパンで軽く煎ると、香りが段違いに良くなる','和える直前に野菜の水気をぎゅっと絞るのが、水っぽくならないコツ','食べる直前に和えると色も食感もよい'],
+  w_nibitashi:['加熱後すぐに食べるより、5分以上置いて味を含ませるとおいしい','冷蔵庫で冷やしても、だしがしみてさらにおいしくなる','かつお節は食べる直前にのせると香りが立つ'],
+  w_misoshiru:['味噌は火を止めてから溶き入れ、煮立たせないと香りが残る','豚肉や油揚げを入れると、そのコクでだしが少なくてもおいしい','仕上げに長ねぎや七味を加えると香りが広がる'],
+  // ---- 洋風 ----
+  y_garibata:['にんにくは弱火から。焦がすと苦くなるので香りが出たら火を強める','醤油は鍋肌から回し入れ、ジュッと焦がして香ばしさをつける','バターは最後に加えると風味が生きる'],
+  y_tomatogarlic:['トマト缶は軽く煮詰めて水分を飛ばすと、酸味が抜けて甘みが出る','肉や魚は先に焼き色をつけておくと、煮込んでもうまみが逃げない','仕上げにオリーブオイルをひと回しすると香りが引き立つ'],
+  y_tonyu:['豆乳は沸騰させると分離するので、加えたら沸騰直前まで','薄力粉をしっかり炒めると、粉っぽさが消えてなめらかなとろみに','黒こしょうや粉チーズを仕上げに振ると味が締まる'],
+  y_curry:['カレー粉は油で炒めると香りが立つ。焦がさないよう中火で','ケチャップやソースを少し焦がすようにからめると、コクと香ばしさが出る','仕上げにレモン汁を少したらすと後味がさわやか'],
+  y_cheeseyaki:['加熱後に出た水分はしっかり捨てると、チーズがべちゃっとならない','チーズは2種類（ピザ用＋粉チーズ）使うと、とろけと香ばしさの両方が楽しめる','焼き色がつくまでしっかり焼くのがおいしさの決め手'],
+  y_lemonbutter:['レモン汁は火を止めてから加えると、香りも酸味もフレッシュ','バターは焦がしすぎない。泡が細かくなり、ナッツのような香りがしたらOK','皮付きの魚は皮目から焼いてパリッとさせる'],
+  y_mustardmayo:['はちみつを少し加えると、マスタードの辛みがまろやかになる','具の水気をしっかり切ってから和えると、味がぼやけない','粗びき黒こしょうで味を引き締める'],
+  y_marine:['具が温かいうちにマリネ液に入れると、味がよくしみる','10分以上置くと、酸味がなじんでまろやかに','冷蔵庫で冷やすとさらにおいしい'],
+  y_consomme:['具を炒めてからスープを注ぐと、コクが出る','塩は最後に味見してから。コンソメの塩分で十分なことも多い','仕上げにオリーブオイルや粉チーズを少したらすと、ぐっとお店風に'],
+  // ---- 中華 ----
+  c_oyster:['合わせ調味料は先に作っておき、強めの火で一気に仕上げるとシャキッと','片栗粉入りの調味料は加える直前にもう一度混ぜる','仕上げのごま油ひとたらしで香りが立つ'],
+  c_toban:['豆板醤は弱火の油でじっくり炒めると、辛みと香りが引き出される','にんにくや生姜と一緒に炒めると香りに奥行きが出る','辛さは豆板醤の量で調整。花椒を振ると本格的'],
+  c_umashioan:['とろみは火を止めてから水溶き片栗粉を入れると、ダマにならない','あんは30秒しっかり煮立たせて、とろみを安定させる','仕上げのごま油と黒こしょうで味が締まる'],
+  c_mabo:['豆板醤と味噌は、油で炒めて香りを出してから煮汁を加える','水溶き片栗粉は2〜3回に分けて加えると、なめらかなとろみに','仕上げに花椒やラー油を少し加えると、香りがぐっと本格的に'],
+  c_amazu:['甘酢は一度しっかり煮立てると、酸味の角が取れてまろやかに','具は先に焼き色をつけてから甘酢を絡める','仕上げに酢を少し追加すると香りが立つ'],
+  c_banbanji:['ごまだれは練りごまを少しずつ調味料でのばすと、なめらかになる','具はしっかり冷やすと、ごまだれのコクが引き立つ','ラー油や刻みねぎを添えると味が締まる'],
+  c_gomatonyu:['豆乳は加えたら沸騰させない（分離防止）','練りごまは少量のスープで溶いてから加えると、ダマにならない','ラー油と黒こしょうで担々風に'],
+  c_chukasoup:['具を入れてから一度アクを取ると、スープが澄んでおいしい','仕上げのごま油は火を止めてから。香りが飛ばない','溶き卵を加えるときは、煮立ったところに細く回し入れるとふんわり'],
+  // ---- 韓国風 ----
+  k_yangnyeom:['ヤンニョムだれは焦げやすいので、加えたら弱火でからめる','具は先に焼き色をつけておくと、たれがよく絡む','白ごまはたっぷり振ると香ばしさが増す'],
+  k_bulgogi:['時間があれば、たれに10分漬けてから焼くと味がしみる','強火で一気に炒め、汁気を飛ばすと香ばしい','サンチュやのりで巻いて食べるのもおすすめ'],
+  k_chijimi:['生地は冷たい水で混ぜると、カリッと仕上がる','焼くときはフライ返しで押さえつけ、多めの油で揚げ焼きに','裏返したら鍋肌から油を足すと、縁までパリパリに'],
+  k_jjim:['煮汁は最後に煮詰めて、とろりと絡むまで仕上げる','じゃがいもは煮崩れる手前が食べごろ','春雨を加えると、煮汁を吸ってボリュームアップ'],
+  k_namul:['野菜の水気はしっかり絞ってから和えると、味がぼやけない','調味料は手でもみ込むようにすると全体になじむ','白ごまは指でひねりつぶしながら加えると香りが立つ'],
+  k_chorogi:['ドレッシングは食べる直前に和えると、野菜がシャキッと','韓国のりは手でちぎってたっぷりと','白ごまとごま油の香りがおいしさの決め手'],
+  k_sundubu:['にんにくとごま油を弱火で炒めて香りを出してから煮るのがコツ','豆腐は大きめにすくって入れ、崩しすぎない','仕上げに溶き卵を落とすと本場風に'],
+  // ---- エスニック ----
+  t_gapao:['にんにくは弱火でじっくり香りを出してから肉を入れる','バジルは火を止めてから加えると香りが残る','目玉焼きは縁がカリッとするまで多めの油で焼くとガパオらしい'],
+  t_sweetchili:['スイートチリは焦げやすいので、最後にさっとからめる','レモン汁を少し加えると、甘さが締まって後を引く味に','パクチーや砕いたピーナッツを散らすと本格的'],
+  t_coconut:['カレー粉は油でしっかり炒めて香りを立たせる','ココナッツミルクは煮立たせすぎないとまろやか','ナンプラーは最後に味見しながら足す'],
+  t_kaomangai:['たれは10分置くと、生姜とねぎの香りがなじむ','鶏肉は温め直すとき、ゆで汁を少しかけるとしっとり','パクチーときゅうりを添えると本格的'],
+  t_yam:['ドレッシングは「酸っぱい・甘い・しょっぱい」のバランスを味見して調整','具をしっかり冷やすとさわやか','パクチー・ミントなどハーブがあると一気に本格的'],
+  t_tomyum:['レモン汁は火を止めてから加えると、香りも酸味も生きる','えびは入れたら煮すぎない。色が変わったらOK','牛乳を少し加えると、まろやかなトムヤムクン風に'],
+  // ---- 追加調味料 ----
+  x_shiokoji_yaki:['塩麹は焦げやすいので、絡めてからは弱めの中火で','時間があれば塩麹を揉み込んで置くと、驚くほどしっとり','焼き色は軽めがきれい'],
+  x_shiokoji_soup:['塩麹は仕上げに加えると、やさしい甘みと塩気が残る','具は大きめに切ると食べごたえが出る','黒こしょうで味を締める'],
+  x_shoyukoji_itame:['醤油麹は焦げやすいので、最後に加えてさっと炒める','肉に少量揉み込んでおくと、やわらかくうまみたっぷり','みりんを足すと照りが出る'],
+  x_shoyukoji_ae:['醤油麹だけで味が決まる。足りなければ少しずつ加える','野菜の水気をしっかり絞ってから和える','かつお節は食べる直前に'],
+  x_yuzu_ponzu:['柚子胡椒はポン酢でよく溶きのばしてからかける','焼き物はこんがりと焼くと、さっぱりだれが引き立つ','辛さは柚子胡椒の量で調整'],
+  x_yuzu_mayo:['柚子胡椒はマヨネーズによく混ぜると辛さが均一に','具の水気をしっかり切る','少量の醤油で味が締まる'],
+  x_saikyo:['前の晩から漬けておくと、味がしみて本格的に','みそは焦げやすいので、クッキングシートを敷いて弱火で','焼く前に表面のみそを軽く拭うと焦げにくい'],
+  x_shiromiso_soup:['白味噌はたっぷり使うのが京風。甘みがおいしさ','豆乳は沸騰させない','七味を少し振ると味が締まる'],
+  x_hoikoro:['強火で一気に炒めると、キャベツがシャキッと仕上がる','甜麺醤は焦げやすいので合わせてから加える','豚肉は脂が出るまでしっかり焼くとコクが出る'],
+  x_jajan:['肉みそはしっかり炒めて水分を飛ばすと、香ばしさが増す','ごはんや麺にのせても','きゅうりの千切りを添えると食感のアクセントに'],
+  x_kurozu:['黒酢あんは一度煮立てて酸味の角を取る','具は先にしっかり焼き色をつける','照りが出るまで煮からめると、お店の味に'],
+  x_balsamico:['バルサミコ酢は煮詰めるほど甘みとコクが出る','とろみがつくまで煮詰めて、具にしっかり絡める','仕上げに黒こしょうを'],
+  x_balsamico_marine:['10分以上置いて味をなじませる','オリーブオイルは良いものを使うと香りが違う','冷やしても常温でもおいしい'],
+  x_shiokonbu_ae:['塩昆布のうまみと塩気で味が決まる。手でもみ込むのがコツ','5分置くと昆布がなじんでしっとり','ごま油は香りづけ程度でOK'],
+  x_dashida_soup:['ダシダは牛だしのうまみが強いので、少なめから味見して調整','ごま油は仕上げにたらすと香りが立つ','溶き卵を加えるとまろやか'],
+  // ---- 調理器具専用 ----
+  e_yuan:['たれに漬けるのは5分程度でOK。長く漬けると塩辛くなる','焼き上がりにたれを塗ってあぶると、照りと香ばしさが出る','グリルは予熱しておくと皮がパリッと'],
+  e_spicegrill:['オイルをからめてから焼くと、焦げにくくジューシー','焼き色がしっかりつくまで焼くのがコツ','仕上げにレモンを搾るとさわやか'],
+  e_panko:['パン粉にオイルをしっかりしみ込ませると、きつね色にカリッと','オーブンは予熱しておく','焼き上がったら少し置くと、肉汁が落ち着く'],
+  e_gochumayo:['コチュマヨは焦げやすいので、焼き色がついたらアルミホイルをかぶせる','具は大きさをそろえると火の通りが均一に','白ごまをたっぷり振ると香ばしい'],
+  e_seiro_goma:['蒸し器の湯はしっかり沸騰させてから。蒸気が上がってからのせる','肉は重ならないように広げると火の通りが均一','たれは食べる直前に混ぜる'],
+  e_seiro_chuka:['香味だれはねぎをたっぷりと','蒸し上がりにごま油を熱してかけると、ジュッと香りが立つ','野菜を下に敷くと、肉のうまみを吸っておいしい'],
+  e_af_karaage:['下味は揉み込んで10分置くと味がしみる','表面に油を薄く塗ると、揚げたようにカリッと','途中で一度ふると、焼きムラが防げる'],
+  e_af_curry:['具は重ならないように並べる','途中で一度ふると、全体がカリッとする','仕上げにレモンやパセリを'],
+  e_auto_tomato:['野菜を下に、肉を上に入れると肉がやわらかく仕上がる','出来上がったら全体を混ぜて味をなじませる','粉チーズやバジルを添えると華やか'],
+  e_auto_wa:['冷めるときに味がしみるので、保温のまま置いておくとおいしい','根菜は大きめに切ると煮崩れしにくい','七味や柚子皮を添えると香りのアクセントに'],
+  // ---- 週末ごちそう ----
+  g_nikujaga:['砂糖を先に、醤油は後から入れると、味がしみて照りよく仕上がる','落としぶたをすると、少ない煮汁でも全体に味が回る','火を止めて10分置くと、じゃがいもに味がしみ込む'],
+  g_buta_daikon:['豚バラは油をひかずに焼き付け、出た脂で大根を炒めるとコクが出る','冷凍大根は繊維が壊れているので、短時間でも味がしみる','煮汁にとろみが出るまで煮詰めると、ごはんが進む味に'],
+  g_aquapazza:['魚は皮目からしっかり焼いて香ばしさを出す','スープをスプーンで魚にかけながら煮ると、身がふっくら','残ったスープはパンやパスタにからめて最後まで'],
+  g_confit:['塩はしっかりめに。前の晩からすり込んでおくと格段においしい','油は「ふつふつと小さな泡が出る」ごく弱火を保つ。沸騰させるとパサつく','最後に皮目だけ焼いてパリッとさせるのがポイント'],
+  g_ebichili:['えびは片栗粉をまぶして八分通り焼き、取り出しておくとぷりぷりに','豆板醤・生姜・にんにくを弱火でじっくり炒めて香りを出す','仕上げに溶き卵を回し入れるとまろやかなえびチリに'],
+  g_mapo:['豆腐は熱湯で下ゆでするか塩水に浸すと、崩れにくくなる','水溶き片栗粉は3回に分けて加え、最後に強火でしっかり煮立てると水っぽくならない','花椒の香りが本格的な麻婆豆腐の決め手'],
+  g_stew:['薄力粉はバターでじっくり炒めると、香ばしいコクのあるとろみに','水は少しずつ加えて、そのつど混ぜるとダマにならない','豆乳は最後に加え、煮立たせない'],
+  g_samgye:['煮立ったらアクを取り、あとは弱火でコトコト煮ると澄んだスープに','ごはんを少し入れると、とろみが出て本格的な参鶏湯風に','塩とこしょうは食べる人がつけながらいただくのが韓国風'],
+  g_roast:['焼く前に塩をすり込んで置くと、肉の中まで味が入る','皮目を上にして焼くと、皮がパリッと香ばしく','焼き上がったら5分休ませると、肉汁が落ち着いてジューシーに'],
+};
+// 食材ごとのおいしく焼く・煮るコツ（タンパク質）
+const PART_TIPS = {
+  p_mushidori:'ほぐし蒸し鶏は加熱しすぎるとパサつくので、最後に加えて温める程度に',
+  p_butakoma:'豚こまは広げて入れ、焼き色がつくまで触らないと香ばしい',
+  p_momo:'鶏ももは皮目から焼き、皮から出た脂で焼くとパリッと香ばしい',
+  p_hikiniku:'パラパラひき肉は最後に加え、たれを吸わせるように炒める',
+  p_sake:'鮭は皮目から焼き、返すのは1回だけにすると身が崩れない',
+  p_shiromi:'白身魚は片栗粉を薄くまぶすと、うまみを閉じ込めて崩れにくい',
+  p_tofu:'豆腐は表面を焼き付けて固めると、味がしみやすく崩れにくい',
+  p_egg:'ゆで卵は切り口に味をからめると、味がよくのる',
+  p_tuna:'ツナの油はうまみたっぷり。炒め油の代わりにも使える',
+  p_saba:'サバ缶の汁はうまみの塊。捨てずに少し加えると味が深まる',
+  p_butabara:'豚バラは油をひかずに焼き、出た脂で野菜を炒めるとコクが出る',
+  p_sasami:'ささみは片栗粉をまぶして焼くとしっとり。加熱しすぎに注意',
+  p_atsuage:'厚揚げは表面をカリッと焼いてから味付けすると香ばしい',
+  p_ebi:'えびは水気をしっかり拭き、片栗粉をまぶすとぷりっと仕上がる',
+};
+// 「きょうの料理」検索用のキーワード（ストック食材→一般的な食材名）
+const KYOU_WORD = {
+  p_mushidori:'鶏むね肉', p_butakoma:'豚こま', p_momo:'鶏もも肉', p_hikiniku:'ひき肉', p_sake:'鮭', p_shiromi:'たら', p_tofu:'豆腐', p_egg:'卵',
+  p_tuna:'ツナ', p_saba:'さば缶', p_butabara:'豚バラ', p_sasami:'ささみ', p_atsuage:'厚揚げ', p_ebi:'えび',
+};
+/* ---------------------------------------------------------------------
    3. アレンジルール（ジャンル・調理法・売り場・デモ在庫）
    --------------------------------------------------------------------- */
 const GENRES = ['和風','洋風','中華','韓国風','エスニック'];
@@ -1188,7 +1372,7 @@ const DEFAULT_STATE = () => ({
   activePlanId:null,
   suggestions:null, seenKeys:[], cooked:[],
   stockFilter:'all', stockSort:'rem', addQty:1, dictMode:'part', dictSel:null,
-  tutorialSeen:false, addLog:{}, tipsOn:true, tipsSeen:{}, genresOff:['韓国風','エスニック'],   // 初期設定は和・洋・中のみ（歯車→使うジャンルでON）
+  tutorialSeen:false, addLog:{}, tipsOn:true, myRecipes:[], tipsSeen:{}, genresOff:['韓国風','エスニック'],   // 初期設定は和・洋・中のみ（歯車→使うジャンルでON）
   lastBackupAt:null, extraOn:[], customBases:[], equip:Object.assign({},DEFAULT_EQUIP),
 });
 // ユーザー一覧（同じブラウザで家族が別々に保存できるように、ユーザーごとに保存先を分ける）
@@ -1251,6 +1435,7 @@ function sanitizeState(){
   if(!['stock','plan','fav','shop'].includes(S.tab)) S.tab='stock';
   if(!S.addLog||typeof S.addLog!=='object') S.addLog={};
   ['seenKeys','cooked'].forEach(k=>{ if(!Array.isArray(S[k])) S[k]=[]; });
+  S.myRecipes=(Array.isArray(S.myRecipes)?S.myRecipes:[]).filter(r=>r&&r.id&&r.title).map(r=>Object.assign({},r,{ url:/^https?:\/\//i.test(r.url||'')?r.url:'', parts:(r.parts||[]).filter(x=>PART[x]), memo:String(r.memo||'') }));
 }
 rebuildBases();
 sanitizeState();
@@ -1407,6 +1592,7 @@ function scoreDish(d,o,favs){
   if(o.softKeys && o.softKeys.has(d.key)) s-=3;
   if(o.avoidVeg) s-=d.v.filter(x=>o.avoidVeg.includes(x)).length*1.2;
   if(S.favPriority && favs.has(d.key)) s+=ARRANGE_RULES.favoriteBonus;
+  if(BASE[d.baseId].gochiso){ s+= o.weekend===true ? 2.2 : o.weekend===false ? -4 : 0; s-=(o.gochisoCount||0)*2.5; }   // ごちそうは週末に
   return s;
 }
 function dishAllowed(d,h){
@@ -1482,7 +1668,7 @@ function makeSuggestions(){
   for(const type of slots){
     const must=new Set(res.map(d=>d.key));
     const mainGenres=new Set(res.filter(d=>d.type==='主菜').map(d=>d.genre));
-    const d=generateDish({ type, pool, partScore, genreCount, baseCount, softKeys:cookedKeys,
+    const d=generateDish({ type, pool, partScore, genreCount, baseCount, softKeys:cookedKeys, weekend:[0,6].includes(new Date().getDay()),
       avoidVeg: res.flatMap(x=>x.v), sideProteinRate:0.3,
       hard:{ genres: type==='主菜'?mainGenres:null, bases:new Set(res.map(x=>x.baseId)), keys:seen, must } });
     if(!d) continue;
@@ -1541,7 +1727,7 @@ function generateWeek(different){
     };
     const hard={ genres: prevMain?new Set([prevMain.genre]):null, bases:prevBases, must:weekKeys,
       keys: different?histKeys:null, bp: different?histBP:null };
-    const main=generateDish({ type:'主菜', pool:core, partScore, genreCount, baseCount, softKeys:histKeys, hard });
+    const main=generateDish({ type:'主菜', pool:core, partScore, genreCount, baseCount, softKeys:histKeys, hard, weekend:[0,6].includes(parseYmd(addDays(start,i)).getDay()), gochisoCount:days.filter(d=>d.dishes[0]&&BASE[d.dishes[0].baseId].gochiso).length });
     const dishes=[];
     if(main){ dishes.push(main); apply(main,true); }
     const nSide = Math.random()<0.5?1:2;
@@ -1568,7 +1754,7 @@ function swapDish(di,j){
   const sm=stockMap();
   const partScore=id=>{ let s=(sm[id]||0)>=plan.people?1.5:0; s+=PART[id].category==='veg'?Math.min(usage[id]||0,2)*0.3:0; if(id===cur.p) s-=1.5; return s; };
   const others=day.dishes.filter((_,k)=>k!==j).flatMap(x=>x.v);
-  const d=generateDish({ type:cur.type, pool, partScore, avoidVeg:others, hard:{genres:genres.size?genres:null, bases, must} });
+  const d=generateDish({ type:cur.type, pool, partScore, avoidVeg:others, weekend:[0,6].includes(parseYmd(day.date).getDay()), hard:{genres:genres.size?genres:null, bases, must} });
   if(!d) return false;
   day.dishes[j]=d; plan.confirmed=false; return true;
 }
@@ -1645,7 +1831,7 @@ function planSeasonings(plan){
    9. 描画
    ===================================================================== */
 const gBadge = g=>`<span class="g g-${GCLS[g]}">${g}</span>`;
-const mLabel = b=>`<span class="mth">${METHOD_ICON[b.method]||''} ${b.method}・${b.time}</span>`;
+const mLabel = b=>`<span class="mth">${METHOD_ICON[b.method]||''} ${b.method}・${b.time}</span>${b.gochiso?'<span class="tagx gochi">🍷 週末ごちそう</span>':''}`;
 function formulaHTML(d,showStock){
   const b=BASE[d.baseId], sm=stockMap();
   const chip=id=>{ const p=PART[id], c=sm[id]||0; const miss=showStock&&c<=0;
@@ -1742,8 +1928,12 @@ function renderAddSheet(){
 }
 
 /* ---------- タブ2：アレンジ献立 ---------- */
+function noMainWarn(){
+  if(BASES.some(b=>b.dishType==='主菜')) return '';
+  return `<div class="status chg" style="flex-wrap:wrap">⚠ 今の設定（使うジャンル・調理器具）では主菜を作れる味付けがありません<div class="btn-row" style="width:100%;margin-top:6px"><button class="btn soft sm" data-act="genreSheet">使うジャンル</button><button class="btn soft sm" data-act="equipSheet">調理器具</button></div></div>`;
+}
 function renderPlan(){
-  return `<div class="mode">
+  return noMainWarn()+`<div class="mode">
       <button class="${S.mode==='A'?'on':''}" data-act="mode" data-m="A">🍳 今日のアレンジ</button>
       <button class="${S.mode==='B'?'on':''}" data-act="mode" data-m="B">📅 1週間献立</button>
     </div>${S.mode==='A'?renderModeA():renderModeB()}`;
@@ -1775,6 +1965,7 @@ function renderModeA(){
     <div class="sec-t"><h2>今日のアレンジ提案 <span class="num">${sg.length}</span></h2><small>${S.people}人分で計算</small></div>
     ${sg.length?sg.map((d,i)=>dishCard(d,'A:'+i,{cook:true,stock:true})).join(''):`<div class="card empty"><p>この組み合わせでは提案できませんでした。パーツを追加してみてください。</p></div>`}
     ${!pool.protein.length?`<p class="hint">💡 タンパク質パーツを登録すると主菜も提案されます。</p>`:''}
+    ${(()=>{ const can=(S.myRecipes||[]).filter(myCookable); return can.length?`<div class="sec-t"><h2>📒 マイレシピで作れる <span class="num">${can.length}</span></h2></div><div class="list">${can.map(r=>myRecipeRow(r,true)).join('')}</div>`:''; })()}
     <div class="confirm-bar"><button class="btn green" data-act="shuffle">🔀 別のアレンジ組み合わせを見る（シャッフル）</button></div>`;
 }
 function renderModeB(){
@@ -1827,7 +2018,10 @@ function combosCount(b){
 }
 function renderFav(){
   const favs=S.favorites;
-  let html=`<div class="sec-t" style="margin-top:4px"><h2>★ お気に入りアレンジ一覧 <span class="num">${favs.length}</span></h2></div>
+  const myr=S.myRecipes||[];
+  let html=`<div class="sec-t" style="margin-top:4px"><h2>📒 マイレシピ <span class="num">${myr.length}</span></h2><button class="swap" data-act="myNew">＋ 登録</button></div>
+  ${myr.length?`<div class="list">${myr.map(r=>myRecipeRow(r,false)).join('')}</div>`:`<div class="card empty" style="padding:18px"><p style="margin:0">きょうの料理などで見つけたプロのレシピを、URLと使う食材で登録できます。<br>食材がそろうと「今日のアレンジ」で提案されます。</p><div class="btn-col"><button class="btn outline sm" data-act="myNew">＋ マイレシピを登録</button><a class="btn ghost sm" href="https://www.kyounoryouri.jp/" target="_blank" rel="noopener">きょうの料理を開く ↗</a></div></div>`}
+  <div class="sec-t"><h2>★ お気に入りアレンジ一覧 <span class="num">${favs.length}</span></h2></div>
   ${favs.length>=5?`<div class="search" style="margin-bottom:10px"><span aria-hidden="true">🔍</span><input id="fav_q" type="search" class="inp" placeholder="料理名・食材・ジャンルで探す" value="${esc(FAV_Q)}" autocomplete="off"></div><div id="fav_empty" class="card empty" style="display:none;margin-bottom:10px"><p>見つかりませんでした</p></div>`:''}
   <div class="list">${favs.length?favs.map(f=>{ const d=makeDish(BASE[f.baseId],f.p,f.v); const b=BASE[f.baseId];
     return `<div class="fav-row" data-k="${esc(kana(dishName(d)+' '+d.genre+' '+d.type+' '+dishParts(d).map(id=>YOMI[id]||'').join(' ')))}"><button class="fx2" data-act="open" data-ref="F:${esc(f.key)}"><div class="d-top">${gBadge(d.genre)}<span class="typ">${d.type}</span>${mLabel(b)}${baseUsable(b)?'':'<span class="tagx">設定でOFF</span>'}</div><b>${esc(dishName(d))}</b></button><button class="x" data-act="unfav" data-key="${esc(f.key)}" aria-label="削除">×</button></div>`; }).join('')
@@ -1868,7 +2062,7 @@ function dictByPart(id){
           <div class="mini"><span class="lbl">合わせる食材→</span>${opt?`<button data-act="open" data-ref="X:${b.id}:-:${id}">🥗野菜のみ</button>`:''}${ps.map(q=>`<button data-act="open" data-ref="X:${b.id}:${q.id}:${id}">${q.emoji}${esc(q.short)}</button>`).join('')}</div></div>`;
       }
     }).join('')}</div>`; }).join('');
-  return `<div class="sec-t"><h2>${p.emoji} ${esc(p.name)}を使ったアレンジ一覧</h2></div>
+  return `${kyouLinksHTML([id],`${esc(p.short)}のプロのレシピを探す`)}<div class="sec-t"><h2>${p.emoji} ${esc(p.name)}を使ったアレンジ一覧</h2></div>
     <div class="info-box">${list.length}種の味付けベース × 相性の良い食材で <b>${n}通り</b>（1品目のみ表示・野菜2種の組み合わせはさらに増えます）</div>${rows}`;
 }
 function dictByBase(bid){
@@ -1958,9 +2152,13 @@ function renderModal(){
         ${ratio?`<div class="ratio"><span>この味の黄金比</span>${esc(ratio)}</div>`:''}</div>
       <div class="ksec"><h3>🔥 平日の仕上げ手順（約${b.time}）</h3><ol class="ksteps">${steps.map((s,i)=>`<li class="${MODAL.checked.has(i)?'ck':''}" data-act="stepck" data-i="${i}">${esc(s)}</li>`).join('')}</ol>
         <p class="hint">手順をタップすると完了チェックできます。</p></div>
+      ${(()=>{ const tips=[...(BASE_TIPS[b.id]||[]), ...dishParts(d).map(id=>PART_TIPS[id]).filter(Boolean)].slice(0,4);
+        return tips.length?`<div class="ksec tips"><h3>💡 おいしく作るコツ</h3><ul>${tips.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>`:''; })()}
+      ${kyouLinksHTML(dishParts(d).filter(id=>PART[id].category==='protein').concat(dishParts(d)))}
       <div class="kit-foot">
         <button class="btn ${fav?'soft':'primary'}" data-act="fav" data-ref="${esc(MODAL.ref)}">${fav?'★ お気に入り保存済み（タップで解除）':'★ お気に入りに保存'}</button>
         ${MODAL.ref.startsWith('A:')&&!d.done?`<button class="btn green" data-act="cook" data-ref="${esc(MODAL.ref)}">この料理を作ってストックを消費（−${n}食分）</button>`:''}
+        <button class="btn ghost sm" data-act="myFromDish">📒 プロのレシピをマイレシピに登録</button>
         ${'wakeLock' in navigator?`<button class="wake ${wakeLock?'on':''}" data-act="wake">💡 ${wakeLock?'画面を点灯したまま（ON）':'調理中は画面を消さない'}</button>`:''}
       </div>
     </div></div></div>`;
@@ -2271,7 +2469,7 @@ function closeModalUI(){ closeModal(); popOv(); }
 /* =====================================================================
    14. PWA（ホーム画面に追加・オフライン・自動アップデート・引き継ぎ）
    ===================================================================== */
-const APP_VERSION = '2026.11.15.7';
+const APP_VERSION = '2026.11.16.1';
 const SW_FILE = 'stock-arrange-meal-sw.js', SW_SCOPE = './stock-arrange-meal';
 const PWA = { deferred:null };
 const isHttp = ()=>/^https?:$/.test(location.protocol);
@@ -2514,7 +2712,7 @@ function planText(p){
 // ---- 献立リンク（短縮形式）----
 // 料理・食材を固定の番号表で数字英字に置き換え、1品＝5文字に圧縮する。
 // ※番号表は互換性のため並びを変えない。新しい味付け・食材は必ず末尾に追加すること。
-const SHARE_BASES = ["w_teriyaki", "w_negishio", "w_shoga", "w_misomayo", "w_dashiankake", "w_oroshiponzu", "w_nimono", "w_kinpira", "w_gomaae", "w_nibitashi", "w_misoshiru", "y_garibata", "y_tomatogarlic", "y_tonyu", "y_curry", "y_cheeseyaki", "y_lemonbutter", "y_mustardmayo", "y_marine", "y_consomme", "c_oyster", "c_toban", "c_umashioan", "c_mabo", "c_amazu", "c_banbanji", "c_gomatonyu", "c_chukasoup", "k_yangnyeom", "k_bulgogi", "k_chijimi", "k_jjim", "k_namul", "k_chorogi", "k_sundubu", "t_gapao", "t_sweetchili", "t_coconut", "t_kaomangai", "t_yam", "t_tomyum", "x_shiokoji_yaki", "x_shiokoji_soup", "x_shoyukoji_itame", "x_shoyukoji_ae", "x_yuzu_ponzu", "x_yuzu_mayo", "x_saikyo", "x_shiromiso_soup", "x_hoikoro", "x_jajan", "x_kurozu", "x_balsamico", "x_balsamico_marine", "x_shiokonbu_ae", "x_dashida_soup", "e_yuan", "e_spicegrill", "e_panko", "e_gochumayo", "e_seiro_goma", "e_seiro_chuka", "e_af_karaage", "e_af_curry", "e_auto_tomato", "e_auto_wa"];
+const SHARE_BASES = ["w_teriyaki", "w_negishio", "w_shoga", "w_misomayo", "w_dashiankake", "w_oroshiponzu", "w_nimono", "w_kinpira", "w_gomaae", "w_nibitashi", "w_misoshiru", "y_garibata", "y_tomatogarlic", "y_tonyu", "y_curry", "y_cheeseyaki", "y_lemonbutter", "y_mustardmayo", "y_marine", "y_consomme", "c_oyster", "c_toban", "c_umashioan", "c_mabo", "c_amazu", "c_banbanji", "c_gomatonyu", "c_chukasoup", "k_yangnyeom", "k_bulgogi", "k_chijimi", "k_jjim", "k_namul", "k_chorogi", "k_sundubu", "t_gapao", "t_sweetchili", "t_coconut", "t_kaomangai", "t_yam", "t_tomyum", "x_shiokoji_yaki", "x_shiokoji_soup", "x_shoyukoji_itame", "x_shoyukoji_ae", "x_yuzu_ponzu", "x_yuzu_mayo", "x_saikyo", "x_shiromiso_soup", "x_hoikoro", "x_jajan", "x_kurozu", "x_balsamico", "x_balsamico_marine", "x_shiokonbu_ae", "x_dashida_soup", "e_yuan", "e_spicegrill", "e_panko", "e_gochumayo", "e_seiro_goma", "e_seiro_chuka", "e_af_karaage", "e_af_curry", "e_auto_tomato", "e_auto_wa", "g_nikujaga", "g_buta_daikon", "g_aquapazza", "g_confit", "g_ebichili", "g_mapo", "g_stew", "g_samgye", "g_roast"];
 const SHARE_PARTS = ["p_mushidori", "p_butakoma", "p_momo", "p_hikiniku", "p_sake", "p_shiromi", "p_tofu", "p_egg", "p_tuna", "p_saba", "p_butabara", "p_sasami", "p_atsuage", "p_ebi", "v_ninjin", "v_cabbage", "v_tamanegi", "v_broccoli", "v_kinoko", "v_horenso", "v_komatsuna", "v_nasu", "v_jagaimo", "v_piman", "v_moyashi", "v_negi", "v_kabocha", "v_hakusai", "v_tomato", "v_daikon", "v_paprika", "v_gobo"];
 const APP_URL = 'https://pierrotmask.github.io/unique-tool/stock-arrange-meal.html';
 const B62 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -2606,6 +2804,68 @@ async function shareTextOut(text,title){
 }
 
 /* =====================================================================
+   16. プロのレシピ連携（きょうの料理で探す／マイレシピ）
+   ===================================================================== */
+// ---------- NHK「きょうの料理」の検索ページを開く（レシピは公式サイトで見る） ----------
+const KYOU_SEARCH = 'https://www.kyounoryouri.jp/search/recipe?keyword=';
+const KYOU_CHEFS = ['土井善晴','タサン志麻'];
+const kyouUrl = q=>KYOU_SEARCH+encodeURIComponent(q);
+const kyouWord = id=>KYOU_WORD[id]||PART[id].short;
+function kyouLinksHTML(ids,title){
+  const words=[...new Set(ids.filter(Boolean).map(kyouWord))].slice(0,2);
+  if(!words.length) return '';
+  const w=words[0];
+  return `<div class="ksec kyou"><h3>🔎 ${title||'プロのレシピも見てみる'}</h3>
+    <p class="hint mt0">NHK「きょうの料理」の公式サイトで、料理人のレシピを検索します（外部サイトが開きます）。</p>
+    <div class="kyou-btns">${KYOU_CHEFS.map(c=>`<a class="btn outline sm" href="${esc(kyouUrl(c+' '+w))}" target="_blank" rel="noopener">${esc(c)}さん × ${esc(w)}</a>`).join('')}
+      ${words.map(x=>`<a class="btn ghost sm" href="${esc(kyouUrl(x))}" target="_blank" rel="noopener">すべての料理人 × ${esc(x)}</a>`).join('')}</div>
+    <p class="hint">気に入ったレシピは、URLをコピーして「📒 マイレシピ」に登録すると、食材がそろったときに提案されます。</p></div>`;
+}
+
+// ---------- マイレシピ ----------
+const safeUrl = u=>{ u=String(u||'').trim(); return /^https?:\/\/[^\s]+$/i.test(u)?u:''; };
+const urlHost = u=>{ try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e){ return ''; } };
+const myCookable = r=>r.parts.length>0 && r.parts.every(id=>stockCount(id)>0);
+function myRecipeRow(r,withCook){
+  const can=myCookable(r);
+  return `<div class="my-row" data-k="${esc(kana(r.title+' '+r.memo+' '+r.parts.map(id=>(YOMI[id]||'')+PART[id].short).join(' ')))}">
+    <div class="my-main"><b>${esc(r.title)}</b>
+      <div class="formula" style="margin-top:4px">${r.parts.map(id=>`<span class="fp ${stockCount(id)>0?'':'miss'}">${PART[id].emoji}${esc(PART[id].short)}</span>`).join('')}${can?'<span class="pill fr-ok">✓ 作れる</span>':''}</div>
+      ${r.memo?`<small>${esc(r.memo)}</small>`:''}${r.url?`<small class="host">${esc(urlHost(r.url))}</small>`:''}</div>
+    <div class="my-acts">${r.url?`<a class="swap" href="${esc(r.url)}" target="_blank" rel="noopener">開く ↗</a>`:''}
+      ${withCook&&can?`<button class="swap" data-act="myCook" data-id="${r.id}">作った</button>`:''}
+      <button class="swap" data-act="myEdit" data-id="${r.id}">編集</button></div></div>`;
+}
+function renderMyForm(id,preset){
+  const r=(S.myRecipes||[]).find(x=>x.id===id)||Object.assign({id:'',title:'',url:'',parts:[],memo:''},preset||{});
+  const grid=cat=>PARTS.filter(p=>p.category===cat).map(p=>`<button class="pbtn ${r.parts.includes(p.id)?'on':''}" data-act="myPart" data-id="${p.id}"><span class="e">${p.emoji}</span><span class="n">${esc(p.short)}</span></button>`).join('');
+  sheetShell(r.id?'マイレシピを編集':'マイレシピに登録',`
+    <label class="fl mt0">料理名<input id="my_title" class="inp" maxlength="40" placeholder="例：土井先生の鶏の照り焼き" value="${esc(r.title)}"></label>
+    <label class="fl">レシピのURL（任意）<small>きょうの料理などのレシピページのURL。開くボタンからすぐ見られます。</small>
+      <div class="search-row"><input id="my_url" class="inp" type="url" inputmode="url" placeholder="https://www.kyounoryouri.jp/recipe/…" value="${esc(r.url)}">${navigator.clipboard&&navigator.clipboard.readText?'<button class="btn soft sm" style="width:auto;flex:none" data-act="myPasteUrl">貼り付け</button>':''}</div></label>
+    <div class="fl">使うストック食材<small>選んだ食材がすべて在庫にあると、「今日のアレンジ」に提案されます。</small></div>
+    <div class="grp-h mt0">🍖 タンパク質</div><div class="pgrid" id="my_parts_p">${grid('protein')}</div>
+    <div class="grp-h">🥕 野菜・きのこ</div><div class="pgrid" id="my_parts_v">${grid('veg')}</div>
+    <label class="fl">メモ（任意）<textarea id="my_memo" class="inp" rows="2" maxlength="200" placeholder="例：みりんは少なめが好み">${esc(r.memo)}</textarea></label>
+    <div class="btn-col"><button class="btn primary" data-act="mySave" data-id="${r.id}">保存する</button>
+      ${r.id?`<button class="btn ghost sm" style="color:var(--over)" data-act="myDel" data-id="${r.id}">このマイレシピを削除</button>`:''}</div>
+    <p class="hint">マイレシピはこの端末の中だけに保存されます（家族への共有リンクには含まれません）。</p>`);
+}
+function saveMyForm(id){
+  const title=$('#my_title').value.trim();
+  if(!title){ toast('料理名を入力してください'); $('#my_title').focus(); return false; }
+  const rawUrl=$('#my_url').value.trim(), url=safeUrl(rawUrl);
+  if(rawUrl&&!url){ toast('URLは https:// から始まる形で入力してください'); $('#my_url').focus(); return false; }
+  const parts=[...document.querySelectorAll('#sheet [data-act=myPart].on')].map(e=>e.dataset.id).filter(x=>PART[x]);
+  const memo=$('#my_memo').value.trim().slice(0,200);
+  S.myRecipes=S.myRecipes||[];
+  const obj={ id:id||'r_'+uid(), title:title.slice(0,40), url, parts, memo, createdAt:Date.now() };
+  const i=S.myRecipes.findIndex(x=>x.id===obj.id);
+  if(i>=0){ obj.createdAt=S.myRecipes[i].createdAt; S.myRecipes[i]=obj; } else S.myRecipes.unshift(obj);
+  return true;
+}
+
+/* =====================================================================
    13. アクション
    ===================================================================== */
 let toastT=null, toastUndo=null;
@@ -2673,11 +2933,20 @@ const ACTIONS={
   cfDelRow:(ds,el)=>{ const rows=document.querySelectorAll('#cf_rows .cf-row'); if(rows.length<=1){ el.closest('.cf-row').querySelectorAll('input').forEach(i=>i.value=''); return; } el.closest('.cf-row').remove(); },
   cfSave:ds=>{ if(saveCustomForm(ds.id)){ renderSeasonSheet(); render(); toast(ds.id?'✍️ 味付けを更新しました':'✍️ オリジナルの味付けを追加しました'); } },
   exportData:()=>exportData(),
+  myNew:()=>{ const had=!!$('#sheet').innerHTML; renderMyForm(null); if(!had) pushOv(); },
+  myEdit:ds=>{ const had=!!$('#sheet').innerHTML; renderMyForm(ds.id); if(!had) pushOv(); },
+  myFromDish:()=>{ const d=MODAL&&MODAL.dish; const parts=d?dishParts(d):[]; closeModal(); renderMyForm(null,{parts}); },
+  myPart:(ds,el)=>{ el.classList.toggle('on'); },
+  myPasteUrl:async()=>{ try{ const t=(await navigator.clipboard.readText()).trim(); const m=t.match(/https?:\/\/\S+/); $('#my_url').value=m?m[0]:t; }catch(e){ toast('入力欄を長押しして「ペースト」してください'); } },
+  mySave:ds=>{ if(saveMyForm(ds.id)){ closeSheetUI(); render(); toast(ds.id?'📒 マイレシピを更新しました':'📒 マイレシピに登録しました'); } },
+  myDel:ds=>{ const r=S.myRecipes.find(x=>x.id===ds.id); if(!r||!confirm(`「${r.title}」を削除しますか？`)) return; S.myRecipes=S.myRecipes.filter(x=>x.id!==ds.id); closeSheetUI(); render(); toast('削除しました'); },
+  myCook:ds=>{ const r=S.myRecipes.find(x=>x.id===ds.id); if(!r) return; const snap=snapshot();
+    const msg=r.parts.map(id=>`${PART[id].short}−${consumeStock(id,S.people)}`).join('、'); S.suggestions=null; render(); toast(`🍽 いただきます！ ${msg}`, ()=>restore(snap)); },
   genreSheet:()=>{ const had=!!$('#sheet').innerHTML; renderGenreSheet(); if(!had) pushOv(); },
   toggleGenre:ds=>{ const g=ds.g, off=new Set(S.genresOff||[]);
     if(!off.has(g) && activeGenres().length<=1){ toast('最低1つのジャンルはONにしてください'); return; }
     off.has(g)?off.delete(g):off.add(g); S.genresOff=[...off]; rebuildBases(); S.suggestions=null; renderGenreSheet(); render();
-    toast(off.has(g)?`${g}を提案から外しました`:`${g}を使います`);
+    toast(!BASES.some(b=>b.dishType==='主菜')?'⚠ この組み合わせでは主菜を作れません。調理器具やジャンルを見直してください':off.has(g)?`${g}を提案から外しました`:`${g}を使います`);
     if(off.has(g) && S.draft && S.draft.days.some(d=>d.dishes.some(x=>!baseUsable(BASE[x.baseId])))) setTimeout(()=>toast('作成済みの1週間献立に、このジャンルの料理があります。献立画面から差し替えできます'),2300); },
   shareSheet:()=>{ const had=!!$('#sheet').innerHTML; renderShareSheet(); if(!had) pushOv(); },
   shareText:async()=>{ const r=await shareTextOut(planText(S.draft),'今週の献立'); if(r==='copied') toast('📋 コピーしました。LINEなどに貼り付けて送ってください'); },
