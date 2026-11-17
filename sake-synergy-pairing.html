@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="theme-color" content="#0a1224">
+<title>Sake Synergy Pairing</title>
+<style>
+:root{
+  --bg:#0a1224; --bg2:#0f1a33; --card:#13203d; --card2:#182a4d; --line:#26385f;
+  --text:#eef2fb; --sub:#9aa8c7; --dim:#63739a;
+  --gold:#e8b04b; --gold2:#ffd27a; --goldglow:rgba(232,176,75,.55);
+  --coral:#ff8a65; --ice:#7fd3f7; --good:#6fdc9c; --bad:#ff6b7d;
+  --r:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--bg);background-image:radial-gradient(1200px 500px at 50% -200px,#1c2c55 0%,transparent 70%);background-attachment:fixed;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI",Meiryo,sans-serif;font-size:15px;line-height:1.5;min-height:100vh;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+button{font-family:inherit;color:inherit}
+.wrap{max-width:560px;margin:0 auto;padding:0 14px}
+/* header */
+.hdr{position:sticky;top:0;z-index:30;background:rgba(10,18,36,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.hdr .wrap{display:flex;align-items:center;gap:12px;padding-top:10px;padding-bottom:10px}
+.brand{font-size:12px;letter-spacing:.18em;color:var(--gold);font-weight:700}
+.pairline{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pairline small{color:var(--sub);font-weight:400}
+.hdr .meta{flex:1;min-width:0}
+.miniScore{flex:none;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--gold) calc(var(--p,0)*1%),#22335a 0);position:relative}
+.miniScore::after{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--bg2)}
+.miniScore b{position:relative;z-index:1;font-size:18px;color:var(--gold2)}
+/* section */
+.sec{background:linear-gradient(180deg,var(--card),#111c36);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin:14px 0;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.sec h2{margin:0 0 10px;font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.sec h2 .no{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#1a1405;font-size:12px;font-weight:800}
+.sec h2 .rt{margin-left:auto;font-size:12px;color:var(--sub);font-weight:400}
+.lbl{font-size:12px;color:var(--sub);margin:10px 0 6px;letter-spacing:.04em}
+/* chips */
+.hs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.hs::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--bg2);border-radius:999px;padding:9px 14px;font-size:13px;min-height:40px;cursor:pointer;transition:.18s}
+.chip.on{background:var(--gold);border-color:var(--gold);color:#1a1405;font-weight:700;box-shadow:0 0 14px var(--goldglow)}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tbtn{border:1px solid var(--line);background:var(--bg2);border-radius:12px;padding:10px 8px;min-height:50px;font-size:13px;cursor:pointer;text-align:center;transition:.18s;line-height:1.3}
+.tbtn.on{border-color:var(--coral);background:rgba(255,138,101,.16);color:#ffd3c4;box-shadow:inset 0 0 0 1px var(--coral)}
+.pbtn{border:1px solid var(--line);background:var(--bg2);border-radius:12px;padding:8px 6px;min-height:54px;font-size:12.5px;cursor:pointer;line-height:1.3;transition:.18s}
+.pbtn.on{border-color:var(--gold);background:rgba(232,176,75,.16);color:var(--gold2);box-shadow:inset 0 0 0 1px var(--gold)}
+.pbtn small{display:block;color:var(--dim);font-size:10px;margin-top:2px}
+.presetBox{max-height:236px;overflow-y:auto;padding-right:2px}
+.xbtn{border:1px dashed var(--line);background:transparent;border-radius:12px;padding:10px;min-height:48px;font-size:12.5px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;transition:.18s}
+.xbtn .sw{flex:none;width:34px;height:20px;border-radius:10px;background:#2a3a62;position:relative;transition:.2s}
+.xbtn .sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#9aa8c7;transition:.2s}
+.xbtn.on{border-style:solid;border-color:var(--gold);color:var(--gold2)}
+.xbtn.on .sw{background:var(--gold)}
+.xbtn.on .sw::after{left:16px;background:#1a1405}
+.dishNow{display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(255,138,101,.08);border:1px solid rgba(255,138,101,.35);font-size:13px}
+.dishNow b{color:#ffc2ad}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none}
+/* candidates */
+.cand{flex:none;width:148px;border:1px solid var(--line);border-radius:14px;background:var(--bg2);padding:10px;cursor:pointer;text-align:left;position:relative;transition:.2s}
+.cand.on{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 18px var(--goldglow)}
+.cand.dim{opacity:.45}
+.cand .rk{font-size:11px;color:var(--gold);font-weight:700}
+.cand .nm{font-size:13px;font-weight:700;margin:2px 0;line-height:1.3;min-height:34px}
+.cand .ct{font-size:10.5px;color:var(--sub)}
+.cand .sc{font-size:22px;font-weight:800;color:var(--gold2);line-height:1.1;margin-top:4px}
+.cand .sv{font-size:10.5px;color:var(--ice)}
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:999px;background:var(--gold);color:#1a1405;font-weight:800;vertical-align:middle}
+.badge.ice{background:var(--ice);color:#06202d}
+.badge.warn{background:#5a3a1a;color:#ffcf8a}
+.badge.ghost{background:transparent;border:1px solid var(--line);color:var(--sub);font-weight:600}
+/* drink panel */
+.drinkHead{display:flex;gap:10px;align-items:flex-start}
+.drinkHead .nm{font-size:18px;font-weight:800;line-height:1.3}
+.drinkHead .note{font-size:12.5px;color:var(--sub);margin-top:4px}
+.flags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.sbtn{border:1px solid var(--line);background:var(--bg2);border-radius:12px;min-height:56px;padding:8px;cursor:pointer;font-size:13px;position:relative;transition:.18s;line-height:1.25}
+.sbtn small{display:block;font-size:11px;color:var(--sub);margin-top:2px}
+.sbtn.on{border-color:var(--ice);background:rgba(127,211,247,.14);box-shadow:inset 0 0 0 1px var(--ice);color:#d7f3ff}
+.sbtn .rec{position:absolute;top:-8px;right:-4px}
+.params{display:grid;grid-template-columns:1fr;gap:6px;margin-top:12px}
+.prow{display:grid;grid-template-columns:96px 1fr 58px;align-items:center;gap:8px;font-size:12px}
+.prow .bar{height:8px;border-radius:4px;background:#1f2e52;overflow:hidden}
+.prow .bar i{display:block;height:100%;background:linear-gradient(90deg,#4aa8d8,var(--ice));border-radius:4px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.prow .v{text-align:right;font-variant-numeric:tabular-nums}
+.up{color:var(--good)} .dn{color:var(--bad)}
+/* score */
+.scoreBox{display:flex;align-items:center;gap:14px}
+.bigRing{flex:none;width:118px;height:118px;position:relative}
+.bigRing svg{width:100%;height:100%;transform:rotate(-90deg)}
+.bigRing .num{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.bigRing .num b{font-size:38px;color:var(--gold2);line-height:1;text-shadow:0 0 18px var(--goldglow)}
+.bigRing .num span{display:block;font-size:10px;color:var(--sub);letter-spacing:.1em}
+.subScores{flex:1;display:grid;gap:8px}
+.ss{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.ss .k{font-size:11px;color:var(--sub)}
+.ss .v{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+.verdict{margin-top:10px;font-size:13px;color:#f5deb0;background:rgba(232,176,75,.08);border:1px solid rgba(232,176,75,.3);border-radius:12px;padding:10px 12px}
+.favBtn{margin-top:10px;width:100%;min-height:50px;border-radius:14px;border:1px solid var(--gold);background:linear-gradient(180deg,#f2c062,#d89a33);color:#1a1405;font-weight:800;font-size:15px;cursor:pointer}
+/* radar */
+.chartWrap{position:relative}
+svg text{font-family:inherit}
+.legend{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;font-size:11.5px;color:var(--sub);margin-top:4px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.kpi .ss .v.gold{color:var(--gold2)}
+.gapList{margin-top:8px;display:grid;gap:6px}
+.gap{display:flex;align-items:center;gap:8px;font-size:12.5px;background:var(--bg2);border-radius:10px;padding:8px 10px;border:1px solid var(--line)}
+.gap .ok{margin-left:auto;font-weight:700}
+/* flavor bars */
+.fl{display:grid;grid-template-columns:1fr;gap:10px}
+.frow{border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--bg2);transition:.3s}
+.frow .t{display:flex;align-items:center;font-size:12.5px;margin-bottom:6px;gap:6px}
+.frow .t .badge{margin-left:auto}
+.frow.res{border-color:var(--gold);box-shadow:0 0 16px var(--goldglow),inset 0 0 12px rgba(232,176,75,.18);background:linear-gradient(90deg,rgba(232,176,75,.12),var(--bg2))}
+.fb{display:grid;grid-template-columns:30px 1fr 30px;align-items:center;gap:6px;font-size:11px;color:var(--sub);margin:3px 0}
+.fb .tr{height:9px;background:#1f2e52;border-radius:5px;overflow:hidden}
+.fb .tr i{display:block;height:100%;border-radius:5px;transition:width .55s cubic-bezier(.2,.8,.2,1)}
+.fb .n{text-align:right;font-variant-numeric:tabular-nums}
+.frow.res .fb .tr i{background:linear-gradient(90deg,#d89a33,var(--gold2)) !important;box-shadow:0 0 8px var(--gold)}
+/* map */
+.mapDot{cursor:pointer;transition:transform .6s cubic-bezier(.2,.8,.2,1),opacity .3s}
+.mapNote{font-size:11.5px;color:var(--sub);margin-top:6px}
+.top3{display:grid;gap:6px;margin-top:8px}
+.top3 button{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--bg2);border-radius:12px;padding:8px 10px;min-height:46px;cursor:pointer;text-align:left;font-size:13px}
+.top3 button b{margin-left:auto;color:var(--gold2)}
+/* breakdown */
+details.bd{margin:14px 0;background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+details.bd summary{padding:14px;cursor:pointer;font-weight:700;font-size:14px;list-style:none;display:flex;align-items:center;gap:8px}
+details.bd summary::-webkit-details-marker{display:none}
+details.bd summary::after{content:"＋";margin-left:auto;color:var(--gold)}
+details.bd[open] summary::after{content:"－"}
+.bdIn{padding:0 14px 14px;font-size:12.5px}
+.formula{background:#0b1430;border:1px solid var(--line);border-radius:12px;padding:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;line-height:1.7;color:#cfe0ff;overflow-x:auto;white-space:pre}
+table.tb{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}
+table.tb td,table.tb th{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left;vertical-align:top}
+table.tb td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.tb th{color:var(--sub);font-weight:600}
+/* tabs */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(10,18,36,.96);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.nav .wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding-top:8px;padding-bottom:8px}
+.nav button{min-height:56px;border:none;background:transparent;border-radius:12px;font-size:12px;color:var(--sub);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.nav button .ic{font-size:20px;line-height:1}
+.nav button.on{color:var(--gold2);background:rgba(232,176,75,.12)}
+.page{display:none}.page.on{display:block}
+/* list */
+.item{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--bg2);border-radius:12px;padding:10px;margin-top:8px}
+.item .m{flex:1;min-width:0}
+.item .m b{display:block;font-size:14px}
+.item .m small{color:var(--sub);font-size:11.5px}
+.ibtn{flex:none;min-width:48px;min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--card2);cursor:pointer;font-size:12px}
+.ibtn.del{color:var(--bad)}
+.btnL{width:100%;min-height:52px;border-radius:14px;border:1px solid var(--gold);background:transparent;color:var(--gold2);font-weight:700;font-size:14px;cursor:pointer;margin-top:8px}
+.btnL.solid{background:linear-gradient(180deg,#f2c062,#d89a33);color:#1a1405}
+.empty{color:var(--dim);font-size:13px;text-align:center;padding:18px 0}
+.stars{color:var(--gold2);letter-spacing:2px}
+select,input[type=text],textarea{width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:12px;font-size:15px;font-family:inherit}
+/* modal */
+.modal{position:fixed;inset:0;z-index:60;background:rgba(3,7,16,.72);display:none;align-items:flex-end;justify-content:center}
+.modal.on{display:flex}
+.sheet{width:100%;max-width:560px;max-height:92vh;overflow-y:auto;background:var(--bg2);border:1px solid var(--line);border-bottom:none;border-radius:20px 20px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom));animation:up .25s ease}
+@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.sheet h3{margin:0 0 10px;font-size:16px;display:flex;align-items:center}
+.sheet h3 button{margin-left:auto;border:none;background:var(--card2);border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer}
+.sl{display:grid;grid-template-columns:92px 1fr 34px;align-items:center;gap:8px;font-size:12.5px;margin:6px 0}
+.sl input{width:100%;accent-color:var(--gold);height:28px}
+.sl .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--gold2)}
+.ck{display:flex;flex-wrap:wrap;gap:6px}
+.ck label{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:12.5px;cursor:pointer;min-height:40px}
+.ck input{accent-color:var(--gold);width:18px;height:18px}
+.starPick{display:flex;gap:6px;justify-content:center;margin:8px 0 12px}
+.starPick button{width:52px;height:52px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:26px;cursor:pointer;color:#3b4b72}
+.starPick button.on{color:var(--gold2);border-color:var(--gold)}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--gold);color:#1a1405;font-weight:700;padding:10px 18px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:.3s;z-index:80}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.foot{font-size:11px;color:var(--dim);text-align:center;margin:20px 0}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="wrap">
+    <div class="meta">
+      <div class="brand">SAKE × FOOD SYNERGY</div>
+      <div class="pairline" id="hdrPair">—</div>
+    </div>
+    <div class="miniScore" id="hdrRing"><b id="hdrScore">0</b></div>
+  </div>
+</header>
+
+<main class="wrap">
+<!-- ============ ペアリング ============ -->
+<section class="page on" id="page-pair">
+
+  <div class="sec">
+    <h2><span class="no">1</span>料理を選ぶ<span class="rt">タップだけで設定</span></h2>
+    <div class="lbl">定番料理プリセット（ジャンル → 料理）</div>
+    <div class="hs" id="genreChips"></div>
+    <div class="presetBox" style="margin-top:8px"><div class="grid3" id="presetGrid"></div></div>
+    <div class="lbl">または 味覚・特徴タグを複数選択（合成）</div>
+    <div class="grid2" id="tagGrid"></div>
+    <div class="dishNow" id="dishNow"></div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="no">2</span>絞り込み・除外</h2>
+    <div class="lbl">シーン</div>
+    <div class="hs" id="sceneChips"></div>
+    <div class="lbl">お酒カテゴリ</div>
+    <div class="hs" id="catChips"></div>
+    <div class="lbl">ワンタップ除外（自動保存）</div>
+    <div class="grid2" id="exclGrid"></div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="no">3</span>おすすめのお酒<span class="rt" id="candCount"></span></h2>
+    <div class="hs" id="candList"></div>
+  </div>
+
+  <div class="sec" id="drinkSec">
+    <h2><span class="no">4</span>飲み方・割り比率</h2>
+    <div class="drinkHead">
+      <div style="flex:1;min-width:0">
+        <div class="nm" id="drName">—</div>
+        <div class="flags" id="drFlags"></div>
+        <div class="note" id="drNote"></div>
+      </div>
+    </div>
+    <div class="lbl">飲み方を切り替えるとグラフがリアルタイムに変形します</div>
+    <div class="grid2" id="servGrid"></div>
+    <div class="lbl">この飲み方でのお酒の変化（ストレート/基準比）</div>
+    <div class="params" id="paramRows"></div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="no">★</span>総合シナジースコア</h2>
+    <div class="scoreBox">
+      <div class="bigRing">
+        <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="#22335a" stroke-width="10"/><circle id="ringArc" cx="60" cy="60" r="52" fill="none" stroke="url(#gg)" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" style="transition:stroke-dashoffset .7s cubic-bezier(.2,.8,.2,1)"/><defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd27a"/><stop offset="1" stop-color="#d89a33"/></linearGradient></defs></svg>
+        <div class="num"><div><b id="bigScore">0</b><span>/ 100</span></div></div>
+      </div>
+      <div class="subScores">
+        <div class="ss"><div class="k">同調スコア（香り・コクの共鳴）</div><div class="v" id="sSync" style="color:var(--gold2)">0</div></div>
+        <div class="ss"><div class="k">中和・補完スコア（洗い流し・補う）</div><div class="v" id="sNeut" style="color:var(--ice)">0</div></div>
+        <div class="ss"><div class="k">飲み方補正</div><div class="v" id="sBonus">±0</div></div>
+      </div>
+    </div>
+    <div class="verdict" id="verdict"></div>
+    <button class="favBtn" id="favOpen">★ この組み合わせをお気に入り保存</button>
+  </div>
+
+  <div class="sec">
+    <h2><span class="no">A</span>味覚合成レーダーチャート</h2>
+    <div class="chartWrap"><svg id="radar" viewBox="0 0 320 300" width="100%"></svg></div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--coral)"></i>料理</span>
+      <span><i class="dot" style="background:var(--ice)"></i>お酒（飲み方反映）</span>
+      <span><i class="dot" style="background:var(--gold)"></i>口の中の合成</span>
+    </div>
+    <div class="kpi">
+      <div class="ss"><div class="k">味の補完率（面積拡大率）</div><div class="v gold" id="kExpand">—</div></div>
+      <div class="ss"><div class="k">味のバランス度</div><div class="v" id="kBal">—</div></div>
+    </div>
+    <div class="lbl">不足していた味覚のカバー結果</div>
+    <div class="gapList" id="gapList"></div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="no">B</span>フレーバー同調バー<span class="rt" id="resCount"></span></h2>
+    <div class="fl" id="flavorBars"></div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="no">C</span>シナジー4象限マップ<span class="rt">点をタップで切替</span></h2>
+    <div class="chartWrap"><svg id="qmap" viewBox="0 0 330 330" width="100%"></svg></div>
+    <div class="mapNote">横軸＝同調スコア／縦軸＝中和・補完スコア。各候補は「その料理に最適な飲み方」で配置（選択中のみ現在の飲み方）。軸は候補の分布に合わせて自動ズーム、太い区切り線＝候補の平均値。</div>
+    <div class="top3" id="top3"></div>
+  </div>
+
+  <details class="bd" id="bdPanel">
+    <summary>🔍 シナジー算出ロジックの内訳（計算根拠）</summary>
+    <div class="bdIn" id="bdIn"></div>
+  </details>
+</section>
+
+<!-- ============ My酒棚 ============ -->
+<section class="page" id="page-shelf">
+  <div class="sec">
+    <h2>🍶 My酒棚・カスタム登録</h2>
+    <div class="grid2">
+      <button class="btnL solid" id="addDrink">＋ お酒を登録</button>
+      <button class="btnL solid" id="addDish">＋ 料理を登録</button>
+    </div>
+    <div class="lbl" style="margin-top:16px">登録したお酒</div>
+    <div id="myDrinks"></div>
+    <div class="lbl" style="margin-top:16px">登録した料理</div>
+    <div id="myDishes"></div>
+  </div>
+  <div class="sec">
+    <h2>⚙️ 設定</h2>
+    <div class="lbl">起動時のデフォルトシーン</div>
+    <select id="defScene"></select>
+    <div class="lbl">除外ルール（ペアリング画面と共通）</div>
+    <div class="grid2" id="exclGrid2"></div>
+    <div class="lbl">収録データ</div>
+    <div style="font-size:12.5px;color:var(--sub)" id="dataInfo"></div>
+    <button class="btnL" id="resetAll" style="border-color:var(--bad);color:var(--bad)">保存データをすべて初期化</button>
+  </div>
+</section>
+
+<!-- ============ お気に入り ============ -->
+<section class="page" id="page-fav">
+  <div class="sec">
+    <h2>⭐ お気に入り組み合わせメモ<span class="rt" id="favCount"></span></h2>
+    <div class="hs" id="favSort"></div>
+    <div id="favList"></div>
+  </div>
+</section>
+<div class="foot">完全オフライン動作・データはこの端末のブラウザにのみ保存されます</div>
+</main>
+
+<nav class="nav"><div class="wrap">
+  <button class="on" data-tab="pair"><span class="ic">🥂</span>ペアリング</button>
+  <button data-tab="shelf"><span class="ic">🍶</span>My酒棚</button>
+  <button data-tab="fav"><span class="ic">⭐</span>お気に入り</button>
+</div></nav>
+
+<!-- お気に入り保存モーダル -->
+<div class="modal" id="favModal"><div class="sheet">
+  <h3>お気に入りに保存<button data-close="favModal">×</button></h3>
+  <div id="favSummary" style="font-size:13px;color:var(--sub)"></div>
+  <div class="starPick" id="starPick"></div>
+  <input type="text" id="favMemo" maxlength="80" placeholder="一言メモ（例：レモン多めが最高）">
+  <button class="btnL solid" id="favSave">保存する</button>
+</div></div>
+
+<!-- カスタム登録モーダル -->
+<div class="modal" id="editModal"><div class="sheet">
+  <h3 id="editTitle">登録<button data-close="editModal">×</button></h3>
+  <div class="lbl">既存データから値をコピー（任意）</div>
+  <select id="edTpl"></select>
+  <div class="lbl">名前</div>
+  <input type="text" id="edName" maxlength="40" placeholder="名前">
+  <div id="edDrinkOnly">
+    <div class="lbl">カテゴリ</div>
+    <select id="edCat"></select>
+    <div class="lbl">シーン</div>
+    <div class="ck" id="edScenes"></div>
+    <div class="lbl">対応する飲み方</div>
+    <div class="ck" id="edServ"></div>
+    <div class="lbl">特徴フラグ</div>
+    <div class="ck" id="edFlags"></div>
+  </div>
+  <div id="edDishOnly">
+    <div class="lbl">特徴</div>
+    <div class="ck"><label><input type="checkbox" id="edFishy">魚介（生臭みが出やすい）</label></div>
+  </div>
+  <div class="lbl">味覚（0〜100）</div>
+  <div id="edTaste"></div>
+  <div class="lbl">香り（0〜100）</div>
+  <div id="edAroma"></div>
+  <div id="edDrinkOnly2">
+    <div class="lbl">炭酸・度数</div>
+    <div id="edExtra"></div>
+  </div>
+  <div class="lbl">メモ</div>
+  <input type="text" id="edNote" maxlength="80" placeholder="ひとことメモ">
+  <button class="btnL solid" id="edSave">保存する</button>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+/* =========================================================
+   定数・軸定義
+   ========================================================= */
+const LS_KEY = 'sake_food_synergy_synergy_v1';
+const TK = ['sweet','salty','sour','bitter','umami','rich'];
+const TL = {sweet:'甘味',salty:'塩味',sour:'酸味',bitter:'苦味',umami:'旨味',rich:'脂/コク'};
+const AK = ['roast','citrus','herb','spice','dairy','dashi'];
+const AL = {roast:'香ばしさ・燻製',citrus:'柑橘・フルーティー',herb:'ハーブ・薬味',spice:'スパイス',dairy:'乳製品・ナッツ',dashi:'出汁・発酵'};
+const CATS = {whisky:'ウイスキー',sake:'日本酒',shochu:'焼酎（芋・麦・米）',beer:'ビール・クラフト',wine:'ワイン（赤・白・泡）',chuhai:'チューハイ・サワー',gin:'ジン・スピリッツ'};
+const SCENES = {home:'自宅・定番ボトル',conv:'コンビニ・スーパー',izakaya:'居酒屋・外食'};
+const GENRES = {meat:'肉料理',fish:'魚介',nabe:'鍋・煮物・出汁',spicy:'中華・スパイス',snack:'おつまみ・軽食',conv:'コンビニ総菜',custom:'マイ料理'};
+
+/* 重み（内訳パネルにそのまま表示） */
+const W_SYNC = 0.4, W_NEUT = 0.6, SCALE_A = 1.25, SCALE_B = -8;
+
+/* 飲み方の変換ロジック
+   tm: 味覚倍率 / ta: 加算 / am: 香り倍率 / fizz: 炭酸 (null=元のまま) / dil: アルコール残存率 / kire: キレ補正 / warm: 加温 */
+const SERV = {
+  straight:{label:'ストレート / 冷酒', sub:'基準', tm:{sweet:1,salty:1,sour:1,bitter:1,umami:1,rich:1}, ta:{}, am:{roast:1,citrus:1,herb:1,spice:1,dairy:1,dashi:1}, fizz:null, dil:1, kire:0, warm:false},
+  rock:{label:'ロック', sub:'冷却で甘み・香り控えめ', tm:{sweet:.86,salty:1,sour:1,bitter:1.06,umami:.85,rich:.86}, ta:{}, am:{roast:.82,citrus:.9,herb:.9,spice:.85,dairy:.8,dashi:.8}, fizz:null, dil:.85, kire:6, warm:false},
+  soda13:{label:'ソーダ割り (1:3)', sub:'刺激・キレ↑ 脂を流す', tm:{sweet:.6,salty:.6,sour:.6,bitter:.65,umami:.5,rich:.45}, ta:{sour:14,bitter:8}, am:{roast:.65,citrus:1.05,herb:1,spice:.7,dairy:.55,dashi:.5}, fizz:70, dil:.25, kire:10, warm:false},
+  soda14:{label:'強炭酸ソーダ割り (1:4)', sub:'刺激・キレ最大', tm:{sweet:.5,salty:.5,sour:.5,bitter:.6,umami:.4,rich:.35}, ta:{sour:20,bitter:12}, am:{roast:.55,citrus:1,herb:.95,spice:.6,dairy:.45,dashi:.4}, fizz:92, dil:.2, kire:16, warm:false},
+  water12:{label:'水割り (1:2)', sub:'穏やか・食中向き', tm:{sweet:.75,salty:.7,sour:.7,bitter:.7,umami:.72,rich:.6}, ta:{}, am:{roast:.75,citrus:.75,herb:.78,spice:.72,dairy:.72,dashi:.82}, fizz:0, dil:.33, kire:-4, warm:false},
+  oyuwari64:{label:'お湯割り (6:4)', sub:'甘み・香りが開く', tm:{sweet:1.08,salty:1,sour:.7,bitter:.65,umami:1.12,rich:.92}, ta:{}, am:{roast:1.25,citrus:.9,herb:1.05,spice:1.1,dairy:1.1,dashi:1.4}, fizz:0, dil:.6, kire:-8, warm:true},
+  nurukan:{label:'ぬる燗 (40℃)', sub:'旨み・ふくらみ最大', tm:{sweet:1.12,salty:1,sour:.95,bitter:.85,umami:1.3,rich:1.15}, ta:{}, am:{roast:1.15,citrus:.8,herb:.9,spice:1,dairy:1.25,dashi:1.45}, fizz:0, dil:1, kire:-6, warm:true},
+  atsukan:{label:'熱燗 (50℃)', sub:'辛口・キレで脂を切る', tm:{sweet:.92,salty:1,sour:1.05,bitter:1.15,umami:1.18,rich:1}, ta:{}, am:{roast:1.25,citrus:.6,herb:.8,spice:1.05,dairy:1.05,dashi:1.3}, fizz:0, dil:1, kire:12, warm:true}
+};
+const SERV_KEYS = Object.keys(SERV);
+const WHISKY_SERV = ['straight','rock','soda13','soda14','water12','oyuwari64'];
+const SAKE_SERV   = ['straight','rock','nurukan','atsukan'];
+const GINJO_SERV  = ['straight','rock','nurukan'];
+const SHOCHU_SERV = ['straight','rock','soda13','water12','oyuwari64'];
+const BEER_SERV   = ['straight'];
+const RED_SERV    = ['straight','rock'];
+const WHITE_SERV  = ['straight','rock','soda13'];
+const RTD_SERV    = ['straight','rock'];
+const GIN_SERV    = ['straight','rock','soda13','soda14'];
+
+/* =========================================================
+   マスターデータ：お酒（58銘柄）
+   taste: sweet甘 salty塩 sour酸 bitter苦 umami旨 richコク
+   aroma: roast香ばしさ・燻製 citrus柑橘 herbハーブ・薬味 spiceスパイス dairy乳製品・ナッツ dashi出汁・発酵
+   fizz: 炭酸刺激(0-100) / abv: アルコール度数
+   ========================================================= */
+const DRINKS = [
+  /* ---- ウイスキー ---- */
+  {id:'kaku', name:'サントリー角瓶（角ハイボール）', category:'whisky', scenes:['home','conv','izakaya'], taste:{sweet:35,salty:5,sour:10,bitter:30,umami:15,rich:45}, aroma:{roast:45,citrus:30,herb:15,spice:30,dairy:30,dashi:5}, servingOptions:WHISKY_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:40, note:'甘い樽香とドライな後口。強炭酸ハイボールで唐揚げ・揚げ物の脂を流す大定番。'},
+  {id:'blacknikka', name:'ブラックニッカ リッチブレンド', category:'whisky', scenes:['home','conv'], taste:{sweet:42,salty:5,sour:8,bitter:25,umami:15,rich:50}, aroma:{roast:40,citrus:25,herb:10,spice:25,dairy:45,dashi:5}, servingOptions:WHISKY_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:40, note:'シェリー樽原酒のまろやかな甘み。水割り・お湯割りでも崩れず、甘辛ダレと同調。'},
+  {id:'makers', name:'メーカーズマーク', category:'whisky', scenes:['home','izakaya'], taste:{sweet:55,salty:5,sour:8,bitter:25,umami:15,rich:60}, aroma:{roast:55,citrus:20,herb:5,spice:40,dairy:50,dashi:5}, servingOptions:WHISKY_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:45, note:'冬小麦由来のふくよかな甘みとバニラ・キャラメル香。焼肉・スペアリブ・タレ物に。'},
+  {id:'talisker10', name:'タリスカー10年', category:'whisky', scenes:['home','izakaya'], taste:{sweet:20,salty:25,sour:10,bitter:40,umami:20,rich:55}, aroma:{roast:85,citrus:25,herb:20,spice:60,dairy:20,dashi:25}, servingOptions:WHISKY_SERV, isHighSugar:false, isHighTannin:false, isSmoky:true, fizz:0, abv:45.8, note:'潮気とピート、黒胡椒のようなスパイス。燻製・焼き魚・牡蠣と好相性。ハイボールに黒胡椒も◎。'},
+  {id:'jimbeam', name:'ジムビーム', category:'whisky', scenes:['home','conv','izakaya'], taste:{sweet:45,salty:5,sour:10,bitter:25,umami:10,rich:50}, aroma:{roast:50,citrus:20,herb:5,spice:35,dairy:40,dashi:0}, servingOptions:WHISKY_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:40, note:'バニラ香と軽快な甘み。ハイボールでフライドポテト・肉料理全般に。'},
+  {id:'hakushu', name:'サントリー白州', category:'whisky', scenes:['home','izakaya'], taste:{sweet:25,salty:5,sour:18,bitter:30,umami:15,rich:40}, aroma:{roast:25,citrus:45,herb:70,spice:20,dairy:20,dashi:5}, servingOptions:WHISKY_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:43, note:'森の若葉のような爽やかな香り。ミントを添えたハイボールでハーブ料理・天ぷらと同調。'},
+  {id:'chita', name:'サントリー知多', category:'whisky', scenes:['home','conv','izakaya'], taste:{sweet:40,salty:5,sour:10,bitter:15,umami:15,rich:35}, aroma:{roast:25,citrus:30,herb:20,spice:15,dairy:35,dashi:10}, servingOptions:WHISKY_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:43, note:'軽やかなグレーン。和食の出汁を邪魔しない「風香るハイボール」。'},
+  {id:'laphroaig10', name:'ラフロイグ10年', category:'whisky', scenes:['home','izakaya'], taste:{sweet:15,salty:25,sour:10,bitter:50,umami:20,rich:60}, aroma:{roast:95,citrus:15,herb:35,spice:45,dairy:15,dashi:30}, servingOptions:WHISKY_SERV, isHighSugar:false, isHighTannin:false, isSmoky:true, fizz:0, abv:40, note:'強烈なヨード香とピート。燻製・いぶりがっこ・ブルーチーズ向きの上級者向け。'},
+  {id:'jameson', name:'ジェムソン', category:'whisky', scenes:['home','conv','izakaya'], taste:{sweet:35,salty:5,sour:15,bitter:20,umami:10,rich:35}, aroma:{roast:25,citrus:35,herb:20,spice:20,dairy:30,dashi:0}, servingOptions:WHISKY_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:40, note:'3回蒸留のスムースで軽い口当たり。ソーダ割りで何にでも合わせやすい。'},
+  {id:'taketsuru', name:'竹鶴ピュアモルト', category:'whisky', scenes:['home','izakaya'], taste:{sweet:35,salty:8,sour:12,bitter:32,umami:18,rich:55}, aroma:{roast:55,citrus:30,herb:20,spice:35,dairy:40,dashi:10}, servingOptions:WHISKY_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:43, note:'モルト由来のコクとほのかなピート。ローストビーフ・焼き鳥（塩）に。'},
+
+  /* ---- 日本酒 ---- */
+  {id:'dassai45', name:'獺祭 純米大吟醸45', category:'sake', scenes:['home','izakaya'], taste:{sweet:45,salty:5,sour:25,bitter:10,umami:40,rich:30}, aroma:{roast:5,citrus:65,herb:20,spice:5,dairy:20,dashi:30}, servingOptions:['straight','rock'], isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:16, note:'華やかな吟醸香とクリアな甘み。刺身・カルパッチョ・カプレーゼに。'},
+  {id:'hakkaisan', name:'八海山 特別本醸造', category:'sake', scenes:['home','conv','izakaya'], taste:{sweet:20,salty:8,sour:25,bitter:20,umami:45,rich:30}, aroma:{roast:15,citrus:20,herb:15,spice:5,dairy:20,dashi:60}, servingOptions:SAKE_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:15.5, note:'淡麗辛口で冷でも燗でも。出汁料理・焼き魚に寄り添う万能型。'},
+  {id:'kubota', name:'久保田 千寿', category:'sake', scenes:['home','izakaya'], taste:{sweet:25,salty:8,sour:22,bitter:18,umami:45,rich:30}, aroma:{roast:15,citrus:25,herb:15,spice:5,dairy:20,dashi:55}, servingOptions:SAKE_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:15, note:'穏やかな香りとすっきりした辛口。食事の邪魔をしない食中酒。'},
+  {id:'kikumasamune', name:'菊正宗 上撰 本醸造（生酛）', category:'sake', scenes:['home','conv','izakaya'], taste:{sweet:20,salty:10,sour:35,bitter:25,umami:55,rich:40}, aroma:{roast:25,citrus:10,herb:20,spice:10,dairy:20,dashi:65}, servingOptions:SAKE_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:15, note:'生酛造りの骨太な酸とキレ。熱燗にすると脂の多い料理もスパッと切る。'},
+  {id:'hakutsuru_maru', name:'白鶴 まる', category:'sake', scenes:['home','conv'], taste:{sweet:35,salty:8,sour:25,bitter:15,umami:45,rich:35}, aroma:{roast:15,citrus:10,herb:10,spice:5,dairy:20,dashi:55}, servingOptions:SAKE_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:13.5, note:'スーパーの紙パック定番。燗にするとまろやかに。おでん・肉じゃがの相棒。'},
+  {id:'kokuryu', name:'黒龍 吟醸 いっちょらい', category:'sake', scenes:['home','izakaya'], taste:{sweet:35,salty:5,sour:22,bitter:12,umami:45,rich:30}, aroma:{roast:5,citrus:50,herb:20,spice:5,dairy:25,dashi:40}, servingOptions:GINJO_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:15, note:'上品な吟醸香となめらかな旨み。白身の刺身・ホイル焼きに。'},
+  {id:'dewazakura', name:'出羽桜 桜花吟醸酒', category:'sake', scenes:['home','izakaya'], taste:{sweet:45,salty:5,sour:25,bitter:10,umami:40,rich:30}, aroma:{roast:5,citrus:70,herb:25,spice:5,dairy:20,dashi:30}, servingOptions:['straight','rock'], isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:15, note:'フルーティーな吟醸香の先駆け。柑橘を搾る料理と香りが共鳴。'},
+  {id:'onecup', name:'ワンカップ大関', category:'sake', scenes:['conv'], taste:{sweet:40,salty:8,sour:22,bitter:15,umami:45,rich:40}, aroma:{roast:20,citrus:10,herb:10,spice:5,dairy:15,dashi:55}, servingOptions:SAKE_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:15, note:'コンビニで買える。レンジで燗にしてコンビニおでん・さば味噌と。'},
+
+  /* ---- 焼酎 ---- */
+  {id:'kurokiri', name:'黒霧島（芋）', category:'shochu', scenes:['home','conv','izakaya'], taste:{sweet:40,salty:5,sour:8,bitter:15,umami:40,rich:45}, aroma:{roast:35,citrus:15,herb:15,spice:15,dairy:20,dashi:45}, servingOptions:SHOCHU_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:25, note:'トロッと甘くキリッと。黒麹の芋の旨み。お湯割りで豚料理・煮物に。'},
+  {id:'tominohozan', name:'富乃宝山（芋）', category:'shochu', scenes:['home','izakaya'], taste:{sweet:30,salty:5,sour:15,bitter:15,umami:35,rich:35}, aroma:{roast:20,citrus:60,herb:25,spice:10,dairy:15,dashi:35}, servingOptions:SHOCHU_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:25, note:'柑橘を思わせる爽やかな芋焼酎。ロック・ソーダ割りで刺身や塩焼きに。'},
+  {id:'tantakatan', name:'鍛高譚（しそ焼酎）', category:'shochu', scenes:['home','conv','izakaya'], taste:{sweet:20,salty:5,sour:15,bitter:15,umami:20,rich:25}, aroma:{roast:5,citrus:30,herb:85,spice:10,dairy:5,dashi:15}, servingOptions:SHOCHU_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:20, note:'赤しその清涼感。刺身・冷奴・薬味たっぷりの料理と香りが共鳴。'},
+  {id:'iichiko', name:'いいちこ（麦）', category:'shochu', scenes:['home','conv','izakaya'], taste:{sweet:30,salty:5,sour:10,bitter:12,umami:20,rich:25}, aroma:{roast:25,citrus:20,herb:10,spice:5,dairy:25,dashi:15}, servingOptions:SHOCHU_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:25, note:'クセのない麦の軽さ。どんな料理にも合わせやすい下町のナポレオン。'},
+  {id:'nikaido', name:'二階堂（麦）', category:'shochu', scenes:['home','conv','izakaya'], taste:{sweet:30,salty:5,sour:10,bitter:15,umami:25,rich:30}, aroma:{roast:40,citrus:15,herb:10,spice:5,dairy:30,dashi:20}, servingOptions:SHOCHU_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:25, note:'麦の香ばしさがふわり。焼き鳥・焼き魚の焦げ目と同調。'},
+  {id:'kicchomu', name:'吉四六（麦）', category:'shochu', scenes:['home','izakaya'], taste:{sweet:30,salty:5,sour:10,bitter:18,umami:30,rich:35}, aroma:{roast:45,citrus:15,herb:10,spice:5,dairy:30,dashi:25}, servingOptions:SHOCHU_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:25, note:'しっかりした麦の香ばしさとコク。お湯割りで焼き鳥タレに。'},
+  {id:'hakutake', name:'白岳 しろ（米）', category:'shochu', scenes:['home','conv','izakaya'], taste:{sweet:35,salty:5,sour:10,bitter:10,umami:40,rich:30}, aroma:{roast:10,citrus:20,herb:10,spice:5,dairy:25,dashi:50}, servingOptions:SHOCHU_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:25, note:'米の甘みと穏やかな香り。お湯割りで寄せ鍋・おでんに。'},
+  {id:'torikai', name:'鳥飼（米）', category:'shochu', scenes:['home','izakaya'], taste:{sweet:40,salty:5,sour:15,bitter:10,umami:35,rich:30}, aroma:{roast:5,citrus:70,herb:15,spice:5,dairy:20,dashi:30}, servingOptions:SHOCHU_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:25, note:'吟醸香のような華やかな米焼酎。白身魚・カルパッチョに。'},
+
+  /* ---- ビール・クラフト ---- */
+  {id:'superdry', name:'アサヒスーパードライ', category:'beer', scenes:['home','conv','izakaya'], taste:{sweet:10,salty:5,sour:25,bitter:40,umami:20,rich:25}, aroma:{roast:15,citrus:15,herb:15,spice:5,dairy:5,dashi:10}, servingOptions:BEER_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:85, abv:5, note:'キレ味鋭い辛口。揚げ物・塩気の強いつまみを一気にリセット。'},
+  {id:'ichiban', name:'キリン一番搾り', category:'beer', scenes:['home','conv','izakaya'], taste:{sweet:20,salty:5,sour:20,bitter:40,umami:30,rich:35}, aroma:{roast:25,citrus:15,herb:20,spice:5,dairy:10,dashi:15}, servingOptions:BEER_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:75, abv:5, note:'一番搾り麦汁の上品な麦の甘み。和食・餃子とも。'},
+  {id:'kuroraberu', name:'サッポロ生ビール黒ラベル', category:'beer', scenes:['home','conv','izakaya'], taste:{sweet:15,salty:5,sour:20,bitter:40,umami:25,rich:35}, aroma:{roast:25,citrus:15,herb:20,spice:5,dairy:10,dashi:15}, servingOptions:BEER_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:78, abv:5, note:'麦のうまさと爽やかな後味のバランス型。焼き鳥・枝豆に。'},
+  {id:'premol', name:'ザ・プレミアム・モルツ', category:'beer', scenes:['home','conv','izakaya'], taste:{sweet:25,salty:5,sour:18,bitter:45,umami:30,rich:45}, aroma:{roast:30,citrus:20,herb:35,spice:5,dairy:10,dashi:15}, servingOptions:BEER_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:72, abv:5.5, note:'ダイヤモンド麦芽のコクと華やかなアロマホップ。ハーブグリルに。'},
+  {id:'yebisu', name:'ヱビスビール', category:'beer', scenes:['home','conv','izakaya'], taste:{sweet:25,salty:5,sour:15,bitter:50,umami:30,rich:55}, aroma:{roast:40,citrus:15,herb:30,spice:5,dairy:15,dashi:15}, servingOptions:BEER_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:70, abv:5, note:'麦芽100%の深いコクと苦味。ローストビーフ・ハンバーグに。'},
+  {id:'yonayona', name:'よなよなエール', category:'beer', scenes:['home','conv'], taste:{sweet:25,salty:5,sour:25,bitter:55,umami:25,rich:45}, aroma:{roast:25,citrus:70,herb:40,spice:10,dairy:5,dashi:10}, servingOptions:BEER_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:70, abv:5.5, note:'柑橘系ホップの華やかなアメリカンペールエール。スパイス料理・フライに。'},
+  {id:'guinness', name:'ギネス ドラフト', category:'beer', scenes:['home','izakaya'], taste:{sweet:20,salty:5,sour:15,bitter:60,umami:30,rich:65}, aroma:{roast:90,citrus:5,herb:5,spice:10,dairy:45,dashi:15}, servingOptions:BEER_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:45, abv:4.5, note:'ロースト麦芽のコーヒー香とクリーミーな泡。牡蠣フライ・燻製・煮込みに。'},
+  {id:'aooni', name:'インドの青鬼（IPA）', category:'beer', scenes:['home','conv'], taste:{sweet:15,salty:5,sour:20,bitter:80,umami:20,rich:50}, aroma:{roast:20,citrus:75,herb:55,spice:20,dairy:5,dashi:5}, servingOptions:BEER_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:70, abv:7, note:'強烈なホップの苦味。スパイスカレー・麻婆豆腐の辛さを真正面から受け止める。'},
+  {id:'suiyoubi', name:'水曜日のネコ（ホワイトエール）', category:'beer', scenes:['home','conv'], taste:{sweet:30,salty:5,sour:30,bitter:15,umami:15,rich:25}, aroma:{roast:5,citrus:70,herb:35,spice:30,dairy:10,dashi:10}, servingOptions:BEER_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:70, abv:4.5, note:'オレンジピールとコリアンダー。サラダ・ハーブ料理・サラダチキンに。'},
+
+  /* ---- ワイン ---- */
+  {id:'cabernet', name:'カベルネ・ソーヴィニヨン（チリ）', category:'wine', scenes:['home','conv','izakaya'], taste:{sweet:20,salty:5,sour:35,bitter:60,umami:25,rich:75}, aroma:{roast:40,citrus:10,herb:30,spice:45,dairy:20,dashi:15}, servingOptions:RED_SERV, isHighSugar:false, isHighTannin:true, isSmoky:false, fizz:0, abv:13.5, note:'カシスと力強いタンニン。牛焼肉・ローストビーフの脂と同調。魚介は苦手。'},
+  {id:'pinot', name:'ピノ・ノワール（ブルゴーニュ）', category:'wine', scenes:['home','izakaya'], taste:{sweet:25,salty:5,sour:50,bitter:30,umami:35,rich:45}, aroma:{roast:20,citrus:30,herb:40,spice:25,dairy:15,dashi:40}, servingOptions:RED_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:13, note:'繊細な赤。きのこ・焼き鳥（タレ）・醤油系の和食と好相性。'},
+  {id:'merlot', name:'メルロー', category:'wine', scenes:['home','conv','izakaya'], taste:{sweet:30,salty:5,sour:35,bitter:45,umami:30,rich:60}, aroma:{roast:25,citrus:15,herb:25,spice:30,dairy:25,dashi:20}, servingOptions:RED_SERV, isHighSugar:false, isHighTannin:true, isSmoky:false, fizz:0, abv:13.5, note:'まろやかな果実味と程よいタンニン。ハンバーグ・生姜焼きに。'},
+  {id:'sauvblanc', name:'ソーヴィニヨン・ブラン（NZ）', category:'wine', scenes:['home','conv','izakaya'], taste:{sweet:15,salty:5,sour:70,bitter:15,umami:15,rich:20}, aroma:{roast:5,citrus:70,herb:80,spice:10,dairy:5,dashi:10}, servingOptions:WHITE_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:13, note:'ハーブと柑橘の鋭い酸。ハーブグリル・ホイル焼き・カプレーゼと共鳴。'},
+  {id:'chardonnay', name:'シャルドネ（樽熟成）', category:'wine', scenes:['home','izakaya'], taste:{sweet:25,salty:5,sour:45,bitter:15,umami:25,rich:60}, aroma:{roast:30,citrus:40,herb:15,spice:10,dairy:70,dashi:15}, servingOptions:WHITE_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:13.5, note:'バター・ナッツの樽香。クリーム系・カマンベール・ポテサラに。'},
+  {id:'koshu', name:'甲州（日本ワイン）', category:'wine', scenes:['home','izakaya'], taste:{sweet:15,salty:8,sour:55,bitter:20,umami:30,rich:20}, aroma:{roast:5,citrus:55,herb:30,spice:5,dairy:10,dashi:40}, servingOptions:WHITE_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:12, note:'繊細な柑橘と旨み。和食・刺身・天ぷらに寄り添う日本の白。'},
+  {id:'cava', name:'辛口スパークリング（カヴァ）', category:'wine', scenes:['home','conv','izakaya'], taste:{sweet:20,salty:5,sour:60,bitter:20,umami:20,rich:25}, aroma:{roast:25,citrus:55,herb:20,spice:5,dairy:40,dashi:15}, servingOptions:['straight'], isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:70, abv:11.5, note:'瓶内二次発酵の泡。揚げ物・塩気・フライドポテトに万能。'},
+  {id:'riesling', name:'リースリング（やや甘口）', category:'wine', scenes:['home','izakaya'], taste:{sweet:60,salty:5,sour:65,bitter:10,umami:20,rich:25}, aroma:{roast:5,citrus:80,herb:30,spice:15,dairy:10,dashi:10}, servingOptions:WHITE_SERV, isHighSugar:true, isHighTannin:false, isSmoky:false, fizz:0, abv:9, note:'ドイツのやや甘口。スパイス料理・エスニックの辛さを甘みで中和。'},
+
+  /* ---- チューハイ・サワー ---- */
+  {id:'kodawari_lemon', name:'こだわり酒場のレモンサワー', category:'chuhai', scenes:['home','conv'], taste:{sweet:20,salty:10,sour:55,bitter:20,umami:10,rich:15}, aroma:{roast:5,citrus:85,herb:10,spice:5,dairy:0,dashi:5}, servingOptions:RTD_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:85, abv:7, note:'居酒屋の味を再現した甘さ控えめのレモンサワー。唐揚げ・焼き鳥の脂を流す。'},
+  {id:'honshibori_gf', name:'キリン 本搾り グレープフルーツ', category:'chuhai', scenes:['home','conv'], taste:{sweet:25,salty:5,sour:60,bitter:30,umami:5,rich:10}, aroma:{roast:0,citrus:85,herb:10,spice:5,dairy:0,dashi:0}, servingOptions:RTD_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:75, abv:6, note:'果汁たっぷり、ほろ苦いグレープフルーツ。香料・糖類ゼロ。'},
+  {id:'lemondo', name:'檸檬堂 定番レモン', category:'chuhai', scenes:['home','conv'], taste:{sweet:40,salty:10,sour:55,bitter:20,umami:10,rich:20}, aroma:{roast:0,citrus:85,herb:5,spice:0,dairy:0,dashi:5}, servingOptions:RTD_SERV, isHighSugar:true, isHighTannin:false, isSmoky:false, fizz:75, abv:5, note:'丸ごとすりおろしレモンの濃い味。ホットスナックと好相性。'},
+  {id:'strongzero', name:'-196 ストロングゼロ ダブルレモン', category:'chuhai', scenes:['conv'], taste:{sweet:30,salty:5,sour:60,bitter:25,umami:5,rich:10}, aroma:{roast:0,citrus:80,herb:5,spice:5,dairy:0,dashi:0}, servingOptions:RTD_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:85, abv:9, note:'アルコール9%で強いキレ。濃い味のコンビニ総菜を流す。'},
+  {id:'horoyoi_shiroi', name:'ほろよい 白いサワー', category:'chuhai', scenes:['conv'], taste:{sweet:75,salty:5,sour:40,bitter:5,umami:5,rich:25}, aroma:{roast:0,citrus:30,herb:0,spice:0,dairy:60,dashi:10}, servingOptions:RTD_SERV, isHighSugar:true, isHighTannin:false, isSmoky:false, fizz:55, abv:3, note:'乳酸飲料風の甘口・低アルコール。辛い料理の箸休めに。'},
+  {id:'nama_gf', name:'生搾りグレープフルーツサワー（居酒屋）', category:'chuhai', scenes:['izakaya'], taste:{sweet:20,salty:5,sour:60,bitter:35,umami:5,rich:10}, aroma:{roast:0,citrus:90,herb:10,spice:0,dairy:0,dashi:0}, servingOptions:RTD_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:80, abv:5, note:'自分で搾るフレッシュ果汁。揚げ物・餃子をさっぱりリセット。'},
+  {id:'oolonghai', name:'ウーロンハイ（居酒屋）', category:'chuhai', scenes:['izakaya','conv'], taste:{sweet:5,salty:5,sour:10,bitter:45,umami:10,rich:15}, aroma:{roast:35,citrus:5,herb:25,spice:10,dairy:5,dashi:15}, servingOptions:RTD_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:5, note:'烏龍茶の重合ポリフェノールで脂をリセット。中華・焼肉に。'},
+  {id:'umeshu_soda', name:'チョーヤ 梅酒ソーダ', category:'chuhai', scenes:['home','conv','izakaya'], taste:{sweet:70,salty:5,sour:50,bitter:10,umami:10,rich:30}, aroma:{roast:5,citrus:60,herb:5,spice:5,dairy:25,dashi:10}, servingOptions:RTD_SERV, isHighSugar:true, isHighTannin:false, isSmoky:false, fizz:70, abv:5, note:'南高梅の甘酸っぱさ。甘辛い料理・スパイス料理と。'},
+
+  /* ---- ジン・スピリッツ ---- */
+  {id:'sui_soda', name:'翠ジンソーダ（缶）', category:'gin', scenes:['home','conv','izakaya'], taste:{sweet:15,salty:5,sour:40,bitter:20,umami:5,rich:10}, aroma:{roast:5,citrus:60,herb:70,spice:10,dairy:0,dashi:15}, servingOptions:RTD_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:85, abv:7, note:'柚子・緑茶・生姜の和素材。和食の薬味・刺身・生姜焼きと共鳴。'},
+  {id:'roku', name:'ROKU ジャパニーズクラフトジン', category:'gin', scenes:['home','izakaya'], taste:{sweet:20,salty:5,sour:25,bitter:25,umami:10,rich:25}, aroma:{roast:5,citrus:55,herb:75,spice:20,dairy:5,dashi:15}, servingOptions:GIN_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:43, note:'桜・山椒・玉露など6種の和ボタニカル。天ぷら・焼き鳥（塩）に。'},
+  {id:'bombay', name:'ボンベイ・サファイア', category:'gin', scenes:['home','conv','izakaya'], taste:{sweet:15,salty:5,sour:20,bitter:25,umami:5,rich:20}, aroma:{roast:5,citrus:45,herb:70,spice:25,dairy:5,dashi:0}, servingOptions:GIN_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:47, note:'10種のボタニカルが華やか。ジンソーダでハーブグリル・フライに。'},
+  {id:'tanqueray', name:'タンカレー ロンドン ドライジン', category:'gin', scenes:['home','izakaya'], taste:{sweet:10,salty:5,sour:20,bitter:30,umami:5,rich:20}, aroma:{roast:5,citrus:40,herb:75,spice:20,dairy:0,dashi:0}, servingOptions:GIN_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:47.3, note:'ジュニパー強めでドライ。強炭酸で揚げ物の脂を切る。'},
+  {id:'kinobi', name:'季の美 京都ドライジン', category:'gin', scenes:['home','izakaya'], taste:{sweet:20,salty:5,sour:30,bitter:20,umami:10,rich:25}, aroma:{roast:5,citrus:65,herb:65,spice:20,dairy:5,dashi:20}, servingOptions:GIN_SERV, isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:45, note:'柚子・檜・玉露・山椒。和の香りで刺身・冷奴・ホイル焼きに。'},
+  {id:'cuervo', name:'ホセ・クエルボ エスペシャル（テキーラ）', category:'gin', scenes:['home','izakaya'], taste:{sweet:25,salty:10,sour:15,bitter:30,umami:15,rich:40}, aroma:{roast:25,citrus:25,herb:40,spice:45,dairy:10,dashi:5}, servingOptions:['straight','rock','soda13'], isHighSugar:false, isHighTannin:false, isSmoky:false, fizz:0, abv:40, note:'アガベの青い香りと胡椒系スパイス。スパイスカレー・タコス風の肉料理に。'}
+];
+
+/* =========================================================
+   マスターデータ：料理プリセット（36品）
+   fishy: 魚介（タンニンと合わせると生臭みが出やすい）
+   ========================================================= */
+const DISHES = [
+  /* 肉料理 */
+  {id:'karaage', name:'鶏の唐揚げ', genre:'meat', taste:{sweet:15,salty:60,sour:5,bitter:5,umami:55,rich:80}, aroma:{roast:50,citrus:10,herb:15,spice:30,dairy:5,dashi:20}, fishy:false},
+  {id:'herbgrill', name:'鶏胸肉のハーブグリル', genre:'meat', taste:{sweet:5,salty:40,sour:15,bitter:10,umami:45,rich:30}, aroma:{roast:40,citrus:30,herb:80,spice:30,dairy:5,dashi:5}, fishy:false},
+  {id:'shogayaki', name:'豚の生姜焼き', genre:'meat', taste:{sweet:45,salty:55,sour:5,bitter:5,umami:55,rich:60}, aroma:{roast:35,citrus:15,herb:40,spice:30,dairy:5,dashi:30}, fishy:false},
+  {id:'yakitori_shio', name:'焼き鳥（塩）', genre:'meat', taste:{sweet:5,salty:60,sour:5,bitter:10,umami:55,rich:50}, aroma:{roast:65,citrus:15,herb:15,spice:15,dairy:5,dashi:15}, fishy:false},
+  {id:'yakitori_tare', name:'焼き鳥（タレ）', genre:'meat', taste:{sweet:60,salty:55,sour:5,bitter:10,umami:55,rich:55}, aroma:{roast:70,citrus:5,herb:5,spice:10,dairy:5,dashi:30}, fishy:false},
+  {id:'yakiniku', name:'牛焼肉（カルビ・ロース）', genre:'meat', taste:{sweet:40,salty:50,sour:5,bitter:10,umami:65,rich:85}, aroma:{roast:75,citrus:5,herb:15,spice:35,dairy:5,dashi:20}, fishy:false},
+  {id:'roastbeef', name:'ローストビーフ', genre:'meat', taste:{sweet:15,salty:40,sour:15,bitter:5,umami:70,rich:55}, aroma:{roast:45,citrus:5,herb:30,spice:25,dairy:5,dashi:15}, fishy:false},
+  {id:'hamburg', name:'ハンバーグ（デミグラス）', genre:'meat', taste:{sweet:40,salty:45,sour:25,bitter:10,umami:65,rich:80}, aroma:{roast:45,citrus:10,herb:15,spice:20,dairy:35,dashi:20}, fishy:false},
+  /* 魚介 */
+  {id:'foilyaki', name:'魚のホイル焼き', genre:'fish', taste:{sweet:15,salty:40,sour:25,bitter:5,umami:60,rich:45}, aroma:{roast:10,citrus:40,herb:30,spice:5,dairy:40,dashi:45}, fishy:true},
+  {id:'sashimi', name:'刺身盛り合わせ（白身・赤身）', genre:'fish', taste:{sweet:10,salty:30,sour:5,bitter:5,umami:70,rich:35}, aroma:{roast:0,citrus:15,herb:35,spice:5,dairy:5,dashi:60}, fishy:true, cold:true},
+  {id:'saba_shio', name:'サバの塩焼き', genre:'fish', taste:{sweet:5,salty:65,sour:10,bitter:15,umami:60,rich:70}, aroma:{roast:60,citrus:15,herb:10,spice:5,dairy:5,dashi:40}, fishy:true},
+  {id:'tempura', name:'天ぷら盛り合わせ', genre:'fish', taste:{sweet:10,salty:30,sour:5,bitter:5,umami:50,rich:75}, aroma:{roast:45,citrus:15,herb:25,spice:5,dairy:5,dashi:35}, fishy:true},
+  {id:'kakifry', name:'牡蠣フライ', genre:'fish', taste:{sweet:10,salty:45,sour:25,bitter:5,umami:70,rich:75}, aroma:{roast:40,citrus:30,herb:10,spice:5,dairy:10,dashi:55}, fishy:true},
+  {id:'ajillo', name:'エビのアヒージョ', genre:'fish', taste:{sweet:5,salty:50,sour:5,bitter:5,umami:60,rich:80}, aroma:{roast:40,citrus:15,herb:65,spice:40,dairy:20,dashi:20}, fishy:true},
+  /* 鍋・煮物・出汁 */
+  {id:'oden', name:'おでん（出汁）', genre:'nabe', taste:{sweet:25,salty:45,sour:5,bitter:5,umami:75,rich:25}, aroma:{roast:5,citrus:5,herb:15,spice:10,dairy:5,dashi:95}, fishy:false},
+  {id:'yosenabe', name:'寄せ鍋', genre:'nabe', taste:{sweet:15,salty:40,sour:10,bitter:5,umami:75,rich:35}, aroma:{roast:5,citrus:25,herb:30,spice:5,dairy:5,dashi:85}, fishy:false},
+  {id:'kakuni', name:'豚の角煮', genre:'nabe', taste:{sweet:60,salty:50,sour:5,bitter:5,umami:65,rich:85}, aroma:{roast:30,citrus:0,herb:15,spice:20,dairy:5,dashi:60}, fishy:false},
+  {id:'nikujaga', name:'肉じゃが', genre:'nabe', taste:{sweet:55,salty:45,sour:5,bitter:5,umami:65,rich:35}, aroma:{roast:5,citrus:0,herb:5,spice:5,dairy:5,dashi:80}, fishy:false},
+  /* 中華・スパイス */
+  {id:'mapo', name:'麻婆豆腐', genre:'spicy', taste:{sweet:20,salty:60,sour:5,bitter:15,umami:60,rich:65}, aroma:{roast:30,citrus:5,herb:30,spice:95,dairy:5,dashi:50}, fishy:false},
+  {id:'gyoza', name:'焼き餃子', genre:'spicy', taste:{sweet:15,salty:50,sour:25,bitter:5,umami:55,rich:65}, aroma:{roast:55,citrus:5,herb:40,spice:30,dairy:5,dashi:25}, fishy:false},
+  {id:'curry', name:'スパイスカレー', genre:'spicy', taste:{sweet:20,salty:45,sour:20,bitter:15,umami:50,rich:60}, aroma:{roast:25,citrus:15,herb:55,spice:100,dairy:15,dashi:15}, fishy:false},
+  {id:'kimchinabe', name:'キムチ鍋', genre:'spicy', taste:{sweet:20,salty:50,sour:40,bitter:10,umami:70,rich:50}, aroma:{roast:10,citrus:10,herb:30,spice:85,dairy:5,dashi:75}, fishy:false},
+  /* おつまみ・軽食 */
+  {id:'camembert', name:'カマンベール・ナッツ', genre:'snack', taste:{sweet:15,salty:40,sour:10,bitter:10,umami:45,rich:85}, aroma:{roast:30,citrus:5,herb:5,spice:5,dairy:95,dashi:15}, fishy:false},
+  {id:'potesala', name:'ポテトサラダ', genre:'snack', taste:{sweet:25,salty:35,sour:30,bitter:5,umami:25,rich:60}, aroma:{roast:5,citrus:10,herb:15,spice:10,dairy:55,dashi:5}, fishy:false, cold:true},
+  {id:'edamame', name:'枝豆・冷奴', genre:'snack', taste:{sweet:20,salty:45,sour:5,bitter:10,umami:45,rich:20}, aroma:{roast:15,citrus:5,herb:40,spice:5,dairy:25,dashi:40}, fishy:false, cold:true},
+  {id:'fries', name:'フライドポテト', genre:'snack', taste:{sweet:5,salty:60,sour:0,bitter:5,umami:15,rich:75}, aroma:{roast:40,citrus:0,herb:5,spice:5,dairy:10,dashi:0}, fishy:false},
+  {id:'iburi_cream', name:'いぶりがっこクリームチーズ', genre:'snack', taste:{sweet:20,salty:45,sour:15,bitter:5,umami:40,rich:60}, aroma:{roast:85,citrus:5,herb:5,spice:5,dairy:75,dashi:40}, fishy:false},
+  {id:'caprese', name:'カプレーゼ', genre:'snack', taste:{sweet:20,salty:30,sour:45,bitter:5,umami:45,rich:50}, aroma:{roast:0,citrus:20,herb:80,spice:5,dairy:70,dashi:10}, fishy:false, cold:true},
+  {id:'pizza', name:'マルゲリータピザ', genre:'snack', taste:{sweet:20,salty:45,sour:35,bitter:5,umami:55,rich:65}, aroma:{roast:40,citrus:5,herb:50,spice:10,dairy:70,dashi:15}, fishy:false},
+  /* コンビニ総菜 */
+  {id:'c_saladchicken', name:'コンビニのサラダチキン', genre:'conv', taste:{sweet:5,salty:45,sour:10,bitter:0,umami:40,rich:15}, aroma:{roast:10,citrus:15,herb:40,spice:10,dairy:5,dashi:10}, fishy:false, cold:true},
+  {id:'c_sabamiso', name:'コンビニのさば味噌煮', genre:'conv', taste:{sweet:55,salty:55,sour:5,bitter:5,umami:65,rich:70}, aroma:{roast:20,citrus:5,herb:20,spice:10,dairy:5,dashi:70}, fishy:true},
+  {id:'c_hotsnack', name:'コンビニのからあげ系ホットスナック', genre:'conv', taste:{sweet:15,salty:55,sour:5,bitter:5,umami:45,rich:85}, aroma:{roast:45,citrus:5,herb:10,spice:40,dairy:5,dashi:10}, fishy:false},
+  {id:'c_oden', name:'コンビニおでん', genre:'conv', taste:{sweet:25,salty:40,sour:5,bitter:5,umami:70,rich:20}, aroma:{roast:5,citrus:5,herb:10,spice:10,dairy:5,dashi:90}, fishy:false},
+  {id:'c_chips', name:'ポテトチップス うすしお', genre:'conv', taste:{sweet:10,salty:65,sour:5,bitter:5,umami:25,rich:70}, aroma:{roast:45,citrus:5,herb:5,spice:5,dairy:5,dashi:0}, fishy:false},
+  {id:'c_sakiika', name:'さきいか・珍味', genre:'conv', taste:{sweet:30,salty:55,sour:5,bitter:5,umami:70,rich:10}, aroma:{roast:40,citrus:5,herb:0,spice:5,dairy:5,dashi:60}, fishy:true},
+  {id:'c_yakisoba', name:'カップ焼きそば（ソース）', genre:'conv', taste:{sweet:40,salty:55,sour:25,bitter:5,umami:40,rich:60}, aroma:{roast:45,citrus:5,herb:15,spice:40,dairy:5,dashi:20}, fishy:false}
+];
+
+/* 味覚・特徴タグ（複数選択で合成） */
+const TAGS = [
+  {id:'fat', name:'脂・油分多め', taste:{sweet:10,salty:30,sour:0,bitter:0,umami:40,rich:88}, aroma:{roast:35,citrus:0,herb:0,spice:5,dairy:10,dashi:5}},
+  {id:'salty', name:'塩気・醤油強め', taste:{sweet:5,salty:85,sour:0,bitter:5,umami:55,rich:20}, aroma:{roast:25,citrus:0,herb:0,spice:0,dairy:0,dashi:40}},
+  {id:'sweetspicy', name:'甘辛い・タレ', taste:{sweet:72,salty:60,sour:0,bitter:5,umami:50,rich:45}, aroma:{roast:55,citrus:0,herb:0,spice:10,dairy:0,dashi:25}},
+  {id:'sour', name:'酸味・さっぱり', taste:{sweet:10,salty:15,sour:75,bitter:0,umami:10,rich:5}, aroma:{roast:0,citrus:65,herb:35,spice:0,dairy:0,dashi:5}},
+  {id:'spice', name:'スパイス・薬味', taste:{sweet:0,salty:30,sour:5,bitter:15,umami:15,rich:10}, aroma:{roast:5,citrus:10,herb:60,spice:88,dairy:0,dashi:0}},
+  {id:'dashi', name:'出汁・繊細な旨味', taste:{sweet:15,salty:35,sour:0,bitter:0,umami:85,rich:10}, aroma:{roast:0,citrus:5,herb:10,spice:0,dairy:0,dashi:92}},
+  {id:'smoke', name:'燻製・香ばしい', taste:{sweet:5,salty:40,sour:0,bitter:25,umami:45,rich:35}, aroma:{roast:92,citrus:0,herb:0,spice:10,dairy:10,dashi:15}},
+  {id:'creamy', name:'濃厚・クリーミー', taste:{sweet:25,salty:25,sour:5,bitter:0,umami:45,rich:82}, aroma:{roast:5,citrus:0,herb:0,spice:0,dairy:92,dashi:5}}
+];
+
+/* =========================================================
+   ストレージ
+   ========================================================= */
+const DEFAULT_STORE = {settings:{exclude:{tannin:false,sweet:false,sugar:false,smoky:false}, defaultScene:'all'}, customDrinks:[], customDishes:[], favorites:[]};
+function loadStore(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return JSON.parse(JSON.stringify(DEFAULT_STORE));
+    const s = JSON.parse(raw);
+    return {
+      settings:{exclude:Object.assign({},DEFAULT_STORE.settings.exclude,(s.settings||{}).exclude||{}), defaultScene:(s.settings||{}).defaultScene||'all'},
+      customDrinks:Array.isArray(s.customDrinks)?s.customDrinks:[],
+      customDishes:Array.isArray(s.customDishes)?s.customDishes:[],
+      favorites:Array.isArray(s.favorites)?s.favorites:[]
+    };
+  }catch(e){ return JSON.parse(JSON.stringify(DEFAULT_STORE)); }
+}
+let store = loadStore();
+function saveStore(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(store)); }catch(e){} }
+
+/* =========================================================
+   状態
+   ========================================================= */
+const state = {
+  dishMode:'preset', dishId:'karaage', tags:[], genre:'all',
+  scene: store.settings.defaultScene || 'all', cat:'all',
+  drinkId:null, serving:null, tab:'pair', favSort:'date'
+};
+
+/* =========================================================
+   ユーティリティ
+   ========================================================= */
+const $ = id => document.getElementById(id);
+const clamp = (v,a=0,b=100) => Math.max(a,Math.min(b,v));
+const r1 = v => Math.round(v*10)/10;
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('on'),1600); }
+const allDrinks = () => DRINKS.concat(store.customDrinks);
+const allDishes = () => DISHES.concat(store.customDishes);
+const findDrink = id => allDrinks().find(d=>d.id===id);
+const findDish = id => allDishes().find(d=>d.id===id);
+function servLabel(key, dr){
+  if(key==='straight'){
+    if(!dr) return SERV.straight.label;
+    if(dr.category==='sake') return '冷酒';
+    if(dr.category==='whisky'||dr.category==='shochu') return 'ストレート';
+    if(dr.category==='gin' && (dr.fizz||0)===0) return 'ストレート';
+    return 'そのまま（冷）';
+  }
+  return SERV[key].label;
+}
+
+/* =========================================================
+   料理プロファイル（プリセット or タグ合成）
+   ========================================================= */
+function composeTags(ids){
+  const tags = ids.map(id=>TAGS.find(t=>t.id===id)).filter(Boolean);
+  const out = {taste:{}, aroma:{}};
+  const mix = (group, keys) => keys.forEach(k=>{
+    const vals = tags.map(t=>t[group][k]);
+    const mx = Math.max(...vals), mean = vals.reduce((a,b)=>a+b,0)/vals.length;
+    out[group][k] = Math.round(clamp(8 + mx*0.72 + mean*0.2));
+  });
+  mix('taste',TK); mix('aroma',AK);
+  return out;
+}
+function currentDish(){
+  if(state.dishMode==='tags' && state.tags.length){
+    const c = composeTags(state.tags);
+    return {id:'tags', name:'タグ合成：'+state.tags.map(id=>TAGS.find(t=>t.id===id).name).join('＋'), taste:c.taste, aroma:c.aroma, fishy:false};
+  }
+  return findDish(state.dishId) || DISHES[0];
+}
+
+/* =========================================================
+   コアロジック：飲み方変換 → 合成 → スコア
+   ========================================================= */
+function serve(dr, key){
+  const S = SERV[key] || SERV.straight;
+  const t={}, a={};
+  TK.forEach(k=>{ t[k] = clamp(dr.taste[k]*S.tm[k] + (S.ta[k]||0)); });
+  AK.forEach(k=>{ a[k] = clamp(dr.aroma[k]*S.am[k]); });
+  const baseFizz = dr.fizz||0;
+  const fizz = S.fizz===null ? (key==='rock'? baseFizz*0.85 : baseFizz) : Math.max(S.fizz, baseFizz*(S.warm?0:1));
+  const effAbv = (dr.abv||0)*S.dil;
+  const stim = clamp(t.sour*0.55 + fizz*0.6);                          // 酸味・炭酸刺激
+  const kire = clamp(t.bitter*0.6 + fizz*0.25 + S.kire + Math.min(14, effAbv*0.45)); // 苦味・キレ
+  const sweetFull = clamp(t.sweet*0.7 + t.umami*0.3);                  // 甘味・ふくらみ
+  const body = clamp(t.rich*0.6 + t.umami*0.4);                        // ボディ
+  const top = AK.map(k=>a[k]).sort((x,y)=>y-x);
+  const lift = clamp((top[0]+top[1]+top[2])/3 * (S.warm?1.08:1));      // 香りの立ち方
+  const wash = clamp(stim*0.6 + kire*0.3 + (100-body)*0.15);          // 脂・塩気のウォッシュ力
+  return {t, a, fizz, stim, kire, sweetFull, body, lift, wash, warm:S.warm, effAbv};
+}
+
+function polyArea(vals){ let s=0; for(let i=0;i<vals.length;i++){ s += vals[i]*vals[(i+1)%vals.length]; } return 0.5*Math.sin(Math.PI/3)*s; }
+
+function evaluate(dish, dr, key){
+  const s = serve(dr, key);
+  const d = dish.taste, da = dish.aroma;
+  /* --- 口の中の合成波形 --- */
+  const comb = {};
+  TK.forEach(k=>{ comb[k] = d[k] + (100-d[k])*(s.t[k]/100)*0.7; });
+  const w = s.wash/100;
+  comb.rich  -= w*Math.max(0,d.rich-45)*0.7;     // 炭酸・酸・キレで脂を洗う
+  comb.salty -= w*Math.max(0,d.salty-45)*0.6;    // 塩気を流す
+  if(s.t.sweet>40) comb.bitter -= (s.t.sweet-40)/60*Math.max(0,comb.bitter-40)*0.4; // 甘みが苦味を丸める
+  TK.forEach(k=>comb[k]=clamp(comb[k]));
+  const dArr = TK.map(k=>d[k]), cArr = TK.map(k=>comb[k]);
+  const areaD = polyArea(dArr), areaC = polyArea(cArr);
+  const expand = areaD>0 ? (areaC/areaD-1)*100 : 0;
+  const mean = cArr.reduce((x,y)=>x+y,0)/6;
+  const sd = Math.sqrt(cArr.reduce((x,y)=>x+(y-mean)*(y-mean),0)/6);
+  const bal = clamp(100*(1 - sd/Math.max(1,mean)));
+  const dMean = dArr.reduce((x,y)=>x+y,0)/6;
+  const dSd = Math.sqrt(dArr.reduce((x,y)=>x+(y-dMean)*(y-dMean),0)/6);
+  const balD = clamp(100*(1 - dSd/Math.max(1,dMean)));
+  const gaps = TK.filter(k=>d[k]<35).map(k=>({k, from:d[k], to:comb[k], ok:(comb[k]-d[k]>=12 && comb[k]>=30)}));
+  const gapScore = gaps.length ? gaps.reduce((acc,g)=>acc+Math.min(1,(g.to-g.from)/28),0)/gaps.length*100 : 60;
+  const washNeed = clamp((Math.max(0,d.rich-30)+Math.max(0,d.salty-30))/1.1)/100;
+  const washPow = clamp((s.wash-25)*1.6);
+  const washScore = clamp(washPow*(0.35+0.65*washNeed) + (1-washNeed)*30);
+  let cloy = 0;
+  if(d.sweet>50 && s.t.sweet>50) cloy = -Math.round((Math.min(d.sweet,s.t.sweet)-50)*0.5+6);
+  const dishBody = d.rich*0.6 + d.umami*0.4;
+  const over = -Math.round(Math.max(0, s.body - dishBody - 15)*0.5);   // お酒が料理を圧倒
+  const neutral = clamp(washScore*0.45 + gapScore*0.30 + bal*0.25 + cloy + over);
+
+  /* --- 同調（香り・コク） --- */
+  let dot=0, nd=0, na=0;
+  const peatAdj = dr.isSmoky && da.roast<80;   // ピート香は「焼き目」とは別物として同調を半減
+  AK.forEach(k=>{ const av = (k==='roast'&&peatAdj)? s.a[k]*0.55 : s.a[k]; dot+=da[k]*av; nd+=da[k]*da[k]; na+=av*av; });
+  nd=Math.sqrt(nd); na=Math.sqrt(na);
+  const cos = (nd&&na) ? dot/(nd*na) : 0;
+  const ratio = (nd&&na) ? Math.min(nd,na)/Math.max(nd,na) : 0;
+  const aromaRes = clamp(cos*100*(0.6+0.4*ratio));
+  const koku = clamp((Math.min(d.umami,s.t.umami) + 0.6*Math.min(d.rich,s.t.rich)) / (d.umami+0.6*d.rich+1) * 100);
+  const sync = clamp(aromaRes*0.7 + koku*0.3);
+  const resonant = AK.filter(k=>da[k]>=45 && s.a[k]>=45);
+
+  /* --- 飲み方補正・相性ルール --- */
+  const bonus = [];
+  const dashiLike = Math.max(da.dashi, d.umami);
+  if(s.warm && dashiLike>=55 && !dish.cold) bonus.push({label:'温めて香りが開き、出汁・旨味と同調', v:r1(3+8*(dashiLike-55)/45)});
+  if(s.warm && dish.cold) bonus.push({label:'冷たい料理に燗・お湯割りは温度差が出る', v:-3});
+  if(s.warm && da.spice>=80) bonus.push({label:'温かい酒は辛さ（カプサイシン）を増幅', v:-4});
+  if((key==='soda13'||key==='soda14') && d.rich>=55) bonus.push({label:(key==='soda14'?'強炭酸':'炭酸')+'で脂をウォッシュ', v:r1((key==='soda14'?8:5)*(d.rich-45)/45)});
+  if((dr.fizz||0)>=60 && key==='straight' && d.rich>=60) bonus.push({label:'炭酸の泡が脂をリセット', v:r1(4*(d.rich-50)/40)});
+  if(key==='atsukan' && d.rich>=55) bonus.push({label:'熱燗のキレで脂を切る', v:4});
+  if(key==='rock' && da.spice>=70) bonus.push({label:'冷たさで辛さの熱を鎮める', v:2});
+  if(s.warm && d.sour>=45 && d.rich<40) bonus.push({label:'さっぱり料理に温かい酒は重い', v:-4});
+  if(key==='straight' && (dr.abv||0)>=35 && d.rich>=60) bonus.push({label:'ストレートの高アルコールでは脂を流しきれない', v:-3});
+  if(key==='straight' && (dr.abv||0)>=35 && da.spice>=70) bonus.push({label:'高アルコールが辛さを増幅', v:-4});
+  if(dish.fishy && dr.isHighTannin) bonus.push({label:'タンニン×魚介で生臭みが出やすい', v:-12});
+  if(dr.isSmoky && da.roast>=65) bonus.push({label:'燻製香同士の共鳴', v:3});
+  else if(dr.isSmoky) bonus.push({label:'ピートの個性が料理の香りより勝つ', v:-5});
+  if(s.a.citrus>=60 && d.rich>=65 && da.roast>=35) bonus.push({label:'揚げ物・焼き物に「レモンを搾る」効果', v:r1(3+4*(s.a.citrus-60)/40)});
+  if(da.spice>=70 && s.t.bitter>=55 && s.fizz>=50) bonus.push({label:'ホップの苦味と炭酸が辛さをリフレッシュ', v:4});
+  if(dr.isHighTannin && da.spice>=70) bonus.push({label:'タンニンが唐辛子の辛さを強調', v:-5});
+  if(dr.isHighTannin && d.rich<50) bonus.push({label:'渋みが淡い料理を圧倒', v:-6});
+  if(dr.isSmoky && da.dashi>=70 && da.roast<30) bonus.push({label:'繊細な出汁をピート香が覆う', v:-5});
+  if(da.spice>=70 && s.t.sweet>=45) bonus.push({label:'お酒の甘みが辛さを和らげる', v:3});
+  if(dr.isHighTannin && d.rich>=75 && d.umami>=60 && !dish.fishy) bonus.push({label:'タンニンが肉の脂と結びつき口中をリセット', v:4});
+  const bonusRaw = bonus.reduce((a,b)=>a+b.v,0);
+  const bonusSum = r1(Math.max(-15,Math.min(15,bonusRaw)));
+
+  const wN = W_NEUT + 0.15*(washNeed-0.5), wS = 1 - wN;   // 脂・塩気が強い料理ほど中和の重みを増やす
+  const raw = sync*wS + neutral*wN + bonusSum;
+  const score = Math.round(clamp(raw*SCALE_A + SCALE_B));
+  return {s, comb, expand, bal, balD, gaps, gapScore, washNeed, washScore, cloy, over, neutral, aromaRes, koku, cos, ratio, sync, resonant, bonus, bonusSum, raw, score, key, wS, wN, peatAdj};
+}
+
+function bestServing(dish, dr){
+  let best=null;
+  (dr.servingOptions||['straight']).forEach(k=>{
+    if(!SERV[k]) return;
+    const e = evaluate(dish, dr, k);
+    if(!best || e.score>best.score || (e.score===best.score && e.raw>best.raw)) best = e;
+  });
+  return best || evaluate(dish, dr, 'straight');
+}
+
+function isExcluded(dr){
+  const ex = store.settings.exclude;
+  if(ex.tannin && dr.isHighTannin) return true;
+  if(ex.sweet && (dr.taste.sweet>=50)) return true;
+  if(ex.smoky && dr.isSmoky) return true;
+  return false;
+}
+function candidates(){
+  const dish = currentDish();
+  const list = allDrinks().filter(dr=>{
+    if(state.scene!=='all' && !(dr.scenes||[]).includes(state.scene)) return false;
+    if(state.cat!=='all' && dr.category!==state.cat) return false;
+    if(isExcluded(dr)) return false;
+    return true;
+  }).map(dr=>({dr, best:bestServing(dish, dr), dim: store.settings.exclude.sugar && dr.isHighSugar}));
+  list.sort((a,b)=> (a.dim-b.dim) || (b.best.score-a.best.score) || (b.best.raw-a.best.raw));
+  return list;
+}
+
+/* =========================================================
+   描画：料理エリア
+   ========================================================= */
+function renderGenres(){
+  const keys = ['all'].concat(Object.keys(GENRES).filter(g=>g!=='custom' || store.customDishes.length));
+  $('genreChips').innerHTML = keys.map(g=>`<button class="chip ${state.genre===g?'on':''}" data-genre="${g}">${g==='all'?'すべて':GENRES[g]}</button>`).join('');
+}
+function renderPresets(){
+  const list = allDishes().filter(d=>state.genre==='all' || d.genre===state.genre);
+  $('presetGrid').innerHTML = list.map(d=>`<button class="pbtn ${state.dishMode==='preset'&&state.dishId===d.id?'on':''}" data-dish="${esc(d.id)}">${esc(d.name)}<small>${GENRES[d.genre]||''}</small></button>`).join('');
+}
+function renderTags(){
+  $('tagGrid').innerHTML = TAGS.map(t=>`<button class="tbtn ${state.dishMode==='tags'&&state.tags.includes(t.id)?'on':''}" data-tag="${t.id}">${t.name}</button>`).join('');
+}
+function renderDishNow(){
+  const d = currentDish();
+  const top = TK.slice().sort((a,b)=>d.taste[b]-d.taste[a]).slice(0,2).map(k=>TL[k]);
+  const low = TK.slice().sort((a,b)=>d.taste[a]-d.taste[b]).slice(0,2).map(k=>TL[k]);
+  $('dishNow').innerHTML = `<i class="dot" style="background:var(--coral)"></i><div>選択中：<b>${esc(d.name)}</b><br><span style="color:var(--sub);font-size:11.5px">強い味：${top.join('・')}／不足：${low.join('・')}</span></div>`;
+}
+
+/* =========================================================
+   描画：フィルター
+   ========================================================= */
+const EXCL = [
+  {k:'tannin', name:'渋み強めを除外'},
+  {k:'sweet', name:'甘口のお酒を除外'},
+  {k:'sugar', name:'高糖質を控えめ表示'},
+  {k:'smoky', name:'クセ・燻製香強めを除外'}
+];
+function renderFilters(){
+  $('sceneChips').innerHTML = [['all','すべて']].concat(Object.entries(SCENES)).map(([k,v])=>`<button class="chip ${state.scene===k?'on':''}" data-scene="${k}">${v}</button>`).join('');
+  $('catChips').innerHTML = [['all','すべて']].concat(Object.entries(CATS)).map(([k,v])=>`<button class="chip ${state.cat===k?'on':''}" data-cat="${k}">${v}</button>`).join('');
+  const ex = store.settings.exclude;
+  const html = EXCL.map(e=>`<button class="xbtn ${ex[e.k]?'on':''}" data-excl="${e.k}"><span class="sw"></span>${e.name}</button>`).join('');
+  $('exclGrid').innerHTML = html; $('exclGrid2').innerHTML = html;
+}
+
+/* =========================================================
+   描画：候補
+   ========================================================= */
+let lastCands = [];
+function renderCandidates(){
+  lastCands = candidates();
+  $('candCount').textContent = lastCands.length+'銘柄';
+  if(!lastCands.length){ $('candList').innerHTML = '<div class="empty" style="width:100%">条件に合うお酒がありません。絞り込みを緩めてください。</div>'; return; }
+  $('candList').innerHTML = lastCands.map((c,i)=>{
+    const on = c.dr.id===state.drinkId;
+    return `<button class="cand ${on?'on':''} ${c.dim?'dim':''}" data-drink="${esc(c.dr.id)}">
+      <div class="rk">${c.dim?'高糖質':'#'+(i+1)} ${i<3&&!c.dim?'<span class="badge">TOP'+(i+1)+'</span>':''}</div>
+      <div class="nm">${esc(c.dr.name)}</div>
+      <div class="ct">${CATS[c.dr.category]||''}</div>
+      <div class="sc">${c.best.score}<small style="font-size:11px;color:var(--sub)"> 点</small></div>
+      <div class="sv">推奨：${esc(servLabel(c.best.key,c.dr))}</div>
+    </button>`;
+  }).join('');
+}
+function ensureSelection(){
+  const ids = lastCands.map(c=>c.dr.id);
+  if(!state.drinkId || !ids.includes(state.drinkId)){
+    if(lastCands.length){ state.drinkId = lastCands[0].dr.id; state.serving = lastCands[0].best.key; }
+    else { state.drinkId=null; state.serving=null; }
+  }
+  const dr = state.drinkId && findDrink(state.drinkId);
+  if(dr && !(dr.servingOptions||[]).includes(state.serving)){
+    state.serving = bestServing(currentDish(), dr).key;
+  }
+}
+
+/* =========================================================
+   描画：お酒パネル
+   ========================================================= */
+function renderDrinkPanel(dish, dr, ev){
+  if(!dr){ $('drName').textContent='—'; $('servGrid').innerHTML=''; $('paramRows').innerHTML=''; $('drFlags').innerHTML=''; $('drNote').textContent=''; return; }
+  $('drName').textContent = dr.name;
+  const fl = [`<span class="badge ghost">${CATS[dr.category]||''}</span>`];
+  (dr.scenes||[]).forEach(s=>fl.push(`<span class="badge ghost">${SCENES[s]}</span>`));
+  if(dr.abv) fl.push(`<span class="badge ghost">${dr.abv}%</span>`);
+  if(dr.isHighTannin) fl.push('<span class="badge warn">渋み強め</span>');
+  if(dr.isHighSugar) fl.push('<span class="badge warn">高糖質</span>');
+  if(dr.isSmoky) fl.push('<span class="badge warn">燻製香</span>');
+  if(dr.custom) fl.push('<span class="badge ice">My酒棚</span>');
+  $('drFlags').innerHTML = fl.join('');
+  $('drNote').textContent = dr.note||'';
+  const best = bestServing(dish, dr);
+  $('servGrid').innerHTML = (dr.servingOptions||['straight']).filter(k=>SERV[k]).map(k=>{
+    const e = evaluate(dish, dr, k);
+    return `<button class="sbtn ${state.serving===k?'on':''}" data-serv="${k}">${k===best.key?'<span class="badge rec">★推奨</span>':''}${esc(servLabel(k,dr))}<small>${SERV[k].sub}・${e.score}点</small></button>`;
+  }).join('');
+  const base = serve(dr,'straight'), cur = ev.s;
+  const P = [['酸味・炭酸刺激','stim'],['苦味・キレ','kire'],['甘味・ふくらみ','sweetFull'],['ボディ（厚み）','body'],['香りの立ち方','lift'],['脂のウォッシュ力','wash']];
+  $('paramRows').innerHTML = P.map(([n,k])=>{
+    const v=Math.round(cur[k]), dlt=Math.round(cur[k]-base[k]);
+    return `<div class="prow"><span>${n}</span><span class="bar"><i style="width:${v}%"></i></span><span class="v">${v} ${dlt? `<small class="${dlt>0?'up':'dn'}">${dlt>0?'+':''}${dlt}</small>`:''}</span></div>`;
+  }).join('');
+}
+
+/* =========================================================
+   描画：スコア
+   ========================================================= */
+let shownScore = 0;
+function animateNumber(el, from, to, dur=600){
+  const st = performance.now();
+  function f(now){ const p=Math.min(1,(now-st)/dur), e=1-Math.pow(1-p,3); el.textContent=Math.round(from+(to-from)*e); if(p<1) requestAnimationFrame(f); }
+  requestAnimationFrame(f);
+}
+function verdictText(ev, dish, dr){
+  const sc = ev.score;
+  let head = sc>=85?'至高のシナジー':sc>=72?'好相性':sc>=58?'まずまず':sc>=45?'可もなく不可もなく':'相性は控えめ';
+  const parts=[];
+  if(ev.resonant.length) parts.push(`${ev.resonant.map(k=>AL[k]).join('・')}の香りが共鳴`);
+  const covered = ev.gaps.filter(g=>g.ok).map(g=>TL[g.k]);
+  if(covered.length) parts.push(`不足していた${covered.join('・')}をお酒が補完`);
+  if(ev.washNeed>0.5 && ev.s.wash>=55) parts.push('脂・塩気をしっかり洗い流す');
+  const neg = ev.bonus.filter(b=>b.v<0).map(b=>b.label);
+  if(neg.length) parts.push('注意：'+neg.join('、'));
+  return `<b>${head}</b>（${sc}点）— ${parts.length?parts.join('。'):'穏やかに寄り添う組み合わせ'}。`;
+}
+function renderScore(ev, dish, dr){
+  const sc = ev ? ev.score : 0;
+  animateNumber($('bigScore'), shownScore, sc);
+  animateNumber($('hdrScore'), shownScore, sc);
+  shownScore = sc;
+  $('ringArc').style.strokeDashoffset = 326.7*(1-sc/100);
+  $('hdrRing').style.setProperty('--p', sc);
+  $('sSync').textContent = ev? Math.round(ev.sync):0;
+  $('sNeut').textContent = ev? Math.round(ev.neutral):0;
+  const b = ev? ev.bonusSum:0;
+  $('sBonus').textContent = (b>0?'+':b<0?'':'±')+b;
+  $('sBonus').style.color = b>0?'var(--good)':b<0?'var(--bad)':'var(--sub)';
+  $('verdict').innerHTML = ev? verdictText(ev,dish,dr) : '候補がありません';
+  $('hdrPair').innerHTML = dr ? `${esc(dish.name)} <small>×</small> ${esc(dr.name)} <small>（${esc(servLabel(state.serving,dr))}）</small>` : esc(dish.name);
+}
+
+/* =========================================================
+   描画：レーダーチャート（SVG自前描画・トゥイーン）
+   ========================================================= */
+const RC = {cx:160, cy:150, R:108};
+const radarCur = {dish:[0,0,0,0,0,0], drink:[0,0,0,0,0,0], comb:[0,0,0,0,0,0]};
+let radarAnim = null;
+function rPt(i, v){ const ang = (-90 + i*60)*Math.PI/180; const r = RC.R*v/100; return [RC.cx + r*Math.cos(ang), RC.cy + r*Math.sin(ang)]; }
+function initRadar(){
+  const svg = $('radar');
+  let h = '<defs><filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+  [20,40,60,80,100].forEach(l=>{
+    const pts = TK.map((k,i)=>rPt(i,l).join(',')).join(' ');
+    h += `<polygon points="${pts}" fill="${l===100?'rgba(255,255,255,.02)':'none'}" stroke="#26385f" stroke-width="${l===100?1.2:.8}"/>`;
+  });
+  TK.forEach((k,i)=>{
+    const [x,y]=rPt(i,100); h += `<line x1="${RC.cx}" y1="${RC.cy}" x2="${x}" y2="${y}" stroke="#26385f" stroke-width=".8"/>`;
+    const [lx,ly]=rPt(i,122);
+    h += `<text x="${lx}" y="${ly+4}" text-anchor="middle" font-size="12.5" fill="#c9d4ee" font-weight="600">${TL[k]}</text>`;
+    h += `<text id="rv${i}" x="${lx}" y="${ly+18}" text-anchor="middle" font-size="10" fill="#e8b04b"></text>`;
+  });
+  h += '<polygon id="rDish" fill="rgba(255,138,101,.32)" stroke="#ff8a65" stroke-width="1.6"/>';
+  h += '<polygon id="rDrink" fill="rgba(127,211,247,.25)" stroke="#7fd3f7" stroke-width="1.6"/>';
+  h += '<polygon id="rComb" fill="rgba(232,176,75,.06)" stroke="#e8b04b" stroke-width="3.2" stroke-linejoin="round" filter="url(#glow)"/>';
+  TK.forEach((k,i)=>{ h += `<circle id="rm${i}" r="4.5" fill="#ffd27a" stroke="#0a1224" stroke-width="1.5"/>`; });
+  svg.innerHTML = h;
+}
+function drawRadar(v){
+  const p = arr => arr.map((x,i)=>rPt(i,x).map(n=>n.toFixed(1)).join(',')).join(' ');
+  $('rDish').setAttribute('points', p(v.dish));
+  $('rDrink').setAttribute('points', p(v.drink));
+  $('rComb').setAttribute('points', p(v.comb));
+  v.comb.forEach((x,i)=>{ const [cx,cy]=rPt(i,x); const m=$('rm'+i); m.setAttribute('cx',cx.toFixed(1)); m.setAttribute('cy',cy.toFixed(1)); $('rv'+i).textContent=Math.round(x); });
+}
+function animateRadar(target){
+  const from = {dish:radarCur.dish.slice(), drink:radarCur.drink.slice(), comb:radarCur.comb.slice()};
+  const st = performance.now(), dur=650;
+  if(radarAnim) cancelAnimationFrame(radarAnim);
+  function f(now){
+    const p=Math.min(1,(now-st)/dur), e=1-Math.pow(1-p,3);
+    ['dish','drink','comb'].forEach(g=>{ for(let i=0;i<6;i++) radarCur[g][i] = from[g][i] + (target[g][i]-from[g][i])*e; });
+    drawRadar(radarCur);
+    if(p<1) radarAnim=requestAnimationFrame(f);
+  }
+  radarAnim=requestAnimationFrame(f);
+}
+function renderRadarInfo(ev, dish){
+  const ex = ev.expand;
+  $('kExpand').textContent = (ex>=0?'+':'')+ex.toFixed(1)+'%';
+  $('kBal').innerHTML = `${Math.round(ev.balD)} → <span style="color:var(--gold2)">${Math.round(ev.bal)}</span>`;
+  if(!ev.gaps.length){ $('gapList').innerHTML = '<div class="gap">この料理は全味覚が35以上あり、大きな不足はありません。<span class="ok" style="color:var(--sub)">—</span></div>'; return; }
+  $('gapList').innerHTML = ev.gaps.map(g=>`<div class="gap"><b style="width:56px">${TL[g.k]}</b><span style="color:var(--coral)">${Math.round(g.from)}</span><span style="color:var(--dim)">→</span><span style="color:var(--gold2)">${Math.round(g.to)}</span><span class="ok" style="color:${g.ok?'var(--good)':'var(--dim)'}">${g.ok?'✓ 補完':'△ 微補完'}</span></div>`).join('');
+}
+
+/* =========================================================
+   描画：フレーバー同調バー
+   ========================================================= */
+function initFlavor(){
+  $('flavorBars').innerHTML = AK.map(k=>`<div class="frow" id="fr-${k}">
+    <div class="t"><b>${AL[k]}</b><span class="badge" id="fb-${k}" style="display:none">✦ 香りの共鳴</span></div>
+    <div class="fb"><span>料理</span><span class="tr"><i id="fd-${k}" style="width:0;background:linear-gradient(90deg,#c9583a,var(--coral))"></i></span><span class="n" id="fdn-${k}">0</span></div>
+    <div class="fb"><span>お酒</span><span class="tr"><i id="fa-${k}" style="width:0;background:linear-gradient(90deg,#3d93c2,var(--ice))"></i></span><span class="n" id="fan-${k}">0</span></div>
+  </div>`).join('');
+}
+function renderFlavor(dish, ev){
+  AK.forEach(k=>{
+    const dv=Math.round(dish.aroma[k]), av=Math.round(ev?ev.s.a[k]:0);
+    $('fd-'+k).style.width=dv+'%'; $('fa-'+k).style.width=av+'%';
+    $('fdn-'+k).textContent=dv; $('fan-'+k).textContent=av;
+    const res = ev && ev.resonant.includes(k);
+    $('fr-'+k).classList.toggle('res', !!res);
+    $('fb-'+k).style.display = res?'inline-block':'none';
+  });
+  $('resCount').textContent = ev? `共鳴 ${ev.resonant.length} 系統` : '';
+}
+
+/* =========================================================
+   描画：4象限マップ
+   ========================================================= */
+const MP = {x0:40, y0:14, w:276, h:276};
+const mapRange = {sx:[0,100], sy:[0,100]};
+function mapXY(sync, neut){
+  const [a,b]=mapRange.sx, [c,d]=mapRange.sy;
+  return [MP.x0 + MP.w*(sync-a)/(b-a), MP.y0 + MP.h*(1-(neut-c)/(d-c))];
+}
+function initMap(){ $('qmap').innerHTML = '<g id="mapBg"></g><g id="mapDots"></g>'; }
+function niceRange(vals){
+  let lo=Math.min(...vals), hi=Math.max(...vals);
+  const mid=(lo+hi)/2, span=Math.max(30, hi-lo+12);
+  lo=Math.max(0, Math.floor((mid-span/2)/5)*5); hi=Math.min(100, Math.ceil((mid+span/2)/5)*5);
+  return [lo,hi];
+}
+function drawMapBg(splitX, splitY){
+  const {x0,y0,w,h}=MP;
+  const [sx]=mapXY(splitX,0), [,sy]=mapXY(0,splitY);
+  let s = `<rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="#0c1630" stroke="#26385f" rx="8"/>`;
+  s += `<rect x="${sx}" y="${y0}" width="${x0+w-sx}" height="${sy-y0}" fill="rgba(232,176,75,.08)"/>`;
+  const ticks=(r)=>{ const out=[]; const st=(r[1]-r[0])>50?20:10; for(let v=Math.ceil(r[0]/st)*st; v<=r[1]; v+=st) out.push(v); return out; };
+  ticks(mapRange.sx).forEach(v=>{ const [x]=mapXY(v,mapRange.sy[0]); s+=`<line x1="${x}" y1="${y0}" x2="${x}" y2="${y0+h}" stroke="#1c2a4c" stroke-dasharray="3 4"/><text x="${x}" y="${y0+h+14}" font-size="9" fill="#63739a" text-anchor="middle">${v}</text>`; });
+  ticks(mapRange.sy).forEach(v=>{ const [,y]=mapXY(mapRange.sx[0],v); s+=`<line x1="${x0}" y1="${y}" x2="${x0+w}" y2="${y}" stroke="#1c2a4c" stroke-dasharray="3 4"/><text x="${x0-6}" y="${y+3}" font-size="9" fill="#63739a" text-anchor="end">${v}</text>`; });
+  s += `<line x1="${sx}" y1="${y0}" x2="${sx}" y2="${y0+h}" stroke="#4a63a0" stroke-width="1.2"/><line x1="${x0}" y1="${sy}" x2="${x0+w}" y2="${sy}" stroke="#4a63a0" stroke-width="1.2"/>`;
+  s += `<text x="${x0+w-6}" y="${y0+14}" font-size="10.5" fill="#e8b04b" text-anchor="end" font-weight="700">相乗の極み</text>`;
+  s += `<text x="${x0+6}" y="${y0+14}" font-size="10.5" fill="#7fd3f7">リセット型（口直し）</text>`;
+  s += `<text x="${x0+w-6}" y="${y0+h-6}" font-size="10.5" fill="#ff8a65" text-anchor="end">同調型（寄り添う）</text>`;
+  s += `<text x="${x0+6}" y="${y0+h-6}" font-size="10.5" fill="#63739a">ミスマッチ</text>`;
+  s += `<text x="${x0+w/2}" y="${y0+h+28}" font-size="11" fill="#9aa8c7" text-anchor="middle">同調スコア →</text>`;
+  s += `<text transform="translate(12 ${y0+h/2}) rotate(-90)" font-size="11" fill="#9aa8c7" text-anchor="middle">中和・補完スコア →</text>`;
+  $('mapBg').innerHTML = s;
+}
+const CAT_COLOR = {whisky:'#d9a066',sake:'#e8e1c8',shochu:'#b9a3e3',beer:'#f4c542',wine:'#d0607c',chuhai:'#9be27a',gin:'#7fd3f7'};
+function renderMap(dish, ev){
+  const g=$('mapDots');
+  const ids = new Set();
+  const pts = lastCands.map(c=> (c.dr.id===state.drinkId && ev) ? ev : c.best);
+  if(pts.length){
+    mapRange.sx = niceRange(pts.map(e=>e.sync)); mapRange.sy = niceRange(pts.map(e=>e.neutral));
+    const avg = k => pts.reduce((a,e)=>a+e[k],0)/pts.length;
+    drawMapBg(avg('sync'), avg('neutral'));
+  } else { mapRange.sx=[0,100]; mapRange.sy=[0,100]; drawMapBg(50,50); }
+  const top = lastCands.filter(c=>!c.dim).slice(0,3).map(c=>c.dr.id);
+  // 選択中は最後に描いて最前面へ
+  const order = lastCands.slice().sort((a,b)=>(a.dr.id===state.drinkId)-(b.dr.id===state.drinkId));
+  order.forEach(c=>{
+    const id=c.dr.id; ids.add(id);
+    const e = (id===state.drinkId && ev) ? ev : c.best;
+    const [x,y] = mapXY(e.sync, e.neutral);
+    let el = g.querySelector(`[data-mid="${CSS.escape(id)}"]`);
+    if(!el){
+      el = document.createElementNS('http://www.w3.org/2000/svg','g');
+      el.setAttribute('class','mapDot'); el.setAttribute('data-mid', id); el.setAttribute('data-drink', id);
+      el.style.transform = `translate(${MP.x0+MP.w/2}px,${MP.y0+MP.h/2}px)`;
+      g.appendChild(el);
+      void el.getBoundingClientRect();
+    }
+    const sel = id===state.drinkId, ti = top.indexOf(id);
+    const col = CAT_COLOR[c.dr.category]||'#ccc';
+    el.innerHTML = `<circle r="15" fill="transparent"/>`+
+      (sel?`<circle r="12" fill="none" stroke="#ffd27a" stroke-width="2.5" filter="url(#glow)"><animate attributeName="r" values="11;14;11" dur="1.8s" repeatCount="indefinite"/></circle>`:'')+
+      `<circle r="${sel?7:5.5}" fill="${col}" stroke="#0a1224" stroke-width="1.5" opacity="${c.dim?.35:.92}"/>`+
+      (ti>=0?`<g transform="translate(9 -10)"><circle r="7.5" fill="#e8b04b"/><text y="3.5" text-anchor="middle" font-size="9.5" font-weight="800" fill="#1a1405">${ti+1}</text></g>`:'')+
+      (sel?`<text y="-16" text-anchor="middle" font-size="10" fill="#ffd27a" font-weight="700">${esc(c.dr.name.slice(0,10))}</text>`:'');
+    g.appendChild(el); // z-order
+    el.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
+  });
+  g.querySelectorAll('[data-mid]').forEach(el=>{ if(!ids.has(el.getAttribute('data-mid'))) el.remove(); });
+  $('top3').innerHTML = lastCands.filter(c=>!c.dim).slice(0,3).map((c,i)=>`<button data-drink="${esc(c.dr.id)}"><span class="badge">TOP${i+1}</span><span style="min-width:0">${esc(c.dr.name)}<small style="display:block;color:var(--ice);font-size:11px">${esc(servLabel(c.best.key,c.dr))}</small></span><b style="white-space:nowrap">${c.best.score}点</b></button>`).join('');
+}
+
+/* =========================================================
+   描画：計算内訳
+   ========================================================= */
+function renderBreakdown(dish, dr, ev){
+  if(!ev){ $('bdIn').innerHTML='<div class="empty">候補がありません</div>'; return; }
+  const s=ev.s, d=dish.taste;
+  const row=(a,b)=>`<tr><td>${a}</td><td class="n">${b}</td></tr>`;
+  let h = `<div class="formula">総合スコア = clamp( (同調 × 重みS + 中和補完 × 重みN + 飲み方補正) × ${SCALE_A} ${SCALE_B} )
+重みN = ${W_NEUT} + 0.15 × (洗浄必要度 − 0.5) = ${ev.wN.toFixed(3)}
+重みS = 1 − 重みN = ${ev.wS.toFixed(3)}
+= ( ${r1(ev.sync)} × ${ev.wS.toFixed(3)} + ${r1(ev.neutral)} × ${ev.wN.toFixed(3)} + ${ev.bonusSum} ) × ${SCALE_A} ${SCALE_B}
+= ${r1(ev.raw)} × ${SCALE_A} ${SCALE_B} = <b style="color:#ffd27a">${ev.score}</b> 点
+
+同調 = 香り共鳴 × 0.7 + コク共鳴 × 0.3
+香り共鳴 = cos類似度(6系統) × 100 × (0.6 + 0.4 × 強度比)
+  ※ピート系（燻製香）は燻製料理以外では香ばしさ軸を×0.55で計算
+コク共鳴 = (min(旨味) + 0.6×min(コク)) ÷ (料理旨味 + 0.6×料理コク)
+
+中和補完 = ウォッシュ × 0.45 + 不足補完 × 0.30 + バランス × 0.25 + 甘さ過多補正 + 圧倒補正
+ウォッシュ = 洗浄パワー × (0.35 + 0.65 × 洗浄必要度) + (1−必要度) × 30
+洗浄パワー = (洗浄力 − 25) × 1.6
+洗浄力 = 刺激 × 0.6 + キレ × 0.3 + (100−ボディ) × 0.15
+
+合成波形[軸] = 料理 + (100−料理) × お酒 × 0.7
+  脂/コク −= 洗浄力 × max(0, 料理脂−45) × 0.7
+  塩味   −= 洗浄力 × max(0, 料理塩−45) × 0.6</div>`;
+  h += '<table class="tb"><tr><th>同調スコアの内訳</th><th></th></tr>';
+  h += row('香り cos類似度', r1(ev.cos*100)+'%') + row('香り強度比', r1(ev.ratio*100)+'%') + (ev.peatAdj?row('ピート香の補正','香ばしさ×0.55'):'') + row('→ 香り共鳴', r1(ev.aromaRes)) + row('→ コク共鳴', r1(ev.koku)) + row('<b>同調スコア</b>', '<b>'+r1(ev.sync)+'</b>');
+  h += '<tr><th>中和・補完スコアの内訳</th><th></th></tr>';
+  h += row('お酒の洗浄力（飲み方反映）', r1(s.wash)) + row('料理の洗浄必要度（脂＋塩）', r1(ev.washNeed*100)+'%') + row('→ ウォッシュ', r1(ev.washScore)) + row('不足補完（'+(ev.gaps.length?ev.gaps.map(g=>TL[g.k]).join('・'):'不足なし→基準60')+'）', r1(ev.gapScore)) + row('合成後バランス', r1(ev.bal)) + row('甘さ過多補正', ev.cloy) + row('お酒が料理を圧倒する補正', ev.over) + row('<b>中和・補完スコア</b>', '<b>'+r1(ev.neutral)+'</b>');
+  h += '<tr><th>飲み方補正・相性ルール</th><th></th></tr>';
+  h += ev.bonus.length ? ev.bonus.map(b=>row(b.label, (b.v>0?'+':'')+b.v)).join('') : row('該当なし','0');
+  h += row('<b>補正合計（±15で上限）</b>', '<b>'+ev.bonusSum+'</b>');
+  h += '<tr><th>現在のお酒の数値（'+esc(servLabel(state.serving,dr))+'）</th><th></th></tr>';
+  h += row('味覚', TK.map(k=>TL[k]+Math.round(s.t[k])).join(' / '));
+  h += row('香り', AK.map(k=>AL[k].split('・')[0]+Math.round(s.a[k])).join(' / '));
+  h += row('炭酸 / 実効度数', Math.round(s.fizz)+' / '+r1(s.effAbv)+'%');
+  h += row('合成後の味覚', TK.map(k=>TL[k]+Math.round(ev.comb[k])).join(' / '));
+  h += row('面積（料理→合成）', `${Math.round(polyArea(TK.map(k=>d[k])))} → ${Math.round(polyArea(TK.map(k=>ev.comb[k])))}（${ev.expand>=0?'+':''}${r1(ev.expand)}%）`);
+  h += '</table>';
+  $('bdIn').innerHTML = h;
+}
+
+/* =========================================================
+   全体更新
+   ========================================================= */
+let curEval = null;
+function updateAnalysis(){
+  renderCandidates();
+  ensureSelection();
+  renderCandidates(); // 選択ハイライト反映
+  const dish = currentDish();
+  const dr = state.drinkId ? findDrink(state.drinkId) : null;
+  const ev = dr ? evaluate(dish, dr, state.serving) : null;
+  curEval = ev;
+  renderDrinkPanel(dish, dr, ev);
+  renderScore(ev, dish, dr);
+  animateRadar({
+    dish: TK.map(k=>dish.taste[k]),
+    drink: TK.map(k=>ev?ev.s.t[k]:0),
+    comb: TK.map(k=>ev?ev.comb[k]:dish.taste[k])
+  });
+  if(ev) renderRadarInfo(ev, dish); else { $('kExpand').textContent='—'; $('kBal').textContent='—'; $('gapList').innerHTML=''; }
+  renderFlavor(dish, ev);
+  renderMap(dish, ev);
+  renderBreakdown(dish, dr, ev);
+}
+function updateDishArea(){ renderGenres(); renderPresets(); renderTags(); renderDishNow(); }
+
+/* =========================================================
+   イベント
+   ========================================================= */
+document.addEventListener('click', e=>{
+  const t = e.target.closest('[data-genre],[data-dish],[data-tag],[data-scene],[data-cat],[data-excl],[data-drink],[data-serv],[data-tab],[data-close]');
+  if(!t) return;
+  const ds = t.dataset;
+  if(ds.close){ closeModal(ds.close); return; }
+  if(ds.tab){ switchTab(ds.tab); return; }
+  if(ds.genre){ state.genre=ds.genre; renderGenres(); renderPresets(); return; }
+  if(ds.dish){ state.dishMode='preset'; state.dishId=ds.dish; state.tags=[]; updateDishArea(); updateAnalysis(); return; }
+  if(ds.tag){
+    if(state.dishMode!=='tags'){ state.dishMode='tags'; state.tags=[]; }
+    const i=state.tags.indexOf(ds.tag); if(i>=0) state.tags.splice(i,1); else state.tags.push(ds.tag);
+    if(!state.tags.length){ state.dishMode='preset'; }
+    updateDishArea(); updateAnalysis(); return;
+  }
+  if(ds.scene){ state.scene=ds.scene; renderFilters(); updateAnalysis(); return; }
+  if(ds.cat){ state.cat=ds.cat; renderFilters(); updateAnalysis(); return; }
+  if(ds.excl){ store.settings.exclude[ds.excl]=!store.settings.exclude[ds.excl]; saveStore(); renderFilters(); updateAnalysis(); toast('除外設定を保存しました'); return; }
+  if(ds.drink){
+    const dr=findDrink(ds.drink); if(!dr) return;
+    state.drinkId=dr.id; state.serving=bestServing(currentDish(),dr).key;
+    if(state.tab!=='pair') switchTab('pair');
+    updateAnalysis(); return;
+  }
+  if(ds.serv){ state.serving=ds.serv; updateAnalysis(); return; }
+});
+
+function switchTab(tab){
+  state.tab=tab;
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on', b.dataset.tab===tab));
+  ['pair','shelf','fav'].forEach(p=>$('page-'+p).classList.toggle('on', p===tab));
+  if(tab==='shelf') renderShelf();
+  if(tab==='fav') renderFavs();
+  window.scrollTo({top:0});
+}
+
+/* =========================================================
+   モーダル共通
+   ========================================================= */
+function openModal(id){ $(id).classList.add('on'); }
+function closeModal(id){ $(id).classList.remove('on'); }
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('on'); }));
+
+/* =========================================================
+   お気に入り
+   ========================================================= */
+let favStars = 4;
+function renderStarPick(){ $('starPick').innerHTML=[1,2,3,4,5].map(n=>`<button class="${n<=favStars?'on':''}" data-star="${n}">★</button>`).join(''); }
+$('starPick').addEventListener('click',e=>{ const b=e.target.closest('[data-star]'); if(!b) return; favStars=+b.dataset.star; renderStarPick(); });
+$('favOpen').addEventListener('click',()=>{
+  if(!curEval){ toast('お酒を選択してください'); return; }
+  const dish=currentDish(), dr=findDrink(state.drinkId);
+  $('favSummary').innerHTML = `${esc(dish.name)} × <b style="color:var(--gold2)">${esc(dr.name)}</b>（${esc(servLabel(state.serving,dr))}）— ${curEval.score}点`;
+  favStars=4; renderStarPick(); $('favMemo').value=''; openModal('favModal');
+});
+$('favSave').addEventListener('click',()=>{
+  const dish=currentDish(), dr=findDrink(state.drinkId);
+  store.favorites.unshift({
+    id:'f_'+Date.now(), date:new Date().toISOString(),
+    dishRef: state.dishMode==='tags' ? {type:'tags', tags:state.tags.slice()} : {type:'preset', id:state.dishId},
+    dishName:dish.name, drinkId:dr.id, drinkName:dr.name, serving:state.serving, servingLabel:servLabel(state.serving,dr),
+    score:curEval.score, stars:favStars, memo:$('favMemo').value.trim()
+  });
+  saveStore(); closeModal('favModal'); toast('お気に入りに保存しました ★'+favStars);
+});
+function renderFavs(){
+  $('favCount').textContent = store.favorites.length+'件';
+  $('favSort').innerHTML = [['date','新しい順'],['stars','星の多い順'],['score','スコア順']].map(([k,v])=>`<button class="chip ${state.favSort===k?'on':''}" data-fsort="${k}">${v}</button>`).join('');
+  const list = store.favorites.slice();
+  if(state.favSort==='stars') list.sort((a,b)=>b.stars-a.stars||b.score-a.score);
+  if(state.favSort==='score') list.sort((a,b)=>b.score-a.score);
+  if(!list.length){ $('favList').innerHTML='<div class="empty">まだお気に入りはありません。<br>ペアリング画面の「★ お気に入り保存」から追加できます。</div>'; return; }
+  $('favList').innerHTML = list.map(f=>{
+    const dt=new Date(f.date);
+    return `<div class="item"><div class="m"><span class="stars">${'★'.repeat(f.stars)}<span style="color:#3b4b72">${'★'.repeat(5-f.stars)}</span></span>
+      <b>${esc(f.dishName)} × ${esc(f.drinkName)}</b>
+      <small>${esc(f.servingLabel)}・${f.score}点・${dt.getFullYear()}/${dt.getMonth()+1}/${dt.getDate()}</small>
+      ${f.memo?`<div style="font-size:12.5px;margin-top:4px;color:#f5deb0">“${esc(f.memo)}”</div>`:''}</div>
+      <button class="ibtn" data-fload="${f.id}">再現</button><button class="ibtn del" data-fdel="${f.id}">削除</button></div>`;
+  }).join('');
+}
+$('page-fav').addEventListener('click',e=>{
+  const s=e.target.closest('[data-fsort]'); if(s){ state.favSort=s.dataset.fsort; renderFavs(); return; }
+  const d=e.target.closest('[data-fdel]'); if(d){ if(confirm('このお気に入りを削除しますか？')){ store.favorites=store.favorites.filter(f=>f.id!==d.dataset.fdel); saveStore(); renderFavs(); } return; }
+  const l=e.target.closest('[data-fload]'); if(l){
+    const f=store.favorites.find(x=>x.id===l.dataset.fload); if(!f) return;
+    if(!findDrink(f.drinkId)){ toast('お酒データが見つかりません'); return; }
+    if(f.dishRef.type==='tags'){ state.dishMode='tags'; state.tags=f.dishRef.tags.slice(); }
+    else if(findDish(f.dishRef.id)){ state.dishMode='preset'; state.dishId=f.dishRef.id; state.tags=[]; }
+    else { toast('料理データが見つかりません'); return; }
+    state.scene='all'; state.cat='all'; state.drinkId=f.drinkId; state.serving=f.serving;
+    renderFilters(); updateDishArea(); switchTab('pair'); updateAnalysis();
+    if(!lastCands.find(c=>c.dr.id===f.drinkId)) toast('除外設定によりこのお酒は非表示です');
+  }
+});
+
+/* =========================================================
+   My酒棚・カスタム登録
+   ========================================================= */
+let edit = {type:'drink', id:null};
+function sliderRows(container, keys, labels, prefix, vals, max=100){
+  $(container).innerHTML = keys.map(k=>`<div class="sl"><span>${labels[k]}</span><input type="range" min="0" max="${max}" step="1" id="${prefix}${k}" value="${vals[k]||0}"><span class="v" id="${prefix}${k}v">${vals[k]||0}</span></div>`).join('');
+  keys.forEach(k=>{ const i=$(prefix+k); i.addEventListener('input',()=>$(prefix+k+'v').textContent=i.value); });
+}
+function openEditor(type, id){
+  edit={type,id};
+  const isDrink = type==='drink';
+  const src = id ? (isDrink?findDrink(id):findDish(id)) : null;
+  $('editTitle').firstChild.textContent = (id?'編集：':'新規登録：')+(isDrink?'お酒':'料理');
+  $('edDrinkOnly').style.display = isDrink?'':'none';
+  $('edDrinkOnly2').style.display = isDrink?'':'none';
+  $('edDishOnly').style.display = isDrink?'none':'';
+  const pool = isDrink?allDrinks():allDishes();
+  $('edTpl').innerHTML = '<option value="">（コピーしない）</option>'+pool.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('');
+  $('edCat').innerHTML = Object.entries(CATS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+  $('edScenes').innerHTML = Object.entries(SCENES).map(([k,v])=>`<label><input type="checkbox" value="${k}" class="edScene">${v}</label>`).join('');
+  $('edServ').innerHTML = SERV_KEYS.map(k=>`<label><input type="checkbox" value="${k}" class="edSv">${SERV[k].label}</label>`).join('');
+  $('edFlags').innerHTML = [['isHighSugar','高糖質'],['isHighTannin','渋み（タンニン）強め'],['isSmoky','燻製香・クセ強め']].map(([k,v])=>`<label><input type="checkbox" id="ed_${k}">${v}</label>`).join('');
+  fillEditor(src || (isDrink?{name:'',category:'whisky',scenes:['home'],taste:{sweet:30,salty:5,sour:15,bitter:25,umami:15,rich:40},aroma:{roast:30,citrus:30,herb:20,spice:20,dairy:20,dashi:10},servingOptions:['straight','rock','soda13'],fizz:0,abv:40,note:''}:{name:'',taste:{sweet:20,salty:45,sour:10,bitter:5,umami:50,rich:50},aroma:{roast:30,citrus:10,herb:20,spice:15,dairy:10,dashi:30},fishy:false,note:''}), !src);
+  openModal('editModal');
+}
+function fillEditor(src, isNew){
+  const isDrink = edit.type==='drink';
+  $('edName').value = isNew ? (src.name||'') : src.name;
+  sliderRows('edTaste', TK, TL, 'edt_', src.taste);
+  sliderRows('edAroma', AK, AL, 'eda_', src.aroma);
+  $('edNote').value = src.note||'';
+  if(isDrink){
+    $('edCat').value = src.category||'whisky';
+    document.querySelectorAll('.edScene').forEach(c=>c.checked=(src.scenes||[]).includes(c.value));
+    document.querySelectorAll('.edSv').forEach(c=>c.checked=(src.servingOptions||[]).includes(c.value));
+    ['isHighSugar','isHighTannin','isSmoky'].forEach(k=>$('ed_'+k).checked=!!src[k]);
+    sliderRows('edExtra',['fizz','abv'],{fizz:'炭酸刺激',abv:'度数(%)'},'edx_',{fizz:src.fizz||0,abv:Math.round(src.abv||0)});
+    $('edx_abv').max = 70;
+  }else{
+    $('edFishy').checked = !!src.fishy;
+  }
+}
+$('edTpl').addEventListener('change',()=>{
+  const id=$('edTpl').value; if(!id) return;
+  const src = edit.type==='drink'?findDrink(id):findDish(id); if(!src) return;
+  const keepName = $('edName').value;
+  fillEditor(src, true);
+  $('edName').value = keepName || (src.name+'（マイ）');
+});
+$('edSave').addEventListener('click',()=>{
+  const name=$('edName').value.trim(); if(!name){ toast('名前を入力してください'); return; }
+  const taste={}, aroma={};
+  TK.forEach(k=>taste[k]=+$('edt_'+k).value); AK.forEach(k=>aroma[k]=+$('eda_'+k).value);
+  if(edit.type==='drink'){
+    const scenes=[...document.querySelectorAll('.edScene:checked')].map(c=>c.value);
+    let sv=[...document.querySelectorAll('.edSv:checked')].map(c=>c.value);
+    if(!sv.length) sv=['straight'];
+    const obj={id:edit.id||('c_'+Date.now()), name, category:$('edCat').value, scenes:scenes.length?scenes:['home'], taste, aroma, servingOptions:sv,
+      isHighSugar:$('ed_isHighSugar').checked, isHighTannin:$('ed_isHighTannin').checked, isSmoky:$('ed_isSmoky').checked,
+      fizz:+$('edx_fizz').value, abv:+$('edx_abv').value, note:$('edNote').value.trim(), custom:true};
+    const i=store.customDrinks.findIndex(x=>x.id===obj.id);
+    if(i>=0) store.customDrinks[i]=obj; else store.customDrinks.push(obj);
+  }else{
+    const obj={id:edit.id||('cd_'+Date.now()), name, genre:'custom', taste, aroma, fishy:$('edFishy').checked, note:$('edNote').value.trim(), custom:true};
+    const i=store.customDishes.findIndex(x=>x.id===obj.id);
+    if(i>=0) store.customDishes[i]=obj; else store.customDishes.push(obj);
+  }
+  saveStore(); closeModal('editModal'); renderShelf(); updateDishArea(); updateAnalysis(); toast('保存しました');
+});
+$('addDrink').addEventListener('click',()=>openEditor('drink',null));
+$('addDish').addEventListener('click',()=>openEditor('dish',null));
+function renderShelf(){
+  $('myDrinks').innerHTML = store.customDrinks.length ? store.customDrinks.map(d=>`<div class="item"><div class="m"><b>${esc(d.name)}</b><small>${CATS[d.category]}・${(d.servingOptions||[]).map(k=>SERV[k]?SERV[k].label:'').join(' / ')}</small></div><button class="ibtn" data-show="${esc(d.id)}">分析</button><button class="ibtn" data-edrink="${esc(d.id)}">編集</button><button class="ibtn del" data-ddrink="${esc(d.id)}">削除</button></div>`).join('') : '<div class="empty">自宅のボトルを登録すると候補・マップに表示されます</div>';
+  $('myDishes').innerHTML = store.customDishes.length ? store.customDishes.map(d=>`<div class="item"><div class="m"><b>${esc(d.name)}</b><small>マイ料理${d.fishy?'・魚介':''}</small></div><button class="ibtn" data-sdish="${esc(d.id)}">選択</button><button class="ibtn" data-edish="${esc(d.id)}">編集</button><button class="ibtn del" data-ddish="${esc(d.id)}">削除</button></div>`).join('') : '<div class="empty">オリジナル料理を登録するとプリセットに追加されます</div>';
+  $('defScene').innerHTML = [['all','すべて']].concat(Object.entries(SCENES)).map(([k,v])=>`<option value="${k}" ${store.settings.defaultScene===k?'selected':''}>${v}</option>`).join('');
+  $('dataInfo').textContent = `お酒 ${DRINKS.length}銘柄（+My酒棚 ${store.customDrinks.length}）／料理プリセット ${DISHES.length}品（+マイ料理 ${store.customDishes.length}）／お気に入り ${store.favorites.length}件`;
+}
+$('page-shelf').addEventListener('click',e=>{
+  const g=(a)=>e.target.closest('['+a+']');
+  let t;
+  if(t=g('data-edrink')) return openEditor('drink', t.dataset.edrink);
+  if(t=g('data-edish')) return openEditor('dish', t.dataset.edish);
+  if(t=g('data-ddrink')){ if(confirm('このお酒を削除しますか？')){ store.customDrinks=store.customDrinks.filter(x=>x.id!==t.dataset.ddrink); if(state.drinkId===t.dataset.ddrink) state.drinkId=null; saveStore(); renderShelf(); updateAnalysis(); } return; }
+  if(t=g('data-ddish')){ if(confirm('この料理を削除しますか？')){ store.customDishes=store.customDishes.filter(x=>x.id!==t.dataset.ddish); if(state.dishId===t.dataset.ddish){ state.dishId='karaage'; } if(!store.customDishes.length && state.genre==='custom') state.genre='all'; saveStore(); renderShelf(); updateDishArea(); updateAnalysis(); } return; }
+  if(t=g('data-sdish')){ state.dishMode='preset'; state.dishId=t.dataset.sdish; state.tags=[]; state.genre='custom'; updateDishArea(); switchTab('pair'); updateAnalysis(); return; }
+  if(t=g('data-show')){ state.scene='all'; state.cat='all'; renderFilters(); state.drinkId=t.dataset.show; state.serving=bestServing(currentDish(),findDrink(t.dataset.show)).key; switchTab('pair'); updateAnalysis(); return; }
+});
+$('defScene').addEventListener('change',()=>{ store.settings.defaultScene=$('defScene').value; saveStore(); toast('デフォルトシーンを保存しました'); });
+$('resetAll').addEventListener('click',()=>{
+  if(!confirm('My酒棚・マイ料理・お気に入り・設定をすべて削除します。よろしいですか？')) return;
+  store=JSON.parse(JSON.stringify(DEFAULT_STORE)); saveStore();
+  state.scene='all'; state.drinkId=null; state.dishMode='preset'; state.dishId='karaage'; state.tags=[]; state.genre='all';
+  renderFilters(); updateDishArea(); renderShelf(); updateAnalysis(); toast('初期化しました');
+});
+
+/* =========================================================
+   起動
+   ========================================================= */
+initRadar(); initFlavor(); initMap();
+renderFilters(); updateDishArea(); updateAnalysis();
+</script>
+</body>
+</html>
