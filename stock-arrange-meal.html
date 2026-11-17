@@ -383,6 +383,9 @@ a.btn{text-decoration:none;box-sizing:border-box}
 .wk-mode.col small{font-weight:600;color:var(--muted)}
 .seg.seg4{display:grid;grid-template-columns:repeat(4,1fr)}
 .seg.seg4 button{padding:0 2px;font-size:12px}
+.want-row{display:flex;align-items:center;gap:10px}
+.want-row .fx2{display:block}
+.want-row b{display:block;font-size:14.5px;line-height:1.4;margin-top:3px}
 .day-add{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 0 2px;border-top:1px dashed var(--line);margin-top:10px;font-size:12.5px;font-weight:700;color:var(--sub)}
 .day-add .addbtn{color:var(--green);font-weight:800;font-size:13px;padding:4px 2px}
 .sub-dish .rmx{width:30px;height:30px;border-radius:9px;color:var(--muted);font-size:16px;flex:none;display:grid;place-items:center}
@@ -631,6 +634,77 @@ const PARTS = [
     fry:'油揚げを加え、香ばしい焼き色がつくまで中火で1〜2分焼く',
     simmer:'油揚げを加え、2分煮て煮汁を含ませる' },
 
+  // ----- 追加タンパク質②（スーパーで手に入りやすいものを網羅） -----
+  { id:'p_tamago', name:'卵（生）', short:'卵', emoji:'🍳', category:'protein',
+    storageType:'fridge', shelfLifeDays:14, unitName:'1食分[1〜2個]', grams:60, ready:false,
+    purchaseUnit:{ item:'卵（10個入り）', unit:'パック', grams:600, step:1, section:'豆腐・卵' },
+    prepInstruction:'下処理不要。{n}個分を冷蔵庫のたまごポケットへ（とがった方を下にすると長持ち）',
+    prepMin:0, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], addTo:'c_oyster c_chukasoup w_misoshiru y_consomme w_dashiankake x_dashida_soup c_toban k_sundubu c_umashioan x_shoyukoji_itame x_shiokoji_soup c_gomatonyu',
+    fry:'溶き卵を流し入れて大きく混ぜ、半熟になったらいったん取り出す（最後に戻し入れる）',
+    simmer:'溶き卵を細く回し入れ、ふんわり固まったら火を止める' },
+  { id:'p_butahiki', name:'小分け豚ひき肉', short:'豚ひき肉', emoji:'🐷', category:'protein',
+    storageType:'freeze', shelfLifeDays:14, fridgeDays:1, unitName:'1食分[約70g]', grams:70, ready:false,
+    purchaseUnit:{ item:'豚ひき肉', unit:'パック', grams:250, step:1, section:'精肉' },
+    prepInstruction:'約70gずつラップに薄く平らに包み、菜箸で押して筋目をつける。{n}食分を保存袋に入れて冷凍（筋目で割って凍ったまま使える）',
+    prepMin:5, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], like:'hikiniku',
+    fry:'豚ひき肉を入れ、焼き色がつくまで触らずに焼いてから、ほぐしながら中火で2分炒める',
+    simmer:'豚ひき肉を少しずつほぐし入れ、アクを取りながら3分煮る' },
+  { id:'p_tebamoto', name:'下味なし手羽元', short:'手羽元', emoji:'🍗', category:'protein',
+    storageType:'freeze', shelfLifeDays:21, fridgeDays:2, unitName:'1食分[2〜3本・約150g]', grams:150, ready:false, extraMin:8,
+    purchaseUnit:{ item:'鶏手羽元', unit:'パック', grams:500, step:1, section:'精肉' },
+    prepInstruction:'水気を拭き、骨に沿って1本切り込みを入れる（火の通りと味しみがよくなる）。{n}食分ずつ保存袋に重ならないよう並べて冷凍',
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], like:'momo', notIn:'w_nimono w_misomayo w_dashiankake x_saikyo e_seiro_goma e_seiro_chuka y_tonyu',
+    fry:'手羽元を並べ、ふたをして中火で8分→返してさらに4分焼き、骨のまわりまで火を通す',
+    simmer:'手羽元を加え、ふたをして弱めの中火で15分、骨のまわりまで火が通るまで煮る' },
+  { id:'p_bacon', name:'カットベーコン', short:'ベーコン', emoji:'🥓', category:'protein',
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:7, unitName:'1食分[約30g]', grams:30, ready:false,
+    purchaseUnit:{ item:'ハーフベーコン（4連パック）', unit:'パック', grams:140, step:1, section:'精肉' },
+    prepInstruction:'1cm幅に切り、{n}食分ずつラップで包んで保存袋に入れて冷凍（凍ったまま使える）',
+    prepMin:3, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], like:'butabara', addTo:'y_tomatogarlic y_cheeseyaki y_consomme y_tonyu e_auto_tomato x_shiokoji_soup',
+    notIn:'w_oroshiponzu w_nimono w_misoshiru c_gomatonyu k_bulgogi k_yangnyeom g_buta_daikon g_nikujaga x_yuzu_ponzu x_hoikoro e_auto_wa w_shoga w_teriyaki x_saikyo',
+    fry:'ベーコンを入れて中火で1〜2分炒め、脂を出す',
+    simmer:'ベーコンを加えて2分煮てうまみを出す' },
+  { id:'p_ham', name:'ロースハム', short:'ハム', emoji:'🍖', category:'protein',
+    storageType:'fridge', shelfLifeDays:7, freezeDays:30, unitName:'1食分[2枚・約30g]', grams:30, ready:true,
+    purchaseUnit:{ item:'ロースハム（4枚入り）', unit:'パック', grams:60, step:1, section:'精肉' },
+    prepInstruction:'下処理不要。使うときに細切り・短冊切りにする（{n}食分。開封後は2〜3日で）',
+    prepMin:0, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], like:'tuna', notIn:'w_nibitashi w_kinpira c_chukasoup',
+    fry:'ハムを加えてさっと炒め合わせる', simmer:'ハムを加えてひと煮立ちさせる' },
+  { id:'p_seafood', name:'冷凍シーフードミックス', short:'シーフード', emoji:'🦑', category:'protein',
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:1, unitName:'1食分[約70g]', grams:70, ready:false,
+    purchaseUnit:{ item:'冷凍シーフードミックス', unit:'袋', grams:250, step:1, section:'冷凍食品' },
+    prepInstruction:'塩水（水500ml＋塩小さじ2）に10分つけて解凍し、水気をしっかり拭く。酒少々をふって{n}食分ずつ保存袋に入れて再冷凍（臭みが抜けてぷりっと仕上がる）',
+    prepMin:15, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], like:'ebi', notIn:'g_ebichili',
+    fry:'シーフードを加え、強めの中火で2分、色が変わるまで炒める（出た水分はペーパーで拭く）',
+    simmer:'シーフードを加え、2分煮て火を通す（煮すぎるとかたくなる）' },
+  { id:'p_buri', name:'ぶり切り身', short:'ぶり', emoji:'🐟', category:'protein',
+    storageType:'freeze', shelfLifeDays:14, fridgeDays:2, unitName:'1食分[1切れ・約90g]', grams:90, ready:false,
+    purchaseUnit:{ item:'ぶり切り身', unit:'切れ', grams:90, step:1, section:'鮮魚' },
+    prepInstruction:'塩少々をふって10分おき、出た水分を拭き取る（臭み抜き）。ひと口大に切り、1切れずつラップで包んで{n}食分を保存袋に入れて冷凍',
+    prepMin:15, compatibleTags:['和風','中華','韓国風'], like:'sake', notIn:'y_tonyu y_cheeseyaki e_panko g_aquapazza g_confit g_roast y_curry y_lemonbutter c_umashioan',
+    fry:'ぶりを並べ、中火で両面を2分ずつ焼く（出た脂はペーパーで拭く）',
+    simmer:'ぶりを加え、崩さないように4分煮る' },
+  { id:'p_chikuwa', name:'ちくわ', short:'ちくわ', emoji:'🍢', category:'protein',
+    storageType:'fridge', shelfLifeDays:7, freezeDays:30, unitName:'1食分[2本・約50g]', grams:50, ready:true,
+    purchaseUnit:{ item:'ちくわ（4本入り）', unit:'袋', grams:100, step:1, section:'豆腐・卵' },
+    prepInstruction:'斜め切りにして{n}食分ずつ保存袋へ（冷凍も可）',
+    prepMin:2, compatibleTags:['和風','中華','韓国風'], like:'tuna', addTo:'c_oyster x_shoyukoji_itame w_teriyaki w_nibitashi w_misomayo',
+    notIn:'y_tonyu y_consomme y_marine x_balsamico_marine c_chukasoup',
+    fry:'ちくわを加え、焼き色がつくまで1〜2分炒める', simmer:'ちくわを加えてひと煮立ちさせる' },
+  { id:'p_kanikama', name:'カニカマ', short:'カニカマ', emoji:'🦀', category:'protein',
+    storageType:'fridge', shelfLifeDays:7, unitName:'1食分[4本・約40g]', grams:40, ready:true,
+    purchaseUnit:{ item:'カニカマ', unit:'パック', grams:80, step:1, section:'豆腐・卵' },
+    prepInstruction:'下処理不要。使うときに手で細くさく（{n}食分）',
+    prepMin:0, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], like:'tuna', addTo:'w_dashiankake c_umashioan', notIn:'y_curry w_kinpira k_chijimi',
+    fry:'カニカマを加えてさっと炒め合わせる', simmer:'カニカマを加えてひと煮立ちさせる' },
+  { id:'p_daizu', name:'大豆の水煮', short:'大豆', emoji:'🫘', category:'protein',
+    storageType:'pantry', shelfLifeDays:365, fridgeDays:3, unitName:'1食分[約50g]', grams:50, ready:true,
+    purchaseUnit:{ item:'大豆の水煮（パウチ）', unit:'袋', grams:120, step:1, section:'缶詰・乾物' },
+    prepInstruction:'下処理不要。常備棚へ（{n}食分。開封後は冷蔵で3日以内に）',
+    prepMin:0, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], like:'tuna', addTo:'y_tomatogarlic y_consomme w_nimono e_auto_tomato e_auto_wa',
+    notIn:'k_namul c_banbanji k_chorogi w_negishio x_shoyukoji_ae w_kinpira k_chijimi',
+    fry:'大豆を加えてさっと炒め合わせる', simmer:'大豆を加えて2分煮る' },
+
   // ===================== 野菜・きのこパーツ =====================
   { id:'v_ninjin', name:'塩揉み千切りにんじん', short:'にんじん', emoji:'🥕', category:'veg', group:'root',
     storageType:'fridge', shelfLifeDays:5, freezeDays:30, unitName:'1食分[約40g]', grams:40, ready:true,
@@ -765,6 +839,92 @@ const PARTS = [
     purchaseUnit:{ item:'きゅうり', unit:'本', grams:100, step:1, section:'青果' },
     prepInstruction:'薄い輪切りにし、塩少々をふって5分おき、水気をしっかり絞る。{n}食分ずつ保存容器に入れて冷蔵（3日以内に。和え物・サラダ用）',
     prepMin:6, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], addTo:'w_negishio c_banbanji k_chorogi k_namul y_marine t_yam x_shiokonbu_ae x_shoyukoji_ae y_mustardmayo x_yuzu_mayo t_kaomangai w_gomaae' },
+  // ----- 追加野菜②（冷凍・缶詰・カット野菜も） -----
+  { id:'v_mixveg', name:'冷凍ミックスベジタブル', short:'ミックスベジ', emoji:'🌈', category:'veg', group:'mix',
+    storageType:'freeze', shelfLifeDays:60, unitName:'1食分[約40g]', grams:40, ready:true,
+    purchaseUnit:{ item:'冷凍ミックスベジタブル', unit:'袋', grams:300, step:1, section:'冷凍食品' },
+    prepInstruction:'下処理不要。冷凍庫へ（{n}食分。凍ったまま使える）',
+    prepMin:0, compatibleTags:['和風','洋風','中華'], addTo:'y_garibata y_curry y_consomme y_cheeseyaki y_mustardmayo y_tonyu y_tomatogarlic c_chukasoup x_shiokoji_soup e_auto_tomato c_oyster w_dashiankake c_umashioan' },
+  { id:'v_corn', name:'ホールコーン', short:'コーン', emoji:'🌽', category:'veg', group:'mix',
+    storageType:'pantry', shelfLifeDays:365, fridgeDays:3, unitName:'1食分[約40g]', grams:40, ready:true,
+    purchaseUnit:{ item:'ホールコーン（パウチ・缶）', unit:'袋', grams:120, step:1, section:'缶詰・乾物' },
+    prepInstruction:'下処理不要。常備棚へ（{n}食分。開封後は汁気をきって冷凍すると使いやすい）',
+    prepMin:0, compatibleTags:['和風','洋風','中華','韓国風'], addTo:'y_garibata y_curry y_consomme y_cheeseyaki y_mustardmayo y_tonyu c_chukasoup x_shiokoji_soup k_chijimi w_misoshiru y_marine k_chorogi x_yuzu_mayo' },
+  { id:'v_edamame', name:'冷凍むき枝豆', short:'枝豆', emoji:'🟢', category:'veg', group:'bean',
+    storageType:'freeze', shelfLifeDays:60, unitName:'1食分[約30g]', grams:30, ready:true,
+    purchaseUnit:{ item:'冷凍枝豆', unit:'袋', grams:200, step:1, section:'冷凍食品' },
+    prepInstruction:'さやつきの場合は流水で解凍してさやから出し、{n}食分ずつ保存袋に入れて冷凍（むき枝豆ならそのまま）',
+    prepMin:5, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], addTo:'y_mustardmayo y_marine x_shiokonbu_ae x_shoyukoji_ae c_chukasoup w_gomaae t_yam y_garibata x_yuzu_mayo w_negishio' },
+  { id:'v_lettuce', name:'ちぎりレタス', short:'レタス', emoji:'🥬', category:'veg', group:'salad',
+    storageType:'fridge', shelfLifeDays:3, unitName:'1食分[約50g]', grams:50, ready:true,
+    purchaseUnit:{ item:'レタス', unit:'玉', grams:300, step:1, section:'青果' },
+    prepInstruction:'葉を1枚ずつはがして洗い、食べやすくちぎって水気をしっかりきる。ペーパーを敷いた保存容器に{n}食分入れて冷蔵（3日以内に）',
+    prepMin:5, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], addTo:'k_chorogi y_marine w_negishio c_chukasoup y_consomme c_oyster t_yam t_kaomangai x_shiokonbu_ae c_banbanji' },
+  { id:'v_mizuna', name:'ざく切り水菜', short:'水菜', emoji:'🌿', category:'veg', group:'salad',
+    storageType:'fridge', shelfLifeDays:3, unitName:'1食分[約40g]', grams:40, ready:true,
+    purchaseUnit:{ item:'水菜', unit:'袋', grams:200, step:1, section:'青果' },
+    prepInstruction:'根元を落として洗い、4cm長さに切って水気をしっかりきる。ペーパーを敷いた保存容器に{n}食分入れて冷蔵（3日以内に）',
+    prepMin:4, compatibleTags:['和風','中華','韓国風','エスニック'], addTo:'w_nibitashi w_negishio k_chorogi x_shiokonbu_ae t_yam w_misoshiru x_dashida_soup c_banbanji w_oroshiponzu e_seiro_goma' },
+  { id:'v_toumyou', name:'カット豆苗', short:'豆苗', emoji:'🌱', category:'veg', group:'sprout',
+    storageType:'fridge', shelfLifeDays:4, unitName:'1食分[1/2袋・約50g]', grams:50, ready:true,
+    purchaseUnit:{ item:'豆苗', unit:'袋', grams:100, step:1, section:'青果' },
+    prepInstruction:'根元を切り落として洗い、長さを半分に切る。水気をきって{n}食分ずつ保存袋に入れて冷蔵（根元は水につけておくと再生してもう一度収穫できる）',
+    prepMin:3, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], addTo:'c_oyster x_shoyukoji_itame c_umashioan k_namul w_nibitashi c_chukasoup y_garibata w_negishio x_shiokonbu_ae c_toban' },
+  { id:'v_nagaimo', name:'カット長芋', short:'長芋', emoji:'🤍', category:'veg', group:'yam',
+    storageType:'fridge', shelfLifeDays:5, freezeDays:30, unitName:'1食分[約60g]', grams:60, ready:true,
+    purchaseUnit:{ item:'長芋', unit:'本', grams:300, step:0.5, section:'青果' },
+    prepInstruction:'皮をむいて1cm厚の半月切りにし、酢水にさっとつけて水気を拭く。{n}食分ずつ保存袋に入れて冷蔵（冷凍も可・凍ったまま焼ける）',
+    prepMin:5, compatibleTags:['和風','洋風','中華','韓国風'], addTo:'y_garibata w_teriyaki x_shoyukoji_itame w_misoshiru x_shiokonbu_ae w_oroshiponzu w_negishio' },
+  { id:'v_okra', name:'下ゆで冷凍オクラ', short:'オクラ', emoji:'⭐', category:'veg', group:'green',
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:3, unitName:'1食分[3〜4本・約40g]', grams:40, ready:true,
+    purchaseUnit:{ item:'オクラ', unit:'袋', grams:100, step:1, section:'青果' },
+    prepInstruction:'塩をふって板ずりし、熱湯で1分ゆでて冷水にとる。ガクを除いて小口切りにし、{n}食分ずつ保存袋に入れて冷凍',
+    prepMin:8, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], addTo:'w_gomaae x_shiokonbu_ae w_misoshiru w_nibitashi c_chukasoup k_namul y_curry t_tomyum x_shoyukoji_ae w_negishio' },
+  { id:'v_zucchini', name:'輪切りズッキーニ', short:'ズッキーニ', emoji:'🥒', category:'veg', group:'fruit',
+    storageType:'fridge', shelfLifeDays:5, freezeDays:21, unitName:'1食分[1/2本・約80g]', grams:80, ready:false,
+    purchaseUnit:{ item:'ズッキーニ', unit:'本', grams:160, step:1, section:'青果' },
+    prepInstruction:'両端を落として1cm厚の輪切り（または半月切り）にし、{n}食分ずつ保存袋に入れて冷蔵',
+    prepMin:3, compatibleTags:['洋風','中華','韓国風','エスニック'], like:'nasu' },
+  { id:'v_minitomato', name:'ヘタ取りミニトマト', short:'ミニトマト', emoji:'🍅', category:'veg', group:'fruit',
+    storageType:'fridge', shelfLifeDays:5, unitName:'1食分[5個・約60g]', grams:60, ready:true,
+    purchaseUnit:{ item:'ミニトマト', unit:'パック', grams:200, step:1, section:'青果' },
+    prepInstruction:'ヘタを取って洗い、水気を拭いて保存容器に入れて冷蔵（{n}食分。半分に切って使う）',
+    prepMin:3, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], like:'tomato' },
+  { id:'v_kabu', name:'くし切りかぶ', short:'かぶ', emoji:'🤍', category:'veg', group:'root',
+    storageType:'fridge', shelfLifeDays:4, freezeDays:30, unitName:'1食分[1個・約80g]', grams:80, ready:true,
+    purchaseUnit:{ item:'かぶ（3個入り）', unit:'袋', grams:240, step:1, section:'青果' },
+    prepInstruction:'葉を切り落とし（葉は刻んで小松菜と同じように使える）、皮をむいて6等分のくし切りにする。{n}食分ずつ保存袋に入れて冷蔵',
+    prepMin:5, compatibleTags:['和風','洋風','中華'], like:'daikon', addTo:'x_shiokonbu_ae y_marine' },
+  { id:'v_takenoko', name:'たけのこ水煮', short:'たけのこ', emoji:'🎍', category:'veg', group:'bamboo',
+    storageType:'fridge', shelfLifeDays:5, freezeDays:30, unitName:'1食分[約50g]', grams:50, ready:true,
+    purchaseUnit:{ item:'たけのこ水煮', unit:'袋', grams:150, step:1, section:'青果' },
+    prepInstruction:'さっと洗って白いかたまり（チロシン）を落とし、薄切りにする。水を張った保存容器に入れて冷蔵（{n}食分。水を毎日替えれば5日）',
+    prepMin:4, compatibleTags:['和風','中華','韓国風'], addTo:'c_oyster w_nimono c_mabo x_jajan c_umashioan c_chukasoup x_hoikoro w_teriyaki e_auto_wa c_amazu' },
+  { id:'v_konnyaku', name:'下ゆでこんにゃく', short:'こんにゃく', emoji:'⬛', category:'veg', group:'konnyaku',
+    storageType:'fridge', shelfLifeDays:7, unitName:'1食分[約60g]', grams:60, ready:true,
+    purchaseUnit:{ item:'こんにゃく', unit:'枚', grams:250, step:1, section:'豆腐・卵' },
+    prepInstruction:'スプーンでひと口大にちぎり、熱湯で3分ゆでてアク抜きする。水を張った保存容器に入れて冷蔵（{n}食分）',
+    prepMin:6, compatibleTags:['和風','韓国風'], addTo:'w_nimono e_auto_wa w_misoshiru g_buta_daikon k_bulgogi w_teriyaki x_shoyukoji_itame' },
+  { id:'v_hijiki', name:'戻しひじき', short:'ひじき', emoji:'🌑', category:'veg', group:'seaweed',
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:3, unitName:'1食分[戻して約30g]', grams:30, ready:true,
+    purchaseUnit:{ item:'芽ひじき（乾燥）', unit:'袋', grams:120, step:1, section:'缶詰・乾物' },
+    prepInstruction:'たっぷりの水で15分戻し、熱湯で1分ゆでてザルに上げる。冷めたら{n}食分ずつ保存袋に平らに入れて冷凍',
+    prepMin:20, compatibleTags:['和風','洋風','韓国風'], addTo:'y_marine y_mustardmayo w_gomaae w_nimono x_yuzu_mayo x_shoyukoji_ae k_namul' },
+  { id:'v_wakame', name:'乾燥カットわかめ', short:'わかめ', emoji:'🌊', category:'veg', group:'seaweed',
+    storageType:'pantry', shelfLifeDays:365, unitName:'1食分[乾燥2g]', grams:20, ready:true,
+    purchaseUnit:{ item:'乾燥カットわかめ', unit:'袋', grams:200, step:1, section:'缶詰・乾物' },
+    prepInstruction:'下処理不要。常備棚へ（{n}食分。汁物は乾燥のまま、和え物は水で5分戻して水気を絞る）',
+    prepMin:0, compatibleTags:['和風','中華','韓国風'], addTo:'w_misoshiru c_chukasoup x_dashida_soup k_namul k_chorogi x_shoyukoji_ae x_shiromiso_soup k_sundubu' },
+  { id:'v_wamix', name:'冷凍和風野菜ミックス', short:'和風野菜ミックス', emoji:'🍱', category:'veg', group:'mix',
+    storageType:'freeze', shelfLifeDays:60, unitName:'1食分[約60g]', grams:60, ready:true,
+    purchaseUnit:{ item:'冷凍和風野菜ミックス（筑前煮用など）', unit:'袋', grams:300, step:1, section:'冷凍食品' },
+    prepInstruction:'下処理不要。冷凍庫へ（{n}食分。れんこん・ごぼう・にんじん・里芋などが下ゆで済み）',
+    prepMin:0, compatibleTags:['和風'], addTo:'w_nimono e_auto_wa w_misoshiru w_dashiankake x_shiromiso_soup w_teriyaki' },
+  { id:'v_cutmix', name:'炒め用カット野菜', short:'カット野菜', emoji:'🥡', category:'veg', group:'cabbage',
+    storageType:'fridge', shelfLifeDays:2, unitName:'1食分[1/2袋・約100g]', grams:100, ready:false,
+    purchaseUnit:{ item:'野菜炒め用カット野菜', unit:'袋', grams:200, step:1, section:'青果' },
+    prepInstruction:'下処理不要。袋のまま冷蔵庫へ（{n}食分。傷みやすいので2日以内に）',
+    prepMin:0, compatibleTags:['和風','洋風','中華','韓国風'], addTo:'c_oyster c_toban c_umashioan x_shoyukoji_itame k_bulgogi x_hoikoro c_chukasoup x_dashida_soup y_garibata y_curry w_oroshiponzu k_chijimi c_gomatonyu' },
 ];
 
 /* ---------------------------------------------------------------------
@@ -1517,12 +1677,23 @@ const PART_TIPS = {
   p_torihiki:'鶏ひき肉は焼き付けてからほぐすと、香ばしくうまみが出る',
   p_sausage:'ウインナーは切り込みから脂とうまみが出て、野菜にコクが移る',
   p_aburaage:'油揚げは油抜きしておくと味がしみやすく、さっぱり仕上がる',
+  p_tamago:'卵は半熟で一度取り出し、最後に戻すとふんわり仕上がる',
+  p_butahiki:'豚ひき肉は焼き付けてからほぐすと、脂のうまみと香ばしさが出る',
+  p_tebamoto:'手羽元は骨に沿って切り込みを入れると、火の通りも味しみもよくなる',
+  p_bacon:'ベーコンは弱めの火で脂を出してから具を加えると、うまみが全体に回る',
+  p_ham:'ハムは加熱しすぎず、仕上げに加えるとしっとり',
+  p_seafood:'シーフードミックスは塩水で解凍すると、臭みが抜けてぷりっとする',
+  p_buri:'ぶりは塩をふって出た水分を拭くと、臭みが抜けて味がしまる',
+  p_chikuwa:'ちくわは焼き色をつけると香ばしく、うまみも出る',
+  p_kanikama:'カニカマは手でさくと味がからみやすい',
+  p_daizu:'大豆は加熱しすぎず、仕上げに加えるとホクッとした食感が残る',
 };
 // 「きょうの料理」検索用のキーワード（ストック食材→一般的な食材名）
 const KYOU_WORD = {
   p_mushidori:'鶏むね肉', p_butakoma:'豚こま', p_momo:'鶏もも肉', p_hikiniku:'ひき肉', p_sake:'鮭', p_shiromi:'たら', p_tofu:'豆腐', p_egg:'卵',
   p_tuna:'ツナ', p_saba:'さば缶', p_butabara:'豚バラ', p_sasami:'ささみ', p_atsuage:'厚揚げ', p_ebi:'えび',
   p_mune:'鶏むね肉', p_gyukoma:'牛こま', p_torihiki:'鶏ひき肉', p_sausage:'ウインナー', p_aburaage:'油揚げ',
+  p_tamago:'卵', p_butahiki:'豚ひき肉', p_tebamoto:'手羽元', p_bacon:'ベーコン', p_ham:'ハム', p_seafood:'シーフードミックス', p_buri:'ぶり', p_chikuwa:'ちくわ', p_kanikama:'かにかま', p_daizu:'大豆',
 };
 /* =====================================================================
    2-e. 定番レシピ帳（決まった材料・分量で作る家庭料理 98品）
@@ -1530,17 +1701,17 @@ const KYOU_WORD = {
    材料・調味料は「名前|分量」。分量の末尾が「|補」のものは、元の記載に分量がなく一般的な目安で補ったもの。
    --------------------------------------------------------------------- */
 const RECIPE_DATA = [
-['k01','和風','主菜','鶏のから揚げ',2.5,'40分','',
+['k01','和風','主菜','鶏のから揚げ',2.5,'40分','p_tebamoto',
  ['骨付き鶏肉（もも・手羽など）|700g','おろしにんにく|1片','おろししょうが|10g'],
  ['酒|大2','水|大2','しょうゆ|大1.5','塩|小1/2','小麦粉|大5','片栗粉|大4','揚げ油|2カップ'],
  ['鶏肉は水気をふき、骨に沿って切り込みを入れて火の通りをよくする。','ボウルに鶏肉・酒・水・しょうゆ・塩・にんにく・しょうがを入れ、汁気がなくなるまでよくもみ込んで15分おく。','小麦粉を加えて全体になじませ、続けて片栗粉を加えてさっくり混ぜる（小麦粉→片栗粉の順で、中はしっとり外はカリッと）。','フライパン（または鍋）に冷たい揚げ油を入れ、鶏肉を皮目を下にして重ならないように並べる。','強火にかけ、泡が出てきたら時々返しながら約12分、きつね色にカリッとなるまで揚げる。','油をきって器に盛る（骨の近くを切って赤い汁が出なければ火が通っている）。'],
  ['冷たい油から揚げると温度がゆっくり上がり、骨付きでも中まで火が通りやすく油はねも少ない','下味の水分を肉にしっかり吸わせると、揚げてもジューシー','ノンフライヤーの場合は粉をまぶした後に油を薄く塗り、200℃で18〜20分'],'',''],
-['k02','洋風','副菜','ジャーマンポテト',2,'25分','v_jagaimo v_tamanegi',
+['k02','洋風','副菜','ジャーマンポテト',2,'25分','p_bacon v_jagaimo v_tamanegi',
  ['じゃがいも（〔2〜3個〕）|350g','ベーコン（〔2枚〕）|40g','玉ねぎ|150g','にんにく|1かけ'],
  ['サラダ油|大1/2','塩|小1/2','粗びき黒こしょう|少々|補'],
  ['じゃがいもは皮をむいて1.5cm厚さの輪切りにし、水からゆでて沸騰後10分、竹串が通るまでゆでて湯をきる。','玉ねぎは1cm幅のくし切り、ベーコンは1cm幅、にんにくは薄切りにする。','フライパンにサラダ油とにんにくを入れて弱火にかけ、香りが出たら中火にしてベーコン・玉ねぎを炒める。','じゃがいもを加え、あまり動かさずに両面に焼き色をつける。','塩・黒こしょうで味をととのえて完成。'],
  ['レンチンじゃがいものストックを使う場合は、ゆでる工程を省いて焼くだけでOK','じゃがいもは動かさずに焼くと香ばしい焼き色がつく'],'',''],
-['k03','和風','主食','鶏がゆ',2,'70分','',
+['k03','和風','主食','鶏がゆ',2,'70分','p_tebamoto',
  ['骨付き鶏もも肉（〔1本〕）|300g','米|1/2カップ'],
  ['水|7カップ','ごま油|大1','塩・ポン酢しょうゆ・みそ|好みで'],
  ['鍋に鶏肉と水を入れて中火にかけ、沸騰したらアクを取り、弱火にしてふたを少しずらし、静かに50分ゆでる。','米は洗ってざるに上げ、ポリ袋に入れてめん棒などで粗くつぶす（短時間で炊き上がる）。','鶏肉を取り出し、ゆで汁に米とごま油を加えて混ぜ、弱火で15分、ときどき底から混ぜながら炊く。','鶏肉は骨を除いて食べやすくほぐし、かゆに戻す。','器に盛り、好みで塩・ポン酢しょうゆ・みそを添える。'],
@@ -1560,7 +1731,7 @@ const RECIPE_DATA = [
  ['マスタード|10g','塩|小1/2','植物油|1/2カップ','米酢|大1/2','こしょう|適宜'],
  ['卵黄とマスタードは常温に戻しておく（分離しにくい）。','ボウルに卵黄・マスタード・塩を入れ、泡立て器でよく混ぜる。','油を糸のように細く少しずつ垂らしながら、休まず混ぜて乳化させる。','固くなってきたら米酢を加えてゆるめ、残りの油も同様に加える。','こしょうで味をととのえる。'],
  ['油は一度に入れると分離するので、最初はとくに少しずつ','分離したら新しい卵黄に少しずつ加えると戻る'],'でき上がり〔約100g〕。生卵を使うので冷蔵で2〜3日を目安に',''],
-['k07','エスニック','主食','自由カレー（カレー焼きめし）',2,'20分','v_tomato v_tamanegi',
+['k07','エスニック','主食','自由カレー（カレー焼きめし）',2,'20分','p_bacon v_tomato v_tamanegi',
  ['ご飯|300g|補','トマト|1個|補','きゅうり|1/2本|補','玉ねぎ|1/4個|補','にら|1/3束|補','ベーコン|2枚|補','しょうが|1かけ|補','にんにく|1かけ|補','卵|2個'],
  ['オリーブ油|大1','カレー粉|大1','レッドペッパー|適量','熱湯|3/4カップ','塩|小1'],
  ['具材はすべて1cm角くらいに刻み、しょうが・にんにくはみじん切りにする。','フライパンにオリーブ油を強火で熱し、ベーコン・しょうが・にんにく・玉ねぎを焼き色がつくまで炒め、トマト・きゅうり・にらを加えてさらに炒める。','カレー粉・レッドペッパーを加えて香りを立たせ、ご飯・熱湯・塩を加える。','ときどき底から返しながら水分を飛ばし、ところどころ焼きつける。','器に盛り、生卵（または半熟の目玉焼き）をのせる。'],
@@ -1610,7 +1781,7 @@ const RECIPE_DATA = [
  ['酒|1/4カップ','水|2カップ','砂糖|大1','しょうゆ|大1と1/2'],
  ['いかは内臓と軟骨を除き、胴は皮付きのまま1.5cm幅の輪切り、足は2本ずつに切る。大根は皮をむいて2cm厚さの半月切りにする。','鍋に大根・水・酒を入れて中火にかけ、煮立ったら弱火で15分、大根が透き通るまで下煮する。','砂糖を加えて5分煮てから、しょうゆといかを加え、落としぶたをして10分煮る。','火を止めて煮汁に浸したまま一晩おき、いかの皮の色とうまみを大根に染み込ませる。','食べる前に温め直す。'],
  ['いかは煮すぎると固くなるので、大根を先に柔らかくしてから加える'],'',''],
-['k17','和風','主菜','里芋のシチュー（和風煮込み）',2,'50分','v_satoimo',
+['k17','和風','主菜','里芋のシチュー（和風煮込み）',2,'50分','p_tebamoto v_satoimo',
  ['里芋（〔4個〕）|250g','骨付き鶏もも肉（ぶつ切り）|310g','にんじん|75g','しょうが|25g','煮干し|5g'],
  ['水|3カップ','酒|1/2カップ','しょうゆ|大1と1/2','塩|小1/6'],
  ['里芋は皮をむいて塩（分量外）でもみ、ぬめりを洗う。にんじんは乱切り、しょうがは薄切り、煮干しは頭とわたを取る。','鍋に鶏肉・里芋・にんじん・しょうが・煮干し・水を入れて強火にかけ、煮立ったらアクを取る。','酒を加え、ふたをずらして弱火で30分、鶏肉と里芋が柔らかくなるまで煮る。','しょうゆ・塩を加えて5分煮て味をなじませる。'],
@@ -1625,7 +1796,7 @@ const RECIPE_DATA = [
  ['サラダ油|大1','塩・こしょう|各適量'],
  ['エリンギは縦に薄切りにし、牛肉は食べやすく切って塩・こしょうをふる。','フライパンにサラダ油の半量を中火で熱し、エリンギを並べて触らずに焼き、両面に焼き色をつけて歯切れよく仕上げ、塩をふって取り出す。','残りの油で牛肉を広げ入れ、ふたをして弱めの中火で1〜2分蒸し焼きにし、ふんわり火を通す。','エリンギを戻して手早く合わせ、塩・こしょうで味をととのえる。'],
  ['エリンギは「焼く」、牛肉は「蒸す」と分けると、どちらもおいしく仕上がる'],'',''],
-['k20','洋風','主菜','さといものグラタン',2.5,'40分','v_satoimo v_tamanegi',
+['k20','洋風','主菜','さといものグラタン',2.5,'40分','p_bacon v_satoimo v_tamanegi',
  ['さといも|5〜6個','玉ねぎ|1/2個','ベーコン|2枚','ピザ用チーズ|40g'],
  ['バター|15g','ナツメグ|少々','塩|小2/3','こしょう|適量','小麦粉|大2','牛乳|2/3カップ'],
  ['さといもは皮付きのまま柔らかくなるまで15分ほどゆで、熱いうちに皮をむいてフォークで粗くつぶす。','玉ねぎは薄切り、ベーコンは1cm幅に切る。','フライパンにバターを中火で溶かし、玉ねぎ・ベーコンを炒め、小麦粉をふり入れて粉っぽさがなくなるまで炒める。','牛乳を少しずつ加えてとろみをつけ、さといも・塩・こしょう・ナツメグを混ぜる。','耐熱皿に入れてチーズをのせ、オーブントースター（またはオーブン220℃）で10分、焼き色がつくまで焼く。'],
@@ -1640,17 +1811,17 @@ const RECIPE_DATA = [
  ['米酢|大4','砂糖|大2','塩|小2/3','サラダ油|大1'],
  ['じゃがいもとにんじんはスライサーで細いせん切りにし、じゃがいもは水に5分さらしてでんぷんを落とし、水気をよくきる。','フライパンにサラダ油を中火で熱し、じゃがいも・にんじんを1分炒める。','米酢・砂糖・塩を加えてさっと煮からめ、シャキッとした食感が残るうちに火を止める。','冷まして味をなじませる（冷蔵で2〜3日）。'],
  ['加熱しすぎないのがシャキシャキの決め手'],'',''],
-['k23','洋風','主食','ハート・エッグトースト',2,'10分','',
+['k23','洋風','主食','ハート・エッグトースト',2,'10分','p_tamago',
  ['食パン（6枚切り）|2枚','卵|2個'],
  ['サラダ油|大2','バター|30g','塩・こしょう|少々|補'],
  ['食パンの中央をハート形の型（またはコップ）でくりぬく。','フライパンにサラダ油の半量とバターの半量を中火で熱し、パンとくりぬいた部分を並べて焼き色をつけ、裏返す。','残りの油・バターを足し、くりぬいた穴に卵を1個ずつ割り入れる。','弱めの中火で3〜4分、卵が好みの固さになるまで焼き、塩・こしょうをふる。'],
  ['ふたをすると卵の表面まで早く固まる'],'',''],
-['k24','洋風','主食','フレンチトースト',2,'20分','',
+['k24','洋風','主食','フレンチトースト',2,'20分','p_tamago',
  ['食パン（6枚切り）|2枚','卵|2個'],
  ['牛乳|1/2カップ','砂糖|大2','バター|40g'],
  ['食パンは半分に切る。バットに牛乳と砂糖を混ぜ、パンを浸して両面に牛乳をしっかり吸わせる（先に牛乳を含ませるのが鉄則）。','卵を溶きほぐしてパンにからめる。','フライパンにバターを弱火で溶かし、パンを並べてふたをし、4〜5分かけて焼き色がつくまでじっくり焼く。','裏返して同様に3〜4分焼き、中までふっくら火を通す。'],
  ['牛乳→卵の順だと中まで液がしみ込み、弱火でじっくり焼くとふわふわに'],'',''],
-['k25','洋風','主食','パン粥',1,'10分','',
+['k25','洋風','主食','パン粥',1,'10分','p_bacon p_tamago',
  ['生パン粉|食パン1/2枚分','グリュイエールチーズ|20g','卵|1個','ベーコン|1枚'],
  ['だし汁|1カップ','塩|小1/4','こしょう|適量'],
  ['ベーコンは細切りにし、チーズは削るか刻む。卵は溶きほぐす。','鍋にだし汁とベーコンを入れて中火にかけ、煮立ったら生パン粉を加えて混ぜる。','塩を加え、溶き卵を回し入れてふんわり固まるまで煮る。','器に盛ってチーズを散らし、こしょうをふる。'],
@@ -1675,7 +1846,7 @@ const RECIPE_DATA = [
  ['小麦粉（打ち粉）|適量','卵（衣）|1個','冷水（衣）|160ml','小麦粉（衣）|100g','揚げ油|適量','天つゆ・大根おろし|適量'],
  ['なすはヘタを落として縦半分に切り、厚みに切り込みを入れてポケット状にする（〔6個〕分）。あじは細かくたたき、梅干しは種を除いてたたく。','なすの切り込みに打ち粉をし、大葉・あじ・梅肉をはさむ。','卵と冷水を混ぜて小麦粉を加え、さっくり混ぜてドロリとした衣を作る。','なすに打ち粉をして衣をたっぷりからめ、170℃の油で4〜5分、衣がカリッとしてなすが柔らかくなるまで揚げる。','天つゆと大根おろしを添える。'],
  ['衣は混ぜすぎず、粉が少し残る程度がサクッと揚がる'],'〔6個〕分',''],
-['k30','和風','主食','しらすの焼き飯',2,'15分','',
+['k30','和風','主食','しらすの焼き飯',2,'15分','p_tamago',
  ['冷やごはん|300g','卵|2個','白ねぎ（〔1本〕）|100g','しらす（釜揚げ）|50g'],
  ['塩|小1/2','サラダ油|大2','湯|大1〜2'],
  ['白ねぎは粗みじん切りにし、卵は溶きほぐす。','フライパンにサラダ油を強めの中火で熱し、溶き卵を入れて半熟になったらごはんを加え、ほぐしながら炒める。','ねぎとしらすを加えて炒め合わせ、湯を回し入れて米をふっくらさせ、水分を飛ばしながらパラリと炒める。','塩をふって味をととのえる（しらすの塩気をみて、量は加減する）。'],
@@ -1685,7 +1856,7 @@ const RECIPE_DATA = [
  ['水|2カップ','薄口しょうゆ|大2'],
  ['冬瓜は大きめに切り分け、種とわたを除いて皮を厚めにむく。','鍋に冬瓜とかぶるくらいの水を入れて火にかけ、沸騰したら弱火で25分、竹串がすっと通るまで下ゆでして水にとる（青臭さが抜ける）。','鍋に水と薄口しょうゆを入れ、冬瓜を並べて削りがつおを直接散らし、落としぶたをして弱火で10分煮る。','火を止めてそのまま冷まし、だしを含ませる（冷やしてもおいしい）。'],
  ['冷めるときに味がしみ込むので、時間をおくほどおいしい'],'',''],
-['k32','和風','副菜','冬瓜のマヨネーズ和え',2,'35分','',
+['k32','和風','副菜','冬瓜のマヨネーズ和え',2,'35分','p_ham v_kyuri',
  ['冬瓜|250g','ロースハム|3枚','きゅうり|1/3本'],
  ['塩|少々','マヨネーズ|30g'],
  ['冬瓜は大きめに切って皮と種を除き、ふたをして弱火で25分、柔らかくなるまでゆでて水にとり、水気をよくきって1cm角に切る。','きゅうりは薄切りにして塩少々でもみ、水気を絞る。ハムは短冊に切る。','ボウルに冬瓜・きゅうり・ハムを入れてマヨネーズであえ、塩で味をととのえる。'],
@@ -1740,7 +1911,7 @@ const RECIPE_DATA = [
  ['サラダ油|大1','塩|小1/3','酒|大2','ごま油|大1'],
  ['油揚げは短冊切りにし、もやしは気になればひげ根を取る。','フライパンにサラダ油を中火で熱し、油揚げを炒めて先に塩をふり、しっかり味をつける。','もやしと酒を加えてふたをし、強めの中火で1分蒸し炒めにする。','ふたを取って全体を混ぜ、ごま油を回しかけて完成。'],
  ['先に油揚げに塩をすると、全体の味がまとまる'],'',''],
-['k43','洋風','副菜','油揚げのハムチーズ焼き',2,'15分','',
+['k43','洋風','副菜','油揚げのハムチーズ焼き',2,'15分','p_aburaage p_ham',
  ['油揚げ|2枚','ロースハム|3枚','ピザ用チーズ|40g'],
  ['サラダ油|大1'],
  ['油揚げは半分に切って袋状に開く。ハムは半分に切る。','油揚げにハムとチーズを均等に詰め、口を楊枝で留める。','フライパンにサラダ油を弱めの中火で熱し、油揚げを並べてふたをし、片面3分ずつ、チーズがとろりとして表面がカリッとするまでじっくり焼く。','食べやすく切って盛る（好みでしょうゆや七味）。'],
@@ -1750,7 +1921,7 @@ const RECIPE_DATA = [
  ['サラダ油|大2/3','塩|小1/4'],
  ['アスパラは根元の固い皮をむき、3〜4mm厚さの輪切りにする。','フライパンにサラダ油を強火で熱し、アスパラを広げて入れ、触らずに焼き色がつくのを待つ。','焼いている間に塩をふり、焼き色がついたら全体を返してさっと火を通す。','温かいごはんにかけて、混ぜながらいただく。'],
  ['触らずに焼くと香ばしさが際立つ'],'',''],
-['k45','和風','主食','焼きとうもろこしのごはん',2,'10分','',
+['k45','和風','主食','焼きとうもろこしのごはん',2,'10分','v_corn',
  ['とうもろこし（小さめ〔1本〕・正味）|100g','温かいごはん|2杯'],
  ['サラダ油|大2/3','塩|小1/4'],
  ['とうもろこしは生のまま、包丁で実を削り取る。','フライパンにサラダ油を強火で熱し、とうもろこしを広げて触らずに焼く。','焼いている間に塩をふり、焼き色がついたら返して全体を香ばしく焼く。','温かいごはんにかけていただく。'],
@@ -1790,12 +1961,12 @@ const RECIPE_DATA = [
  ['サラダ油|大1','塩|小1/2'],
  ['キャベツはざく切りにし、豚肉は大きければ食べやすく切る。','フライパンにキャベツを広げ、その上に豚肉を広げてのせ、サラダ油を回しかけて塩をふる。','ふたをして中火で5〜6分、豚肉に火が通りキャベツがしんなりするまで蒸し煮にする。','ふたを取って全体をさっと混ぜる。'],
  ['肉をキャベツの上にのせると、うまみが野菜に落ちておいしい'],'',''],
-['k53','和風','主菜','こま切れ肉の炒り卵',2,'15分','p_butakoma',
+['k53','和風','主菜','こま切れ肉の炒り卵',2,'15分','p_butakoma p_tamago',
  ['豚こま切れ肉|100g','卵|2個'],
  ['塩|少々','水|1/2カップ','砂糖|大1','しょうゆ|大1','酒|大1'],
  ['豚肉は細かく刻む。卵は塩少々を加えて溶きほぐす。','鍋に水・砂糖・しょうゆ・酒を入れて煮立て、豚肉を加えて箸4〜5本でほぐしながら、そぼろ状になるまで煮る。','煮汁が少なくなったら溶き卵を回し入れ、混ぜながら炒り卵状に火を通す。','ごはんにのせても、おかずにも。'],
  ['甘辛いそぼろと卵の二度おいしい'],'',''],
-['k54','和風','主菜','豚ねぎ焼き',2,'20分','p_butakoma',
+['k54','和風','主菜','豚ねぎ焼き',2,'20分','p_butakoma p_tamago',
  ['豚こま切れ肉|200g','青ねぎ（〔6本〕）|180g','卵|2個'],
  ['小麦粉|大4','水|大4','サラダ油|大2','ソース|適量'],
  ['青ねぎは小口切りにする。ボウルに小麦粉と水を混ぜ、卵を加えてさらに混ぜる。','ねぎと豚肉を加えてざっくり混ぜる（粉はごく少なめで、具をつなぐ程度に）。','フライパンにサラダ油大1を中火で熱し、生地の1人分（1枚分）を丸く広げ、ふたをして4分焼く。','返して3〜4分焼き、中まで火を通す。残りも1人分ずつ同様に焼く（そのつどサラダ油大1）。','ソースをかけていただく（好みでマヨネーズ・かつお節も）。'],
@@ -1810,7 +1981,7 @@ const RECIPE_DATA = [
  ['酒|1/2カップ','しょうゆ|大2'],
  ['きくらげはたっぷりの水で20分ほど戻し、固い石づきを除いて食べやすく切る。','鍋にきくらげ・酒・しょうゆを入れて中火にかけ、煮立ったら弱めの中火で8〜10分、混ぜながら煮含める。','余分な煮汁をきって保存容器に移す（冷蔵で5〜6日）。'],
  ['しっかり煮含めると日持ちする常備菜に'],'つくりやすい分量',''],
-['k57','和風','副菜','佃煮風ひじきの醤油煮',4,'30分','',
+['k57','和風','副菜','佃煮風ひじきの醤油煮',4,'30分','v_hijiki',
  ['芽ひじき（乾燥）|15g'],
  ['水|1と1/2カップ','薄口しょうゆ|大1と1/2'],
  ['芽ひじきはたっぷりの水に15分浸けて戻し、ざるに上げて水気をきる。','鍋にひじき・水・薄口しょうゆを入れて中火にかけ、煮立ったら弱火で15分、煮汁が少なくなるまで煮る。','冷まして味をなじませる（冷蔵で4〜5日）。'],
@@ -1820,12 +1991,12 @@ const RECIPE_DATA = [
  ['小麦粉|適量','揚げ油|適量','水（南蛮酢）|1/2カップ','米酢（南蛮酢）|1/2カップ','砂糖（南蛮酢）|25g','塩（南蛮酢）|小1/2'],
  ['鍋に水・米酢・砂糖・塩を入れてひと煮立ちさせ、昆布と種を除いた赤唐辛子を加えて南蛮酢を作り、バットに移す。','小あじはぜいご・えら・内臓を除き、きすはうろこ・頭・内臓を除いて、水気をよくふく。','小麦粉を薄くまぶし、160℃の油で4〜5分、骨まで食べられるようにじっくり揚げる。','揚げたてを南蛮酢に漬け、30分以上おいて味をなじませる（冷蔵で4〜5日）。'],
  ['揚げたてを漬けると、南蛮酢がよくしみる'],'',''],
-['k59','和風','副菜','わかめの玉子焼き',1.5,'10分','',
+['k59','和風','副菜','わかめの玉子焼き',1.5,'10分','p_tamago v_wakame',
  ['塩わかめ（戻して〔約40g〕）|15g','卵|1個'],
  ['塩|少々','サラダ油|大1','しょうゆ|適量'],
  ['塩わかめは水に5分浸けて塩を抜き、水気を絞ってざく切りにする。卵は塩少々を加えて溶きほぐす。','フライパンにサラダ油を中火で熱し、わかめを30秒炒める。','溶き卵を回し入れ、大きく混ぜながら半熟に固め、両面を香ばしく焼く。','器に盛り、好みでしょうゆを少々たらす。'],
  ['わかめを炒めると、磯の香りが立つ'],'',''],
-['k60','和風','主食','山かけ丼',2,'10分','',
+['k60','和風','主食','山かけ丼',2,'10分','v_nagaimo',
  ['まぐろ（赤身）|100g','大和いも（正味）|100g','ごはん|2杯'],
  ['たまりしょうゆ|大1','水|1/2カップ','白みそ|10g'],
  ['まぐろは1.5cm角に切り、たまりしょうゆをからめて5分おく。','大和いもは皮をむいてすりおろす。白みそを水で少しずつ溶きのばし、大和いもに加えてなめらかに混ぜる。','ごはんにまぐろをのせ、とろろをかける（好みでわさび・のり）。'],
@@ -1890,7 +2061,7 @@ const RECIPE_DATA = [
  ['白ワイン|25ml','洋風固形スープの素|1/2個','水|1/2カップ|補','生クリーム|25ml','塩|小1/2','こしょう|少々','油|大1/2','タイム・ローリエ|各少々'],
  ['鶏肉は余分な脂を除いて4等分にし、塩・こしょうをふる。りんごは皮付きのまま8等分のくし切りにして芯を除く。','フライパンに油を中火で熱し、鶏肉を皮目から入れて動かさずに5分、皮がパリッとするまで焼き、返して2分焼く。','余分な脂をふき取り、りんごを加えて焼き色をつける。','白ワインを加えて煮立て、水・スープの素・タイム・ローリエを加えてふたをし、弱めの中火で8分煮る。','生クリームを加えて2分煮詰め、塩・こしょうで味をととのえる。'],
  ['りんごの甘みと酸味が、クリームのコクを軽くする'],'',''],
-['k73','洋風','副菜','コールスロー',2,'15分','v_cabbage v_ninjin',
+['k73','洋風','副菜','コールスロー',2,'15分','p_ham v_cabbage v_ninjin v_kyuri',
  ['キャベツ|75g','にんじん|15g','きゅうり（〔1/2本〕）|50g','ロースハム|2〜2.5枚'],
  ['レモン汁|1/8〜1/4個分','オリーブ油|大2','塩|小1/4'],
  ['キャベツ・にんじん・きゅうりはスライサーで細切りにし、ハムも細切りにする。','ボウルに野菜を入れて塩を加え、体重をかけるようにしてよくもみ込み、10分おく。','出た水分をしっかり絞り、ハム・オリーブ油・レモン汁を加えてあえる。'],
@@ -1960,7 +2131,7 @@ const RECIPE_DATA = [
  ['バター（1cm角）|25g','小麦粉|25g','牛乳|250ml','塩・こしょう|各少々|補'],
  ['鍋に1cm角に切ったバターを入れて弱めの中火で溶かし、小麦粉を加えて焦がさないように2分炒める（バター1：小麦粉1：牛乳10）。','火を止めて牛乳の半量を加え、泡立て器でダマがなくなるまでよく混ぜる。','中火にかけて混ぜながらとろみをつけ、残りの牛乳を加えてさらに混ぜる。','最後にしっかり沸騰させて粉の芯をなくし、塩・こしょうで味をととのえる（グラタン・クリーム煮・コロッケに）。'],
  ['牛乳は火を止めて加えると、ダマになりにくい'],'〔約300g〕分',''],
-['k87','洋風','主菜','豆苗と豚こまの絶品炒め',2,'10分','p_butakoma v_negi',
+['k87','洋風','主菜','豆苗と豚こまの絶品炒め',2,'10分','p_butakoma v_toumyou v_negi',
  ['豚こま切れ肉|125g','豆苗|1パック','長ねぎ|1/2本'],
  ['サラダ油|大1','塩|適量','粗びき黒こしょう|適量','レモン汁|1/2個分'],
  ['豆苗は根元を切り落として半分の長さに切り、長ねぎは斜め薄切りにする。豚肉に塩・こしょうをふる。','フライパンにサラダ油の半量を強火で熱し、豆苗と長ねぎをさっと30秒炒めてざるに上げる（水っぽくならない）。','残りの油で豚肉を広げて焼き、色が変わったら豆苗とねぎを戻し入れる。','塩・粗びき黒こしょうで味をととのえ、火を止めてレモン汁を搾りかける。'],
@@ -2010,7 +2181,7 @@ const RECIPE_DATA = [
  ['サラダ油|大1','塩・こしょう|各適量'],
  ['パイシートは冷蔵庫で半解凍にする。しいたけは軸を除き、にんにく・パセリはみじん切りにする。','フライパンにサラダ油を強火で熱し、しいたけをかさの内側を下にして並べ、焼き色がつくまで焼いて塩・こしょうをふる。','パイシートを天板にのせ、フォークで全体に穴をあけ、しいたけを並べてにんにく・パセリ・チーズを散らす。','230℃に予熱したオーブンで30分、パイがこんがりふくらむまで焼く。'],
  ['しいたけを先に強火で焼くと、水分が抜けてパイがべちゃっとならない'],'','oven'],
-['k97','和風','副菜','長芋とカツオ節の酢みそ和え',2,'10分','',
+['k97','和風','副菜','長芋とカツオ節の酢みそ和え',2,'10分','v_nagaimo',
  ['長芋|200g|補','かつお節（〔4袋〕）|15g'],
  ['みそ|大1','酢|小1'],
  ['長芋は皮をむいて5cm長さの細切りにする。','ボウルにみそと酢を混ぜて酢みそを作る。','長芋を酢みそであえ、かつお節をたっぷり加えて混ぜる。'],
@@ -2068,6 +2239,20 @@ const PRESETS = [
 
 /* ---------- master post-processing ---------- */
 const PART = Object.fromEntries(PARTS.map(p=>[p.id,p]));
+// パーツの一覧を売り場・種類ごとに分けて表示する（数が多くても探しやすく）
+const PART_GROUPS = {
+  protein:[['🍖 肉','mune momo sasami tebamoto mushidori torihiki butakoma butabara butahiki hikiniku gyukoma'],['🐟 魚介','sake shiromi buri ebi seafood'],
+    ['🥚 卵・豆腐・大豆','tamago egg tofu atsuage aburaage daizu'],['🥫 加工品・缶詰','sausage bacon ham chikuwa kanikama tuna saba']],
+  veg:[['🥬 葉もの・もやし','cabbage hakusai lettuce mizuna horenso komatsuna chingensai nira toumyou moyashi'],['🍅 実もの・豆','tomato minitomato nasu piman paprika zucchini kyuri broccoli asupara ingen okra edamame'],
+    ['🥕 根菜・いも','tamanegi ninjin negi daikon kabu gobo renkon takenoko jagaimo satoimo satsuma nagaimo kabocha'],['🍄 きのこ・海藻・こんにゃく','kinoko wakame hijiki konnyaku'],
+    ['❄️ 冷凍・缶詰・カット野菜','mixveg corn wamix cutmix']],
+};
+function partGroups(cat){
+  const pre=cat==='protein'?'p_':'v_', used=new Set();
+  const gs=PART_GROUPS[cat].map(([label,ids])=>{ const list=ids.split(' ').map(x=>pre+x).filter(id=>PART[id]); list.forEach(id=>used.add(id)); return {label,ids:list}; });
+  const rest=PARTS.filter(p=>p.category===cat&&!used.has(p.id)).map(p=>p.id); if(rest.length) gs.push({label:'その他',ids:rest});
+  return gs.filter(g=>g.ids.length);
+}
 const splitIds=(v,pre)=>Array.isArray(v)?v:(v||'').split(/\s+/).filter(Boolean).map(x=>pre+x);
 // 追加パーツを既存の味付けにつなぐ（like=同じ使い方の既存パーツが使える味付けに追加／addTo=個別に追加／notIn=除外）
 const wordsOf = v=>String(v||'').split(/\s+/).filter(Boolean);
@@ -2147,7 +2332,7 @@ function rebuildBases(){
 }
 // 保存データの点検（存在しない食材・味付けを参照するデータを取り除き、画面が壊れないようにする）
 function sanitizeState(){
-  const okDish=d=>!!(d&&BASE[d.baseId]&&(!d.p||PART[d.p])&&Array.isArray(d.v)&&d.v.length&&d.v.every(v=>PART[v]));
+  const okDish=d=>!!(d&&(d.rid ? RECIPE[d.rid]&&Array.isArray(d.v)&&d.v.every(v=>PART[v])&&(!d.p||PART[d.p]) : BASE[d.baseId]&&(!d.p||PART[d.p])&&Array.isArray(d.v)&&d.v.length&&d.v.every(v=>PART[v])));
   const okPlan=p=>!!(p&&Array.isArray(p.days)&&p.days.every(d=>d&&Array.isArray(d.dishes)&&d.dishes.every(okDish)));
   S.stock=(Array.isArray(S.stock)?S.stock:[]).filter(b=>b&&PART[b.partId]&&b.count>0&&STORAGE[b.storage]&&/^\d{4}-\d{2}-\d{2}$/.test(b.addedAt||''));
   S.favorites=(Array.isArray(S.favorites)?S.favorites:[]).filter(okDish);
@@ -2287,8 +2472,9 @@ function compat(b,p,role){
 function makeDish(b,p,vs){
   return { key:`${b.id}|${p||'-'}|${[...vs].sort().join('+')}`, baseId:b.id, p:p||null, v:[...vs], type:b.dishType, genre:b.genre };
 }
-const dishParts = d=>(d.p?[d.p]:[]).concat(d.v);
+const dishParts = d=>(d.p?[d.p]:[]).concat(d.extraP||[],d.v||[]);
 function dishName(d){
+  if(d.rid) return RECIPE[d.rid]?RECIPE[d.rid].name:'（定番レシピ）';
   const b=BASE[d.baseId]; const vn=d.v.map(id=>PART[id].short);
   const head = d.p ? `${PART[d.p].short}と${vn.join('・')}` : vn.join('と');
   return `${head}の${b.suffix}`;
@@ -2478,7 +2664,7 @@ function generateDays(o){
     };
     const keys=new Set([...(o.different?o.histKeys:[]), ...rc.keys]);
     const hard={ genres: nearGenres.size?nearGenres:null, bases:nearBases, must:weekKeys, keys: keys.size?keys:null, bp: o.different?o.histBP:null };
-    const main=generateDish({ type:'主菜', pool:o.core, partScore, genreCount, baseCount, nearBases, softKeys:o.histKeys, hard, noGochiso:!gochisoDay(date), preferGochiso:gochisoDay(date), gochisoCount:days.filter(d=>d.dishes[0]&&BASE[d.dishes[0].baseId].gochiso).length });
+    const main=generateDish({ type:'主菜', pool:o.core, partScore, genreCount, baseCount, nearBases, softKeys:o.histKeys, hard, noGochiso:!gochisoDay(date), preferGochiso:gochisoDay(date), gochisoCount:days.filter(d=>isGochisoDish(d.dishes[0])).length });
     const dishes=[];
     if(main){ dishes.push(main); apply(main,true,true); }
     const types = sideTypes();
@@ -2589,23 +2775,7 @@ function shiftPlan(p,di){
   syncPlan(p);
   return dropped;
 }
-function swapDish(di,j,force){
-  const plan=S.draft, day=plan.days[di], cur=day.dishes[j];
-  const prev=plan.days[di-1], next=plan.days[di+1];
-  const genres=new Set(); if(cur.type==='主菜'){ if(prev&&prev.dishes[0]) genres.add(prev.dishes[0].genre); if(next&&next.dishes[0]) genres.add(next.dishes[0].genre); }
-  const bases=new Set([cur.baseId]); [prev,next,day].forEach(d=>d&&d.dishes.forEach((x,k)=>{ if(!(d===day&&k===j)) bases.add(x.baseId); }));
-  const must=new Set(); plan.days.forEach(d=>d.dishes.forEach(x=>must.add(x.key)));
-  const sp0=stockPool();
-  const pool={ protein:[...new Set([...plan.core.protein,...sp0.protein])], veg:[...new Set([...plan.core.veg,...sp0.veg])] };
-  const usage={}; plan.days.forEach(d=>d.dishes.forEach(x=>dishParts(x).forEach(id=>usage[id]=(usage[id]||0)+1)));
-  const sm=stockMap();
-  const partScore=id=>{ let s=(sm[id]||0)>=plan.people?1.5:0; s+=PART[id].category==='veg'?Math.min(usage[id]||0,2)*0.3:0; if(id===cur.p) s-=1.5; return s; };
-  const others=day.dishes.filter((_,k)=>k!==j).flatMap(x=>x.v);
-  const g=force==='gochiso', q=force==='quick';
-  const d=generateDish({ type:cur.type, pool, partScore, avoidVeg:others, onlyGochiso:g, noGochiso:q||(!g&&!gochisoDay(day.date)), preferGochiso:!q&&gochisoDay(day.date), hard:{genres:genres.size?genres:null, bases, must} });
-  if(!d) return false;
-  day.dishes[j]=d; plan.confirmed=false; return true;
-}
+function swapDish(di,j,force){ return swapDishIn(S.draft,di,j,force); }
 
 /* =====================================================================
    7. 調理手順の自動合成
@@ -2686,7 +2856,7 @@ function computeShopping(plan){
 }
 function planSeasonings(plan){
   const set=new Map();
-  plan.days.forEach(d=>d.dishes.forEach(x=>BASE[x.baseId].seasonings.forEach(s=>{
+  plan.days.forEach(d=>d.dishes.forEach(x=>BASE[x.baseId]&&BASE[x.baseId].seasonings.forEach(s=>{
     const n=s.n.replace(/（.*?）/g,''); if(n==='水') return; set.set(n,(set.get(n)||0)+1);
   })));
   return [...set.entries()].sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
@@ -2702,10 +2872,10 @@ function estMinutes(b,d,people){
   const p=d&&d.p?PART[d.p]:null, raw=p&&!p.ready, n=people||S.people, all=d?dishParts(d).map(id=>PART[id]):[];
   const heat=all.some(x=>!x.ready&&!(b.rawOk||[]).includes(x.id)), thick=/あん|煮|チヂミ/.test(b.name);
   switch(b.method){
-    case 'フライパン': return 6+(raw?3:0)+(thick?2:0)+(n>2?1:0)+(n>=5?4:0);
+    case 'フライパン': return 6+(raw?3:0)+(thick?2:0)+(n>2?1:0)+(n>=5?4:0)+(p&&p.extraMin||0);
     case '和えるだけ': return 3+(heat?3:0)+(n>2?1:0);
     case 'レンジ': return (b.mwBase||2)+(raw?(b.mwRaw||0):0)+Math.min(n-1,4)+4;
-    case '鍋': return 7+(raw?3:0)+(n>2?1:0);
+    case '鍋': return 7+(raw?3:0)+(n>2?1:0)+(p&&p.extraMin||0);
     case 'レンジ＋トースター': return (b.mwBase||2)+(raw?(b.mwRaw||0):0)+Math.min(n-1,4)+9+(n>=5?5:0);
     case 'オーブン': return 20+(n>2?3:0);
     case '魚焼きグリル': return 12+(n>2?1:0)+(n>=5?7:0);
@@ -2716,6 +2886,8 @@ function estMinutes(b,d,people){
 }
 const mLabel = (b,d)=>{ const m=d?estMinutes(b,d):null; return `<span class="mth">${METHOD_ICON[b.method]||''} ${b.method}・${m?`約${m}分`:b.time}</span>${b.gochiso?'<span class="tagx gochi">🍷 ごちそう</span>':''}`; };
 function formulaHTML(d,showStock){
+  if(d.rid){ const sm=stockMap(), ps=dishParts(d);
+    return `<div class="formula">${ps.map(id=>{ const p=PART[id], c=sm[id]||0; return `<span class="fp ${showStock&&c<=0?'miss':''}">${p.emoji}${esc(p.short)}${showStock?`<span class="s">${c>0?'在庫'+c:'要購入'}</span>`:''}</span>`; }).join('<span class="fx">＋</span>')}${ps.length?'<span class="fx">＋</span>':''}<span class="fp base">📗 定番レシピ</span></div>`; }
   const b=BASE[d.baseId], sm=stockMap();
   const chip=id=>{ const p=PART[id], c=sm[id]||0; const miss=showStock&&c<=0;
     return `<span class="fp ${miss?'miss':''}">${p.emoji}${esc(p.short)}${showStock?`<span class="s">${c>0?'在庫'+c:'要購入'}</span>`:''}</span>`; };
@@ -2806,8 +2978,7 @@ function renderAddSheet(){
     <div class="search" style="margin:8px 0 4px"><span aria-hidden="true">🔍</span><input id="add_q" type="search" class="inp" placeholder="食材名で探す（例：ぶた、ねぎ）" autocomplete="off"></div>
     <p class="hint mt0">パーツをタップするたびに今日の日付で在庫に追加されます。間違えたら下に出る「取り消す」で戻せます。</p>
     ${freq.length?`<div class="grp-h">⏱ よく登録するパーツ</div><div class="pgrid">${freq.map(id=>btn(PART[id])).join('')}</div>`:''}
-    <div class="grp-h">🍖 タンパク質パーツ</div><div class="pgrid">${grid('protein')}</div>
-    <div class="grp-h">🥕 野菜・きのこパーツ</div><div class="pgrid">${grid('veg')}</div>
+    ${['protein','veg'].map(cat=>`<div class="grp-h" style="color:var(--green)">${cat==='protein'?'🍖 タンパク質パーツ':'🥕 野菜・きのこパーツ'}</div>`+partGroups(cat).map(g=>`<div class="grp-h">${g.label}</div><div class="pgrid">${g.ids.map(id=>btn(PART[id])).join('')}</div>`).join('')).join('')}
   </div></div>`;
 }
 
@@ -2857,7 +3028,7 @@ function todayCardHTML(){
   </div>`;
 }
 function renderModeA(){
-  const tc=todayCardHTML();
+  const tc=todayCardHTML()+`<button class="btn outline" style="margin-bottom:14px" data-act="wantSheet">🍽 食べたいものから献立を組む</button>`;
   const pool=stockPool();
   if(!pool.protein.length&&!pool.veg.length){
     return tc+`<div class="card empty"><div class="big">🥡</div><b>ストックが空っぽです</b><p>タブ1で下処理パーツを登録すると、<br>手持ちだけで作れるアレンジ料理を自動合成します。</p>
@@ -2880,7 +3051,8 @@ function renderModeB(){
   const SL={mon:'次の月曜',today:'今日',tmr:'明日'}, ML={quick:'時短',sun:'日曜はごちそう',both:'土日はごちそう'};
   const sLabel=S.planStart==='mon'?(planStartDate()===todayStr()?'今日（月曜）':`${fmtMD(planStartDate())}（月）`):SL[S.planStart];
   let html=`<div class="btn-col mt0"><button class="btn primary" data-act="genWeek">📅 ${esc(sLabel)}から1週間分の献立を作成</button>
-    <button class="btn outline" data-act="genNext">🔄 前回と違うバリエーションで次の1週間を作成</button></div>
+    <button class="btn outline" data-act="genNext">🔄 前回と違うバリエーションで次の1週間を作成</button>
+    <button class="btn ghost sm" data-act="wantSheet">🍽 食べたいものから献立を組む</button></div>
     <button class="wk-optbtn" data-act="wkOpt">⚙ ${SL[S.planStart]}から・${DISH_SETS[S.dishSet||'auto'].label}・休日は${ML[S.weekendMode||'quick']} <span style="float:right">${WK_OPT?'▴':'▾'}</span></button>
     ${WK_OPT?`<div class="wk-opt">
       <div class="wk-mode"><span>はじまり</span><div class="seg">${[['mon','月曜から'],['today','今日から'],['tmr','明日から']].map(([k,l])=>`<button class="${S.planStart===k?'on':''}" data-act="planStart" data-v="${k}">${l}</button>`).join('')}</div></div>
@@ -2911,7 +3083,7 @@ function renderModeB(){
     return lack.length?`<div class="status chg" style="flex-wrap:wrap">⚠ これからの献立に対してストックが足りません（${lack.slice(0,4).map(x=>`${PART[x.id].short} −${x.lack}食分`).join('、')}${lack.length>4?' ほか':''}）<button class="btn primary sm" style="margin-top:6px" data-act="replan" data-id="${p.id}">🔄 今のストックで${p.days[0].date<=t?'今日以降を':''}組み直す</button></div>`
       :`<button class="btn ghost sm" style="margin:-4px 0 10px" data-act="replan" data-id="${p.id}">🔄 今のストックで${p.days[0].date<=t?'今日以降を':''}組み直す（最近食べた料理とかぶらないように）</button>`; })()}
   ${p.confirmed?`<div class="status">✓ この献立は確定済みです（買い物＆仕込みリストに反映中）</div>`:(S.history.some(h=>h.id===p.id)?`<div class="status chg">✎ 確定後に変更があります。再確定するとリストが更新されます</div>`:'')}
-  ${(()=>{ const ng=p.days.reduce((a,d)=>a+d.dishes.filter(x=>!baseUsable(BASE[x.baseId])).length,0);
+  ${(()=>{ const ng=p.days.reduce((a,d)=>a+d.dishes.filter(x=>!dishOK(x)).length,0);
     return ng?`<div class="status chg" style="flex-wrap:wrap">⚠ 今の設定では提案しない料理（ジャンル・調理器具がOFF、定番レシピに統合）が${ng}品あります<button class="btn primary sm" style="margin-top:6px" data-act="fixEquip">今の設定に合う料理に差し替える</button></div>`:''; })()}`;
   const tdy=todayStr();
   html+=p.days.map((d,di)=>{
@@ -2921,11 +3093,11 @@ function renderModeB(){
     return `<div class="day ${isT?'today':''} ${past?'past':''}"><div class="day-h"><span class="dot gb-${m?GCLS[m.genre]:'wa'}"></span>${fmtDate(d.date)}${isT?'<span class="tbadge">今日</span>':''}<span style="flex:1"></span><span style="font-size:11.5px;font-weight:700;color:var(--sub)">${todo?`主菜＋${d.dishes.length-1}品`:'✓ 作った'}</span></div>
       ${isT&&todo?`<div class="d-act" style="padding:10px 14px 0"><button class="swap" data-act="cookDay" data-id="${p.id}" data-di="${di}">✓ 作った</button><button class="swap" data-act="shiftDay" data-id="${p.id}" data-di="${di}">⏭ 明日にずらす</button></div>`:''}
       <div class="day-b">${d.dishes.map((x,j)=>{
-        const b=BASE[x.baseId], ref=`W:${di}:${j}`, fav=favKeySet().has(x.key);
-        if(j===0) return `<div class="day-main"><div class="d-top">${gBadge(x.genre)}<span class="typ">主菜</span>${mLabel(b,x)}${baseUsable(b)?'':offTag(b)}${x.done?'<span class="ok-mark">✓ 作った</span>':''}<span class="sp"></span><button class="star ${fav?'on':''}" data-act="fav" data-ref="${ref}">${fav?'★':'☆'}</button></div>
+        const ref=`W:${di}:${j}`, fav=dishFav(x), wantTag=x.want?'<span class="tagx" style="background:var(--orange-l)">🍽 食べたい</span>':'';
+        if(j===0) return `<div class="day-main"><div class="d-top">${gBadge(x.genre)}<span class="typ">${x.type}</span>${dishLabel(x)}${wantTag}${dishOK(x)?'':dishOffTag(x)}${x.done?'<span class="ok-mark">✓ 作った</span>':''}<span class="sp"></span><button class="star ${fav?'on':''}" data-act="fav" data-ref="${ref}">${fav?'★':'☆'}</button></div>
           <button class="d-name" data-act="open" data-ref="${ref}">${esc(dishName(x))}</button>${formulaHTML(x,true)}
-          ${x.done||past?'':`<div class="d-act"><button class="swap" data-act="swap" data-d="${di}" data-j="${j}">↻ 別アレンジに変更</button>${BASES.some(z=>z.gochiso)?(b.gochiso?`<button class="swap" data-act="swapMode" data-d="${di}" data-m="quick">⚡ 時短に</button>`:`<button class="swap" data-act="swapMode" data-d="${di}" data-m="gochiso">🍷 ごちそうに</button>`):''}</div>`}</div>`;
-        return `<div class="sub-dish"><button class="sdn" data-act="open" data-ref="${ref}"><div class="d-top">${gBadge(x.genre)}<span class="typ">${x.type}</span>${mLabel(b,x)}${baseUsable(b)?'':offTag(b)}${fav?'<span style="color:#E8A317">★</span>':''}</div><b>${esc(dishName(x))}</b>${x.done?'<span class="ok-mark">✓ 作った</span>':''}</button>
+          ${x.done||past?'':`<div class="d-act"><button class="swap" data-act="swap" data-d="${di}" data-j="${j}">↻ 別アレンジに変更</button>${BASES.some(z=>z.gochiso)?(isGochisoDish(x)?`<button class="swap" data-act="swapMode" data-d="${di}" data-m="quick">⚡ 時短に</button>`:`<button class="swap" data-act="swapMode" data-d="${di}" data-m="gochiso">🍷 ごちそうに</button>`):''}</div>`}</div>`;
+        return `<div class="sub-dish"><button class="sdn" data-act="open" data-ref="${ref}"><div class="d-top">${gBadge(x.genre)}<span class="typ">${x.type}</span>${dishLabel(x)}${wantTag}${dishOK(x)?'':dishOffTag(x)}${fav?'<span style="color:#E8A317">★</span>':''}</div><b>${esc(dishName(x))}</b>${x.done?'<span class="ok-mark">✓ 作った</span>':''}</button>
           ${x.done||past?'':`<button class="swap" data-act="swap" data-d="${di}" data-j="${j}">↻ 変更</button><button class="rmx" data-act="rmDish" data-d="${di}" data-j="${j}" aria-label="この品を外す">×</button>`}</div>`;
       }).join('')}${past||!todo?'':ADD_OPEN===di?`<div class="day-add"><span>追加する料理：</span><button class="swap" data-act="addDish" data-d="${di}" data-t="副菜">🥗 副菜</button>${d.dishes.some(x=>x.type==='汁物')?'':`<button class="swap" data-act="addDish" data-d="${di}" data-t="汁物">🍲 汁物</button>`}<button class="addbtn" style="color:var(--muted)" data-act="addOpen" data-d="-1">やめる</button></div>`
         :d.dishes.length<5?`<div class="day-add"><button class="addbtn" data-act="addOpen" data-d="${di}">＋ 1品追加</button></div>`:''}</div></div>`;
@@ -2963,7 +3135,8 @@ function renderFav(){
   } else if(S.dictMode==='part'){
     const sel=PART[S.dictSel]?S.dictSel:null;
     const grid=cat=>`<div class="pgrid">${PARTS.filter(p=>p.category===cat).map(p=>`<button class="pbtn ${sel===p.id?'on':''}" data-act="dictSel" data-id="${p.id}"><span class="e">${p.emoji}</span><span class="n">${esc(p.short)}</span></button>`).join('')}</div>`;
-    html+=`<div class="grp-h mt0">🍖 タンパク質</div>${grid('protein')}<div class="grp-h">🥕 野菜・きのこ</div>${grid('veg')}`;
+    const gridG=cat=>partGroups(cat).map(g=>`<div class="grp-h">${g.label}</div><div class="pgrid">${g.ids.map(id=>{ const p=PART[id]; return `<button class="pbtn ${sel===p.id?'on':''}" data-act="dictSel" data-id="${p.id}"><span class="e">${p.emoji}</span><span class="n">${esc(p.short)}</span></button>`; }).join('')}</div>`).join('');
+    html+=gridG('protein')+gridG('veg');
     if(sel) html+=dictByPart(sel); else html+=`<p class="hint">パーツを選ぶと、そのパーツを使ったアレンジを全味付け分表示します。</p>`;
   } else {
     const sel=BASES.some(b=>b.id===S.dictSel)?S.dictSel:null;
@@ -3029,6 +3202,10 @@ function renderShop(){
       :`<div class="empty"><b>🎉 買い足しは不要です</b><p>今のストックだけで1週間まわせます。</p></div>`}
     ${sh.covered.length?`<div class="covered">📦 ストックで足りているもの：${sh.covered.map(c=>`${PART[c.id].emoji}${esc(PART[c.id].short)}（${c.need}食分）`).join('、')}</div>`:''}
   </div>`;
+  // 献立に入れた定番レシピ（ストック以外の材料も確認できるように）
+  { const rds=[]; plan.days.forEach(d=>d.dishes.forEach(x=>{ if(x.rid&&RECIPE[x.rid]&&!rds.some(y=>y.rid===x.rid)) rds.push({rid:x.rid,date:d.date}); }));
+    if(rds.length) html+=`<div class="card"><div class="step-h"><span class="step-n" style="background:var(--green)">📗</span><h3>定番レシピの材料も確認</h3></div><p class="hint mt0">献立に入れた定番レシピの、ストック以外の材料（肉・野菜・調味料など）はレシピで確認してください。</p>
+      ${rds.map(x=>`<button class="krow" style="font-size:14px;width:100%;text-align:left" data-act="open" data-ref="R:${x.rid}"><span>${esc(RECIPE[x.rid].name)}<small>${fmtDate(x.date)}</small></span><span class="q" style="font-size:13px">材料を見る ›</span></button>`).join('')}</div>`; }
   // 仕込み後の組み直し・予定外の変更で足りなくなったもの
   if(plan.prepDone){ const lack=planShortage(plan);
     if(lack.length) html+=`<div class="card"><div class="step-h"><span class="step-n" style="background:var(--orange)">追加</span><h3>追加で買うもの</h3></div><p class="hint mt0">献立の組み直しや予定外の変更で、これからの献立に足りなくなった分です。</p>
@@ -3069,7 +3246,9 @@ function resolveRef(ref){
 }
 function openModal(ref){
   if(ref.startsWith('R:')){ const r=RECIPE[ref.slice(2)]; if(!r) return; MODAL={kind:'recipe',ref,id:r.id,n:easyAmount(r)?'orig':S.people,checked:new Set(),done:false}; renderModal(); return; }
-  const d=resolveRef(ref); if(!d) return; MODAL={ref,dish:d,checked:new Set()}; renderModal(); }
+  const d=resolveRef(ref); if(!d) return;
+  if(d.rid&&RECIPE[d.rid]){ const r=RECIPE[d.rid]; MODAL={kind:'recipe',ref:'R:'+r.id,id:r.id,n:easyAmount(r)?'orig':S.people,checked:new Set(),done:!!d.done,planRef:ref}; renderModal(); return; }
+  MODAL={ref,dish:d,checked:new Set()}; renderModal(); }
 function renderModal(){
   if(!MODAL){ $('#modal').innerHTML=''; return; }
   if(MODAL.kind==='recipe') return renderRecipeModal();
@@ -3098,6 +3277,7 @@ function renderModal(){
         <button class="btn ${fav?'soft':'primary'}" data-act="fav" data-ref="${esc(MODAL.ref)}">${fav?'★ お気に入り保存済み（タップで解除）':'★ お気に入りに保存'}</button>
         ${(MODAL.ref.startsWith('A:')||(planDayOf(MODAL.ref)&&planDayOf(MODAL.ref).date<=todayStr()))&&!d.done?`<button class="btn green" data-act="cook" data-ref="${esc(MODAL.ref)}">この料理を作ってストックを消費（−${n}食分）</button>`:''}
         ${d.done&&/^[WP]:/.test(MODAL.ref)?`<button class="btn soft" disabled>✓ 作りました（ストック消費済み）</button>`:''}
+        ${/^[WP]:/.test(MODAL.ref)?'':`<button class="btn outline" data-act="wantThis" data-ref="${esc(MODAL.ref)}">🍽 この料理で今日の献立を組む</button>`}
         <button class="btn ghost sm" data-act="myFromDish">📒 プロのレシピをマイレシピに登録</button>
         ${'wakeLock' in navigator?`<button class="wake ${wakeLock?'on':''}" data-act="wake">💡 ${wakeLock?'画面を点灯したまま（ON）':'調理中は画面を消さない'}</button>`:''}
       </div>
@@ -3415,7 +3595,7 @@ function closeModalUI(){ closeModal(); popOv(); }
 /* =====================================================================
    14. PWA（ホーム画面に追加・オフライン・自動アップデート・引き継ぎ）
    ===================================================================== */
-const APP_VERSION = '2026.11.17.2';
+const APP_VERSION = '2026.11.17.3';
 const SW_FILE = 'stock-arrange-meal-sw.js', SW_SCOPE = './stock-arrange-meal';
 const PWA = { deferred:null };
 const isHttp = ()=>/^https?:$/.test(location.protocol);
@@ -3628,15 +3808,21 @@ const YOMI = {
   p_sausage:'ういんなー そーせーじ', p_aburaage:'あぶらあげ おあげ',
   v_renkon:'れんこん', v_ingen:'いんげん さやいんげん', v_asupara:'あすぱら あすぱらがす', v_nira:'にら', v_chingensai:'ちんげんさい',
   v_satoimo:'さといも いも', v_satsuma:'さつまいも いも', v_kyuri:'きゅうり',
+  p_tamago:'たまご なまたまご', p_butahiki:'ぶたひきにく ひきにく ぶたにく', p_tebamoto:'てばもと とりにく けいにく', p_bacon:'べーこん', p_ham:'はむ ろーすはむ',
+  p_seafood:'しーふーどみっくす いか えび あさり', p_buri:'ぶり さかな きりみ', p_chikuwa:'ちくわ ねりもの', p_kanikama:'かにかま かに', p_daizu:'だいず まめ すいに',
+  v_mixveg:'みっくすべじたぶる みっくすべじ れいとうやさい こーん ぐりーんぴーす', v_corn:'こーん とうもろこし', v_edamame:'えだまめ まめ', v_lettuce:'れたす', v_mizuna:'みずな',
+  v_toumyou:'とうみょう', v_nagaimo:'ながいも やまいも いも', v_okra:'おくら', v_zucchini:'ずっきーに', v_minitomato:'みにとまと とまと', v_kabu:'かぶ',
+  v_takenoko:'たけのこ', v_konnyaku:'こんにゃく', v_hijiki:'ひじき かいそう', v_wakame:'わかめ かいそう', v_wamix:'わふうやさいみっくす ちくぜんに れいとうやさい',
+  v_cutmix:'かっとやさい やさいいため きゃべつ もやし',
 };
 const SKANA = { freeze:'れいとう', fridge:'れいぞう', pantry:'じょうび' };
 const kana = s=>String(s||'').toLowerCase().replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60)).replace(/\s+/g,'');
 const partKey = id=>{ const p=PART[id]; return kana(`${p.name} ${p.short} ${YOMI[id]||''} ${p.category==='protein'?'たんぱくしつ':'やさい'} ${STORAGE[p.storageType].label}`); };
 function applySearch(inputSel,itemSel,groupSel,emptySel){
   const inp=$(inputSel); if(!inp) return;
-  const q=kana(inp.value);
+  const q=kana(inp.value), q2=kana(recipeYomi(inp.value));   // 「しょうが焼き」のような漢字かな混じりも読みで探す
   let shown=0;
-  document.querySelectorAll(itemSel).forEach(el=>{ const ok=!q||(el.dataset.k||'').includes(q); el.style.display=ok?'':'none'; if(ok) shown++; });
+  document.querySelectorAll(itemSel).forEach(el=>{ const k=el.dataset.k||''; const ok=!q||k.includes(q)||k.includes(q2); el.style.display=ok?'':'none'; if(ok) shown++; });
   if(groupSel) document.querySelectorAll(groupSel).forEach(g=>{ const any=[...g.querySelectorAll(itemSel)].some(el=>el.style.display!=='none'); g.style.display=any?'':'none'; const h=g.previousElementSibling; if(h&&h.classList.contains('grp-h')) h.style.display=any?'':'none'; });
   if(emptySel){ const e=$(emptySel); if(e) e.style.display=shown?'none':''; }
 }
@@ -3646,6 +3832,7 @@ document.addEventListener('input',e=>{
   if(t.id==='stock_q'){ STOCK_Q=t.value; applySearch('#stock_q','#main .srow','#main .list','#stock_empty'); }
   if(t.id==='add_q'){ applySearch('#add_q','#sheet .pbtn[data-act=addPart]','#sheet .pgrid',null); }
   if(t.id==='fav_q'){ FAV_Q=t.value; applySearch('#fav_q','#main .fav-row:not(.bk-row), #main .list:not(.bk-list) > .bk-row',null,'#fav_empty'); }
+  if(t.id==='want_q'){ WANT_Q=t.value.trim(); const el=$('#want_res'); if(el) el.innerHTML=wantResultsHTML(WANT_Q); }
   if(t.id==='book_q'){ BOOK_Q=t.value; applySearch('#book_q','#main .bk-list .bk-row','#main .bk-list','#book_empty'); }
 });
 
@@ -3665,18 +3852,28 @@ function planText(p){
 // 料理・食材を固定の番号表で数字英字に置き換え、1品＝5文字に圧縮する。
 // ※番号表は互換性のため並びを変えない。新しい味付け・食材は必ず末尾に追加すること。
 const SHARE_BASES = ["w_teriyaki", "w_negishio", "w_shoga", "w_misomayo", "w_dashiankake", "w_oroshiponzu", "w_nimono", "w_kinpira", "w_gomaae", "w_nibitashi", "w_misoshiru", "y_garibata", "y_tomatogarlic", "y_tonyu", "y_curry", "y_cheeseyaki", "y_lemonbutter", "y_mustardmayo", "y_marine", "y_consomme", "c_oyster", "c_toban", "c_umashioan", "c_mabo", "c_amazu", "c_banbanji", "c_gomatonyu", "c_chukasoup", "k_yangnyeom", "k_bulgogi", "k_chijimi", "k_jjim", "k_namul", "k_chorogi", "k_sundubu", "t_gapao", "t_sweetchili", "t_coconut", "t_kaomangai", "t_yam", "t_tomyum", "x_shiokoji_yaki", "x_shiokoji_soup", "x_shoyukoji_itame", "x_shoyukoji_ae", "x_yuzu_ponzu", "x_yuzu_mayo", "x_saikyo", "x_shiromiso_soup", "x_hoikoro", "x_jajan", "x_kurozu", "x_balsamico", "x_balsamico_marine", "x_shiokonbu_ae", "x_dashida_soup", "e_yuan", "e_spicegrill", "e_panko", "e_gochumayo", "e_seiro_goma", "e_seiro_chuka", "e_af_karaage", "e_af_curry", "e_auto_tomato", "e_auto_wa", "g_nikujaga", "g_buta_daikon", "g_aquapazza", "g_confit", "g_ebichili", "g_mapo", "g_stew", "g_samgye", "g_roast"];
-const SHARE_PARTS = ["p_mushidori", "p_butakoma", "p_momo", "p_hikiniku", "p_sake", "p_shiromi", "p_tofu", "p_egg", "p_tuna", "p_saba", "p_butabara", "p_sasami", "p_atsuage", "p_ebi", "v_ninjin", "v_cabbage", "v_tamanegi", "v_broccoli", "v_kinoko", "v_horenso", "v_komatsuna", "v_nasu", "v_jagaimo", "v_piman", "v_moyashi", "v_negi", "v_kabocha", "v_hakusai", "v_tomato", "v_daikon", "v_paprika", "v_gobo", "p_mune", "p_gyukoma", "p_torihiki", "p_sausage", "p_aburaage", "v_renkon", "v_ingen", "v_asupara", "v_nira", "v_chingensai", "v_satoimo", "v_satsuma", "v_kyuri"];
+const SHARE_PARTS = ["p_mushidori", "p_butakoma", "p_momo", "p_hikiniku", "p_sake", "p_shiromi", "p_tofu", "p_egg", "p_tuna", "p_saba", "p_butabara", "p_sasami", "p_atsuage", "p_ebi", "v_ninjin", "v_cabbage", "v_tamanegi", "v_broccoli", "v_kinoko", "v_horenso", "v_komatsuna", "v_nasu", "v_jagaimo", "v_piman", "v_moyashi", "v_negi", "v_kabocha", "v_hakusai", "v_tomato", "v_daikon", "v_paprika", "v_gobo", "p_mune", "p_gyukoma", "p_torihiki", "p_sausage", "p_aburaage", "v_renkon", "v_ingen", "v_asupara", "v_nira", "v_chingensai", "v_satoimo", "v_satsuma", "v_kyuri", "p_tamago", "p_butahiki", "p_tebamoto", "p_bacon", "p_ham", "p_seafood", "p_buri", "p_chikuwa", "p_kanikama", "p_daizu", "v_mixveg", "v_corn", "v_edamame", "v_lettuce", "v_mizuna", "v_toumyou", "v_nagaimo", "v_okra", "v_zucchini", "v_minitomato", "v_kabu", "v_takenoko", "v_konnyaku", "v_hijiki", "v_wakame", "v_wamix", "v_cutmix"];
 const APP_URL = 'https://pierrotmask.github.io/unique-tool/stock-arrange-meal.html';
 const B62 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 const e62 = (n,w)=>{ let r=''; for(let i=0;i<w;i++){ r=B62[n%62]+r; n=Math.floor(n/62); } return r; };
 const d62 = str=>[...str].reduce((a,c)=>{ const v=B62.indexOf(c); if(v<0) throw new Error('char'); return a*62+v; },0);
 const SHARE_EPOCH = '2024-01-01';
+// 共有コード：A形式（食材1文字）／B形式（食材2文字・食材が増えたとき）。定番レシピは味付け番号3000＋レシピ番号で表す
+const RID_BASE = 3000;
+const ridNum = rid=>parseInt(String(rid).slice(1),10);
 function planToShort(p){
-  let out='A'+String(p.people)+e62(Math.round((parseYmd(p.weekStart)-parseYmd(SHARE_EPOCH))/864e5),3), skipped=0;
-  p.days.forEach(day=>{
-    const ds=day.dishes.filter(x=>{ const ok=SHARE_BASES.includes(x.baseId)&&(!x.p||SHARE_PARTS.includes(x.p))&&x.v.every(v=>SHARE_PARTS.includes(v)); if(!ok) skipped++; return ok; });
+  let skipped=0;
+  const items=p.days.map(day=>day.dishes.filter(x=>{
+    if(x.rid) return !!RECIPE[x.rid];
+    const ok=SHARE_BASES.includes(x.baseId)&&(!x.p||SHARE_PARTS.includes(x.p))&&x.v.every(v=>SHARE_PARTS.includes(v)); if(!ok) skipped++; return ok; }));
+  const pidx=id=>id?SHARE_PARTS.indexOf(id)+1:0;
+  const wide=items.some(ds=>ds.some(x=>!x.rid&&[x.p,...x.v].some(id=>pidx(id)>=62)));
+  const pw=wide?2:1;
+  let out=(wide?'B':'A')+String(p.people)+e62(Math.round((parseYmd(p.weekStart)-parseYmd(SHARE_EPOCH))/864e5),3);
+  items.forEach(ds=>{
     out+=B62[ds.length];
-    ds.forEach(x=>{ out+=e62(SHARE_BASES.indexOf(x.baseId),2)+B62[x.p?SHARE_PARTS.indexOf(x.p)+1:0]+B62[SHARE_PARTS.indexOf(x.v[0])+1]+B62[x.v[1]?SHARE_PARTS.indexOf(x.v[1])+1:0]; });
+    ds.forEach(x=>{ if(x.rid){ out+=e62(RID_BASE+ridNum(x.rid),2)+'0'.repeat(pw*3); return; }
+      out+=e62(SHARE_BASES.indexOf(x.baseId),2)+e62(pidx(x.p),pw)+e62(pidx(x.v[0]),pw)+e62(pidx(x.v[1]),pw); });
   });
   return { code:out, skipped };
 }
@@ -3684,14 +3881,17 @@ const shareBaseUrl = ()=>isHttp()?location.origin+location.pathname:APP_URL;
 // ?openExternalBrowser=1 … LINEのアプリ内ブラウザではなく端末の標準ブラウザで開く（Androidではインストール済みアプリで開ける）
 const planLink = p=>{ const r=planToShort(p); return { url:`${shareBaseUrl()}?openExternalBrowser=1#m=${r.code}`, skipped:r.skipped }; };
 function shortToPlan(code){
-  if(code[0]!=='A') throw new Error('ver');
+  if(code[0]!=='A'&&code[0]!=='B') throw new Error('ver');
+  const pw=code[0]==='B'?2:1;
   const people=+code[1]; let i=5;
   const weekStart=addDays(SHARE_EPOCH,d62(code.slice(2,5)));
   const days=[]; let missing=0;
   for(let k=0;k<7;k++){
     const n=d62(code[i++]); const dishes=[];
     for(let m=0;m<n;m++){
-      const bi=d62(code.slice(i,i+2)), pi=d62(code[i+2]), v1=d62(code[i+3]), v2=d62(code[i+4]); i+=5;
+      const bi=d62(code.slice(i,i+2)); i+=2;
+      const pi=d62(code.slice(i,i+pw)), v1=d62(code.slice(i+pw,i+2*pw)), v2=d62(code.slice(i+2*pw,i+3*pw)); i+=3*pw;
+      if(bi>=RID_BASE){ const rid='k'+String(bi-RID_BASE).padStart(2,'0'); if(RECIPE[rid]) dishes.push(makeRecipeDish(rid)); else missing++; continue; }
       const b=BASE[SHARE_BASES[bi]], P=pi?SHARE_PARTS[pi-1]:null, V=[SHARE_PARTS[v1-1]].concat(v2?[SHARE_PARTS[v2-1]]:[]);
       if(!b||(pi&&!PART[P])||!V.every(v=>PART[v])){ missing++; continue; }
       dishes.push(makeDish(b,P,V));
@@ -3704,7 +3904,7 @@ function shortToPlan(code){
 // 貼り付けられた文章からリンク（#m=…）または旧形式コード（KKZP1:…）を探して読み込む
 function parsePlanCode(text){
   text=(text||'').trim();
-  const m=text.match(/[#?&]m=([0-9A-Za-z]+)/)||text.match(/^([A][1-6][0-9A-Za-z]{4,})$/);
+  const m=text.match(/[#?&]m=([0-9A-Za-z]+)/)||text.match(/^([AB][1-6][0-9A-Za-z]{4,})$/);
   if(m) return shortToPlan(m[1]);
   const i=text.indexOf('KKZP1:'); if(i<0) throw new Error('nocode');
   const o=JSON.parse(b64d(text.slice(i+6).split(/\s/)[0]));
@@ -3905,13 +4105,164 @@ function renderRecipeModal(){
         <div class="kyou-btns"><a class="btn outline sm" href="${esc(kyouUrl(kw))}" target="_blank" rel="noopener">「${esc(kw)}」を検索 ↗</a></div></div>
       <div class="kit-foot">
         <button class="btn ${fav?'soft':'primary'}" data-act="rFav" data-id="${r.id}">${fav?'★ お気に入り保存済み（タップで解除）':'★ お気に入りに保存'}</button>
-        ${MODAL.done?`<button class="btn soft" disabled>✓ 作りました（ストック消費済み）</button>`:can?`<button class="btn green" data-act="rCook" data-id="${r.id}">作った！ストックを消費（${r.parts.map(id=>PART[id].short).join('・')} −${k}食分）</button>`:''}
+        ${MODAL.done?`<button class="btn soft" disabled>✓ 作りました${can||r.parts.length?'（ストック消費済み）':''}</button>`:can?`<button class="btn green" data-act="rCook" data-id="${r.id}">作った！ストックを消費（${r.parts.map(id=>PART[id].short).join('・')} −${k}食分）</button>`:MODAL.planRef?`<button class="btn green" data-act="rCook" data-id="${r.id}">✓ 作った（献立に記録）</button>`:''}
+        ${!MODAL.planRef&&['主菜','主食','副菜','汁物'].includes(r.type)?`<button class="btn outline" data-act="wantThis" data-ref="R:${r.id}">🍽 この料理で今日の献立を組む</button>`:''}
         ${'wakeLock' in navigator?`<button class="wake ${wakeLock?'on':''}" data-act="wake">💡 ${wakeLock?'画面を点灯したまま（ON）':'調理中は画面を消さない'}</button>`:''}
       </div>
     </div></div></div>`;
   const kk=$('#modal .kit'); if(kk&&prev) kk.scrollTop=top;
 }
 const offTag = b=>RETIRED[b.id]?'<span class="tagx">定番レシピへ統合</span>':'<span class="tagx">設定でOFF</span>';
+
+// ---------- 献立に入れる定番レシピ（rid付きの料理） ----------
+function makeRecipeDish(rid){
+  const r=RECIPE[rid], pr=r.parts.filter(id=>PART[id]&&PART[id].category==='protein'), vg=r.parts.filter(id=>PART[id]&&PART[id].category==='veg');
+  return { key:'R:'+rid, rid, baseId:null, p:pr[0]||null, extraP:pr.slice(1), v:vg, type:r.type==='主食'?'主菜':r.type, genre:r.genre };
+}
+const isRD = x=>!!(x&&x.rid&&RECIPE[x.rid]);
+const dishLabel = x=>isRD(x)?`<span class="mth">⏱ ${esc(RECIPE[x.rid].time)}</span><span class="tagx book">📗 定番</span>`:mLabel(BASE[x.baseId],x);
+const dishOK = x=>isRD(x)?recipeUsable(RECIPE[x.rid]):baseUsable(BASE[x.baseId]);
+const dishOffTag = x=>isRD(x)?'<span class="tagx">設定でOFF</span>':offTag(BASE[x.baseId]);
+const isGochisoDish = x=>!!(x&&!isRD(x)&&BASE[x.baseId]&&BASE[x.baseId].gochiso);
+const dishFav = x=>isRD(x)?isFavRecipe(x.rid):favKeySet().has(x.key);
+const mainOf = d=>d&&d.dishes.find(x=>x.type==='主菜');
+
+// ---------- 食べたい料理から献立を編成 ----------
+let WANT_Q='', WANT_DAY=0, WANT_CACHE={};
+function planCovering(date){ const c=p=>p&&p.days&&p.days.some(d=>d.date===date); if(c(S.draft)) return S.draft; const a=activePlan(); return c(a)?a:null; }
+// その料理を軸に、1日分（主菜＋設定どおりの副菜・汁物）をそろえる
+function buildDayAround(want,o){
+  const dishes=[want];
+  let types=sideTypes().slice();
+  if(want.type==='副菜'){ const i=types.indexOf('副菜'); if(i>=0) types.splice(i,1); types.unshift('主菜'); }
+  else if(want.type==='汁物'){ types=types.filter(t=>t!=='汁物'); if(!types.includes('副菜')) types.push('副菜'); types.unshift('主菜'); }
+  const sm=stockMap();
+  const partScore=id=>{ let s=(sm[id]||0)>=o.people?1.5:(sm[id]||0)>0?0.6:0; if(dishParts(want).includes(id)) s-=1; return s; };
+  for(const type of types){
+    const bases=new Set([...(o.bases||[]),...dishes.map(x=>x.baseId).filter(Boolean)]), must=new Set([...(o.must||[]),...dishes.map(x=>x.key)]);
+    const d=generateDish({ type, pool:o.core, partScore, avoidVeg:dishes.flatMap(x=>x.v), sideProteinRate:0.25, noGochiso:type!=='主菜'||!gochisoDay(o.date), hard:{ genres:type==='主菜'&&o.genres&&o.genres.size?o.genres:null, bases, must } });
+    if(d) dishes.push(d);
+  }
+  return dishes.sort((a,b)=>(TYPE_ORDER[a.type]??1)-(TYPE_ORDER[b.type]??1));
+}
+function swapDishIn(plan,di,j,force){
+  const day=plan.days[di], cur=day.dishes[j];
+  const prev=plan.days[di-1], next=plan.days[di+1];
+  const genres=new Set(); if(cur.type==='主菜'){ [prev,next].forEach(d=>{ const m=mainOf(d); if(m) genres.add(m.genre); }); }
+  const bases=new Set([cur.baseId]); [prev,next,day].forEach(d=>d&&d.dishes.forEach((x,k)=>{ if(!(d===day&&k===j)) bases.add(x.baseId); }));
+  const must=new Set(); plan.days.forEach(d=>d.dishes.forEach(x=>must.add(x.key)));
+  const sp0=stockPool(), core=plan.core||{protein:[],veg:[]};
+  let pool={ protein:[...new Set([...core.protein,...sp0.protein])], veg:[...new Set([...core.veg,...sp0.veg])] };
+  if(!pool.protein.length||pool.veg.length<3){ const c2=selectCore([...sp0.protein,...sp0.veg],null); pool={ protein:[...new Set([...pool.protein,...c2.protein])], veg:[...new Set([...pool.veg,...c2.veg])] }; }
+  const usage={}; plan.days.forEach(d=>d.dishes.forEach(x=>dishParts(x).forEach(id=>usage[id]=(usage[id]||0)+1)));
+  const sm=stockMap(), near=new Set(); [prev,next].forEach(d=>{ const m=mainOf(d); if(m&&m.p) near.add(m.p); });
+  const partScore=id=>{ let s=(sm[id]||0)>=plan.people?1.5:0; s+=PART[id].category==='veg'?Math.min(usage[id]||0,2)*0.3:0; if(id===cur.p) s-=1.5; if(cur.type==='主菜'&&near.has(id)) s-=2.5; return s; };
+  const others=day.dishes.filter((_,k)=>k!==j).flatMap(x=>x.v);
+  const g=force==='gochiso', q=force==='quick';
+  const d=generateDish({ type:cur.type, pool, partScore, avoidVeg:others, onlyGochiso:g, noGochiso:q||(!g&&!gochisoDay(day.date)), preferGochiso:!q&&gochisoDay(day.date), hard:{genres:genres.size?genres:null, bases, must} });
+  if(!d) return false;
+  day.dishes[j]=d; plan.confirmed=false; return true;
+}
+// 食べたい料理を指定日の献立に入れ、その日と以降の日を整える（献立がなければその日から1週間を作る）
+function planAroundWant(want,date){
+  want=Object.assign({},want,{want:true});
+  let p=planCovering(date), created=false;
+  const addCore=(core)=>{ dishParts(want).forEach(id=>{ const c=PART[id].category==='protein'?core.protein:core.veg; if(!c.includes(id)) c.push(id); }); return core; };
+  if(!p){
+    const sp=stockPool(), core=addCore(selectCore([...sp.protein,...sp.veg],null));
+    const rc=recentEaten(date), near=new Set(); rc.eaten.forEach(e=>{ if(daysBetween(e.date,date)<=2) e.bases.forEach(b=>near.add(b)); });
+    const day0={ date, dishes:buildDayAround(want,{ core, people:S.people, date, bases:near, must:rc.keys }) };
+    const rest=generateDays({ start:addDays(date,1), count:6, people:S.people, core, prevDays:[day0], histKeys:new Set(), histBP:new Set(), lastParts:{}, recent:rc });
+    p={ id:uid(), weekStart:date, people:S.people, core, days:[day0,...rest], createdAt:Date.now(), confirmed:false };
+    S.draft=p; created=true;
+  } else {
+    const di=p.days.findIndex(d=>d.date===date), day=p.days[di], wasConf=p.confirmed;
+    const sp=stockPool(), c0=p.core||{protein:[],veg:[]};
+    const core=addCore({ protein:[...new Set([...c0.protein,...sp.protein])], veg:[...new Set([...c0.veg,...sp.veg])] });
+    const prev=p.days[di-1], next=p.days[di+1];
+    const bases=new Set(), genres=new Set(), must=new Set();
+    [prev,next].forEach(d=>d&&d.dishes.forEach(x=>{ if(x.baseId) bases.add(x.baseId); }));
+    if(want.type!=='主菜') [prev,next].forEach(d=>{ const m=mainOf(d); if(m) genres.add(m.genre); });
+    p.days.forEach((d,k)=>{ if(k!==di) d.dishes.forEach(x=>must.add(x.key)); });
+    day.dishes=buildDayAround(want,{ core, people:p.people, date, bases, genres, must }); day.shifted=false; p.core=core;
+    // 以降の日：前日と主菜のジャンル・たんぱく質・味付けが続く日、同じ料理が出てくる日を差し替える
+    for(let k=di+1;k<p.days.length;k++){
+      const d=p.days[k]; if(!d.dishes.length||d.dishes.some(x=>x.done)) continue;
+      const pm=mainOf(p.days[k-1]), m=mainOf(d), mj=d.dishes.indexOf(m);
+      if(m && pm && (m.genre===pm.genre || (m.p&&m.p===pm.p) || (m.baseId&&m.baseId===pm.baseId))) swapDishIn(p,k,mj);
+      d.dishes.forEach((x,j)=>{ if(x.key===want.key || (want.baseId&&x.baseId===want.baseId) || (want.rid&&x.rid===want.rid)) swapDishIn(p,k,j); });
+    }
+    // 前日（まだ作っていなければ）とも続かないように
+    if(prev && prev.date>=todayStr() && !prev.dishes.some(x=>x.done)){ const pm=mainOf(prev), m=mainOf(day); if(pm&&m&&!pm.want&&(pm.genre===m.genre||(pm.p&&pm.p===m.p))) swapDishIn(p,di-1,prev.dishes.indexOf(pm)); }
+    p.confirmed=wasConf; syncPlan(p);
+  }
+  return { plan:p, created };
+}
+// 検索・おすすめの候補（定番レシピ＋アレンジ）
+function comboFor(b,fixed){
+  const sm=stockMap(), sp=stockPool(), all={ protein:PARTS.filter(x=>x.category==='protein').map(x=>x.id), veg:PARTS.filter(x=>x.category==='veg').map(x=>x.id) };
+  for(const pool of [sp,{ protein:[...new Set([...sp.protein,...all.protein])], veg:[...new Set([...sp.veg,...all.veg])] }]){
+    const fp=fixed&&PART[fixed].category==='protein', fv=fixed&&PART[fixed].category==='veg';
+    const pl={ protein: fp?[fixed]:pool.protein, veg: fv?[fixed,...pool.veg.filter(x=>x!==fixed)]:pool.veg };
+    for(let t=0;t<8;t++){ const d=randomCombo(b,{ pool:pl, partScore:id=>(sm[id]||0)>0?2:0, sideProteinRate:0.4 }); if(d&&(!fixed||dishParts(d).includes(fixed))) return d; }
+  }
+  return null;
+}
+function wantCandidates(q){
+  if(WANT_CACHE[q]) return WANT_CACHE[q];
+  const qk=kana(q), qy=kana(recipeYomi(q)), out=[], seen=new Set(), push=(ref,d)=>{ if(!d||seen.has(d.key)) return; seen.add(d.key); out.push({ref,d}); };
+  const can=r=>recipeCookable(r)&&recipeEqOK(r), hit=k=>k.includes(qk)||k.includes(qy);
+  // 名前で探したときは、OFFのジャンルの定番レシピも出す（はっきり食べたいものなので）
+  const rs=RECIPES.filter(r=>['主菜','主食','副菜','汁物'].includes(r.type)&&(qk?hit(recipeKey(r)):genreOn(r.genre)))
+    .sort((a,b)=>(can(b)-can(a))||((['主菜','主食'].includes(b.type))-(['主菜','主食'].includes(a.type))));
+  const arr=[];
+  if(qk){
+    const mb=BASES.filter(b=>hit(kana(b.name+' '+b.suffix+' '+b.genre+' '+b.dishType+' '+recipeYomi(b.name)))).slice(0,6);
+    mb.forEach(b=>{ for(let t=0;t<(mb.length<3?3:1);t++){ const d=comboFor(b,null); if(d) arr.push(d); } });
+    PARTS.filter(p=>hit(partKey(p.id))||hit(kana(p.short))).slice(0,2).forEach(p=>{
+      shuffle(BASES.filter(b=>compat(b,p,p.category)&&(p.category==='veg'||b.dishType==='主菜'))).slice(0,4).forEach(b=>{ const d=comboFor(b,p.id); if(d) arr.push(d); }); });
+  } else {
+    const pool=stockPool(); const used=new Set();
+    for(let i=0;i<6&&pool.protein.length;i++){ const d=generateDish({ type:'主菜', pool, partScore:id=>(stockCount(id)>=S.people?1.5:0.3), hard:{ bases:used } }); if(!d) break; used.add(d.baseId); arr.push(d); }
+  }
+  rs.slice(0,qk?10:5).forEach(r=>push('R:'+r.id,makeRecipeDish(r.id)));
+  arr.slice(0,8).forEach(d=>push(`X:${d.baseId}:${d.p||'-'}:${d.v.join('+')}`,d));
+  // 並び：ストックだけで作れるもの→主菜→その他
+  const cookable=d=>dishParts(d).length>0&&dishParts(d).every(id=>stockCount(id)>0);
+  out.sort((a,b)=>(cookable(b.d)-cookable(a.d))||((b.d.type==='主菜')-(a.d.type==='主菜')));
+  return (WANT_CACHE[q]=out);
+}
+function wantResultsHTML(q){
+  const list=wantCandidates(q);
+  if(!list.length) return `<div class="card empty" style="margin-top:8px"><p>見つかりませんでした。料理名（からあげ・カレー など）や食材名（鶏むね・なす など）で探せます。</p></div>`;
+  return `${q?'':`<div class="grp-h mt0">${stockPool().protein.length?'📦 今のストックで作れる料理と定番から':'📗 定番から'}</div>`}<div class="list">${list.map(({ref,d})=>{
+    const ps=dishParts(d), ok=ps.length&&ps.every(id=>stockCount(id)>0);
+    return `<button class="fav-row want-row" data-act="wantPick" data-ref="${esc(ref)}" style="width:100%;text-align:left"><span class="fx2"><span class="d-top">${gBadge(d.genre)}<span class="typ">${d.type}</span>${isRD(d)?'<span class="tagx book">📗 定番</span>':'<span class="tagx" style="background:var(--line2);color:var(--sub)">アレンジ</span>'}${isRD(d)&&!genreOn(d.genre)?'<span class="tagx">ジャンルOFF</span>':''}${ok?'<span class="pill fr-ok">✓ ストックで作れる</span>':''}</span><b>${esc(dishName(d))}</b></span><span style="color:var(--green);font-weight:800;font-size:13px;flex:none">これにする ›</span></button>`; }).join('')}</div>
+    ${q?'':'<button class="btn ghost sm" style="margin-top:6px" data-act="wantMore">🔀 ほかの候補を見る</button>'}`;
+}
+function renderWantSheet(){
+  sheetShell('🍽 食べたいものから献立',`
+    <div class="wk-mode mt0" style="margin:0 0 8px"><span>いつ食べる？</span><div class="seg">${[['0','今日'],['1','明日']].map(([k,l])=>`<button class="${String(WANT_DAY)===k?'on':''}" data-act="wantDay" data-v="${k}">${l}（${fmtMD(addDays(todayStr(),+k))}）</button>`).join('')}</div></div>
+    <div class="search"><span aria-hidden="true">🔍</span><input id="want_q" type="search" class="inp" placeholder="料理名・食材で探す（例：からあげ、カレー、鶏むね）" value="${esc(WANT_Q)}" autocomplete="off"></div>
+    <div id="want_res" style="margin-top:10px">${wantResultsHTML(WANT_Q)}</div>
+    <p class="hint">選んだ料理に合わせて、その日の副菜・汁物（「⚙ 1日の品数」の設定どおり）を組み、前後の日と主菜のジャンル・食材がかぶらないように献立を整えます。献立がない場合は、その日から1週間分を作ります。</p>`);
+}
+function wantApply(ref,dayOffset){
+  const want=ref.startsWith('R:')?(RECIPE[ref.slice(2)]&&makeRecipeDish(ref.slice(2))):resolveRef(ref);
+  if(!want) return;
+  const w=JSON.parse(JSON.stringify(want)); delete w.done;
+  const date=addDays(todayStr(),dayOffset);
+  const pl=planCovering(date), day=pl&&pl.days.find(d=>d.date===date);
+  if(day&&day.dishes.some(x=>x.done)){ toast(`${dayOffset?'明日':'今日'}はもう作った料理があります。${dayOffset?'':'「明日」を選んでください'}`); return; }
+  if(!pl&&S.draft&&!S.history.some(h=>h.id===S.draft.id)&&S.draft.days[S.draft.days.length-1].date>=todayStr()
+    &&!confirm(`作成中（未確定）の献立（${fmtMD(S.draft.weekStart)}〜）を置き換えて、${fmtMD(date)}から新しい1週間の献立を作ります。よろしいですか？`)) return;
+  const before=JSON.stringify({draft:S.draft,history:S.history,active:S.activePlanId});
+  const r=planAroundWant(w,date);
+  $('#sheet').innerHTML=''; if(MODAL) closeModal(); popOv();
+  S.tab='plan'; S.mode=dayOffset===0&&curPlan()?'A':'B'; ADD_OPEN=-1; render(); window.scrollTo(0,0);
+  toast(r.created?`🍽「${dishName(w)}」を${dayOffset?'明日':'今日'}にして、1週間の献立を作りました`:`🍽「${dishName(w)}」に合わせて${dayOffset?'明日':'今日'}の献立を組み直しました`,
+    ()=>{ const o=JSON.parse(before); S.draft=o.draft; S.history=o.history; S.activePlanId=o.active; render(); });
+}
 
 // ---------- マイレシピ ----------
 const safeUrl = u=>{ u=String(u||'').trim(); return /^https?:\/\/[^\s]+$/i.test(u)?u:''; };
@@ -3935,8 +4286,7 @@ function renderMyForm(id,preset){
     <label class="fl">レシピのURL（任意）<small>きょうの料理などのレシピページのURL。開くボタンからすぐ見られます。</small>
       <div class="search-row"><input id="my_url" class="inp" type="url" inputmode="url" placeholder="https://www.kyounoryouri.jp/recipe/…" value="${esc(r.url)}">${navigator.clipboard&&navigator.clipboard.readText?'<button class="btn soft sm" style="width:auto;flex:none" data-act="myPasteUrl">貼り付け</button>':''}</div></label>
     <div class="fl">使うストック食材<small>選んだ食材がすべて在庫にあると、「今日のアレンジ」に提案されます。</small></div>
-    <div class="grp-h mt0">🍖 タンパク質</div><div class="pgrid" id="my_parts_p">${grid('protein')}</div>
-    <div class="grp-h">🥕 野菜・きのこ</div><div class="pgrid" id="my_parts_v">${grid('veg')}</div>
+    ${['protein','veg'].map(cat=>partGroups(cat).map(g=>`<div class="grp-h">${g.label}</div><div class="pgrid">${g.ids.map(id=>{ const p=PART[id]; return `<button class="pbtn ${r.parts.includes(p.id)?'on':''}" data-act="myPart" data-id="${p.id}"><span class="e">${p.emoji}</span><span class="n">${esc(p.short)}</span></button>`; }).join('')}</div>`).join('')).join('')}
     <label class="fl">メモ（任意）<textarea id="my_memo" class="inp" rows="2" maxlength="200" placeholder="例：みりんは少なめが好み">${esc(r.memo)}</textarea></label>
     <div class="btn-col"><button class="btn primary" data-act="mySave" data-id="${r.id}">保存する</button>
       ${r.id?`<button class="btn ghost sm" style="color:var(--over)" data-act="myDel" data-id="${r.id}">このマイレシピを削除</button>`:''}</div>
@@ -4012,7 +4362,7 @@ const ACTIONS={
     const e=EQUIPMENT.find(x=>x.id===ds.id);
     if(!BASES.some(b=>b.dishType==='主菜')) toast('⚠ 主菜を作れる器具がありません。フライパンなどをONにしてください');
     else toast(hasEq(ds.id)?`${e.emoji} ${e.name}をONにしました${e.bases.length?`（専用の料理${e.bases.length}種が追加）`:''}`:`${e.name}を使う料理を提案から外しました`);
-    if(!hasEq(ds.id) && S.draft && S.draft.days.some(d=>d.dishes.some(x=>!baseUsable(BASE[x.baseId])))) setTimeout(()=>toast('作成済みの1週間献立に、この器具を使う料理があります。献立画面から差し替えできます'),2300);
+    if(!hasEq(ds.id) && S.draft && S.draft.days.some(d=>d.dishes.some(x=>!dishOK(x)))) setTimeout(()=>toast('作成済みの1週間献立に、この器具を使う料理があります。献立画面から差し替えできます'),2300);
     renderEquipSheet(); render(); },
   seasonSheet:()=>{ const had=!!$('#sheet').innerHTML; renderSeasonSheet(); if(!had) pushOv(); },
   togglePack:ds=>{ const on=S.extraOn.includes(ds.id); S.extraOn=on?S.extraOn.filter(x=>x!==ds.id):[...S.extraOn,ds.id];
@@ -4040,7 +4390,7 @@ const ACTIONS={
     if(!off.has(g) && activeGenres().length<=1){ toast('最低1つのジャンルはONにしてください'); return; }
     off.has(g)?off.delete(g):off.add(g); S.genresOff=[...off]; rebuildBases(); S.suggestions=null; renderGenreSheet(); render();
     toast(!BASES.some(b=>b.dishType==='主菜')?'⚠ この組み合わせでは主菜を作れません。調理器具やジャンルを見直してください':off.has(g)?`${g}を提案から外しました`:`${g}を使います`);
-    if(off.has(g) && S.draft && S.draft.days.some(d=>d.dishes.some(x=>!baseUsable(BASE[x.baseId])))) setTimeout(()=>toast('作成済みの1週間献立に、このジャンルの料理があります。献立画面から差し替えできます'),2300); },
+    if(off.has(g) && S.draft && S.draft.days.some(d=>d.dishes.some(x=>!dishOK(x)))) setTimeout(()=>toast('作成済みの1週間献立に、このジャンルの料理があります。献立画面から差し替えできます'),2300); },
   shareSheet:()=>{ const had=!!$('#sheet').innerHTML; renderShareSheet(); if(!had) pushOv(); },
   shareText:async()=>{ const r=await shareTextOut(planText(S.draft),'今週の献立'); if(r==='copied') toast('📋 コピーしました。LINEなどに貼り付けて送ってください'); },
   shareLink:async()=>{ const r=await shareTextOut(planLink(S.draft).url,'献立'); if(r==='copied') toast('📋 リンクをコピーしました。LINEなどに貼り付けて送ってください'); },
@@ -4127,12 +4477,17 @@ const ACTIONS={
     toast(`🔄 ${k}日分を組み直しました（最近食べた料理とかぶらないように）${lackN&&shortageMatters(pl)?'。ストックで足りない分は買い物タブに出ています':''}`, ()=>{ const o=JSON.parse(before); pl.days=o.days; pl.core=o.core; syncPlan(pl); render(); }); },
   genNext:()=>{ ADD_OPEN=-1; if(!S.history.length) toast('確定済みの履歴がないため、新規で作成しました'); else toast('🔄 先週と違う組み合わせで作成しました'); S.draft=generateWeek(true); render(); },
   fixEquip:()=>{ const p=S.draft; let ok=0, ng=0;
-    p.days.forEach((d,di)=>d.dishes.forEach((x,j)=>{ if(!baseUsable(BASE[x.baseId])){ if(swapDish(di,j)) ok++; else ng++; } }));
+    p.days.forEach((d,di)=>d.dishes.forEach((x,j)=>{ if(!dishOK(x)){ if(swapDish(di,j)) ok++; else ng++; } }));
     render(); toast(ng?`${ok}品を差し替えました（${ng}品は代わりが見つかりませんでした）`:`↻ ${ok}品を今の設定に合う料理に差し替えました`); },
   weekendMode:ds=>{ S.weekendMode=ds.m; render(); toast({quick:'休日も時短料理で組みます',sun:'日曜の主菜をごちそうにします',both:'土日の主菜をごちそうにします'}[ds.m]+'（次の献立作成から。今の献立は各曜日のボタンで変更できます）'); },
   swapMode:ds=>{ if(swapDish(+ds.d,0,ds.m)){ render(); toast(ds.m==='gochiso'?'🍷 ごちそうに変更しました':'⚡ 時短の料理に変更しました'); } else toast(ds.m==='gochiso'?'手持ちの食材・設定で作れるごちそうがありません':'他に条件を満たす料理がありません'); },
   swap:ds=>{ if(swapDish(+ds.d,+ds.j)){ render(); toast('↻ 別のアレンジに差し替えました'); } else toast('他に条件を満たす組み合わせがありません'); },
   addOpen:ds=>{ ADD_OPEN=+ds.d; render(); },
+  wantSheet:()=>{ const had=!!$('#sheet').innerHTML; WANT_Q=''; WANT_CACHE={}; renderWantSheet(); if(!had) pushOv(); setTimeout(()=>{ const i=$('#want_q'); if(i&&!('ontouchstart' in window)) i.focus(); },50); },
+  wantDay:ds=>{ WANT_DAY=+ds.v; renderWantSheet(); },
+  wantMore:()=>{ WANT_CACHE={}; const el=$('#want_res'); if(el) el.innerHTML=wantResultsHTML(WANT_Q); },
+  wantPick:ds=>wantApply(ds.ref,WANT_DAY),
+  wantThis:ds=>wantApply(ds.ref,0),
   addDish:ds=>{ const p=S.draft; if(!p) return; const before=JSON.stringify(p.days); const d=addDishToDay(p,+ds.d,ds.t); ADD_OPEN=-1;
     if(!d){ render(); toast(`追加できる${ds.t}が見つかりませんでした（使うジャンル・ストックを確認してください）`); return; }
     p.confirmed=false; render(); toast(`＋ ${ds.t}「${dishName(d)}」を追加しました`, ()=>{ p.days=JSON.parse(before); render(); }); },
@@ -4153,7 +4508,7 @@ const ACTIONS={
   },
   goWeek:()=>{ S.tab='plan'; S.mode='B'; render(); window.scrollTo(0,0); },
   // fav
-  fav:ds=>{ const d=resolveRef(ds.ref); if(!d) return; toggleFav(d); render(); if(MODAL) renderModal(); },
+  fav:ds=>{ const d=resolveRef(ds.ref); if(!d) return; if(d.rid){ ACTIONS.rFav({id:d.rid}); return; } toggleFav(d); render(); if(MODAL) renderModal(); },
   unfav:ds=>{ const keep=S.favorites.slice(); S.favorites=S.favorites.filter(f=>f.key!==ds.key); render(); toast('お気に入りから外しました', ()=>{ S.favorites=keep; render(); }); },
   favPri:()=>{ S.favPriority=!S.favPriority; render(); toast(S.favPriority?'お気に入りを優先採用します':'優先採用をOFFにしました'); },
   dictMode:ds=>{ S.dictMode=ds.m; S.dictSel=null; render(); },
@@ -4164,9 +4519,10 @@ const ACTIONS={
     S.favRecipes=had?keep.filter(x=>x!==id):[id,...keep]; render(); if(MODAL) renderModal();
     toast(had?'お気に入りから外しました':'★ お気に入りに保存しました', had?()=>{ S.favRecipes=keep; render(); if(MODAL) renderModal(); }:null); },
   rPeople:ds=>{ if(!MODAL||MODAL.kind!=='recipe') return; MODAL.n=ds.n==='orig'?'orig':+ds.n; renderModal(); },
-  rCook:ds=>{ const r=RECIPE[ds.id]; if(!r||!MODAL||MODAL.kind!=='recipe'||!recipeCookable(r)) return; const snap=snapshot(); const k=recipeServings(r,MODAL.n);
-    const msg=r.parts.map(id=>`${PART[id].short}−${consumeStock(id,k)}`).join('、'); MODAL.done=true; S.cooked.unshift({key:'R:'+r.id,at:Date.now(),parts:r.parts.slice()}); S.cooked=S.cooked.slice(0,30); S.suggestions=null; render(); renderModal();
-    toast(`🍽 いただきます！ ${msg}`, ()=>{ if(MODAL&&MODAL.kind==='recipe') MODAL.done=false; restore(snap); }); },
+  rCook:ds=>{ const r=RECIPE[ds.id]; if(!r||!MODAL||MODAL.kind!=='recipe') return; const can=recipeCookable(r); if(!can&&!MODAL.planRef) return; const snap=snapshot(); const k=recipeServings(r,MODAL.n);
+    const pref=MODAL.planRef?toPRef(MODAL.planRef):null; if(pref) forPlanDish(pref,x=>x.done=true);
+    const msg=can?r.parts.map(id=>`${PART[id].short}−${consumeStock(id,k)}`).join('、'):'献立に記録しました'; MODAL.done=true; S.cooked.unshift({key:'R:'+r.id,at:Date.now(),parts:r.parts.slice()}); S.cooked=S.cooked.slice(0,30); S.suggestions=null; render(); renderModal();
+    toast(`🍽 いただきます！ ${msg}`, ()=>{ if(pref) forPlanDish(pref,x=>delete x.done); if(MODAL&&MODAL.kind==='recipe') MODAL.done=false; restore(snap); }); },
   toRecipe:ds=>{ if(RECIPE[ds.id]) openModal('R:'+ds.id); },
   dictSel:ds=>{ S.dictSel=S.dictSel===ds.id?null:ds.id; render(); },
   // shop
