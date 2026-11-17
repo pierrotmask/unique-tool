@@ -379,6 +379,13 @@ a.btn{text-decoration:none;box-sizing:border-box}
 .my-acts .swap{text-align:center;text-decoration:none;display:grid;place-items:center}
 .wk-mode{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;font-size:12.5px;font-weight:700;color:var(--sub)}
 .wk-mode .seg button{min-width:0;padding:0 8px;font-size:12px}
+.wk-mode.col{flex-direction:column;align-items:stretch;gap:6px}
+.wk-mode.col small{font-weight:600;color:var(--muted)}
+.seg.seg4{display:grid;grid-template-columns:repeat(4,1fr)}
+.seg.seg4 button{padding:0 2px;font-size:12px}
+.day-add{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 0 2px;border-top:1px dashed var(--line);margin-top:10px;font-size:12.5px;font-weight:700;color:var(--sub)}
+.day-add .addbtn{color:var(--green);font-weight:800;font-size:13px;padding:4px 2px}
+.sub-dish .rmx{width:30px;height:30px;border-radius:9px;color:var(--muted);font-size:16px;flex:none;display:grid;place-items:center}
 .wk-optbtn{display:block;width:100%;text-align:left;margin-top:10px;padding:9px 12px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:12.5px;font-weight:700;color:var(--sub)}
 .wk-opt{background:var(--card);border:1px solid var(--line);border-top:none;border-radius:0 0 12px 12px;margin-top:-6px;padding:4px 12px 10px}
 .today-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:14px;border:2px solid var(--green)}
@@ -2089,7 +2096,7 @@ const DEFAULT_STATE = () => ({
   draft:null,          // 作成中の週献立
   activePlanId:null,
   suggestions:null, seenKeys:[], cooked:[],
-  stockFilter:'all', stockSort:'rem', addQty:1, dictMode:'book', dictSel:null, planStart:'mon', favRecipes:[], bookGenre:'all', bookType:'all',
+  stockFilter:'all', stockSort:'rem', addQty:1, dictMode:'book', dictSel:null, planStart:'mon', dishSet:'auto', favRecipes:[], bookGenre:'all', bookType:'all',
   tutorialSeen:false, addLog:{}, tipsOn:true, myRecipes:[], weekendMode:'quick', tipsSeen:{}, genresOff:['韓国風','エスニック'],   // 初期設定は和・洋・中のみ（歯車→使うジャンルでON）
   lastBackupAt:null, extraOn:[], customBases:[], equip:Object.assign({},DEFAULT_EQUIP),
 });
@@ -2150,6 +2157,7 @@ function sanitizeState(){
   if(S.activePlanId&&!S.history.some(h=>h.id===S.activePlanId)) S.activePlanId=null;
   if(![1,2,3,4,5,6].includes(S.people)) S.people=2;
   if(!['mon','today','tmr'].includes(S.planStart)) S.planStart='mon';
+  if(!['auto','side','soup','full'].includes(S.dishSet)) S.dishSet='auto';
   if(![1,2,4].includes(S.addQty)) S.addQty=1;
   if(!['stock','plan','fav','shop'].includes(S.tab)) S.tab='stock';
   if(!S.addLog||typeof S.addLog!=='object') S.addLog={};
@@ -2473,8 +2481,7 @@ function generateDays(o){
     const main=generateDish({ type:'主菜', pool:o.core, partScore, genreCount, baseCount, nearBases, softKeys:o.histKeys, hard, noGochiso:!gochisoDay(date), preferGochiso:gochisoDay(date), gochisoCount:days.filter(d=>d.dishes[0]&&BASE[d.dishes[0].baseId].gochiso).length });
     const dishes=[];
     if(main){ dishes.push(main); apply(main,true,true); }
-    const nSide = Math.random()<0.5?1:2;
-    const types = nSide===1 ? [Math.random()<0.3?'汁物':'副菜'] : ['副菜', Math.random()<0.6?'汁物':'副菜'];
+    const types = sideTypes();
     for(const type of types){
       const today=new Set(dishes.map(x=>x.baseId));
       const d=generateDish({ type, pool:o.core, partScore, baseCount, nearBases, softKeys:o.histKeys, avoidVeg:dishes.flatMap(x=>x.v),
@@ -2484,6 +2491,42 @@ function generateDays(o){
     days.push({ date, dishes });
   }
   return days;
+}
+// 1日の品数（設定）：主菜のほかに作る料理。どの設定でも副菜は必ず1品入れる（汁物だけの日を作らない）
+const DISH_SETS = { auto:{label:'おまかせ', desc:'主菜＋副菜（日によって汁物も）'}, side:{label:'主菜＋副菜', desc:'主菜＋副菜'}, soup:{label:'一汁二菜', desc:'主菜＋副菜＋汁物'}, full:{label:'一汁三菜', desc:'主菜＋副菜2品＋汁物'} };
+function sideTypes(){
+  const m=S.dishSet||'auto';
+  if(m==='side') return ['副菜'];
+  if(m==='soup') return ['副菜','汁物'];
+  if(m==='full') return ['副菜','副菜','汁物'];
+  return Math.random()<0.5?['副菜']:['副菜','汁物'];
+}
+const TYPE_ORDER = { '主菜':0, '副菜':1, '汁物':2 };
+// 献立の1日に1品追加（同じ日・前後の日と味付けが重ならないように）
+function addDishToDay(plan,di,type){
+  const day=plan.days[di]; if(!day) return null;
+  const prev=plan.days[di-1], next=plan.days[di+1];
+  const bases=new Set(); [prev,next,day].forEach(d=>d&&d.dishes.forEach(x=>bases.add(x.baseId)));
+  const must=new Set(); plan.days.forEach(d=>d.dishes.forEach(x=>must.add(x.key)));
+  const sp0=stockPool(), core=plan.core||{protein:[],veg:[]};
+  let pool={ protein:[...new Set([...core.protein,...sp0.protein])], veg:[...new Set([...core.veg,...sp0.veg])] };
+  if(pool.veg.length<3){ const c2=selectCore([...sp0.protein,...sp0.veg],null); pool={ protein:[...new Set([...pool.protein,...c2.protein])], veg:[...new Set([...pool.veg,...c2.veg])] }; }
+  const usage={}; plan.days.forEach(d=>d.dishes.forEach(x=>dishParts(x).forEach(id=>usage[id]=(usage[id]||0)+1)));
+  const sm=stockMap();
+  const partScore=id=>{ let sc=(sm[id]||0)>=plan.people?1.5:0; sc+=PART[id].category==='veg'?Math.min(usage[id]||0,2)*0.3:0; return sc; };
+  const d=generateDish({ type, pool, partScore, avoidVeg:day.dishes.flatMap(x=>x.v), sideProteinRate:0.25, hard:{ bases, must } });
+  if(!d) return null;
+  day.dishes.push(d);
+  day.dishes.sort((a,b)=>(TYPE_ORDER[a.type]??1)-(TYPE_ORDER[b.type]??1));
+  return d;
+}
+// 設定した品数に足りない日へ、副菜・汁物を足す（今日以降・まだ作っていない日。多い分は消さない）
+function fillDishSet(plan){
+  const t=todayStr(); let added=0;
+  const need=S.dishSet==='full'?{'副菜':2,'汁物':1}:S.dishSet==='soup'?{'副菜':1,'汁物':1}:{'副菜':1,'汁物':0};
+  plan.days.forEach((d,di)=>{ if(d.date<t||d.shifted||!d.dishes.length||d.dishes.every(x=>x.done)) return;
+    ['副菜','汁物'].forEach(type=>{ let have=d.dishes.filter(x=>x.type===type).length; while(have<need[type]){ if(!addDishToDay(plan,di,type)) break; have++; added++; } }); });
+  return added;
 }
 function generateWeek(different){
   const people=S.people, last=S.history[0];
@@ -2838,9 +2881,10 @@ function renderModeB(){
   const sLabel=S.planStart==='mon'?(planStartDate()===todayStr()?'今日（月曜）':`${fmtMD(planStartDate())}（月）`):SL[S.planStart];
   let html=`<div class="btn-col mt0"><button class="btn primary" data-act="genWeek">📅 ${esc(sLabel)}から1週間分の献立を作成</button>
     <button class="btn outline" data-act="genNext">🔄 前回と違うバリエーションで次の1週間を作成</button></div>
-    <button class="wk-optbtn" data-act="wkOpt">⚙ はじまり：${SL[S.planStart]}から ／ 休日の主菜：${ML[S.weekendMode||'quick']} <span style="float:right">${WK_OPT?'▴':'▾'}</span></button>
+    <button class="wk-optbtn" data-act="wkOpt">⚙ ${SL[S.planStart]}から・${DISH_SETS[S.dishSet||'auto'].label}・休日は${ML[S.weekendMode||'quick']} <span style="float:right">${WK_OPT?'▴':'▾'}</span></button>
     ${WK_OPT?`<div class="wk-opt">
       <div class="wk-mode"><span>はじまり</span><div class="seg">${[['mon','月曜から'],['today','今日から'],['tmr','明日から']].map(([k,l])=>`<button class="${S.planStart===k?'on':''}" data-act="planStart" data-v="${k}">${l}</button>`).join('')}</div></div>
+      <div class="wk-mode col"><span>1日の品数 <small>（${DISH_SETS[S.dishSet||'auto'].desc}）</small></span><div class="seg seg4">${Object.entries(DISH_SETS).map(([k,v])=>`<button class="${(S.dishSet||'auto')===k?'on':''}" data-act="dishSet" data-v="${k}">${v.label}</button>`).join('')}</div></div>
       <div class="wk-mode"><span>休日の主菜</span><div class="seg">${[['quick','⚡ 時短'],['sun','🍷 日曜'],['both','🍷 土日']].map(([k,l])=>`<button class="${(S.weekendMode||'quick')===k?'on':''}" data-act="weekendMode" data-m="${k}">${l}</button>`).join('')}</div></div>
       <p class="hint" style="margin-bottom:0">土日休みが基本です。シフト制など休みが決まっていない方は「今日から」にして、休みの日だけ献立の各日にある「🍷 ごちそうに」を押してください（休みの入力は不要です）。</p></div>`:''}
     <div class="btn-row" style="margin-top:6px"><button class="btn ghost sm" data-act="pasteIncoming">📥 献立を受け取る</button><button class="btn ghost sm" data-act="shareSheet">👪 家族と共有</button></div>
@@ -2848,7 +2892,7 @@ function renderModeB(){
   const tc=S.draft&&curPlan()&&curPlan().id!==S.draft.id?todayCardHTML():'';   // 今日の分が別の（確定済みの）献立にあるとき
   html+=tc;
   if(!p){
-    return html+todayCardHTML()+`<div class="card empty" style="margin-top:14px"><div class="big">🗓️</div><b>まだ献立がありません</b><p>ボタンを押すと7日分（主菜＋副菜1〜2品）を<br>ストック優先・ジャンル被りなしで自動作成します。<br><small>はじまりの曜日は「⚙」で変えられます。</small></p></div>`;
+    return html+todayCardHTML()+`<div class="card empty" style="margin-top:14px"><div class="big">🗓️</div><b>まだ献立がありません</b><p>ボタンを押すと7日分（${DISH_SETS[S.dishSet||'auto'].desc}）を<br>ストック優先・ジャンル被りなしで自動作成します。<br><small>はじまりの曜日・1日の品数は「⚙」で変えられます。</small></p></div>`;
   }
   const gc={}; p.days.forEach(d=>{ const m=d.dishes[0]; if(m) gc[m.genre]=(gc[m.genre]||0)+1; });
   const sm=stockMap(); let fromStock=0, total=0;
@@ -2882,8 +2926,9 @@ function renderModeB(){
           <button class="d-name" data-act="open" data-ref="${ref}">${esc(dishName(x))}</button>${formulaHTML(x,true)}
           ${x.done||past?'':`<div class="d-act"><button class="swap" data-act="swap" data-d="${di}" data-j="${j}">↻ 別アレンジに変更</button>${BASES.some(z=>z.gochiso)?(b.gochiso?`<button class="swap" data-act="swapMode" data-d="${di}" data-m="quick">⚡ 時短に</button>`:`<button class="swap" data-act="swapMode" data-d="${di}" data-m="gochiso">🍷 ごちそうに</button>`):''}</div>`}</div>`;
         return `<div class="sub-dish"><button class="sdn" data-act="open" data-ref="${ref}"><div class="d-top">${gBadge(x.genre)}<span class="typ">${x.type}</span>${mLabel(b,x)}${baseUsable(b)?'':offTag(b)}${fav?'<span style="color:#E8A317">★</span>':''}</div><b>${esc(dishName(x))}</b>${x.done?'<span class="ok-mark">✓ 作った</span>':''}</button>
-          ${x.done||past?'':`<button class="swap" data-act="swap" data-d="${di}" data-j="${j}">↻ 変更</button>`}</div>`;
-      }).join('')}</div></div>`;
+          ${x.done||past?'':`<button class="swap" data-act="swap" data-d="${di}" data-j="${j}">↻ 変更</button><button class="rmx" data-act="rmDish" data-d="${di}" data-j="${j}" aria-label="この品を外す">×</button>`}</div>`;
+      }).join('')}${past||!todo?'':ADD_OPEN===di?`<div class="day-add"><span>追加する料理：</span><button class="swap" data-act="addDish" data-d="${di}" data-t="副菜">🥗 副菜</button>${d.dishes.some(x=>x.type==='汁物')?'':`<button class="swap" data-act="addDish" data-d="${di}" data-t="汁物">🍲 汁物</button>`}<button class="addbtn" style="color:var(--muted)" data-act="addOpen" data-d="-1">やめる</button></div>`
+        :d.dishes.length<5?`<div class="day-add"><button class="addbtn" data-act="addOpen" data-d="${di}">＋ 1品追加</button></div>`:''}</div></div>`;
   }).join('');
   html+=`<div class="btn-col"><button class="btn soft sm" data-act="shareSheet">👪 家族と献立を共有（LINEなどで送る）</button></div>`;
   html+=`<div class="confirm-bar">${p.confirmed?`<button class="btn green" data-act="tab" data-tab="shop">🛒 買い物＆仕込みリストを見る</button>`:`<button class="btn primary" data-act="confirm">✅ この献立を確定（買い物＆仕込みリストへ反映）</button>`}</div>`;
@@ -3370,7 +3415,7 @@ function closeModalUI(){ closeModal(); popOv(); }
 /* =====================================================================
    14. PWA（ホーム画面に追加・オフライン・自動アップデート・引き継ぎ）
    ===================================================================== */
-const APP_VERSION = '2026.11.17.1';
+const APP_VERSION = '2026.11.17.2';
 const SW_FILE = 'stock-arrange-meal-sw.js', SW_SCOPE = './stock-arrange-meal';
 const PWA = { deferred:null };
 const isHttp = ()=>/^https?:$/.test(location.protocol);
@@ -3803,7 +3848,7 @@ function recipeRow(r,opts={}){
     <b>${esc(r.name)}</b><small class="bk-sub">${esc(sub)}</small></button>
     ${opts.unfav?`<button class="x" data-act="rFav" data-id="${r.id}" aria-label="お気に入りから外す">×</button>`:`<button class="star ${fav?'on':''}" data-act="rFav" data-id="${r.id}" aria-label="お気に入り">${fav?'★':'☆'}</button>`}</div>`;
 }
-let BOOK_Q='', WK_OPT=false;
+let BOOK_Q='', WK_OPT=false, ADD_OPEN=-1;
 function renderBook(){
   const gsel=S.bookGenre||'all', tsel=S.bookType||'all';
   const vis=RECIPES.filter(r=>genreOn(r.genre)), hiddenN=RECIPES.length-vis.length;
@@ -4064,7 +4109,7 @@ const ACTIONS={
     if(MODAL&&MODAL.ref===ds.ref) MODAL.dish=d;
     render(); if(MODAL) renderModal(); toast(`🍽 いただきます！ ${msg}`, ()=>{ if(pref) forPlanDish(pref,x=>delete x.done); restore(snap); });
   },
-  genWeek:()=>{ S.draft=generateWeek(false); render(); toast('📅 1週間の献立を作成しました'); },
+  genWeek:()=>{ ADD_OPEN=-1; S.draft=generateWeek(false); render(); toast('📅 1週間の献立を作成しました'); },
   planStart:ds=>{ S.planStart=ds.v; render(); toast({mon:'次の月曜から1週間で作ります',today:'今日から1週間で作ります',tmr:'明日から1週間で作ります'}[ds.v]); },
   weekendModeSel:ds=>ACTIONS.weekendMode(ds),
   wkOpt:()=>{ WK_OPT=!WK_OPT; render(); },
@@ -4080,13 +4125,22 @@ const ACTIONS={
     const k=replanPlan(pl); if(!k){ toast('組み直せる日がありません（献立の期間が終わっています）'); return; } render();
     const lackN=planShortage(pl).length;
     toast(`🔄 ${k}日分を組み直しました（最近食べた料理とかぶらないように）${lackN&&shortageMatters(pl)?'。ストックで足りない分は買い物タブに出ています':''}`, ()=>{ const o=JSON.parse(before); pl.days=o.days; pl.core=o.core; syncPlan(pl); render(); }); },
-  genNext:()=>{ if(!S.history.length) toast('確定済みの履歴がないため、新規で作成しました'); else toast('🔄 先週と違う組み合わせで作成しました'); S.draft=generateWeek(true); render(); },
+  genNext:()=>{ ADD_OPEN=-1; if(!S.history.length) toast('確定済みの履歴がないため、新規で作成しました'); else toast('🔄 先週と違う組み合わせで作成しました'); S.draft=generateWeek(true); render(); },
   fixEquip:()=>{ const p=S.draft; let ok=0, ng=0;
     p.days.forEach((d,di)=>d.dishes.forEach((x,j)=>{ if(!baseUsable(BASE[x.baseId])){ if(swapDish(di,j)) ok++; else ng++; } }));
     render(); toast(ng?`${ok}品を差し替えました（${ng}品は代わりが見つかりませんでした）`:`↻ ${ok}品を今の設定に合う料理に差し替えました`); },
   weekendMode:ds=>{ S.weekendMode=ds.m; render(); toast({quick:'休日も時短料理で組みます',sun:'日曜の主菜をごちそうにします',both:'土日の主菜をごちそうにします'}[ds.m]+'（次の献立作成から。今の献立は各曜日のボタンで変更できます）'); },
   swapMode:ds=>{ if(swapDish(+ds.d,0,ds.m)){ render(); toast(ds.m==='gochiso'?'🍷 ごちそうに変更しました':'⚡ 時短の料理に変更しました'); } else toast(ds.m==='gochiso'?'手持ちの食材・設定で作れるごちそうがありません':'他に条件を満たす料理がありません'); },
   swap:ds=>{ if(swapDish(+ds.d,+ds.j)){ render(); toast('↻ 別のアレンジに差し替えました'); } else toast('他に条件を満たす組み合わせがありません'); },
+  addOpen:ds=>{ ADD_OPEN=+ds.d; render(); },
+  addDish:ds=>{ const p=S.draft; if(!p) return; const before=JSON.stringify(p.days); const d=addDishToDay(p,+ds.d,ds.t); ADD_OPEN=-1;
+    if(!d){ render(); toast(`追加できる${ds.t}が見つかりませんでした（使うジャンル・ストックを確認してください）`); return; }
+    p.confirmed=false; render(); toast(`＋ ${ds.t}「${dishName(d)}」を追加しました`, ()=>{ p.days=JSON.parse(before); render(); }); },
+  rmDish:ds=>{ const p=S.draft; if(!p) return; const day=p.days[+ds.d]; if(!day||+ds.j<1) return; const before=JSON.stringify(p.days);
+    const x=day.dishes.splice(+ds.j,1)[0]; p.confirmed=false; render(); toast(`「${dishName(x)}」を外しました`, ()=>{ p.days=JSON.parse(before); render(); }); },
+  dishSet:ds=>{ S.dishSet=ds.v; const p=S.draft; let added=0, before=null;
+    if(p&&p.days[p.days.length-1].date>=todayStr()){ before=JSON.stringify(p.days); added=fillDishSet(p); if(added) p.confirmed=false; }
+    render(); toast(added?`品数を「${DISH_SETS[ds.v].label}」にしました。今の献立にも${added}品追加しました`:`品数を「${DISH_SETS[ds.v].label}」にしました（次の献立作成から）`, added?()=>{ p.days=JSON.parse(before); render(); }:null); },
   confirm:()=>{
     const p=S.draft; if(!p) return;
     p.people=S.people; p.confirmed=true; p.confirmedAt=Date.now();
