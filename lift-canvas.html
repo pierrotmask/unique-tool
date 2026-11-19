@@ -1,0 +1,2565 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="theme-color" content="#ffffff">
+<meta name="format-detection" content="telephone=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="LiftCanvas">
+<title>LiftCanvas（リフトキャンバス）</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2310284a'/%3E%3Cpolyline points='12,45 25,33 35,38 52,19' fill='none' stroke='%235b9dff' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='52' cy='19' r='5.5' fill='%23ffffff'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f2f4f8;
+  --surface:#ffffff;
+  --surface-2:#f6f8fb;
+  --line:#e1e6ee;
+  --line-strong:#c9d2df;
+  --navy:#10284a;
+  --navy-2:#24426e;
+  --blue:#1d5fd8;
+  --blue-press:#174fb6;
+  --blue-soft:#eaf1ff;
+  --blue-soft-2:#d3e2ff;
+  --text:#16202f;
+  --muted:#566173;
+  --faint:#87919f;
+  --ok:#0e8a5d;
+  --ok-soft:#e3f6ed;
+  --gold:#9a5600;
+  --gold-soft:#fff1d6;
+  --danger:#c53030;
+  --danger-soft:#fdeeee;
+  --r-lg:16px;
+  --r:12px;
+  --shadow:0 1px 2px rgba(16,40,74,.05),0 4px 14px rgba(16,40,74,.05);
+  --tabbar-h:64px;
+  --timer-h:0px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  font-size:16px;line-height:1.55;-webkit-tap-highlight-color:transparent;
+  padding-top:calc(var(--timer-h) + var(--safe-top));
+  padding-bottom:calc(var(--tabbar-h) + var(--safe-bottom) + 24px);
+  transition:padding-top .2s ease;
+}
+body.timer-on{--timer-h:60px}
+body.sheet-open{overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+button:disabled{cursor:not-allowed;opacity:.45}
+:focus-visible{outline:3px solid rgba(29,95,216,.45);outline-offset:2px}
+svg{width:1.25em;height:1.25em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.fill{fill:currentColor;stroke:none}
+.num{font-variant-numeric:tabular-nums}
+.app{max-width:600px;margin:0 auto;padding:0 16px}
+.view[hidden]{display:none}
+
+/* ---------- 見出し ---------- */
+.view-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 0 12px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{width:40px;height:40px;border-radius:11px;background:var(--navy);display:grid;place-items:center;flex:none}
+.brand-mark svg{width:26px;height:26px;stroke:#6aa6ff;stroke-width:3}
+.eyebrow{font-size:12px;font-weight:700;color:var(--faint);letter-spacing:.06em;line-height:1.2}
+h1{font-size:23px;line-height:1.25;color:var(--navy);margin:0;font-weight:800;letter-spacing:.01em}
+h2{font-size:18px;color:var(--navy);margin:0;font-weight:800}
+h3{font-size:16px;color:var(--navy);margin:0;font-weight:800}
+.section{margin:22px 0 0}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;min-height:48px}
+.sub-title{font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.04em;margin:18px 0 8px;display:flex;align-items:center;gap:6px}
+.sub-title::before{content:"";width:4px;height:14px;border-radius:2px;background:var(--blue)}
+.sub-title.quiet::before{background:var(--line-strong)}
+.hint{font-size:13.5px;color:var(--muted);margin:8px 0 0}
+.hint.small{font-size:12.5px}
+.muted{color:var(--muted)}
+
+/* ---------- カード ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;box-shadow:var(--shadow);margin-bottom:12px}
+.card-title{display:flex;align-items:center;gap:10px;font-size:17px;margin-bottom:6px}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-size:14px;display:grid;place-items:center;flex:none}
+.empty{text-align:center;color:var(--muted);padding:24px 16px}
+.empty-mini{font-size:14px;color:var(--muted);background:var(--surface-2);border:1px dashed var(--line-strong);border-radius:var(--r);padding:12px;margin:0}
+
+/* ---------- ボタン ---------- */
+.btn{min-height:48px;border-radius:var(--r);border:1px solid var(--line-strong);background:var(--surface);color:var(--navy);font-weight:700;font-size:16px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;line-height:1.25;transition:background .15s,border-color .15s,transform .05s}
+.btn:active:not(:disabled){transform:scale(.98)}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-primary:active:not(:disabled){background:var(--blue-press)}
+.btn-navy{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn-outline{background:var(--surface);border-color:var(--blue-soft-2);color:var(--blue)}
+.btn-soft{background:var(--blue-soft);border-color:transparent;color:var(--blue)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--blue)}
+.btn-danger{background:var(--danger);border-color:var(--danger);color:#fff}
+.btn-danger-ghost{background:var(--surface);border-color:#efc7c7;color:var(--danger)}
+.btn-block{width:100%;display:flex;padding:8px 14px;text-align:center}
+.btn-lg{min-height:56px;font-size:17px}
+.btn + .btn-block,.btn-block + .btn-block{margin-top:10px}
+.btn-icon{width:48px;padding:0}
+.icon-btn{width:48px;height:48px;border-radius:var(--r);border:0;background:transparent;color:var(--muted);display:inline-grid;place-items:center;flex:none}
+.icon-btn:active{background:var(--surface-2)}
+.link-btn{min-height:48px;border:0;background:none;color:var(--blue);font-weight:700;font-size:15px;padding:0 4px}
+.row{display:flex;gap:10px;align-items:center}
+.row > .btn{flex:1}
+
+/* ---------- チップ・セグメント ---------- */
+.chips-scroll{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chips-scroll::-webkit-scrollbar{display:none}
+.chip{min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line-strong);background:var(--surface);color:var(--muted);font-weight:700;font-size:14.5px;white-space:nowrap;flex:none}
+.chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+.chip-grid{display:flex;flex-wrap:wrap;gap:8px}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:#e7ebf2;border-radius:14px;padding:4px;gap:4px}
+.seg button{min-height:46px;border:0;border-radius:10px;background:transparent;font-weight:700;color:var(--muted);font-size:14.5px;padding:2px 4px;line-height:1.2}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--navy);box-shadow:0 1px 3px rgba(16,40,74,.14)}
+.seg button small{display:block;font-size:10.5px;font-weight:700;opacity:.8}
+
+/* ---------- バッジ ---------- */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line);white-space:nowrap;line-height:1.4}
+.badge-beat{background:var(--blue-soft);color:var(--blue);border-color:var(--blue-soft-2)}
+.badge-pr{background:var(--gold-soft);color:var(--gold);border-color:#f4d9a6}
+.badge-custom{background:#eef6ff;color:#2a5ca8;border-color:#d1e3fb}
+.badge-live{background:var(--ok-soft);color:var(--ok);border-color:#bfe8d4}
+.tag{display:inline-flex;font-size:12px;font-weight:700;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);padding:2px 8px;border-radius:6px}
+
+/* ---------- フォーム ---------- */
+.field{display:block;margin:0 0 18px}
+.field-label{display:block;font-size:14px;font-weight:800;color:var(--navy);margin-bottom:8px}
+.field-label em{font-style:normal;font-size:11px;color:#fff;background:var(--blue);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:2px}
+.input,textarea.input{width:100%;min-height:48px;border:1px solid var(--line-strong);border-radius:var(--r);padding:10px 14px;font-size:16px;background:var(--surface);color:var(--text)}
+textarea.input{resize:vertical;min-height:72px;line-height:1.5}
+.input:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 3px rgba(29,95,216,.15)}
+.search{position:relative;margin:12px 0 10px}
+.search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--faint)}
+.search input{padding-left:42px}
+.big-stepper{display:flex;align-items:center;gap:10px}
+.big-stepper button{width:56px;height:52px;border-radius:var(--r);border:1px solid var(--line-strong);background:var(--surface-2);font-size:24px;font-weight:700;color:var(--navy)}
+.big-stepper input{width:84px;height:52px;text-align:center;font-size:22px;font-weight:800;color:var(--navy);border:1px solid var(--line-strong);border-radius:var(--r)}
+.big-stepper span{font-weight:700;color:var(--muted)}
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;border-top:1px solid var(--line);padding:6px 0}
+.switch-row:first-of-type{border-top:0}
+.switch-row .sr-text b{display:block;color:var(--navy);font-size:15.5px}
+.switch-row .sr-text span{font-size:13px;color:var(--muted)}
+.switch{position:relative;width:56px;height:32px;flex:none}
+.switch input{position:absolute;inset:0;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:1}
+.switch span{position:absolute;inset:0;border-radius:999px;background:#cdd4df;transition:background .2s}
+.switch span::after{content:"";position:absolute;width:26px;height:26px;left:3px;top:3px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+.switch input:checked + span{background:var(--blue)}
+.switch input:checked + span::after{transform:translateX(24px)}
+.switch input:focus-visible + span{outline:3px solid rgba(29,95,216,.45);outline-offset:2px}
+
+/* ---------- 記録ホーム ---------- */
+.hero{background:linear-gradient(135deg,#10284a 0%,#1c4685 100%);color:#fff;border:0}
+.hero-date{font-size:15px;font-weight:700;opacity:.9}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.hero-stats div{background:rgba(255,255,255,.1);border-radius:12px;padding:10px 8px;text-align:center}
+.hero-stats b{display:block;font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums}
+.hero-stats b small{font-size:13px;margin-left:2px;font-weight:700;opacity:.85}
+.hero-stats span{font-size:12px;opacity:.85}
+.hero-note{font-size:11.5px;opacity:.7;margin-top:8px;text-align:right}
+.welcome{border-color:var(--blue-soft-2);background:#f7faff}
+.welcome ol{margin:8px 0 12px;padding-left:22px;color:var(--text);font-size:14.5px}
+.welcome li{margin:4px 0}
+.menu-card{display:flex;align-items:center;gap:12px;padding:14px 14px 14px 16px}
+.menu-card-main{flex:1;min-width:0}
+.menu-name{font-size:17px}
+.menu-meta{font-size:13px;color:var(--muted);margin-top:2px}
+.menu-ex{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:8px}
+.menu-ex span{font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:1px 7px;color:var(--muted)}
+.btn-start{min-width:84px;min-height:52px;flex:none}
+.day-card{padding:12px 14px}
+.day-head{font-weight:800;color:var(--navy);font-size:14.5px;margin-bottom:4px}
+.day-row{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:48px;border:0;border-top:1px solid var(--line);background:none;padding:6px 0;text-align:left}
+.day-row:first-of-type{border-top:0}
+.day-row .dr-name{font-weight:700;color:var(--text);font-size:15px}
+.day-row .dr-sets{font-size:13px;color:var(--muted)}
+.day-row svg{color:var(--faint)}
+
+/* ---------- トレーニング中 ---------- */
+.session-head{padding:14px}
+.sh-top{display:flex;align-items:center;gap:10px}
+.sh-titles{flex:1;min-width:0}
+.live{display:flex;align-items:center;gap:6px;color:var(--ok)}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(14,138,93,.18);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px rgba(14,138,93,0)}}
+.sh-name{font-size:19px;font-weight:800;color:var(--navy);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sh-tools{display:flex;gap:8px;margin-top:12px}
+.date-field{position:relative;display:flex;align-items:center;gap:6px;min-height:48px;padding:0 10px;border:1px solid var(--line-strong);border-radius:var(--r);background:var(--surface);flex:1;min-width:0;color:var(--muted);overflow:hidden}
+.date-field .df-text{font-weight:800;color:var(--navy);font-size:15px;white-space:nowrap;line-height:1.2}
+.date-field .df-text small{display:block;font-size:11px;font-weight:700;color:var(--faint)}
+.date-field input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;margin:0;padding:0;cursor:pointer;font-size:16px}
+.date-field:focus-within{border-color:var(--blue)}
+.btn-timer{flex:none;padding:0 12px;font-size:15px}
+.btn-timer small{font-size:11px;font-weight:700;opacity:.8}
+.ex-tabs{position:sticky;top:calc(var(--timer-h) + var(--safe-top));z-index:20;display:flex;gap:8px;overflow-x:auto;padding:10px 16px;margin:0 -16px 10px;background:rgba(242,244,248,.94);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);scrollbar-width:none;transition:top .2s ease}
+.ex-tabs::-webkit-scrollbar{display:none}
+.ex-tab{flex:none;min-height:48px;max-width:220px;border-radius:12px;border:1px solid var(--line-strong);background:var(--surface);padding:4px 12px;display:flex;align-items:center;gap:8px;font-weight:700;font-size:14.5px;color:var(--muted)}
+.ex-tab .n{width:22px;height:22px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line);font-size:12px;display:grid;place-items:center;flex:none}
+.ex-tab .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ex-tab .cnt{font-size:12px;color:var(--faint);font-variant-numeric:tabular-nums}
+.ex-tab.active{border-color:var(--navy);background:var(--navy);color:#fff}
+.ex-tab.active .n{background:rgba(255,255,255,.15);border-color:transparent}
+.ex-tab.active .cnt{color:rgba(255,255,255,.75)}
+.ex-tab.complete:not(.active){border-color:#bfe8d4;background:var(--ok-soft);color:var(--ok)}
+.ex-tab.complete .n{background:var(--ok);color:#fff;border-color:var(--ok)}
+.ex-tab.add{border-style:dashed;color:var(--blue);border-color:var(--blue-soft-2)}
+.ex-panel{padding:16px 14px}
+.ex-meta{display:flex;flex-wrap:wrap;gap:6px}
+.ex-title-row{display:flex;align-items:center;gap:6px;margin:6px 0 2px}
+.ex-title{flex:1;font-size:22px;line-height:1.3}
+.target-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:6px}
+.target-row .lbl{font-size:14px;font-weight:700;color:var(--muted)}
+.mini-stepper{display:inline-flex;align-items:center;border:1px solid var(--line-strong);border-radius:var(--r);overflow:hidden;background:var(--surface)}
+.mini-stepper button{width:44px;height:48px;border:0;background:var(--surface-2);font-size:20px;font-weight:700;color:var(--navy)}
+.mini-stepper b{min-width:56px;text-align:center;font-size:17px;color:var(--navy);font-variant-numeric:tabular-nums}
+.recent-list{list-style:none;margin:0 0 10px;padding:0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.recent-list li{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;padding:10px 12px;border-top:1px solid var(--line);background:var(--surface)}
+.recent-list li:first-child{border-top:0;background:#f8fbff}
+.rl-date{font-size:13px;font-weight:800;color:var(--muted);white-space:nowrap;padding-top:1px}
+.recent-list li:first-child .rl-date{color:var(--blue)}
+.rl-sets{font-size:15px;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;word-break:break-word}
+.rl-memo{grid-column:2;font-size:13px;color:var(--muted)}
+.suggest{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:14px 0 2px;padding:10px 12px;border-radius:var(--r);background:#f4f8ff;border:1px solid var(--blue-soft-2)}
+.suggest-badge{font-size:13.5px;font-weight:800;color:var(--blue);background:var(--surface);border:1px solid var(--blue-soft-2);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.suggest-why{font-size:12.5px;color:var(--muted);flex:1 1 180px}
+.suggest-actions{display:flex;gap:8px;width:100%}
+.suggest-actions button{flex:1;min-height:44px;border-radius:10px;border:1px solid var(--blue-soft-2);background:var(--surface);color:var(--blue);font-weight:700;font-size:14px}
+.suggest-note{width:100%;font-size:11.5px;color:var(--faint)}
+.set-head,.set-row{display:grid;grid-template-columns:28px minmax(0,1.3fr) minmax(0,1fr) 52px;gap:6px;align-items:center}
+.set-head{font-size:11.5px;font-weight:700;color:var(--faint);padding:0 2px 4px;text-align:center}
+.set-row{padding:5px 2px;border-radius:12px;transition:background .2s}
+.set-row.is-done{background:var(--ok-soft)}
+.set-no{height:48px;border:0;background:none;font-weight:800;color:var(--muted);font-size:16px;border-radius:8px;padding:0}
+.stepper{display:flex;align-items:stretch;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface);overflow:hidden;height:50px;min-width:0}
+.stepper button{width:32px;flex:none;border:0;background:var(--surface-2);color:var(--navy);font-size:20px;font-weight:700;padding:0}
+.stepper button:active{background:var(--blue-soft)}
+.stepper input{flex:1;min-width:0;width:100%;border:0;text-align:center;font-size:18px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums;padding:0;background:transparent}
+.stepper input::placeholder{color:#b3bccb;font-weight:700}
+.stepper input:focus{outline:none;background:#f4f8ff}
+.stepper:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(29,95,216,.12)}
+.is-done .stepper{border-color:#a9dcc4}
+.done-btn{height:50px;width:52px;border-radius:12px;border:2px solid var(--line-strong);background:var(--surface);color:#c3cad6;display:grid;place-items:center;padding:0}
+.done-btn svg{width:26px;height:26px;stroke-width:3}
+.done-btn[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
+.set-badges{display:flex;gap:6px;justify-content:flex-end;padding:2px 4px 6px;animation:pop .35s ease}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:none;opacity:1}}
+.set-actions{display:flex;gap:8px;margin-top:10px}
+.set-actions .btn{flex:1}
+.memo-label{display:block;margin-top:16px}
+.memo-label span{display:block;font-size:13px;font-weight:800;color:var(--muted);margin-bottom:6px}
+.related{background:transparent;border:1px dashed var(--line-strong);box-shadow:none;padding:12px 14px}
+.related .sub-title{margin-top:2px}
+.rel-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line)}
+.rel-item:first-of-type{border-top:0}
+.rel-main{flex:1;min-width:0}
+.rel-name{font-size:14.5px;font-weight:700;color:var(--text)}
+.rel-sub{font-size:12.5px;color:var(--faint)}
+.rel-item .btn{min-height:44px;padding:0 12px;font-size:13.5px;color:var(--muted);border-color:var(--line)}
+.ex-nav{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin:4px 0 12px}
+.finish-wrap{margin-top:8px}
+
+/* ---------- 管理 ---------- */
+.mm-head{display:flex;align-items:baseline;gap:10px}
+.mm-name{font-size:17px;font-weight:800;color:var(--navy);flex:1;min-width:0;word-break:break-word}
+.mm-count{font-size:13px;color:var(--muted);white-space:nowrap}
+.mm-list{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 12px;padding:0;list-style:none;counter-reset:mm}
+.mm-list li{counter-increment:mm;font-size:13px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:2px 8px;color:var(--text)}
+.mm-list li::before{content:counter(mm) ". ";color:var(--faint);font-weight:700}
+.mm-actions{display:flex;gap:8px}
+.mm-actions .btn{flex:1;padding:0 8px;font-size:15px;white-space:nowrap}
+.mm-actions .btn-icon{flex:none}
+.group-title{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);margin:18px 0 8px}
+.group-title span{font-size:12px;color:var(--faint);font-weight:700}
+.list{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.list-item{display:flex;align-items:center;gap:10px;width:100%;min-height:60px;padding:10px 14px;border:0;border-top:1px solid var(--line);background:var(--surface);text-align:left}
+.list-item:first-child{border-top:0}
+.list-item:active{background:var(--surface-2)}
+.li-main{flex:1;min-width:0}
+.li-title{font-weight:700;font-size:15.5px;color:var(--text);display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.li-sub{font-size:12.5px;color:var(--muted);margin-top:1px}
+.list-item > svg{color:var(--faint)}
+.list-item.selected{background:#f2f7ff}
+.list-item:disabled{opacity:.5}
+.check-circle{width:26px;height:26px;border-radius:50%;border:2px solid var(--line-strong);display:grid;place-items:center;flex:none;color:transparent}
+.selected .check-circle{background:var(--blue);border-color:var(--blue);color:#fff}
+.check-circle svg{width:16px;height:16px;stroke-width:3}
+.edit-list{list-style:none;margin:0 0 10px;padding:0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.edit-list li{display:flex;align-items:center;gap:4px;padding:4px 4px 4px 12px;border-top:1px solid var(--line);background:var(--surface)}
+.edit-list li:first-child{border-top:0}
+.edit-list .el-n{width:22px;font-weight:800;color:var(--faint);font-size:13px}
+.edit-list .el-name{flex:1;min-width:0;font-weight:700;font-size:15px}
+.edit-list .el-name small{display:block;font-weight:600;color:var(--faint);font-size:12px}
+.info-grid{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14.5px;margin:0 0 16px}
+.info-grid dt{color:var(--muted);font-weight:700}
+.info-grid dd{margin:0;color:var(--text);font-weight:700}
+
+/* ---------- グラフ ---------- */
+.ex-select{display:flex;align-items:center;gap:10px;width:100%;min-height:60px;border:1px solid var(--line-strong);background:var(--surface);border-radius:var(--r-lg);padding:8px 14px;text-align:left;box-shadow:var(--shadow)}
+.ex-select .es-main{flex:1;min-width:0}
+.ex-select b{display:block;font-size:18px;color:var(--navy);line-height:1.3}
+.ex-select svg{color:var(--blue)}
+.metric-desc{font-size:12.5px;color:var(--muted);margin:6px 2px 12px}
+.chart-card{padding:14px 12px 12px}
+.growth{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:4px 12px;margin:12px 4px 6px}
+.growth-label{font-size:12.5px;font-weight:700;color:var(--muted);width:100%}
+.growth-val{font-size:28px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--navy)}
+.growth-val small{font-size:16px;font-weight:800;margin-left:4px}
+.growth-val.up{color:var(--ok)}
+.growth-val.down{color:#b5482a}
+.growth-sub{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.chart-wrap{position:relative;height:270px;margin-top:6px}
+.chart-wrap canvas{display:block;width:100%;height:100%}
+.chart-empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:14px;padding:16px;background:var(--surface-2);border-radius:var(--r)}
+.chart-hint{font-size:12px;color:var(--faint);text-align:center;margin:6px 0 0}
+.point-detail{margin-top:10px;background:#f4f8ff;border:1px solid var(--blue-soft-2);border-radius:var(--r);padding:10px 12px}
+.pd-date{font-size:12.5px;font-weight:800;color:var(--blue)}
+.pd-sets{font-size:16px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums;margin-top:2px;word-break:break-word}
+.pd-sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat-tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px;box-shadow:var(--shadow)}
+.stat-tile span{display:block;font-size:12px;font-weight:700;color:var(--muted)}
+.stat-tile b{display:block;font-size:21px;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.3}
+.stat-tile small{display:block;font-size:11.5px;color:var(--faint)}
+.hist-item{padding:12px 14px}
+.hist-top{display:flex;align-items:center;gap:8px;margin:-6px -8px 0 0}
+.hist-date{flex:1;font-weight:800;color:var(--navy);font-size:14.5px}
+.hist-sets{font-size:16px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;word-break:break-word}
+.hist-metrics{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--muted);margin-top:4px}
+.hist-metrics b{color:var(--navy);font-variant-numeric:tabular-nums}
+.hist-memo{font-size:13px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px dashed var(--line)}
+.demo-banner{display:flex;align-items:center;gap:10px;background:var(--gold-soft);border:1px solid #f1d6a0;color:#6b4200;border-radius:var(--r);padding:8px 8px 8px 12px;font-size:13.5px;margin-bottom:12px}
+.demo-banner span{flex:1}
+.demo-banner .btn{min-height:44px;font-size:13.5px;padding:0 12px;color:#6b4200;border-color:#e8c88c;background:#fff9ec}
+
+/* ---------- バックアップ ---------- */
+.data-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.data-stats b{display:block;font-size:20px;color:var(--navy);font-variant-numeric:tabular-nums}
+.data-stats span{font-size:11.5px;color:var(--muted)}
+.last-backup{margin-top:12px;font-size:13.5px;padding:10px 12px;border-radius:var(--r);background:var(--surface-2);color:var(--muted)}
+.last-backup.warn{background:var(--gold-soft);color:#6b4200}
+.notice{font-size:13.5px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;color:var(--muted);margin:10px 0}
+.details{margin-top:12px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface-2)}
+.details summary{min-height:48px;display:flex;align-items:center;padding:0 14px;font-weight:700;color:var(--navy);cursor:pointer;list-style:none}
+.details summary::-webkit-details-marker{display:none}
+.details summary::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s}
+.details[open] summary::after{transform:rotate(-135deg)}
+.details-body{padding:4px 14px 14px}
+.steps{margin:10px 0;padding-left:20px;font-size:13.5px;color:var(--text)}
+.steps li{margin:6px 0}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;background:#e9edf4;border-radius:5px;padding:1px 5px;word-break:break-all}
+.danger-zone{border-color:#f0d0d0}
+.app-info{text-align:center;font-size:12px;color:var(--faint);margin:20px 0 8px}
+.preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.preset-grid .chip{border-radius:var(--r);width:100%}
+
+/* ---------- タブバー ---------- */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(255,255,255,.97);border-top:1px solid var(--line);padding-bottom:var(--safe-bottom);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.tabbar-inner{display:grid;grid-template-columns:repeat(4,1fr);max-width:600px;margin:0 auto}
+.tab{position:relative;height:var(--tabbar-h);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;background:none;color:var(--faint);font-size:11.5px;font-weight:700;padding:0 2px;line-height:1.2}
+.tab svg{width:25px;height:25px}
+.tab[aria-current="page"]{color:var(--blue)}
+.tab[aria-current="page"]::before{content:"";position:absolute;top:0;left:28%;right:28%;height:3px;border-radius:0 0 3px 3px;background:var(--blue)}
+.tab .tab-dot{position:absolute;top:10px;right:calc(50% - 20px);width:9px;height:9px;border-radius:50%;background:var(--ok);border:2px solid #fff}
+
+/* ---------- 休憩タイマー ---------- */
+.timer-bar{position:fixed;top:0;left:0;right:0;z-index:60;background:var(--navy);color:#fff;padding-top:var(--safe-top);box-shadow:0 2px 10px rgba(16,40,74,.25)}
+.timer-bar[hidden]{display:none}
+.timer-inner{max-width:600px;margin:0 auto;height:60px;display:flex;align-items:center;gap:8px;padding:0 10px 0 16px}
+.timer-label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;opacity:.9;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.timer-time{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.02em;min-width:72px;text-align:right}
+.timer-btns{display:flex;gap:6px}
+.timer-btns button{min-width:48px;height:48px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-weight:700;font-size:13px;padding:0 6px;display:grid;place-items:center}
+.timer-progress{height:3px;background:#5b9dff;transform-origin:left;transform:scaleX(1);transition:transform .25s linear}
+.timer-bar.is-done{background:var(--ok)}
+.timer-bar.is-done .timer-progress{background:transparent}
+.timer-bar.is-done .t-adj{display:none}
+
+/* ---------- シート ---------- */
+.sheet-backdrop{position:fixed;inset:0;background:rgba(12,24,44,.45);display:flex;align-items:flex-end;justify-content:center;animation:fade .18s ease}
+.sheet-backdrop.closing{animation:fadeout .18s ease forwards}
+.sheet{background:var(--surface);width:100%;max-width:600px;max-height:92vh;max-height:92dvh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;animation:up .22s cubic-bezier(.2,.8,.2,1);outline:none;box-shadow:0 -6px 30px rgba(12,24,44,.2)}
+.closing .sheet{animation:down .18s ease forwards}
+@keyframes fade{from{opacity:0}}
+@keyframes fadeout{to{opacity:0}}
+@keyframes up{from{transform:translateY(40px);opacity:.4}}
+@keyframes down{to{transform:translateY(40px)}}
+.sheet-head{display:flex;align-items:center;gap:8px;padding:8px 6px 8px 18px;border-bottom:1px solid var(--line);min-height:60px}
+.sheet-title{flex:1;font-size:18px;line-height:1.3}
+.sheet-body{overflow-y:auto;padding:16px 16px 20px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;flex:1}
+.sheet-foot{display:flex;gap:10px;padding:12px 16px calc(12px + var(--safe-bottom));border-top:1px solid var(--line);background:var(--surface)}
+.sheet-foot .btn{flex:1}
+.sheet-foot .btn-primary{flex:1.6}
+.sheet-msg{font-size:15px;color:var(--text);margin:0 0 16px}
+.sheet-msg p{margin:0 0 8px}
+.choice-list{display:flex;flex-direction:column;gap:10px;padding-bottom:var(--safe-bottom)}
+.choice{flex-direction:column;align-items:flex-start;text-align:left;padding:12px 16px;gap:2px}
+.choice-desc{font-size:12.5px;font-weight:500;opacity:.85}
+.choice.btn-outline.danger{color:var(--danger);border-color:#efc7c7}
+.import-info{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;font-size:14px;margin-bottom:12px}
+.import-info span{color:var(--muted)}
+.import-info b{color:var(--navy)}
+.picker-top{position:sticky;top:-16px;background:var(--surface);z-index:2;margin:-16px -16px 0;padding:4px 16px 2px;border-bottom:1px solid var(--line)}
+.picker-top .search{margin:8px 0}
+.summary-hero{text-align:center;padding:8px 0 14px}
+.summary-hero .big{font-size:24px;font-weight:800;color:var(--navy)}
+.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.summary-grid div{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:10px;text-align:center}
+.summary-grid b{display:block;font-size:22px;color:var(--navy);font-variant-numeric:tabular-nums}
+.summary-grid span{font-size:12px;color:var(--muted)}
+.sum-ex{border-top:1px solid var(--line);padding:10px 0}
+.sum-ex-name{font-weight:800;color:var(--navy);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.sum-ex-sets{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.edit-set{display:grid;grid-template-columns:28px 1fr auto 1fr auto 48px;gap:6px;align-items:center;margin-bottom:8px}
+.edit-set .input{text-align:center;font-weight:800;font-size:17px;padding:8px 6px}
+.edit-set .u{font-size:13px;color:var(--muted)}
+.edit-set .no{font-weight:800;color:var(--faint);text-align:center}
+
+/* ---------- トースト・処理中 ---------- */
+.toast{position:fixed;left:50%;bottom:calc(var(--tabbar-h) + var(--safe-bottom) + 14px);transform:translate(-50%,20px);z-index:400;background:var(--navy);color:#fff;padding:12px 18px;border-radius:12px;font-size:14.5px;font-weight:600;box-shadow:0 6px 24px rgba(12,24,44,.25);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100% - 32px);width:max-content;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+body.sheet-open .toast{bottom:auto;top:calc(var(--safe-top) + 14px)}
+.toast.ok{background:var(--ok)}
+.toast.error{background:var(--danger)}
+.busy{position:fixed;inset:0;z-index:500;background:rgba(255,255,255,.75);display:grid;place-items:center}
+.busy[hidden]{display:none}
+.busy-box{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 24px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;font-weight:700;color:var(--navy)}
+.spinner{width:24px;height:24px;border-radius:50%;border:3px solid var(--blue-soft-2);border-top-color:var(--blue);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media (max-width:370px){
+  .app{padding:0 12px}
+  .ex-tabs{margin:0 -12px 10px;padding:10px 12px}
+  .ex-panel{padding:14px 10px}
+  .stepper button{width:28px}
+  .set-head,.set-row{grid-template-columns:24px minmax(0,1.3fr) minmax(0,1fr) 48px;gap:5px}
+  .done-btn{width:48px}
+  h1{font-size:21px}
+  .mm-actions .btn{font-size:14px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<noscript><p style="padding:24px;text-align:center">LiftCanvasを使うにはJavaScriptを有効にしてください。</p></noscript>
+
+<div id="timerBar" class="timer-bar" hidden role="timer" aria-live="off">
+  <div class="timer-inner">
+    <div class="timer-label" id="timerLabel">休憩中</div>
+    <div class="timer-time" id="timerTime">0:00</div>
+    <div class="timer-btns">
+      <button type="button" class="t-adj" data-act="timer-add" data-d="-15" aria-label="15秒減らす">−15秒</button>
+      <button type="button" class="t-adj" data-act="timer-add" data-d="15" aria-label="15秒増やす">+15秒</button>
+      <button type="button" data-act="timer-stop" aria-label="タイマーを閉じる" id="timerClose"></button>
+    </div>
+  </div>
+  <div class="timer-progress" id="timerProg"></div>
+</div>
+
+<div class="app">
+  <section id="view-record" class="view" aria-label="記録する"></section>
+  <section id="view-manage" class="view" aria-label="種目・メニュー管理" hidden></section>
+  <section id="view-graph" class="view" aria-label="成長グラフ" hidden></section>
+  <section id="view-backup" class="view" aria-label="バックアップ" hidden></section>
+</div>
+
+<nav class="tabbar" aria-label="メインメニュー"><div class="tabbar-inner" id="tabbar"></div></nav>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="busy" class="busy" hidden><div class="busy-box"><div class="spinner"></div><span id="busyText">処理中…</span></div></div>
+<input type="file" id="fileInput" data-change="file" accept="application/json,.json,text/plain" hidden>
+
+<script>
+'use strict';
+/* =====================================================================
+   LiftCanvas（リフトキャンバス） — 単一ファイルのトレーニング記録アプリ
+   ・データはブラウザの localStorage（キー: liftcanvas_v1_data）に即時保存
+   ・グラフは CDN の Chart.js を使用（読み込めない場合は簡易描画で代替）
+   ===================================================================== */
+
+/* ---------- 設定値 ---------- */
+const STORAGE_KEY = 'liftcanvas_v1_data';
+// Google Cloud の OAuth クライアントID をここに書くと、全ユーザー共通で使えます（画面の設定欄が優先）。
+// 例: const GOOGLE_CLIENT_ID = '123456789012-abcdefg.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = '';
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const DRIVE_FILE_NAME = 'liftcanvas_backup.json';
+const CHART_JS_SOURCES = [
+  'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js',
+  'https://unpkg.com/chart.js@4.4.1/dist/chart.umd.js'
+];
+const APP_VERSION = '1.0.0';
+
+const CATEGORIES = ['全身・WL', '胸', '背中', '肩', '脚', '腕', '腹筋'];
+const EQUIPMENTS = ['バーベル', 'ダンベル', 'マシン', 'ケーブル', '自重', 'その他'];
+const STEP_OPTIONS = [0.5, 1.0, 2.0, 2.5, 5.0];
+const REST_PRESETS = [30, 60, 90, 120, 180, 240];
+const WEEK = ['日', '月', '火', '水', '木', '金', '土'];
+const PERIODS = [
+  { key: '1m', label: '1ヶ月' },
+  { key: '3m', label: '3ヶ月' },
+  { key: '6m', label: '半年' },
+  { key: 'all', label: '1年', sub: '（全期間）' }
+];
+const METRICS = {
+  maxW:   { label: '最大重量', unit: 'kg', desc: 'その日に挙げた一番重い重量です。' },
+  e1rm:   { label: '推定1RM',  unit: 'kg', desc: '重量と回数から計算した「1回だけ挙げられる最大重量」の目安です（Epley式）。' },
+  volume: { label: '総負荷量', unit: 'kg', desc: '重量×回数を全セット合計した値です。練習した「量」の目安になります。' },
+  reps:   { label: '最多回数', unit: '回', desc: '1セットで行った最も多い回数です（自重種目のチェックに便利）。' }
+};
+
+/* ---------- 初期種目マスターデータ（全63種目） ---------- */
+const MASTER_EXERCISES = [
+  // 全身・WL（ウェイトリフティング）
+  { id: 'wl_01', name: 'スナッチ', part: '全身・WL', equipment: 'バーベル', stepKg: 1.0, defaultTargetReps: 3, relatedIds: ['wl_09', 'wl_04', 'wl_10', 'wl_06'] },
+  { id: 'wl_02', name: 'クリーン＆ジャーク', part: '全身・WL', equipment: 'バーベル', stepKg: 1.0, defaultTargetReps: 3, relatedIds: ['wl_03', 'wl_11', 'wl_12', 'wl_08'] },
+  { id: 'wl_03', name: 'パワークリーン', part: '全身・WL', equipment: 'バーベル', stepKg: 1.0, defaultTargetReps: 3, relatedIds: ['wl_11', 'wl_02', 'wl_08', 'wl_05'] },
+  { id: 'wl_04', name: 'ハングスナッチ', part: '全身・WL', equipment: 'バーベル', stepKg: 1.0, defaultTargetReps: 3, relatedIds: ['wl_01', 'wl_09', 'wl_10'] },
+  { id: 'wl_05', name: 'フロントスクワット', part: '全身・WL', equipment: 'バーベル', stepKg: 2.5, defaultTargetReps: 3, relatedIds: ['leg_01', 'wl_06', 'wl_03', 'leg_02'] },
+  { id: 'wl_06', name: 'オーバーヘッドスクワット', part: '全身・WL', equipment: 'バーベル', stepKg: 1.0, defaultTargetReps: 3, relatedIds: ['wl_01', 'wl_05', 'wl_09'] },
+  { id: 'wl_07', name: 'プッシュプレス', part: '全身・WL', equipment: 'バーベル', stepKg: 1.0, defaultTargetReps: 3, relatedIds: ['wl_12', 'shoulder_01', 'wl_02'] },
+  { id: 'wl_08', name: 'クリーンプル', part: '全身・WL', equipment: 'バーベル', stepKg: 2.5, defaultTargetReps: 3, relatedIds: ['wl_10', 'wl_03', 'wl_11', 'back_01'] },
+  { id: 'wl_09', name: 'パワースナッチ', part: '全身・WL', equipment: 'バーベル', stepKg: 1.0, defaultTargetReps: 3, relatedIds: ['wl_01', 'wl_04', 'wl_10'] },
+  { id: 'wl_10', name: 'スナッチプル', part: '全身・WL', equipment: 'バーベル', stepKg: 2.5, defaultTargetReps: 3, relatedIds: ['wl_08', 'wl_01', 'wl_09'] },
+  { id: 'wl_11', name: 'ハングクリーン', part: '全身・WL', equipment: 'バーベル', stepKg: 1.0, defaultTargetReps: 3, relatedIds: ['wl_03', 'wl_02', 'wl_08'] },
+  { id: 'wl_12', name: 'スプリットジャーク', part: '全身・WL', equipment: 'バーベル', stepKg: 1.0, defaultTargetReps: 3, relatedIds: ['wl_07', 'wl_02', 'shoulder_01'] },
+  // 胸
+  { id: 'chest_01', name: 'ベンチプレス', part: '胸', equipment: 'バーベル', stepKg: 2.5, defaultTargetReps: 10, relatedIds: ['chest_02', 'chest_03', 'chest_06', 'arm_08'] },
+  { id: 'chest_02', name: 'インクラインベンチプレス', part: '胸', equipment: 'バーベル', stepKg: 2.5, defaultTargetReps: 10, relatedIds: ['chest_01', 'chest_04', 'chest_03'] },
+  { id: 'chest_03', name: 'ダンベルプレス', part: '胸', equipment: 'ダンベル', stepKg: 2.0, defaultTargetReps: 10, relatedIds: ['chest_01', 'chest_04', 'chest_06'] },
+  { id: 'chest_04', name: 'インクラインダンベルプレス', part: '胸', equipment: 'ダンベル', stepKg: 2.0, defaultTargetReps: 10, relatedIds: ['chest_02', 'chest_03', 'chest_05'] },
+  { id: 'chest_05', name: 'ダンベルフライ', part: '胸', equipment: 'ダンベル', stepKg: 1.0, defaultTargetReps: 12, relatedIds: ['chest_07', 'chest_04', 'chest_03'] },
+  { id: 'chest_06', name: 'チェストプレス（マシン）', part: '胸', equipment: 'マシン', stepKg: 5.0, defaultTargetReps: 10, relatedIds: ['chest_01', 'chest_03', 'chest_08'] },
+  { id: 'chest_07', name: 'ケーブルクロスオーバー', part: '胸', equipment: 'ケーブル', stepKg: 2.5, defaultTargetReps: 12, relatedIds: ['chest_05', 'chest_06', 'chest_04'] },
+  { id: 'chest_08', name: '腕立て伏せ', part: '胸', equipment: '自重', stepKg: 2.5, defaultTargetReps: 15, relatedIds: ['chest_09', 'chest_06', 'chest_03'] },
+  { id: 'chest_09', name: 'ディップス', part: '胸', equipment: '自重', stepKg: 2.5, defaultTargetReps: 10, relatedIds: ['chest_08', 'arm_05', 'chest_01'] },
+  // 背中
+  { id: 'back_01', name: 'デッドリフト', part: '背中', equipment: 'バーベル', stepKg: 2.5, defaultTargetReps: 5, relatedIds: ['leg_03', 'back_04', 'wl_08', 'back_08'] },
+  { id: 'back_02', name: '懸垂（チンニング）', part: '背中', equipment: '自重', stepKg: 2.5, defaultTargetReps: 8, relatedIds: ['back_03', 'back_05', 'back_06'] },
+  { id: 'back_03', name: 'ラットプルダウン', part: '背中', equipment: 'マシン', stepKg: 2.5, defaultTargetReps: 10, relatedIds: ['back_02', 'back_06', 'back_05'] },
+  { id: 'back_04', name: 'ベントオーバーロウ', part: '背中', equipment: 'バーベル', stepKg: 2.5, defaultTargetReps: 10, relatedIds: ['back_05', 'back_07', 'back_06'] },
+  { id: 'back_05', name: 'ワンハンドダンベルロウ', part: '背中', equipment: 'ダンベル', stepKg: 2.0, defaultTargetReps: 10, relatedIds: ['back_04', 'back_06', 'back_07'] },
+  { id: 'back_06', name: 'シーテッドケーブルロウ', part: '背中', equipment: 'ケーブル', stepKg: 2.5, defaultTargetReps: 10, relatedIds: ['back_04', 'back_03', 'back_05'] },
+  { id: 'back_07', name: 'Tバーロウ', part: '背中', equipment: 'バーベル', stepKg: 2.5, defaultTargetReps: 10, relatedIds: ['back_04', 'back_05', 'back_06'] },
+  { id: 'back_08', name: 'バックエクステンション', part: '背中', equipment: '自重', stepKg: 2.5, defaultTargetReps: 12, relatedIds: ['back_01', 'leg_03', 'back_04'] },
+  // 肩
+  { id: 'shoulder_01', name: 'バーベルショルダープレス', part: '肩', equipment: 'バーベル', stepKg: 2.5, defaultTargetReps: 8, relatedIds: ['shoulder_02', 'shoulder_08', 'wl_07'] },
+  { id: 'shoulder_02', name: 'ダンベルショルダープレス', part: '肩', equipment: 'ダンベル', stepKg: 2.0, defaultTargetReps: 10, relatedIds: ['shoulder_01', 'shoulder_08', 'shoulder_03'] },
+  { id: 'shoulder_03', name: 'サイドレイズ', part: '肩', equipment: 'ダンベル', stepKg: 1.0, defaultTargetReps: 15, relatedIds: ['shoulder_06', 'shoulder_04', 'shoulder_05'] },
+  { id: 'shoulder_04', name: 'フロントレイズ', part: '肩', equipment: 'ダンベル', stepKg: 1.0, defaultTargetReps: 12, relatedIds: ['shoulder_03', 'shoulder_02', 'shoulder_01'] },
+  { id: 'shoulder_05', name: 'リアレイズ', part: '肩', equipment: 'ダンベル', stepKg: 1.0, defaultTargetReps: 15, relatedIds: ['shoulder_07', 'shoulder_03', 'back_05'] },
+  { id: 'shoulder_06', name: 'アップライトロウ', part: '肩', equipment: 'バーベル', stepKg: 2.5, defaultTargetReps: 12, relatedIds: ['shoulder_03', 'shoulder_09', 'shoulder_01'] },
+  { id: 'shoulder_07', name: 'フェイスプル', part: '肩', equipment: 'ケーブル', stepKg: 2.5, defaultTargetReps: 15, relatedIds: ['shoulder_05', 'back_06', 'shoulder_03'] },
+  { id: 'shoulder_08', name: 'マシンショルダープレス', part: '肩', equipment: 'マシン', stepKg: 5.0, defaultTargetReps: 10, relatedIds: ['shoulder_01', 'shoulder_02', 'shoulder_03'] },
+  { id: 'shoulder_09', name: 'シュラッグ', part: '肩', equipment: 'ダンベル', stepKg: 2.0, defaultTargetReps: 12, relatedIds: ['shoulder_06', 'back_01', 'shoulder_03'] },
+  // 脚
+  { id: 'leg_01', name: 'バックスクワット', part: '脚', equipment: 'バーベル', stepKg: 2.5, defaultTargetReps: 8, relatedIds: ['wl_05', 'leg_02', 'leg_04', 'leg_07'] },
+  { id: 'leg_02', name: 'レッグプレス', part: '脚', equipment: 'マシン', stepKg: 5.0, defaultTargetReps: 10, relatedIds: ['leg_01', 'leg_04', 'leg_05'] },
+  { id: 'leg_03', name: 'ルーマニアンデッドリフト', part: '脚', equipment: 'バーベル', stepKg: 2.5, defaultTargetReps: 8, relatedIds: ['back_01', 'leg_06', 'leg_09'] },
+  { id: 'leg_04', name: 'ブルガリアンスクワット', part: '脚', equipment: 'ダンベル', stepKg: 2.0, defaultTargetReps: 10, relatedIds: ['leg_07', 'leg_01', 'leg_02'] },
+  { id: 'leg_05', name: 'レッグエクステンション', part: '脚', equipment: 'マシン', stepKg: 5.0, defaultTargetReps: 12, relatedIds: ['leg_02', 'leg_04', 'leg_06'] },
+  { id: 'leg_06', name: 'レッグカール', part: '脚', equipment: 'マシン', stepKg: 5.0, defaultTargetReps: 12, relatedIds: ['leg_03', 'leg_09', 'leg_05'] },
+  { id: 'leg_07', name: 'ランジ', part: '脚', equipment: 'ダンベル', stepKg: 2.0, defaultTargetReps: 10, relatedIds: ['leg_04', 'leg_01', 'leg_02'] },
+  { id: 'leg_08', name: 'カーフレイズ', part: '脚', equipment: 'マシン', stepKg: 5.0, defaultTargetReps: 15, relatedIds: ['leg_02', 'leg_05', 'leg_01'] },
+  { id: 'leg_09', name: 'ヒップスラスト', part: '脚', equipment: 'バーベル', stepKg: 5.0, defaultTargetReps: 10, relatedIds: ['leg_03', 'leg_06', 'leg_01'] },
+  // 腕
+  { id: 'arm_01', name: 'バーベルカール', part: '腕', equipment: 'バーベル', stepKg: 2.5, defaultTargetReps: 10, relatedIds: ['arm_02', 'arm_03', 'arm_04'] },
+  { id: 'arm_02', name: 'ダンベルカール', part: '腕', equipment: 'ダンベル', stepKg: 1.0, defaultTargetReps: 10, relatedIds: ['arm_01', 'arm_03', 'arm_04'] },
+  { id: 'arm_03', name: 'ハンマーカール', part: '腕', equipment: 'ダンベル', stepKg: 1.0, defaultTargetReps: 10, relatedIds: ['arm_02', 'arm_01', 'arm_04'] },
+  { id: 'arm_04', name: 'プリーチャーカール', part: '腕', equipment: 'その他', stepKg: 2.5, defaultTargetReps: 10, relatedIds: ['arm_01', 'arm_02', 'arm_03'] },
+  { id: 'arm_05', name: 'ケーブルプレスダウン', part: '腕', equipment: 'ケーブル', stepKg: 2.5, defaultTargetReps: 12, relatedIds: ['arm_06', 'arm_07', 'chest_09'] },
+  { id: 'arm_06', name: 'ライイングトライセプスエクステンション', part: '腕', equipment: 'バーベル', stepKg: 2.5, defaultTargetReps: 10, relatedIds: ['arm_07', 'arm_05', 'arm_08'] },
+  { id: 'arm_07', name: 'オーバーヘッドエクステンション', part: '腕', equipment: 'ダンベル', stepKg: 2.0, defaultTargetReps: 12, relatedIds: ['arm_06', 'arm_05', 'arm_08'] },
+  { id: 'arm_08', name: 'ナローグリップベンチプレス', part: '腕', equipment: 'バーベル', stepKg: 2.5, defaultTargetReps: 8, relatedIds: ['chest_01', 'arm_06', 'chest_09'] },
+  // 腹筋
+  { id: 'abs_01', name: 'クランチ', part: '腹筋', equipment: '自重', stepKg: 2.5, defaultTargetReps: 20, relatedIds: ['abs_02', 'abs_06', 'abs_08'] },
+  { id: 'abs_02', name: 'シットアップ', part: '腹筋', equipment: '自重', stepKg: 2.5, defaultTargetReps: 20, relatedIds: ['abs_01', 'abs_08', 'abs_03'] },
+  { id: 'abs_03', name: 'レッグレイズ', part: '腹筋', equipment: '自重', stepKg: 2.5, defaultTargetReps: 15, relatedIds: ['abs_04', 'abs_02', 'abs_05'] },
+  { id: 'abs_04', name: 'ハンギングレッグレイズ', part: '腹筋', equipment: '自重', stepKg: 2.5, defaultTargetReps: 12, relatedIds: ['abs_03', 'abs_05', 'abs_01'] },
+  { id: 'abs_05', name: '腹筋ローラー', part: '腹筋', equipment: 'その他', stepKg: 2.5, defaultTargetReps: 10, relatedIds: ['abs_04', 'abs_01', 'abs_03'] },
+  { id: 'abs_06', name: 'ケーブルクランチ', part: '腹筋', equipment: 'ケーブル', stepKg: 2.5, defaultTargetReps: 15, relatedIds: ['abs_01', 'abs_08', 'abs_02'] },
+  { id: 'abs_07', name: 'ロシアンツイスト', part: '腹筋', equipment: 'その他', stepKg: 1.0, defaultTargetReps: 20, relatedIds: ['abs_02', 'abs_01', 'abs_03'] },
+  { id: 'abs_08', name: 'デクラインシットアップ', part: '腹筋', equipment: 'その他', stepKg: 2.5, defaultTargetReps: 15, relatedIds: ['abs_02', 'abs_06', 'abs_01'] }
+];
+
+/* ---------- 初期サンプルメニューセット（4パターン） ---------- */
+const DEFAULT_MENUS = [
+  { id: 'menu_01', name: 'WL・スクワットの日', exerciseIds: ['wl_01', 'wl_02', 'wl_08', 'wl_05', 'leg_01'] },
+  { id: 'menu_02', name: '胸・肩の日', exerciseIds: ['chest_01', 'chest_04', 'chest_05', 'shoulder_01', 'shoulder_03'] },
+  { id: 'menu_03', name: '背中・腕の日', exerciseIds: ['back_01', 'back_02', 'back_04', 'back_03', 'arm_01', 'arm_05'] },
+  { id: 'menu_04', name: '全身ベーシック', exerciseIds: ['leg_01', 'chest_01', 'back_04', 'shoulder_01', 'abs_03'] }
+];
+
+/* ---------- アイコン ---------- */
+const svg = (p, cls = '') => `<svg viewBox="0 0 24 24" aria-hidden="true" class="${cls}">${p}</svg>`;
+const ICON = {
+  dumbbell: svg('<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/>'),
+  list: svg('<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01" stroke-width="3"/>'),
+  chart: svg('<path d="M3.5 3.5v17h17"/><path d="M7 15.5l4-4.5 3 3 5.5-6.5"/>'),
+  cloud: svg('<path d="M7 18.5h10.5a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.4 9.1 4.75 4.75 0 0 0 7 18.5z"/><path d="M12 16v-5M9.75 13.25 12 11l2.25 2.25"/>'),
+  logo: svg('<path d="M4 17l5-5 3.5 3L20 7"/>'),
+  timer: svg('<circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.5 2M9.5 2.5h5"/>'),
+  gear: svg('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68 1.65 1.65 0 0 0 10 3.17V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'),
+  close: svg('<path d="M6 6l12 12M18 6 6 18"/>'),
+  check: svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
+  plus: svg('<path d="M12 5v14M5 12h14"/>'),
+  up: svg('<path d="M12 19V5M6 11l6-6 6 6"/>'),
+  down: svg('<path d="M12 5v14M6 13l6 6 6-6"/>'),
+  copy: svg('<rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6A1.5 1.5 0 0 0 14 4.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/>'),
+  trash: svg('<path d="M4.5 7h15M10 11v6M14 11v6M6.5 7l1 12.5h9l1-12.5M9.5 7V4.5h5V7"/>'),
+  edit: svg('<path d="M4.5 19.5h4l10-10-4-4-10 10z"/><path d="M13 7.5l3.5 3.5"/>'),
+  more: svg('<circle cx="5.5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="18.5" cy="12" r="1.7"/>', 'fill'),
+  chevR: svg('<path d="M9 5.5 15.5 12 9 18.5"/>'),
+  chevD: svg('<path d="M6 9.5l6 6 6-6"/>'),
+  search: svg('<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>'),
+  cal: svg('<rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>'),
+  play: svg('<path d="M8 5.5v13l10-6.5z"/>', 'fill'),
+  share: svg('<path d="M12 15V4.5M8 8.5l4-4 4 4M6 12.5v7h12v-7"/>'),
+  download: svg('<path d="M12 4.5v11M7.5 11 12 15.5 16.5 11M5 19.5h14"/>'),
+  upload: svg('<path d="M12 15.5v-11M7.5 9 12 4.5 16.5 9M5 19.5h14"/>'),
+  copyDup: svg('<rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6A1.5 1.5 0 0 0 14 4.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5M14 11.5v5M11.5 14h5"/>'),
+  swap: svg('<path d="M7 7.5h12l-3-3M17 16.5H5l3 3"/>')
+};
+
+/* ---------- 状態 ---------- */
+let DB = null;
+let storageOK = true;
+let exMapCache = null;
+let graphPts = [];
+let chartObj = null;
+let chartStatus = 'idle';
+let chartFailedAt = 0;
+const UI = { tab: 'record', manageView: 'menus', exQuery: '', exCat: 'すべて', histLimit: 20, selDate: null };
+
+/* ---------- 汎用ユーティリティ ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = (p = 'id') => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const pad2 = (n) => String(n).padStart(2, '0');
+const round1 = (v) => Math.round(v * 10) / 10;
+const round2 = (v) => Math.round(v * 100) / 100;
+function ymd(d = new Date()) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+function parseYmd(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+function dayNum(s) { const [y, m, d] = s.split('-').map(Number); return Date.UTC(y, m - 1, d) / 864e5; }
+function fmtDate(s, withYear = false) {
+  const d = parseYmd(s);
+  const base = (d.getMonth() + 1) + '/' + d.getDate() + '(' + WEEK[d.getDay()] + ')';
+  return (withYear || d.getFullYear() !== new Date().getFullYear()) ? d.getFullYear() + '/' + base : base;
+}
+function fmtDateLong(s) { const d = parseYmd(s); return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（${WEEK[d.getDay()]}）`; }
+function fmtDateTime(ts) { if (!ts) return '-'; const d = new Date(ts); return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`; }
+function fmtNum(v) { if (v == null || !isFinite(v)) return '-'; return String(round2(v)); }
+function fmtBig(v) { if (v == null || !isFinite(v)) return '-'; return Math.round(v).toLocaleString('ja-JP'); }
+function fmtSec(s) { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + pad2(s % 60); }
+function fmtMetric(v, metric) {
+  if (metric === 'reps') return fmtNum(v) + '回';
+  if (metric === 'volume') return fmtBig(v) + 'kg';
+  return fmtNum(round1(v)) + 'kg';
+}
+function parseNum(str) {
+  if (str == null) return null;
+  const t = String(str).replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/[．。，,]/g, '.').replace(/\s/g, '');
+  if (t === '') return null;
+  const n = Number(t);
+  return isFinite(n) && n >= 0 ? n : null;
+}
+function toast(msg, type = '') {
+  const el = $('#toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + type;
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { el.className = 'toast ' + type; }, type === 'error' ? 4200 : 2600);
+}
+function setBusy(on, text) { $('#busy').hidden = !on; if (text) $('#busyText').textContent = text; }
+function vibrate(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) { /* 非対応端末 */ } }
+
+/* ---------- データ構造・保存 ---------- */
+function defaultData() {
+  const now = Date.now();
+  return {
+    schema: 1,
+    createdAt: now,
+    updatedAt: now,
+    customExercises: [],
+    overrides: {},
+    menus: DEFAULT_MENUS.map((m) => ({ id: m.id, name: m.name, exerciseIds: [...m.exerciseIds], updatedAt: 0 })),
+    records: [],
+    sessions: [],
+    active: null,
+    timer: null,
+    settings: { restSec: 90, autoRest: true, sound: true, googleClientId: '', lastBackupAt: null, lastBackupVia: '' },
+    ui: { graphExId: null, metric: 'maxW', period: '3m', welcomeDone: false }
+  };
+}
+
+function normalize(src) {
+  const d = (src && typeof src === 'object') ? src : {};
+  const base = defaultData();
+  const arr = (v) => Array.isArray(v) ? v : [];
+  const obj = (v) => (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
+  const num = (v) => (v === null || v === undefined || v === '' || typeof v === 'boolean') ? null : (isFinite(Number(v)) ? Number(v) : null);
+  const isDate = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
+  const out = base;
+  out.createdAt = num(d.createdAt) || base.createdAt;
+  out.customExercises = arr(d.customExercises).filter((e) => e && e.id && e.name).map((e) => ({
+    id: String(e.id),
+    name: String(e.name).slice(0, 40),
+    part: CATEGORIES.includes(e.part) ? e.part : CATEGORIES[0],
+    equipment: EQUIPMENTS.includes(e.equipment) ? e.equipment : 'その他',
+    stepKg: num(e.stepKg) > 0 ? num(e.stepKg) : 2.5,
+    defaultTargetReps: clamp(Math.round(num(e.defaultTargetReps) || 10), 1, 30),
+    relatedIds: arr(e.relatedIds).map(String),
+    createdAt: num(e.createdAt) || 0,
+    updatedAt: num(e.updatedAt) || 0
+  }));
+  const ov = obj(d.overrides);
+  for (const k of Object.keys(ov)) {
+    const o = obj(ov[k]); const x = {};
+    if (num(o.stepKg) > 0) x.stepKg = num(o.stepKg);
+    if (num(o.defaultTargetReps) > 0) x.defaultTargetReps = clamp(Math.round(num(o.defaultTargetReps)), 1, 30);
+    if (Object.keys(x).length) out.overrides[k] = x;
+  }
+  if (Array.isArray(d.menus)) {
+    out.menus = d.menus.filter((m) => m && m.id).map((m) => ({
+      id: String(m.id), name: String(m.name || '種目セット').slice(0, 40),
+      exerciseIds: arr(m.exerciseIds).map(String), updatedAt: num(m.updatedAt) || 0
+    }));
+  }
+  out.records = arr(d.records).filter((r) => r && r.id && r.exerciseId && isDate(r.date)).map((r) => {
+    const rec = {
+      id: String(r.id), sessionId: String(r.sessionId || ''), date: r.date, exerciseId: String(r.exerciseId),
+      sets: arr(r.sets).slice(0, 50).map((s) => {
+        const w = num(s && s.w), rp = num(s && s.r);
+        return { w: (w != null && w >= 0) ? w : null, r: (rp != null && rp >= 0) ? Math.round(rp) : null, done: !!(s && s.done) };
+      }),
+      memo: String(r.memo || '').slice(0, 500),
+      updatedAt: num(r.updatedAt) || 0
+    };
+    if (r.demo) rec.demo = true;
+    return rec;
+  });
+  out.sessions = arr(d.sessions).filter((s) => s && s.id).map((s) => ({
+    id: String(s.id), name: String(s.name || ''), menuId: s.menuId ? String(s.menuId) : null,
+    date: isDate(s.date) ? s.date : '', startedAt: num(s.startedAt) || 0, endedAt: num(s.endedAt) || 0,
+    updatedAt: num(s.updatedAt) || num(s.endedAt) || 0
+  }));
+  const st = obj(d.settings);
+  out.settings = {
+    restSec: clamp(Math.round(num(st.restSec) || 90), 10, 900),
+    autoRest: st.autoRest === undefined ? true : !!st.autoRest,
+    sound: st.sound === undefined ? true : !!st.sound,
+    googleClientId: typeof st.googleClientId === 'string' ? st.googleClientId.trim() : '',
+    lastBackupAt: num(st.lastBackupAt),
+    lastBackupVia: typeof st.lastBackupVia === 'string' ? st.lastBackupVia : ''
+  };
+  const ui = obj(d.ui);
+  out.ui = {
+    graphExId: ui.graphExId ? String(ui.graphExId) : null,
+    metric: METRICS[ui.metric] ? ui.metric : 'maxW',
+    period: PERIODS.some((p) => p.key === ui.period) ? ui.period : '3m',
+    welcomeDone: !!ui.welcomeDone
+  };
+  const a = obj(d.active);
+  if (a.id && Array.isArray(a.exerciseIds)) {
+    out.active = {
+      id: String(a.id), name: String(a.name || 'トレーニング'), menuId: a.menuId ? String(a.menuId) : null,
+      date: isDate(a.date) ? a.date : ymd(), exerciseIds: a.exerciseIds.map(String),
+      idx: Math.max(0, Math.round(num(a.idx) || 0)), startedAt: num(a.startedAt) || Date.now()
+    };
+  }
+  const t = obj(d.timer);
+  if (num(t.endAt)) out.timer = { endAt: num(t.endAt), dur: num(t.dur) || 90 };
+  return out;
+}
+
+function load() {
+  let raw = null;
+  try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) { storageOK = false; }
+  if (!raw) return defaultData();
+  try {
+    return normalize(JSON.parse(raw));
+  } catch (e) {
+    console.error('保存データの読み込みに失敗しました', e);
+    try { localStorage.setItem(STORAGE_KEY + '_broken', raw); } catch (e2) { /* 容量不足など */ }
+    setTimeout(() => toast('保存データが読み込めなかったため、初期状態で起動しました', 'error'), 600);
+    return defaultData();
+  }
+}
+
+let saveErrorShown = false;
+function save() {
+  DB.updatedAt = Date.now();
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+    storageOK = true;
+  } catch (e) {
+    storageOK = false;
+    if (!saveErrorShown) { saveErrorShown = true; toast('端末への保存に失敗しました。空き容量やプライベートモードをご確認ください', 'error'); }
+  }
+}
+
+/* 完了セットがない下書き記録を整理（トレーニング中のものは残す） */
+function cleanupDrafts() {
+  const aid = DB.active ? DB.active.id : null;
+  DB.records = DB.records.filter((r) => (aid && r.sessionId === aid) || doneSets(r).length > 0);
+  for (const r of DB.records) {
+    if (!(aid && r.sessionId === aid)) r.sets = r.sets.filter((s) => s.done);
+  }
+}
+
+/* ---------- 種目アクセス ---------- */
+function exMap() {
+  if (exMapCache) return exMapCache;
+  const m = new Map();
+  for (const e of MASTER_EXERCISES) m.set(e.id, { ...e, ...(DB.overrides[e.id] || {}), custom: false });
+  for (const e of DB.customExercises) m.set(e.id, { ...e, custom: true });
+  exMapCache = m;
+  return m;
+}
+function invalidateEx() { exMapCache = null; }
+function allEx() { return [...exMap().values()]; }
+function getEx(id) {
+  return exMap().get(id) || { id, name: '（削除された種目）', part: 'その他', equipment: 'その他', stepKg: 2.5, defaultTargetReps: 10, relatedIds: [], custom: false, missing: true };
+}
+function relatedOf(ex) {
+  const ids = [...(ex.relatedIds || [])];
+  for (const c of DB.customExercises) if (c.part === ex.part && c.id !== ex.id && !ids.includes(c.id)) ids.push(c.id);
+  return ids.filter((id) => id !== ex.id && exMap().has(id)).slice(0, 6);
+}
+function autoRelated(part, equipment, selfId) {
+  const same = allEx().filter((e) => e.part === part && e.id !== selfId);
+  same.sort((a, b) => (b.equipment === equipment) - (a.equipment === equipment));
+  return same.slice(0, 4).map((e) => e.id);
+}
+function setTarget(exId, v) {
+  v = clamp(Math.round(v), 1, 30);
+  const c = DB.customExercises.find((e) => e.id === exId);
+  if (c) { c.defaultTargetReps = v; c.updatedAt = Date.now(); }
+  else {
+    const base = MASTER_EXERCISES.find((e) => e.id === exId);
+    if (!base) return;
+    const o = { ...(DB.overrides[exId] || {}) };
+    if (v === base.defaultTargetReps) delete o.defaultTargetReps; else o.defaultTargetReps = v;
+    if (Object.keys(o).length) DB.overrides[exId] = o; else delete DB.overrides[exId];
+  }
+  invalidateEx(); save();
+}
+
+/* ---------- 統計 ---------- */
+function doneSets(rec) { return (rec.sets || []).filter((s) => s.done && s.r > 0 && s.w != null && s.w >= 0); }
+function e1rm(w, r) { if (!(w > 0) || !(r > 0)) return 0; return r === 1 ? w : w * (1 + r / 30); }
+function setsStats(sets) {
+  let maxW = 0, best = 0, vol = 0, maxR = 0, totalR = 0;
+  for (const s of sets) {
+    maxW = Math.max(maxW, s.w); best = Math.max(best, e1rm(s.w, s.r));
+    vol += s.w * s.r; maxR = Math.max(maxR, s.r); totalR += s.r;
+  }
+  return { maxW, e1rm: best, vol, maxR, totalR, n: sets.length };
+}
+const byDateDesc = (a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : (b.updatedAt || 0) - (a.updatedAt || 0));
+function exRecords(exId) { return DB.records.filter((r) => r.exerciseId === exId && doneSets(r).length).sort(byDateDesc); }
+function prevRecords(exId, sessionId, date) { return exRecords(exId).filter((r) => r.sessionId !== sessionId && (!date || r.date <= date)); }
+function exSummary(exId) {
+  const recs = exRecords(exId);
+  if (!recs.length) return null;
+  let maxW = 0;
+  for (const r of recs) maxW = Math.max(maxW, setsStats(doneSets(r)).maxW);
+  return { last: recs[0].date, maxW, days: new Set(recs.map((r) => r.date)).size };
+}
+function exercisesWithRecords() {
+  const last = new Map();
+  for (const r of DB.records) {
+    if (!doneSets(r).length) continue;
+    const p = last.get(r.exerciseId);
+    if (!p || r.date > p) last.set(r.exerciseId, r.date);
+  }
+  return [...last.entries()].sort((a, b) => (a[1] < b[1] ? 1 : -1)).map(([id, date]) => ({ id, date }));
+}
+function fmtSets(sets, ex) {
+  const groups = [];
+  for (const s of sets) {
+    const g = groups[groups.length - 1];
+    if (g && g.w === s.w) g.r.push(s.r); else groups.push({ w: s.w, r: [s.r] });
+  }
+  const bw = ex && ex.equipment === '自重';
+  return groups.map((g) => {
+    const wl = g.w > 0 ? (bw ? `自重+${fmtNum(g.w)}kg` : `${fmtNum(g.w)}kg`) : '自重';
+    return `${wl} × ${g.r.join(', ')}回`;
+  }).join(' / ');
+}
+function beatsPrev(s, p) { if (!p) return false; return (s.w > p.w) || (s.w >= p.w && s.r > p.r); }
+function trainingStats() {
+  const dates = new Set(DB.records.filter((r) => doneSets(r).length).map((r) => r.date));
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  const wk = new Date(now); wk.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  const weekStart = ymd(wk);
+  const monthStart = ymd(new Date(now.getFullYear(), now.getMonth(), 1));
+  let week = 0, month = 0;
+  for (const d of dates) { if (d >= weekStart) week++; if (d >= monthStart) month++; }
+  return { week, month, total: dates.size };
+}
+
+/* ---------- シート（下から出るパネル） ---------- */
+const sheets = [];
+function openSheet(opt) {
+  const back = document.createElement('div');
+  back.className = 'sheet-backdrop';
+  back.style.zIndex = String(200 + sheets.length * 2);
+  back.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(opt.title || '')}" tabindex="-1">
+    <div class="sheet-head"><h2 class="sheet-title">${esc(opt.title || '')}</h2><button type="button" class="icon-btn" data-s="__close" aria-label="閉じる">${ICON.close}</button></div>
+    <div class="sheet-body"></div>${opt.renderFoot ? '<div class="sheet-foot"></div>' : ''}</div>`;
+  const s = { el: back, sheet: back.firstElementChild, body: back.querySelector('.sheet-body'), foot: back.querySelector('.sheet-foot'), state: opt.state || {}, closed: false };
+  s.render = () => {
+    const top = s.body.scrollTop;
+    s.body.innerHTML = opt.render(s);
+    if (s.foot) s.foot.innerHTML = opt.renderFoot(s);
+    s.body.scrollTop = top;
+    if (opt.afterRender) opt.afterRender(s);
+  };
+  s.renderFoot = () => { if (s.foot) s.foot.innerHTML = opt.renderFoot(s); };
+  s.close = (result) => {
+    if (s.closed) return;
+    s.closed = true;
+    back.classList.add('closing');
+    const i = sheets.indexOf(s); if (i >= 0) sheets.splice(i, 1);
+    setTimeout(() => back.remove(), 170);
+    if (!sheets.length) document.body.classList.remove('sheet-open');
+    if (opt.onClose) opt.onClose(result, s);
+  };
+  s.tryClose = async () => {
+    if (opt.isDirty && opt.isDirty(s)) {
+      const ok = await confirmSheet({ title: '編集内容を破棄しますか？', message: '保存していない変更は失われます。', ok: '破棄する', danger: true });
+      if (!ok) return;
+    }
+    s.close();
+  };
+  back.addEventListener('click', (e) => {
+    if (e.target === back) { if (opt.dismissible !== false) s.tryClose(); return; }
+    const t = e.target.closest('[data-s]');
+    if (!t || !s.sheet.contains(t) || t.disabled) return;
+    const name = t.dataset.s;
+    if (name === '__close') { s.tryClose(); return; }
+    const fn = opt.actions && opt.actions[name];
+    if (fn) fn(t, s, e);
+  });
+  if (opt.onInput) back.addEventListener('input', (e) => opt.onInput(e.target, s, e));
+  if (opt.onChange) back.addEventListener('change', (e) => opt.onChange(e.target, s, e));
+  document.body.appendChild(back);
+  document.body.classList.add('sheet-open');
+  sheets.push(s);
+  s.opt = opt;
+  s.render();
+  requestAnimationFrame(() => { try { s.sheet.focus({ preventScroll: true }); } catch (e) { /* noop */ } });
+  return s;
+}
+function confirmSheet({ title, message = '', ok = 'OK', cancel = 'キャンセル', danger = false }) {
+  return new Promise((resolve) => {
+    let result = false;
+    openSheet({
+      title,
+      render: () => (message ? `<div class="sheet-msg">${message}</div>` : '') +
+        `<div class="choice-list"><button type="button" class="btn btn-block btn-lg ${danger ? 'btn-danger' : 'btn-primary'}" data-s="yes">${esc(ok)}</button>
+         <button type="button" class="btn btn-block btn-ghost" data-s="__close">${esc(cancel)}</button></div>`,
+      actions: { yes: (t, s) => { result = true; s.close(); } },
+      onClose: () => resolve(result)
+    });
+  });
+}
+function choiceSheet({ title, message = '', choices = [], cancel = 'キャンセル' }) {
+  return new Promise((resolve) => {
+    let result = null;
+    openSheet({
+      title,
+      render: () => (message ? `<div class="sheet-msg">${message}</div>` : '') +
+        `<div class="choice-list">${choices.map((c) => `<button type="button" class="btn btn-block choice ${c.cls || 'btn-outline'}" data-s="choose" data-k="${esc(c.key)}">
+          <span>${esc(c.label)}</span>${c.desc ? `<span class="choice-desc">${esc(c.desc)}</span>` : ''}</button>`).join('')}
+          <button type="button" class="btn btn-block btn-ghost" data-s="__close">${esc(cancel)}</button></div>`,
+      actions: { choose: (t, s) => { result = t.dataset.k; s.close(); } },
+      onClose: () => resolve(result)
+    });
+  });
+}
+
+/* ---------- 休憩タイマー ---------- */
+const Timer = {
+  h: null, audio: null, hideT: null,
+  start(sec) {
+    sec = Math.round(sec || DB.settings.restSec);
+    DB.timer = { endAt: Date.now() + sec * 1000, dur: sec };
+    save(); this.unlockAudio(); this.run();
+  },
+  run() { clearInterval(this.h); clearTimeout(this.hideT); this.h = setInterval(() => this.tick(), 250); this.tick(); },
+  add(d) {
+    if (!DB.timer) return;
+    DB.timer.endAt = Math.max(Date.now() + 1000, DB.timer.endAt + d * 1000);
+    DB.timer.dur = Math.max(5, DB.timer.dur + d);
+    save(); this.tick();
+  },
+  stop() { clearInterval(this.h); clearTimeout(this.hideT); if (DB.timer) { DB.timer = null; save(); } this.hide(); },
+  tick() {
+    const t = DB.timer;
+    if (!t) { clearInterval(this.h); return; }
+    const ms = t.endAt - Date.now();
+    if (ms <= 0) { this.finish(); return; }
+    this.show(Math.ceil(ms / 1000), ms / (t.dur * 1000), false);
+  },
+  finish() {
+    clearInterval(this.h);
+    DB.timer = null; save();
+    this.show(0, 0, true);
+    if (DB.settings.sound) this.beep();
+    vibrate([250, 120, 250]);
+    this.hideT = setTimeout(() => this.hide(), 6000);
+  },
+  show(sec, ratio, done) {
+    const bar = $('#timerBar');
+    bar.hidden = false;
+    document.body.classList.add('timer-on');
+    bar.classList.toggle('is-done', done);
+    $('#timerLabel').innerHTML = done ? `${ICON.check}<span>休憩終了！次のセットへ</span>` : `${ICON.timer}<span>休憩中</span>`;
+    $('#timerTime').textContent = done ? 'GO' : fmtSec(sec);
+    $('#timerProg').style.transform = `scaleX(${clamp(ratio, 0, 1)})`;
+  },
+  hide() { $('#timerBar').hidden = true; document.body.classList.remove('timer-on'); },
+  unlockAudio() {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!this.audio && AC) this.audio = new AC();
+      if (this.audio && this.audio.state === 'suspended') this.audio.resume();
+    } catch (e) { /* 音声非対応 */ }
+  },
+  beep() {
+    const ctx = this.audio; if (!ctx) return;
+    try {
+      [0, 0.3, 0.6].forEach((t, i) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        const at = ctx.currentTime + t;
+        o.type = 'sine'; o.frequency.value = i === 2 ? 1175 : 880;
+        g.gain.setValueAtTime(0.0001, at);
+        g.gain.exponentialRampToValueAtTime(0.3, at + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, at + 0.22);
+        o.connect(g); g.connect(ctx.destination); o.start(at); o.stop(at + 0.25);
+      });
+    } catch (e) { /* noop */ }
+  },
+  resume() {
+    if (!DB.timer) return;
+    if (DB.timer.endAt > Date.now()) this.run(); else { DB.timer = null; save(); }
+  }
+};
+
+/* ---------- タブ ---------- */
+const TABS = [
+  { key: 'record', label: '記録する', icon: ICON.dumbbell },
+  { key: 'manage', label: '種目・メニュー', icon: ICON.list },
+  { key: 'graph', label: '成長グラフ', icon: ICON.chart },
+  { key: 'backup', label: 'バックアップ', icon: ICON.cloud }
+];
+function buildTabbar() {
+  $('#tabbar').innerHTML = TABS.map((t) => `<button type="button" class="tab" data-act="tab" data-tab="${t.key}" aria-label="${t.label}">${t.icon}<span>${t.label}</span></button>`).join('');
+}
+function updateTabbar() {
+  $$('.tab').forEach((b) => {
+    const on = b.dataset.tab === UI.tab;
+    if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    const dot = b.querySelector('.tab-dot');
+    const need = b.dataset.tab === 'record' && !!DB.active && UI.tab !== 'record';
+    if (need && !dot) b.insertAdjacentHTML('beforeend', '<span class="tab-dot" aria-hidden="true"></span>');
+    if (!need && dot) dot.remove();
+  });
+}
+function setTab(tab) {
+  UI.tab = tab;
+  for (const t of TABS) $('#view-' + t.key).hidden = t.key !== tab;
+  if (tab !== 'graph' && chartObj) { chartObj.destroy(); chartObj = null; }
+  renderView(tab, false);
+  updateTabbar();
+  window.scrollTo(0, 0);
+}
+function renderView(tab, keepScroll = true) {
+  const y = window.scrollY;
+  if (tab === 'record') renderRecord();
+  else if (tab === 'manage') renderManage();
+  else if (tab === 'graph') renderGraph();
+  else if (tab === 'backup') renderBackup();
+  if (keepScroll) window.scrollTo(0, y);
+}
+function renderCurrent() { renderView(UI.tab, true); updateTabbar(); }
+
+/* =====================================================================
+   1. 記録する
+   ===================================================================== */
+function renderRecord() {
+  const v = $('#view-record');
+  v.innerHTML = DB.active ? renderSession() : renderRecordHome();
+  if (DB.active) {
+    const bar = $('.ex-tabs', v), act = $('.ex-tab.active', v);
+    if (bar && act) bar.scrollLeft = act.offsetLeft - (bar.clientWidth - act.clientWidth) / 2;
+  }
+}
+
+function renderRecordHome() {
+  const today = ymd();
+  const st = trainingStats();
+  let h = `<header class="view-header"><div class="brand"><span class="brand-mark">${ICON.logo}</span><div><div class="eyebrow">LiftCanvas</div><h1>記録する</h1></div></div>
+    <button type="button" class="icon-btn" data-act="open-timer-settings" aria-label="休憩タイマーの設定">${ICON.timer}</button></header>`;
+  h += `<div class="card hero"><div class="hero-date">${fmtDateLong(today)}</div>
+    <div class="hero-stats"><div><b>${st.week}<small>日</small></b><span>今週</span></div><div><b>${st.month}<small>日</small></b><span>今月</span></div><div><b>${st.total}<small>日</small></b><span>これまでの合計</span></div></div>
+    <div class="hero-note">トレーニングした日数</div></div>`;
+  if (!DB.ui.welcomeDone && !DB.records.length) {
+    h += `<div class="card welcome"><h3>はじめての方へ</h3><ol>
+      <li>下の「種目セット」から<b>開始</b>を押します</li>
+      <li>重量と回数を入れて、右の<b>✓（完了）</b>をタップ</li>
+      <li>記録は自動保存。<b>成長グラフ</b>で伸びを確認できます</li></ol>
+      <button type="button" class="btn btn-outline btn-block" data-act="welcome-close">わかりました</button></div>`;
+  }
+  h += `<section class="section"><div class="section-head"><h2>種目セットから始める</h2><button type="button" class="link-btn" data-act="goto-menus">追加・編集</button></div>`;
+  if (!DB.menus.length) {
+    h += `<div class="card empty"><p>種目セットがありません。</p><button type="button" class="btn btn-primary" data-act="menu-new">＋ 種目セットを作る</button></div>`;
+  } else {
+    h += DB.menus.map((m) => {
+      const ids = m.exerciseIds.filter((id) => exMap().has(id));
+      const last = DB.sessions.filter((s) => s.menuId === m.id && s.date).map((s) => s.date).sort().pop();
+      return `<article class="card menu-card"><div class="menu-card-main"><h3 class="menu-name">${esc(m.name)}</h3>
+        <div class="menu-meta">${ids.length}種目${last ? ` ・ 前回 ${fmtDate(last)}` : ''}</div>
+        <div class="menu-ex">${ids.map((id) => `<span>${esc(getEx(id).name)}</span>`).join('')}</div></div>
+        <button type="button" class="btn btn-primary btn-start" data-act="start-menu" data-id="${esc(m.id)}" ${ids.length ? '' : 'disabled'}>${ICON.play}開始</button></article>`;
+    }).join('');
+  }
+  h += `</section><section class="section"><div class="section-head"><h2>種目を選んですぐ記録</h2></div>
+    <button type="button" class="btn btn-outline btn-block btn-lg" data-act="start-single">${ICON.plus}種目を選んで記録を始める</button></section>`;
+  const days = recentDays(5);
+  if (days.length) {
+    h += `<section class="section"><div class="section-head"><h2>最近の記録</h2><button type="button" class="link-btn" data-act="tab" data-tab="graph">グラフへ</button></div>`;
+    h += days.map(([date, recs]) => `<div class="card day-card"><div class="day-head">${fmtDate(date)}</div>
+      ${recs.map((r) => { const ex = getEx(r.exerciseId); const ds = doneSets(r); return `<button type="button" class="day-row" data-act="graph-ex" data-id="${esc(r.exerciseId)}">
+        <div><div class="dr-name">${esc(ex.name)}</div><div class="dr-sets num">${esc(fmtSets(ds, ex))}</div></div>${ICON.chevR}</button>`; }).join('')}</div>`).join('');
+    h += `</section>`;
+  }
+  return h;
+}
+function recentDays(limit) {
+  const map = new Map();
+  const aid = DB.active ? DB.active.id : null;
+  const recs = DB.records.filter((r) => doneSets(r).length && r.sessionId !== aid).sort(byDateDesc);
+  for (const r of recs) {
+    if (!map.has(r.date)) { if (map.size >= limit) break; map.set(r.date, []); }
+    map.get(r.date).push(r);
+  }
+  return [...map.entries()];
+}
+
+/* ---------- トレーニング中 ---------- */
+function ensureRecord(a, exId) {
+  let r = DB.records.find((x) => x.sessionId === a.id && x.exerciseId === exId);
+  if (!r) {
+    const prev = prevRecords(exId, a.id, a.date)[0];
+    const n = prev ? clamp(doneSets(prev).length, 1, 10) : 3;
+    r = { id: uid('rec'), sessionId: a.id, date: a.date, exerciseId: exId, sets: Array.from({ length: n }, () => ({ w: null, r: null, done: false })), memo: '', updatedAt: Date.now() };
+    DB.records.push(r);
+    save();
+  }
+  return r;
+}
+function curRec() {
+  const a = DB.active; if (!a) return null;
+  const exId = a.exerciseIds[a.idx];
+  return exId ? ensureRecord(a, exId) : null;
+}
+function startSession(ids, name, menuId) {
+  ids = [...new Set(ids)].filter((id) => exMap().has(id));
+  if (!ids.length) { toast('種目がありません'); return; }
+  DB.active = { id: uid('ses'), name, menuId: menuId || null, date: ymd(), exerciseIds: ids, idx: 0, startedAt: Date.now() };
+  DB.ui.welcomeDone = true;
+  ensureRecord(DB.active, ids[0]);
+  save();
+  if (UI.tab !== 'record') setTab('record'); else { renderRecord(); window.scrollTo(0, 0); }
+  updateTabbar();
+  toast(`「${name}」を開始しました`);
+}
+function gotoExercise(i) {
+  const a = DB.active; if (!a) return;
+  a.idx = clamp(i, 0, Math.max(0, a.exerciseIds.length - 1));
+  if (a.exerciseIds[a.idx]) ensureRecord(a, a.exerciseIds[a.idx]);
+  save();
+  renderRecord();
+  const bar = $('.ex-tabs');
+  if (bar) {
+    const target = $('.session-head').offsetTop + $('.session-head').offsetHeight - 4;
+    if (window.scrollY > target) window.scrollTo(0, target);
+  }
+}
+
+function renderSession() {
+  const a = DB.active;
+  if (a.idx >= a.exerciseIds.length) a.idx = Math.max(0, a.exerciseIds.length - 1);
+  const exId = a.exerciseIds[a.idx];
+  let h = `<div style="height:14px"></div><div class="card session-head">
+    <div class="sh-top"><div class="sh-titles"><div class="eyebrow live"><span class="dot"></span>トレーニング中 ・ ${new Date(a.startedAt).getHours()}:${pad2(new Date(a.startedAt).getMinutes())} 開始</div>
+    <div class="sh-name">${esc(a.name)}</div></div>
+    <button type="button" class="btn btn-outline" data-act="finish-session">終了する</button></div>
+    <div class="sh-tools">
+      <label class="date-field">${ICON.cal}<span class="df-text">${fmtDate(a.date)}<small>${a.date === ymd() ? '今日・タップで変更' : 'タップで変更'}</small></span><input type="date" data-act="date-picker" data-change="session-date" value="${a.date}" max="${ymd()}" aria-label="トレーニングの日付"></label>
+      <button type="button" class="btn btn-soft btn-timer" data-act="timer-start" aria-label="休憩タイマーを開始">${ICON.timer}<span>休憩 ${fmtSec(DB.settings.restSec)}<br><small>${DB.settings.autoRest ? '自動ON' : '手動'}</small></span></button>
+      <button type="button" class="btn btn-soft btn-icon" data-act="open-timer-settings" aria-label="休憩タイマーの設定">${ICON.gear}</button>
+    </div></div>`;
+  h += `<nav class="ex-tabs" aria-label="種目の切り替え">` + a.exerciseIds.map((id, i) => {
+    const ex = getEx(id);
+    const r = DB.records.find((x) => x.sessionId === a.id && x.exerciseId === id);
+    const total = r ? r.sets.length : 0;
+    const done = r ? r.sets.filter((s) => s.done).length : 0;
+    const complete = done > 0 && done === total;
+    return `<button type="button" class="ex-tab ${i === a.idx ? 'active' : ''} ${complete ? 'complete' : ''}" data-act="goto-ex" data-i="${i}" ${i === a.idx ? 'aria-current="true"' : ''}>
+      <span class="n">${complete ? '✓' : i + 1}</span><span class="nm">${esc(ex.name)}</span>${total ? `<span class="cnt">${done}/${total}</span>` : ''}</button>`;
+  }).join('') + `<button type="button" class="ex-tab add" data-act="session-add-ex">＋ 種目を追加</button></nav>`;
+
+  if (!exId) {
+    h += `<div class="card empty"><p>種目がありません。</p><button type="button" class="btn btn-primary" data-act="session-add-ex">＋ 種目を追加</button></div>`;
+    return h;
+  }
+  h += renderExercisePanel(a, exId);
+  const isLast = a.idx >= a.exerciseIds.length - 1;
+  h += `<div class="ex-nav"><button type="button" class="btn" data-act="prev-ex" ${a.idx === 0 ? 'disabled' : ''}>← 前の種目</button>
+    ${isLast ? `<button type="button" class="btn btn-navy" data-act="finish-session">${ICON.check}トレーニング終了</button>` : `<button type="button" class="btn btn-primary" data-act="next-ex">次の種目へ →</button>`}</div>`;
+  return h;
+}
+
+function renderExercisePanel(a, exId) {
+  const ex = getEx(exId);
+  const rec = ensureRecord(a, exId);
+  const prevs = prevRecords(exId, a.id, a.date);
+  const prev = prevs[0];
+  const prevDone = prev ? doneSets(prev) : [];
+  const target = ex.defaultTargetReps;
+  const bw = ex.equipment === '自重';
+  let allMax = 0;
+  for (const r of prevs) allMax = Math.max(allMax, setsStats(doneSets(r)).maxW);
+
+  let h = `<section class="card ex-panel" aria-label="${esc(ex.name)}">
+    <div class="ex-meta"><span class="tag">${esc(ex.part)}</span><span class="tag">${esc(ex.equipment)}</span><span class="tag">刻み ${fmtNum(ex.stepKg)}kg</span>${ex.custom ? '<span class="badge badge-custom">自分で追加</span>' : ''}</div>
+    <div class="ex-title-row"><h2 class="ex-title">${esc(ex.name)}</h2><button type="button" class="icon-btn" data-act="ex-more" aria-label="この種目のその他の操作">${ICON.more}</button></div>
+    <div class="target-row"><span class="lbl">目標回数</span>
+      <div class="mini-stepper"><button type="button" data-act="target-adj" data-d="-1" aria-label="目標回数を減らす">−</button><b>${target}回</b><button type="button" data-act="target-adj" data-d="1" aria-label="目標回数を増やす">＋</button></div>
+      <span class="hint" style="margin:0">1セットあたり</span></div>`;
+
+  h += `<div class="sub-title">直近3回の実績</div>`;
+  if (prevs.length) {
+    h += `<ul class="recent-list">` + prevs.slice(0, 3).map((r, i) => `<li><div class="rl-date">${i === 0 ? '前回 ' : ''}${fmtDate(r.date)}</div>
+      <div class="rl-sets">${esc(fmtSets(doneSets(r), ex))}</div>${r.memo ? `<div class="rl-memo">📝 ${esc(r.memo)}</div>` : ''}</li>`).join('') + `</ul>
+      <button type="button" class="btn btn-outline btn-block" data-act="copy-prev">${ICON.copy}前回の記録をコピー</button>`;
+  } else {
+    h += `<p class="empty-mini">この種目はまだ記録がありません。今日が最初の記録です！</p>`;
+  }
+
+  if (prevDone.length && prevDone.every((s) => s.r >= target)) {
+    const stepLabel = `+${fmtNum(ex.stepKg)}kg`;
+    h += `<div class="suggest" role="note"><span class="suggest-badge">参考目安: ${bw ? `+1回 / 加重${stepLabel}` : `${stepLabel} / +1回`}</span>
+      <span class="suggest-why">根拠: 前回（${fmtDate(prev.date)}）全${prevDone.length}セットで目標${target}回を達成</span>
+      <div class="suggest-actions"><button type="button" data-act="apply-suggest" data-mode="w">${stepLabel}で入力</button><button type="button" data-act="apply-suggest" data-mode="r">+1回で入力</button></div>
+      <span class="suggest-note">あくまで目安です。体調やフォームに合わせて自由に調整してください。</span></div>`;
+  }
+
+  h += `<div class="sub-title">今日のセット</div>
+    <div class="set-head"><span>No.</span><span>${bw ? '追加重量(kg)' : '重量(kg)'}</span><span>回数</span><span>完了</span></div>`;
+  h += rec.sets.map((s, i) => {
+    let earlier = null;
+    for (let k = i - 1; k >= 0; k--) { const e = rec.sets[k]; if (e.w != null && e.r > 0) { earlier = e; break; } }
+    const ph = prevDone[i] || earlier || prevDone[prevDone.length - 1] || null;
+    const phW = ph ? fmtNum(ph.w) : (bw ? '0' : '');
+    const phR = ph ? String(ph.r) : String(target);
+    let badges = '';
+    if (s.done && s.r > 0 && s.w != null) {
+      if (prevDone.length && beatsPrev(s, prevDone[Math.min(i, prevDone.length - 1)])) badges += '<span class="badge badge-beat">前回超え！</span>';
+      if (prevs.length && s.w > allMax && s.w > 0) badges += '<span class="badge badge-pr">🏆 自己ベスト！</span>';
+    }
+    return `<div class="set-row ${s.done ? 'is-done' : ''}">
+      <button type="button" class="set-no" data-act="set-del" data-i="${i}" aria-label="セット${i + 1}（タップで削除）">${i + 1}</button>
+      <div class="stepper"><button type="button" data-act="set-step" data-f="w" data-d="-1" data-i="${i}" aria-label="重量を減らす">−</button>
+        <input data-input="set-w" data-i="${i}" inputmode="decimal" enterkeyhint="next" autocomplete="off" value="${s.w == null ? '' : fmtNum(s.w)}" placeholder="${phW}" aria-label="セット${i + 1}の重量（kg）">
+        <button type="button" data-act="set-step" data-f="w" data-d="1" data-i="${i}" aria-label="重量を増やす">＋</button></div>
+      <div class="stepper"><button type="button" data-act="set-step" data-f="r" data-d="-1" data-i="${i}" aria-label="回数を減らす">−</button>
+        <input data-input="set-r" data-i="${i}" inputmode="numeric" enterkeyhint="done" autocomplete="off" value="${s.r == null ? '' : s.r}" placeholder="${phR}" aria-label="セット${i + 1}の回数">
+        <button type="button" data-act="set-step" data-f="r" data-d="1" data-i="${i}" aria-label="回数を増やす">＋</button></div>
+      <button type="button" class="done-btn" data-act="set-done" data-i="${i}" aria-pressed="${s.done}" aria-label="セット${i + 1}を完了にする">${ICON.check}</button>
+    </div>${badges ? `<div class="set-badges">${badges}</div>` : ''}`;
+  }).join('');
+  h += `<div class="set-actions"><button type="button" class="btn btn-outline" data-act="add-set">${ICON.plus}セットを追加</button></div>
+    <p class="hint small">グレーの数字は前回の値です。そのまま✓を押すとその値で記録されます。セット番号をタップすると削除できます。</p>
+    <label class="memo-label"><span>メモ（任意）</span><textarea class="input" data-input="rec-memo" rows="2" maxlength="500" placeholder="フォームの気づき・体調など">${esc(rec.memo)}</textarea></label>
+  </section>`;
+
+  const rel = relatedOf(ex);
+  if (rel.length) {
+    h += `<section class="card related" aria-label="関連・代替種目候補"><div class="sub-title quiet">関連・代替種目候補</div>` + rel.map((id) => {
+      const rx = getEx(id); const sm = exSummary(id);
+      const inSession = a.exerciseIds.includes(id);
+      return `<div class="rel-item"><div class="rel-main"><div class="rel-name">${esc(rx.name)}</div>
+        <div class="rel-sub">${sm ? `最終 ${fmtDate(sm.last)} ・ 最高 ${fmtNum(sm.maxW)}kg` : '未実施'}</div></div>
+        ${inSession ? '<span class="badge">メニュー内</span>' : `<button type="button" class="btn" data-act="rel-swap" data-id="${esc(id)}">${ICON.swap}入替</button><button type="button" class="btn" data-act="rel-add" data-id="${esc(id)}">＋追加</button>`}</div>`;
+    }).join('') + `</section>`;
+  }
+  return h;
+}
+
+async function finishSession() {
+  const a = DB.active; if (!a) return;
+  const recs = DB.records.filter((r) => r.sessionId === a.id);
+  const pending = recs.reduce((n, r) => n + r.sets.filter((s) => !s.done && s.w != null && s.r > 0).length, 0);
+  const doneCount = recs.reduce((n, r) => n + doneSets(r).length, 0);
+  if (pending > 0) {
+    const c = await choiceSheet({
+      title: 'トレーニングを終了',
+      message: `<p>数値は入力済みで、<b>完了✓がついていないセットが ${pending}セット</b> あります。</p>`,
+      choices: [
+        { key: 'all', label: '入力済みのセットも完了にして終了', cls: 'btn-primary' },
+        { key: 'done', label: '完了✓のセットだけ保存して終了', desc: doneCount ? `${doneCount}セットを保存します` : '保存されるセットはありません' }
+      ]
+    });
+    if (!c) return;
+    if (c === 'all') recs.forEach((r) => r.sets.forEach((s) => { if (!s.done && s.w != null && s.r > 0) s.done = true; }));
+  } else {
+    const ok = await confirmSheet({
+      title: 'トレーニングを終了しますか？',
+      message: doneCount ? `<p>完了したセット: <b>${doneCount}セット</b></p>` : '<p>完了✓のセットがないため、今回の記録は保存されません。</p>',
+      ok: '終了する'
+    });
+    if (!ok) return;
+  }
+  const summary = sessionSummary(a, recs);
+  if (summary.sets > 0) DB.sessions.push({ id: a.id, name: a.name, menuId: a.menuId, date: a.date, startedAt: a.startedAt, endedAt: Date.now(), updatedAt: Date.now() });
+  DB.active = null;
+  cleanupDrafts();
+  save();
+  Timer.stop();
+  renderRecord(); updateTabbar(); window.scrollTo(0, 0);
+  if (summary.sets > 0) showSummary(summary);
+  else toast('トレーニングを終了しました');
+}
+function sessionSummary(a, recs) {
+  const items = []; let sets = 0, vol = 0, beats = 0, prs = 0;
+  for (const r of recs) {
+    const ds = doneSets(r); if (!ds.length) continue;
+    const ex = getEx(r.exerciseId);
+    const prevs = prevRecords(r.exerciseId, a.id, a.date);
+    const pd = prevs[0] ? doneSets(prevs[0]) : [];
+    let allMax = 0; for (const p of prevs) allMax = Math.max(allMax, setsStats(doneSets(p)).maxW);
+    let b = 0; ds.forEach((s, i) => { if (pd.length && beatsPrev(s, pd[Math.min(i, pd.length - 1)])) b++; });
+    const st = setsStats(ds);
+    const pr = prevs.length > 0 && st.maxW > allMax && st.maxW > 0;
+    sets += ds.length; vol += st.vol; beats += b; if (pr) prs++;
+    items.push({ ex, ds, beats: b, pr });
+  }
+  return { name: a.name, date: a.date, minutes: Math.max(1, Math.round((Date.now() - a.startedAt) / 60000)), items, sets, vol, beats, prs };
+}
+function showSummary(sm) {
+  openSheet({
+    title: 'おつかれさまでした！',
+    render: () => `<div class="summary-hero"><div class="big">${esc(sm.name)}</div><div class="muted">${fmtDate(sm.date, true)} ・ 約${sm.minutes}分</div></div>
+      <div class="summary-grid"><div><b>${sm.items.length}</b><span>種目</span></div><div><b>${sm.sets}</b><span>完了セット</span></div>
+      <div><b>${fmtBig(sm.vol)}</b><span>総負荷量（kg）</span></div><div><b>${sm.beats}</b><span>前回超えセット</span></div></div>
+      ${sm.prs ? `<p class="hint" style="text-align:center;margin-bottom:10px"><span class="badge badge-pr">🏆 自己ベスト更新 ${sm.prs}種目</span></p>` : ''}
+      ${sm.items.map((it) => `<div class="sum-ex"><div class="sum-ex-name">${esc(it.ex.name)}${it.beats ? `<span class="badge badge-beat">前回超え ×${it.beats}</span>` : ''}${it.pr ? '<span class="badge badge-pr">自己ベスト</span>' : ''}</div>
+        <div class="sum-ex-sets">${esc(fmtSets(it.ds, it.ex))}</div></div>`).join('')}`,
+    renderFoot: () => `<button type="button" class="btn" data-s="__close">閉じる</button><button type="button" class="btn btn-primary" data-s="graph">成長グラフを見る</button>`,
+    actions: { graph: (t, s) => { s.close(); DB.ui.graphExId = sm.items[0] ? sm.items[0].ex.id : DB.ui.graphExId; UI.selDate = null; save(); setTab('graph'); } }
+  });
+}
+
+/* 入力操作 */
+function stepSet(el) {
+  const rec = curRec(); if (!rec) return;
+  const i = +el.dataset.i, f = el.dataset.f, d = +el.dataset.d;
+  const s = rec.sets[i]; if (!s) return;
+  const ex = getEx(rec.exerciseId);
+  const input = el.parentElement.querySelector('input');
+  let base = s[f];
+  if (base == null) base = parseNum(input.placeholder);
+  if (base == null) base = 0;
+  let v = f === 'w' ? round2(base + d * ex.stepKg) : Math.round(base + d);
+  v = Math.max(0, v);
+  if (f === 'r') v = Math.min(v, 999);
+  s[f] = v;
+  input.value = fmtNum(v);
+  rec.updatedAt = Date.now();
+  save();
+  if (s.done) renderRecord();
+}
+function toggleDone(i) {
+  const rec = curRec(); if (!rec) return;
+  const s = rec.sets[i]; if (!s) return;
+  const row = $$('.set-row')[i];
+  if (!s.done) {
+    const inW = row && row.querySelector('[data-input="set-w"]');
+    const inR = row && row.querySelector('[data-input="set-r"]');
+    if (s.w == null && inW) { const p = parseNum(inW.placeholder); if (p != null) s.w = p; }
+    if (s.r == null && inR) { const p = parseNum(inR.placeholder); if (p != null) s.r = Math.round(p); }
+    if (s.w == null) { toast('重量を入力してください（自重なら0）'); if (inW) inW.focus(); return; }
+    if (!(s.r > 0)) { toast('回数を入力してください'); if (inR) inR.focus(); return; }
+    s.done = true;
+    vibrate(30);
+    if (DB.settings.autoRest) Timer.start(DB.settings.restSec);
+  } else {
+    s.done = false;
+  }
+  rec.updatedAt = Date.now();
+  save();
+  renderRecord();
+}
+
+/* =====================================================================
+   2. 種目・メニュー管理
+   ===================================================================== */
+function renderManage() {
+  const v = $('#view-manage');
+  let h = `<header class="view-header"><div class="brand"><span class="brand-mark">${ICON.logo}</span><div><div class="eyebrow">LiftCanvas</div><h1>種目・メニュー管理</h1></div></div></header>
+    <div class="seg" role="group" aria-label="表示切り替え">
+      <button type="button" data-act="manage-view" data-v="menus" aria-pressed="${UI.manageView === 'menus'}">種目セット</button>
+      <button type="button" data-act="manage-view" data-v="exercises" aria-pressed="${UI.manageView === 'exercises'}">種目の一覧・追加</button></div>
+    <div style="height:14px"></div>`;
+  h += UI.manageView === 'menus' ? renderMenusManage() : renderExercisesManage();
+  v.innerHTML = h;
+}
+function renderMenusManage() {
+  let h = `<button type="button" class="btn btn-primary btn-block btn-lg" data-act="menu-new">${ICON.plus}新しい種目セットを作る</button>
+    <p class="hint" style="margin-bottom:14px">よく行う種目の組み合わせを登録しておくと、「記録する」画面からワンタップで始められます。↑↓で並び替えできます。</p>`;
+  if (!DB.menus.length) h += `<div class="card empty">種目セットはまだありません。</div>`;
+  h += DB.menus.map((m, i) => `<article class="card"><div class="mm-head"><div class="mm-name">${esc(m.name)}</div><div class="mm-count">${m.exerciseIds.length}種目</div></div>
+    <ol class="mm-list">${m.exerciseIds.map((id) => `<li>${esc(getEx(id).name)}</li>`).join('')}</ol>
+    <div class="mm-actions">
+      <button type="button" class="btn btn-icon" data-act="menu-move" data-i="${i}" data-d="-1" ${i === 0 ? 'disabled' : ''} aria-label="上へ移動">${ICON.up}</button>
+      <button type="button" class="btn btn-icon" data-act="menu-move" data-i="${i}" data-d="1" ${i === DB.menus.length - 1 ? 'disabled' : ''} aria-label="下へ移動">${ICON.down}</button>
+      <button type="button" class="btn" data-act="menu-dup" data-id="${esc(m.id)}">複製</button>
+      <button type="button" class="btn" data-act="menu-edit" data-id="${esc(m.id)}">編集</button>
+      <button type="button" class="btn btn-icon btn-danger-ghost" data-act="menu-del" data-id="${esc(m.id)}" aria-label="削除">${ICON.trash}</button>
+    </div></article>`).join('');
+  return h;
+}
+function renderExercisesManage() {
+  const cats = ['すべて', '自分の種目', ...CATEGORIES];
+  return `<button type="button" class="btn btn-primary btn-block btn-lg" data-act="ex-new">${ICON.plus}自分の種目を追加する</button>
+    <p class="hint">「ブロッククリーン」「スナッチバランス」やジムの独自マシンなど、自由に登録できます。標準の種目もタップで目標回数・刻みを調整できます。</p>
+    <div class="search">${ICON.search}<input type="search" class="input" data-input="ex-search" placeholder="種目名で検索" value="${esc(UI.exQuery)}" aria-label="種目名で検索"></div>
+    <div class="chips-scroll" role="group" aria-label="カテゴリ">${cats.map((c) => `<button type="button" class="chip" data-act="ex-cat" data-c="${esc(c)}" aria-pressed="${UI.exCat === c}">${esc(c)}</button>`).join('')}</div>
+    <div id="exList">${renderExList()}</div>`;
+}
+function filterExercises(q, cat) {
+  q = (q || '').trim().toLowerCase();
+  return allEx().filter((e) => {
+    if (cat === '自分の種目' && !e.custom) return false;
+    if (cat === '記録あり' && !exSummary(e.id)) return false;
+    if (CATEGORIES.includes(cat) && e.part !== cat) return false;
+    if (q && !e.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+function renderExList() {
+  const list = filterExercises(UI.exQuery, UI.exCat);
+  if (!list.length) return `<div class="card empty">該当する種目がありません。${UI.exCat === '自分の種目' ? '<br>上のボタンから追加できます。' : ''}</div>`;
+  return CATEGORIES.map((cat) => {
+    const items = list.filter((e) => e.part === cat);
+    if (!items.length) return '';
+    return `<h3 class="group-title">${esc(cat)} <span>${items.length}種目</span></h3><div class="list">${items.map((e) => {
+      const sm = exSummary(e.id);
+      return `<button type="button" class="list-item" data-act="ex-open" data-id="${esc(e.id)}"><div class="li-main">
+        <div class="li-title">${esc(e.name)}${e.custom ? '<span class="badge badge-custom">自分で追加</span>' : ''}</div>
+        <div class="li-sub">${esc(e.equipment)} ・ 刻み${fmtNum(e.stepKg)}kg ・ 目標${e.defaultTargetReps}回${sm ? ` ・ 最終 ${fmtDate(sm.last)}` : ''}</div></div>${ICON.chevR}</button>`;
+    }).join('')}</div>`;
+  }).join('');
+}
+
+/* 種目選択シート（単一/複数） */
+function pickExercises({ title = '種目を選ぶ', multi = false, exclude = [], initialCat = 'すべて', onDone }) {
+  const st = { q: '', cat: initialCat, sel: [] };
+  const cats = ['すべて', '記録あり', '自分の種目', ...CATEGORIES];
+  const listHtml = () => {
+    const list = filterExercises(st.q, st.cat);
+    if (!list.length) return `<p class="empty">該当する種目がありません。</p>`;
+    const groups = st.cat === '記録あり'
+      ? [{ name: '記録がある種目（新しい順）', items: list.sort((a, b) => (exSummary(a.id).last < exSummary(b.id).last ? 1 : -1)) }]
+      : CATEGORIES.map((c) => ({ name: c, items: list.filter((e) => e.part === c) }));
+    return groups.filter((g) => g.items.length).map((g) => `<h3 class="group-title">${esc(g.name)}</h3><div class="list">${g.items.map((e) => {
+      const sm = exSummary(e.id);
+      const ex = exclude.includes(e.id);
+      const on = st.sel.includes(e.id);
+      return `<button type="button" class="list-item ${on ? 'selected' : ''}" data-s="pick" data-id="${esc(e.id)}" ${ex ? 'disabled' : ''}>
+        ${multi ? `<span class="check-circle">${ICON.check}</span>` : ''}<div class="li-main"><div class="li-title">${esc(e.name)}${e.custom ? '<span class="badge badge-custom">自分で追加</span>' : ''}${ex ? '<span class="badge">追加済み</span>' : ''}</div>
+        <div class="li-sub">${esc(e.equipment)}${sm ? ` ・ 最終 ${fmtDate(sm.last)} ・ 最高 ${fmtNum(sm.maxW)}kg` : ' ・ 未実施'}</div></div>${multi ? '' : ICON.chevR}</button>`;
+    }).join('')}</div>`).join('');
+  };
+  openSheet({
+    title, state: st,
+    render: () => `<div class="picker-top"><div class="search">${ICON.search}<input type="search" class="input" data-f="q" placeholder="種目名で検索" value="${esc(st.q)}" aria-label="種目名で検索"></div>
+      <div class="chips-scroll">${cats.map((c) => `<button type="button" class="chip" data-s="cat" data-v="${esc(c)}" aria-pressed="${st.cat === c}">${esc(c)}</button>`).join('')}</div></div>
+      <div class="picker-list">${listHtml()}</div>
+      <div style="height:14px"></div><button type="button" class="btn btn-outline btn-block" data-s="create">${ICON.plus}リストにない種目を新しく作る</button>`,
+    renderFoot: multi ? () => `<button type="button" class="btn" data-s="__close">キャンセル</button><button type="button" class="btn btn-primary" data-s="confirm" ${st.sel.length ? '' : 'disabled'}>${st.sel.length ? `${st.sel.length}種目を追加` : '種目を選んでください'}</button>` : null,
+    onInput: (el, s) => { if (el.dataset.f === 'q') { st.q = el.value; $('.picker-list', s.body).innerHTML = listHtml(); } },
+    actions: {
+      cat: (t, s) => { st.cat = t.dataset.v; s.render(); },
+      pick: (t, s) => {
+        const id = t.dataset.id;
+        if (!multi) { s.close(); onDone([id]); return; }
+        const k = st.sel.indexOf(id);
+        if (k >= 0) st.sel.splice(k, 1); else st.sel.push(id);
+        t.classList.toggle('selected', k < 0);
+        s.renderFoot();
+      },
+      confirm: (t, s) => { s.close(); onDone([...st.sel]); },
+      create: (t, s) => openExerciseForm(null, (newId) => {
+        if (multi) { st.sel.push(newId); st.cat = '自分の種目'; s.render(); } else { s.close(); onDone([newId]); }
+      }, CATEGORIES.includes(st.cat) ? st.cat : undefined)
+    }
+  });
+}
+
+/* 自分の種目フォーム */
+function openExerciseForm(id, onSaved, defaultPart) {
+  const ex = id ? DB.customExercises.find((e) => e.id === id) : null;
+  const st = ex
+    ? { name: ex.name, part: ex.part, equipment: ex.equipment, stepKg: ex.stepKg, reps: ex.defaultTargetReps, dirty: false }
+    : { name: '', part: defaultPart || '全身・WL', equipment: 'バーベル', stepKg: (defaultPart || '全身・WL') === '全身・WL' ? 1.0 : 2.5, reps: (defaultPart || '全身・WL') === '全身・WL' ? 3 : 10, dirty: false };
+  const chipGroup = (key, values, fmt = (v) => v) => `<div class="chip-grid">${values.map((v) => `<button type="button" class="chip" data-s="pick" data-k="${key}" data-v="${esc(v)}" aria-pressed="${String(st[key]) === String(v)}">${esc(fmt(v))}</button>`).join('')}</div>`;
+  openSheet({
+    title: ex ? '自分の種目を編集' : '自分の種目を追加', state: st, dismissible: false,
+    isDirty: () => st.dirty,
+    render: () => `<label class="field"><span class="field-label">種目名<em>必須</em></span>
+        <input class="input" data-f="name" maxlength="30" value="${esc(st.name)}" placeholder="例：ブロッククリーン、スナッチバランス" autocomplete="off"></label>
+      <div class="field"><span class="field-label">カテゴリ</span>${chipGroup('part', CATEGORIES)}</div>
+      <div class="field"><span class="field-label">器具</span>${chipGroup('equipment', EQUIPMENTS)}</div>
+      <div class="field"><span class="field-label">重量の刻み（＋−ボタン1回分）</span>${chipGroup('stepKg', STEP_OPTIONS, (v) => fmtNum(v) + 'kg')}</div>
+      <div class="field"><span class="field-label">目標回数の目安（1〜30回）</span>
+        <div class="big-stepper"><button type="button" data-s="reps" data-d="-1" aria-label="減らす">−</button><input data-f="reps" inputmode="numeric" value="${st.reps}" aria-label="目標回数"><span>回</span><button type="button" data-s="reps" data-d="1" aria-label="増やす">＋</button></div>
+        <p class="hint">目安：ウェイトリフティング系は3回前後、一般的な筋トレは8〜12回。</p></div>
+      ${ex ? `<button type="button" class="btn btn-danger-ghost btn-block" data-s="delete">${ICON.trash}この種目を削除</button>` : ''}`,
+    renderFoot: () => `<button type="button" class="btn" data-s="__close">キャンセル</button><button type="button" class="btn btn-primary" data-s="save">保存する</button>`,
+    onInput: (el) => {
+      if (el.dataset.f === 'name') { st.name = el.value; st.dirty = true; }
+      if (el.dataset.f === 'reps') { const n = parseInt(parseNum(el.value), 10); if (n) st.reps = clamp(n, 1, 30); st.dirty = true; }
+    },
+    onChange: (el) => { if (el.dataset.f === 'reps') el.value = st.reps; },
+    actions: {
+      pick: (t, s) => { const k = t.dataset.k; st[k] = k === 'stepKg' ? Number(t.dataset.v) : t.dataset.v; st.dirty = true; s.render(); },
+      reps: (t, s) => { st.reps = clamp(st.reps + Number(t.dataset.d), 1, 30); st.dirty = true; s.render(); },
+      save: async (t, s) => {
+        const name = st.name.trim();
+        if (!name) { toast('種目名を入力してください'); $('[data-f="name"]', s.body).focus(); return; }
+        const dup = allEx().find((e) => e.name === name && e.id !== id);
+        if (dup) {
+          const ok = await confirmSheet({ title: '同じ名前の種目があります', message: `<p>「${esc(name)}」（${esc(dup.part)}）はすでに登録されています。このまま保存しますか？</p>`, ok: '保存する' });
+          if (!ok) return;
+        }
+        const now = Date.now();
+        let newId = id;
+        if (ex) {
+          const partChanged = ex.part !== st.part;
+          Object.assign(ex, { name, part: st.part, equipment: st.equipment, stepKg: st.stepKg, defaultTargetReps: st.reps, updatedAt: now });
+          if (partChanged || !ex.relatedIds.length) ex.relatedIds = autoRelated(st.part, st.equipment, ex.id);
+        } else {
+          newId = uid('custom');
+          DB.customExercises.push({ id: newId, name, part: st.part, equipment: st.equipment, stepKg: st.stepKg, defaultTargetReps: st.reps, relatedIds: autoRelated(st.part, st.equipment, newId), createdAt: now, updatedAt: now });
+        }
+        invalidateEx(); save();
+        s.close();
+        toast(ex ? '種目を更新しました' : `「${name}」を追加しました`, 'ok');
+        renderCurrent();
+        if (onSaved) onSaved(newId);
+      },
+      delete: async (t, s) => {
+        const n = DB.records.filter((r) => r.exerciseId === id && doneSets(r).length).length;
+        const ok = await confirmSheet({ title: 'この種目を削除しますか？', message: `<p>「${esc(ex.name)}」を削除します。${n ? `<br><b>この種目の記録（${n}件）も削除されます。</b>` : ''}種目セットからも外れます。</p>`, ok: '削除する', danger: true });
+        if (!ok) return;
+        deleteCustomExercise(id);
+        s.close();
+        toast('種目を削除しました');
+        renderCurrent();
+      }
+    }
+  });
+}
+function deleteCustomExercise(id) {
+  DB.customExercises = DB.customExercises.filter((e) => e.id !== id);
+  DB.records = DB.records.filter((r) => r.exerciseId !== id);
+  DB.menus.forEach((m) => { m.exerciseIds = m.exerciseIds.filter((x) => x !== id); });
+  if (DB.active) {
+    const a = DB.active; const cur = a.exerciseIds[a.idx];
+    a.exerciseIds = a.exerciseIds.filter((x) => x !== id);
+    a.idx = Math.max(0, cur === id ? Math.min(a.idx, a.exerciseIds.length - 1) : a.exerciseIds.indexOf(cur));
+  }
+  if (DB.ui.graphExId === id) DB.ui.graphExId = null;
+  invalidateEx(); save();
+}
+
+/* 標準種目の詳細（目標回数・刻みの調整） */
+function openExerciseDetail(id) {
+  if (DB.customExercises.some((e) => e.id === id)) { openExerciseForm(id); return; }
+  const base = MASTER_EXERCISES.find((e) => e.id === id); if (!base) return;
+  const ex = getEx(id);
+  const st = { stepKg: ex.stepKg, reps: ex.defaultTargetReps };
+  const sm = exSummary(id);
+  openSheet({
+    title: ex.name, state: st,
+    render: () => `<dl class="info-grid"><dt>カテゴリ</dt><dd>${esc(ex.part)}</dd><dt>器具</dt><dd>${esc(ex.equipment)}</dd>
+        <dt>記録</dt><dd>${sm ? `${sm.days}日分 ・ 最高 ${fmtNum(sm.maxW)}kg ・ 最終 ${fmtDate(sm.last)}` : 'まだありません'}</dd>
+        <dt>関連種目</dt><dd>${relatedOf(ex).map((r) => esc(getEx(r).name)).join('、') || '-'}</dd></dl>
+      <div class="field"><span class="field-label">重量の刻み（＋−ボタン1回分）</span><div class="chip-grid">${STEP_OPTIONS.map((v) => `<button type="button" class="chip" data-s="step" data-v="${v}" aria-pressed="${st.stepKg === v}">${fmtNum(v)}kg</button>`).join('')}</div></div>
+      <div class="field"><span class="field-label">目標回数の目安（1〜30回）</span>
+        <div class="big-stepper"><button type="button" data-s="reps" data-d="-1" aria-label="減らす">−</button><input data-f="reps" inputmode="numeric" value="${st.reps}" aria-label="目標回数"><span>回</span><button type="button" data-s="reps" data-d="1" aria-label="増やす">＋</button></div>
+        <p class="hint">標準の値：刻み${fmtNum(base.stepKg)}kg ・ 目標${base.defaultTargetReps}回</p></div>
+      <button type="button" class="btn btn-ghost btn-block" data-s="reset">標準の値に戻す</button>
+      ${sm ? `<button type="button" class="btn btn-outline btn-block" data-s="graph">${ICON.chart}この種目のグラフを見る</button>` : ''}`,
+    renderFoot: () => `<button type="button" class="btn" data-s="__close">閉じる</button><button type="button" class="btn btn-primary" data-s="save">保存する</button>`,
+    onInput: (el) => { if (el.dataset.f === 'reps') { const n = parseInt(parseNum(el.value), 10); if (n) st.reps = clamp(n, 1, 30); } },
+    actions: {
+      step: (t, s) => { st.stepKg = Number(t.dataset.v); s.render(); },
+      reps: (t, s) => { st.reps = clamp(st.reps + Number(t.dataset.d), 1, 30); s.render(); },
+      reset: (t, s) => { st.stepKg = base.stepKg; st.reps = base.defaultTargetReps; s.render(); },
+      graph: (t, s) => { s.close(); DB.ui.graphExId = id; UI.selDate = null; save(); setTab('graph'); },
+      save: (t, s) => {
+        const o = {};
+        if (st.stepKg !== base.stepKg) o.stepKg = st.stepKg;
+        if (st.reps !== base.defaultTargetReps) o.defaultTargetReps = st.reps;
+        if (Object.keys(o).length) DB.overrides[id] = o; else delete DB.overrides[id];
+        invalidateEx(); save(); s.close(); toast('設定を保存しました', 'ok'); renderCurrent();
+      }
+    }
+  });
+}
+
+/* 種目セット編集 */
+function openMenuEditor(menuId) {
+  const m = menuId ? DB.menus.find((x) => x.id === menuId) : null;
+  const st = { name: m ? m.name : '', ids: m ? m.exerciseIds.filter((id) => exMap().has(id)) : [], dirty: false };
+  openSheet({
+    title: m ? '種目セットを編集' : '新しい種目セット', state: st, dismissible: false,
+    isDirty: () => st.dirty,
+    render: () => `<label class="field"><span class="field-label">セットの名前<em>必須</em></span>
+        <input class="input" data-f="name" maxlength="30" value="${esc(st.name)}" placeholder="例：WL・スクワットの日" autocomplete="off"></label>
+      <div class="field"><span class="field-label">種目（上から順に行います）</span>
+        ${st.ids.length ? `<ol class="edit-list">${st.ids.map((id, i) => { const e = getEx(id); return `<li><span class="el-n">${i + 1}</span><span class="el-name">${esc(e.name)}<small>${esc(e.part)} ・ ${esc(e.equipment)}</small></span>
+          <button type="button" class="icon-btn" data-s="move" data-i="${i}" data-d="-1" ${i === 0 ? 'disabled' : ''} aria-label="上へ">${ICON.up}</button>
+          <button type="button" class="icon-btn" data-s="move" data-i="${i}" data-d="1" ${i === st.ids.length - 1 ? 'disabled' : ''} aria-label="下へ">${ICON.down}</button>
+          <button type="button" class="icon-btn" data-s="remove" data-i="${i}" aria-label="外す">${ICON.close}</button></li>`; }).join('')}</ol>` : '<p class="empty-mini">まだ種目がありません。下のボタンから追加してください。</p>'}
+        <div style="height:10px"></div><button type="button" class="btn btn-outline btn-block" data-s="add">${ICON.plus}種目を追加</button></div>`,
+    renderFoot: () => `<button type="button" class="btn" data-s="__close">キャンセル</button><button type="button" class="btn btn-primary" data-s="save">保存する</button>`,
+    onInput: (el) => { if (el.dataset.f === 'name') { st.name = el.value; st.dirty = true; } },
+    actions: {
+      move: (t, s) => { const i = +t.dataset.i, j = i + Number(t.dataset.d); if (j < 0 || j >= st.ids.length) return; [st.ids[i], st.ids[j]] = [st.ids[j], st.ids[i]]; st.dirty = true; s.render(); },
+      remove: (t, s) => { st.ids.splice(+t.dataset.i, 1); st.dirty = true; s.render(); },
+      add: (t, s) => pickExercises({ title: 'セットに追加する種目', multi: true, exclude: st.ids, onDone: (ids) => { st.ids.push(...ids); st.dirty = true; s.render(); } }),
+      save: (t, s) => {
+        const name = st.name.trim();
+        if (!name) { toast('セットの名前を入力してください'); $('[data-f="name"]', s.body).focus(); return; }
+        if (!st.ids.length) { toast('種目を1つ以上追加してください'); return; }
+        if (m) Object.assign(m, { name, exerciseIds: [...st.ids], updatedAt: Date.now() });
+        else DB.menus.push({ id: uid('menu'), name, exerciseIds: [...st.ids], updatedAt: Date.now() });
+        save(); s.close(); toast('種目セットを保存しました', 'ok'); renderCurrent();
+      }
+    }
+  });
+}
+
+/* =====================================================================
+   3. 成長グラフ
+   ===================================================================== */
+function periodStart(p) {
+  const d = new Date(); d.setHours(0, 0, 0, 0);
+  if (p === '1m') d.setMonth(d.getMonth() - 1);
+  else if (p === '3m') d.setMonth(d.getMonth() - 3);
+  else if (p === '6m') d.setMonth(d.getMonth() - 6);
+  else return null;
+  return ymd(d);
+}
+function dailySeries(exId) {
+  const map = new Map();
+  const recs = DB.records.filter((r) => r.exerciseId === exId && doneSets(r).length).sort((a, b) => (a.updatedAt || 0) - (b.updatedAt || 0));
+  for (const r of recs) {
+    if (!map.has(r.date)) map.set(r.date, { date: r.date, sets: [], memos: [] });
+    const g = map.get(r.date);
+    g.sets.push(...doneSets(r));
+    if (r.memo) g.memos.push(r.memo);
+  }
+  return [...map.values()].sort((a, b) => (a.date < b.date ? -1 : 1)).map((g) => ({ ...g, x: dayNum(g.date), stats: setsStats(g.sets) }));
+}
+function metricVal(stats, metric) {
+  if (metric === 'e1rm') return round1(stats.e1rm);
+  if (metric === 'volume') return stats.vol;
+  if (metric === 'reps') return stats.maxR;
+  return stats.maxW;
+}
+function niceStep(raw) {
+  if (!(raw > 0)) return 1;
+  const p = Math.pow(10, Math.floor(Math.log10(raw)));
+  const n = raw / p;
+  const m = n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10;
+  return m * p;
+}
+/* 縦軸の自動調整：0始まりにせず、表示データの最小〜最大に約20%（最低±5kg）の余白をとる */
+function computeYRange(vals, metric) {
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  const range = hi - lo;
+  const minPad = metric === 'reps' ? 2 : metric === 'volume' ? Math.max(5, hi * 0.05) : 5;
+  const pad = Math.max(range * 0.2, minPad);
+  let min = lo - pad, max = hi + pad;
+  if (min < 0) min = 0;
+  let step = niceStep((max - min) / 5);
+  if (metric === 'reps') step = Math.max(1, Math.round(step));
+  else step = Math.max(0.5, step);
+  min = Math.floor(min / step) * step;
+  max = Math.ceil(max / step) * step;
+  if (max <= min) max = min + step;
+  return { min: round2(min), max: round2(max), step };
+}
+function computeXRange(pts) {
+  const a = pts[0].x, b = pts[pts.length - 1].x;
+  if (b - a < 6) { const c = (a + b) / 2; return { min: c - 4, max: c + 4, span: 8 }; }
+  const p = Math.max(1, (b - a) * 0.05);
+  return { min: a - p, max: b + p, span: b - a };
+}
+function xLabel(v, xr) {
+  const d = new Date(Math.round(v) * 864e5);
+  return xr.span > 150 ? `${d.getUTCMonth() + 1}月` : `${d.getUTCMonth() + 1}/${d.getUTCDate()}`;
+}
+function fmtTick(v, metric) {
+  if (metric === 'volume' && v >= 1000) return Math.round(v).toLocaleString('ja-JP');
+  return fmtNum(v);
+}
+
+function renderGraph() {
+  const v = $('#view-graph');
+  const g = DB.ui;
+  const withRec = exercisesWithRecords();
+  const hasDemo = DB.records.some((r) => r.demo);
+  let h = `<header class="view-header"><div class="brand"><span class="brand-mark">${ICON.logo}</span><div><div class="eyebrow">LiftCanvas</div><h1>成長グラフ</h1></div></div></header>`;
+  if (chartObj) { chartObj.destroy(); chartObj = null; }
+  if (!withRec.length) {
+    graphPts = [];
+    v.innerHTML = h + `<div class="card empty"><p style="font-size:40px;margin:0">📈</p><p><b>まだ記録がありません</b><br>「記録する」でセットを完了✓にすると、ここに成長の推移が表示されます。</p>
+      <button type="button" class="btn btn-primary btn-block" data-act="tab" data-tab="record">記録を始める</button>
+      <button type="button" class="btn btn-outline btn-block" data-act="demo-add">サンプル記録でグラフを試してみる</button>
+      <p class="hint small">サンプル記録はあとからワンタップで削除できます。</p></div>`;
+    return;
+  }
+  if (!g.graphExId || !withRec.some((x) => x.id === g.graphExId)) { g.graphExId = withRec[0].id; UI.selDate = null; }
+  const ex = getEx(g.graphExId);
+  const series = dailySeries(ex.id);
+  const start = periodStart(g.period);
+  const pts = series.filter((p) => !start || p.date >= start).map((p) => ({ ...p, y: metricVal(p.stats, g.metric) }));
+  graphPts = pts;
+  const m = METRICS[g.metric];
+  if (!UI.selDate || !pts.some((p) => p.date === UI.selDate)) UI.selDate = pts.length ? pts[pts.length - 1].date : null;
+
+  if (hasDemo) h += `<div class="demo-banner"><span>サンプル記録を表示中です</span><button type="button" class="btn" data-act="demo-remove">サンプルを削除</button></div>`;
+  h += `<button type="button" class="ex-select" data-act="graph-pick-ex"><div class="es-main"><span class="eyebrow">種目（タップで変更）</span><b>${esc(ex.name)}</b></div>${ICON.chevD}</button>
+    <div class="chips-scroll" style="margin-top:10px" role="group" aria-label="最近の種目">${[{ id: ex.id }, ...withRec.filter((x) => x.id !== ex.id)].slice(0, 10).map((x) => `<button type="button" class="chip" data-act="graph-ex" data-id="${esc(x.id)}" aria-pressed="${x.id === ex.id}">${esc(getEx(x.id).name)}</button>`).join('')}</div>
+    <div class="seg" role="group" aria-label="グラフの指標">${Object.entries(METRICS).map(([k, mm]) => `<button type="button" data-act="graph-metric" data-v="${k}" aria-pressed="${g.metric === k}">${mm.label}</button>`).join('')}</div>
+    <p class="metric-desc">${esc(m.desc)}</p>
+    <div class="card chart-card">
+      <div class="seg" role="group" aria-label="表示期間">${PERIODS.map((p) => `<button type="button" data-act="graph-period" data-v="${p.key}" aria-pressed="${g.period === p.key}">${p.label}${p.sub ? `<small>${p.sub}</small>` : ''}</button>`).join('')}</div>`;
+  if (pts.length >= 2) {
+    const f = pts[0], l = pts[pts.length - 1];
+    const diff = l.y - f.y;
+    const pct = f.y > 0 ? diff / f.y * 100 : null;
+    const cls = diff > 0 ? 'up' : diff < 0 ? 'down' : '';
+    const sign = diff > 0 ? '+' : diff < 0 ? '−' : '±';
+    const absTxt = g.metric === 'volume' ? fmtBig(Math.abs(diff)) : fmtNum(round1(Math.abs(diff)));
+    h += `<div class="growth"><div class="growth-label">期間内の成長（${m.label}）</div>
+      <div class="growth-val ${cls}">${sign}${absTxt}${m.unit}${pct != null ? `<small>/ ${sign}${Math.abs(pct).toFixed(1)}%</small>` : ''}</div>
+      <div class="growth-sub">${fmtDate(f.date)} ${fmtMetric(f.y, g.metric)} → ${fmtDate(l.date)} ${fmtMetric(l.y, g.metric)}</div></div>`;
+  } else if (pts.length === 1) {
+    h += `<div class="growth"><div class="growth-label">期間内の記録（${m.label}）</div><div class="growth-val">${fmtMetric(pts[0].y, g.metric)}</div>
+      <div class="growth-sub">記録が2回以上になると、成長の差分を表示します</div></div>`;
+  }
+  h += `<div class="chart-wrap">${pts.length ? '<canvas id="lcChart" role="img" aria-label="成長グラフ"></canvas>' : `<div class="chart-empty">この期間には記録がありません。<br>期間を「1年（全期間）」などに広げてみてください。</div>`}</div>
+    ${pts.length ? '<p class="chart-hint">点をタップすると、その日のセット内容を表示します</p><div id="pointDetail"></div>' : ''}</div>`;
+
+  const all = series;
+  let bestW = null, best1 = null;
+  for (const p of all) {
+    if (!bestW || p.stats.maxW > bestW.stats.maxW) bestW = p;
+    if (!best1 || p.stats.e1rm > best1.stats.e1rm) best1 = p;
+  }
+  h += `<div class="stats-grid">
+    <div class="stat-tile"><span>自己ベスト（重量）</span><b>${fmtNum(bestW.stats.maxW)}kg</b><small>${fmtDate(bestW.date)}</small></div>
+    <div class="stat-tile"><span>推定1RMベスト</span><b>${fmtNum(round1(best1.stats.e1rm))}kg</b><small>${fmtDate(best1.date)}</small></div>
+    <div class="stat-tile"><span>実施日数</span><b>${all.length}日</b><small>全期間</small></div>
+    <div class="stat-tile"><span>最終実施</span><b>${fmtDate(all[all.length - 1].date)}</b><small>${Math.round((dayNum(ymd()) - all[all.length - 1].x))}日前</small></div></div>`;
+
+  const recs = exRecords(ex.id);
+  h += `<section class="section"><div class="section-head"><h2>過去の履歴</h2><span class="muted" style="font-size:13px">${recs.length}件</span></div>`;
+  h += recs.slice(0, UI.histLimit).map((r) => {
+    const ds = doneSets(r); const st = setsStats(ds);
+    const live = DB.active && r.sessionId === DB.active.id;
+    return `<article class="card hist-item"><div class="hist-top"><div class="hist-date">${fmtDate(r.date, true)}</div>
+      ${live ? '<span class="badge badge-live">記録中</span>' : ''}${r.demo ? '<span class="badge">サンプル</span>' : ''}
+      <button type="button" class="icon-btn" data-act="hist-edit" data-id="${esc(r.id)}" aria-label="この記録を編集">${ICON.edit}</button></div>
+      <div class="hist-sets">${esc(fmtSets(ds, ex))}</div>
+      <div class="hist-metrics"><span>最大 <b>${fmtNum(st.maxW)}kg</b></span><span>推定1RM <b>${fmtNum(round1(st.e1rm))}kg</b></span><span>総負荷 <b>${fmtBig(st.vol)}kg</b></span></div>
+      ${r.memo ? `<div class="hist-memo">📝 ${esc(r.memo)}</div>` : ''}</article>`;
+  }).join('');
+  if (recs.length > UI.histLimit) h += `<button type="button" class="btn btn-outline btn-block" data-act="hist-more">さらに表示（残り${recs.length - UI.histLimit}件）</button>`;
+  h += `</section>`;
+  v.innerHTML = h;
+  if (pts.length) { renderPointDetail(); drawChart(); }
+}
+function selIndex() { const i = graphPts.findIndex((p) => p.date === UI.selDate); return i >= 0 ? i : graphPts.length - 1; }
+function renderPointDetail() {
+  const el = $('#pointDetail'); if (!el) return;
+  const p = graphPts[selIndex()]; if (!p) { el.innerHTML = ''; return; }
+  const ex = getEx(DB.ui.graphExId);
+  el.innerHTML = `<div class="point-detail" aria-live="polite"><div class="pd-date">${fmtDate(p.date, true)} の内容</div>
+    <div class="pd-sets">${esc(fmtSets(p.sets, ex))}</div>
+    <div class="pd-sub">最大 ${fmtNum(p.stats.maxW)}kg ・ 推定1RM ${fmtNum(round1(p.stats.e1rm))}kg ・ 総負荷 ${fmtBig(p.stats.vol)}kg ・ ${p.sets.length}セット</div>
+    ${p.memos.length ? `<div class="pd-sub">📝 ${esc(p.memos.join(' / '))}</div>` : ''}</div>`;
+}
+function selectPoint(i) {
+  if (!graphPts[i]) return;
+  UI.selDate = graphPts[i].date;
+  renderPointDetail();
+  if (chartObj) { applyPointStyles(chartObj.data.datasets[0]); chartObj.update('none'); }
+  else drawChart();
+}
+function applyPointStyles(ds) {
+  const sel = selIndex(); const many = graphPts.length > 60;
+  ds.pointRadius = graphPts.map((_, i) => (i === sel ? 7.5 : many ? 3.5 : 5));
+  ds.pointBackgroundColor = graphPts.map((_, i) => (i === sel ? '#10284a' : '#ffffff'));
+  ds.pointBorderColor = graphPts.map((_, i) => (i === sel ? '#10284a' : '#1d5fd8'));
+}
+function drawChart() {
+  const canvas = $('#lcChart'); if (!canvas || !graphPts.length) return;
+  const metric = DB.ui.metric; const m = METRICS[metric];
+  const pts = graphPts;
+  const yr = computeYRange(pts.map((p) => p.y), metric);
+  const xr = computeXRange(pts);
+  if (window.Chart) {
+    if (chartObj) { chartObj.destroy(); chartObj = null; }
+    const ds = { data: pts.map((p) => ({ x: p.x, y: p.y })), borderColor: '#1d5fd8', backgroundColor: '#1d5fd8', borderWidth: 2.5, tension: 0, fill: false, pointHoverRadius: 8, pointHitRadius: 18, pointBorderWidth: 2.5 };
+    applyPointStyles(ds);
+    chartObj = new window.Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: { datasets: [ds] },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: { duration: 300 },
+        layout: { padding: { top: 8, right: 10, left: 0, bottom: 0 } },
+        interaction: { mode: 'nearest', axis: 'x', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            displayColors: false, backgroundColor: '#10284a', padding: 10, titleFont: { weight: 'bold' },
+            callbacks: { title: (items) => fmtDate(pts[items[0].dataIndex].date, true), label: (item) => `${m.label}: ${fmtMetric(item.parsed.y, metric)}` }
+          }
+        },
+        scales: {
+          x: { type: 'linear', min: xr.min, max: xr.max, grid: { display: false }, border: { color: '#c9d2df' },
+            ticks: { precision: 0, maxTicksLimit: 5, color: '#87919f', font: { size: 11 }, maxRotation: 0, callback: (val) => xLabel(val, xr) } },
+          y: { type: 'linear', beginAtZero: false, min: yr.min, max: yr.max, grid: { color: '#edf0f5' }, border: { display: false },
+            ticks: { stepSize: yr.step, color: '#87919f', font: { size: 11 }, callback: (val) => fmtTick(val, metric) },
+            title: { display: true, text: m.unit, color: '#87919f', font: { size: 11 } } }
+        },
+        onClick: (evt, els, chart) => {
+          const hit = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: false, axis: 'x' }, true);
+          if (hit.length) selectPoint(hit[0].index);
+        }
+      }
+    });
+  } else {
+    drawFallbackChart(canvas, pts, xr, yr, m.unit, metric);
+    if (chartStatus === 'idle' || (chartStatus === 'failed' && navigator.onLine && Date.now() - chartFailedAt > 60000)) loadChartJs();
+  }
+}
+/* Chart.js を読み込めない環境（初回オフライン等）向けの簡易描画 */
+function drawFallbackChart(canvas, pts, xr, yr, unit, metric) {
+  const wrap = canvas.parentElement;
+  const W = wrap.clientWidth, H = wrap.clientHeight, dpr = window.devicePixelRatio || 1;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  const c = canvas.getContext('2d');
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  c.clearRect(0, 0, W, H);
+  const L = 46, R = 12, T = 18, B = 26, pw = W - L - R, ph = H - T - B;
+  const X = (x) => L + (x - xr.min) / (xr.max - xr.min) * pw;
+  const Y = (y) => T + (1 - (y - yr.min) / (yr.max - yr.min)) * ph;
+  c.font = '11px system-ui, sans-serif'; c.lineWidth = 1;
+  for (let v = yr.min; v <= yr.max + 1e-9; v += yr.step) {
+    const y = Math.round(Y(v)) + 0.5;
+    c.strokeStyle = '#edf0f5'; c.beginPath(); c.moveTo(L, y); c.lineTo(W - R, y); c.stroke();
+    c.fillStyle = '#87919f'; c.textAlign = 'right'; c.fillText(fmtTick(v, metric), L - 6, y + 4);
+  }
+  c.textAlign = 'left'; c.fillText(unit, 4, 11);
+  c.strokeStyle = '#c9d2df'; c.beginPath(); c.moveTo(L, T + ph + 0.5); c.lineTo(W - R, T + ph + 0.5); c.stroke();
+  c.textAlign = 'center'; c.fillStyle = '#87919f';
+  for (let k = 0; k <= 4; k++) { const xv = xr.min + (xr.max - xr.min) * (k + 0.5) / 5; c.fillText(xLabel(xv, xr), X(xv), H - 8); }
+  c.strokeStyle = '#1d5fd8'; c.lineWidth = 2.5; c.lineJoin = 'round'; c.beginPath();
+  pts.forEach((p, i) => (i ? c.lineTo(X(p.x), Y(p.y)) : c.moveTo(X(p.x), Y(p.y))));
+  c.stroke();
+  const sel = selIndex(); const many = pts.length > 60;
+  pts.forEach((p, i) => {
+    c.beginPath(); c.arc(X(p.x), Y(p.y), i === sel ? 7.5 : many ? 3.5 : 5, 0, Math.PI * 2);
+    c.fillStyle = i === sel ? '#10284a' : '#ffffff'; c.fill();
+    c.lineWidth = 2.5; c.strokeStyle = i === sel ? '#10284a' : '#1d5fd8'; c.stroke();
+  });
+  canvas.onclick = (e) => {
+    const rect = canvas.getBoundingClientRect(); const mx = e.clientX - rect.left;
+    let best = 0, bd = Infinity;
+    pts.forEach((p, i) => { const dd = Math.abs(X(p.x) - mx); if (dd < bd) { bd = dd; best = i; } });
+    selectPoint(best);
+  };
+}
+function loadChartJs() {
+  if (window.Chart) { chartStatus = 'ready'; return; }
+  if (chartStatus === 'loading') return;
+  chartStatus = 'loading';
+  let i = 0;
+  const next = () => {
+    if (window.Chart) { chartStatus = 'ready'; return; }
+    if (i >= CHART_JS_SOURCES.length) { chartStatus = 'failed'; chartFailedAt = Date.now(); return; }
+    const s = document.createElement('script');
+    s.src = CHART_JS_SOURCES[i++]; s.async = true;
+    s.onload = () => { if (window.Chart) { chartStatus = 'ready'; if (UI.tab === 'graph' && graphPts.length) drawChart(); } else next(); };
+    s.onerror = () => { s.remove(); next(); };
+    document.head.appendChild(s);
+  };
+  next();
+}
+
+/* 過去の記録を編集 */
+function openRecordEditor(recId) {
+  const rec = DB.records.find((r) => r.id === recId); if (!rec) return;
+  if (DB.active && rec.sessionId === DB.active.id) {
+    const i = DB.active.exerciseIds.indexOf(rec.exerciseId);
+    setTab('record'); if (i >= 0) gotoExercise(i);
+    toast('トレーニング中の記録はこの画面で編集できます');
+    return;
+  }
+  const ex = getEx(rec.exerciseId);
+  const st = { date: rec.date, sets: doneSets(rec).map((s) => ({ w: s.w, r: s.r })), memo: rec.memo || '', dirty: false };
+  openSheet({
+    title: `${ex.name} の記録を編集`, state: st, dismissible: false, isDirty: () => st.dirty,
+    render: () => `<label class="field"><span class="field-label">日付</span><input type="date" class="input" data-f="date" value="${st.date}" max="${ymd()}"></label>
+      <div class="field"><span class="field-label">セット（重量kg × 回数）</span>
+      ${st.sets.map((s, i) => `<div class="edit-set"><span class="no">${i + 1}</span><input class="input" data-f="w" data-i="${i}" inputmode="decimal" value="${s.w == null ? '' : fmtNum(s.w)}" aria-label="セット${i + 1}の重量"><span class="u">kg ×</span>
+        <input class="input" data-f="r" data-i="${i}" inputmode="numeric" value="${s.r == null ? '' : s.r}" aria-label="セット${i + 1}の回数"><span class="u">回</span>
+        <button type="button" class="icon-btn" data-s="del-set" data-i="${i}" aria-label="セット${i + 1}を削除">${ICON.close}</button></div>`).join('')}
+      <button type="button" class="btn btn-outline btn-block" data-s="add-set">${ICON.plus}セットを追加</button></div>
+      <label class="field"><span class="field-label">メモ</span><textarea class="input" data-f="memo" rows="2" maxlength="500">${esc(st.memo)}</textarea></label>
+      <button type="button" class="btn btn-danger-ghost btn-block" data-s="delete">${ICON.trash}この日の記録を削除</button>`,
+    renderFoot: () => `<button type="button" class="btn" data-s="__close">キャンセル</button><button type="button" class="btn btn-primary" data-s="save">保存する</button>`,
+    onInput: (el) => {
+      const f = el.dataset.f; if (!f) return; st.dirty = true;
+      if (f === 'w') st.sets[+el.dataset.i].w = parseNum(el.value);
+      else if (f === 'r') { const n = parseNum(el.value); st.sets[+el.dataset.i].r = n == null ? null : Math.round(n); }
+      else if (f === 'memo') st.memo = el.value;
+      else if (f === 'date') st.date = el.value;
+    },
+    actions: {
+      'del-set': (t, s) => { st.sets.splice(+t.dataset.i, 1); st.dirty = true; s.render(); },
+      'add-set': (t, s) => { const l = st.sets[st.sets.length - 1]; st.sets.push({ w: l ? l.w : null, r: l ? l.r : null }); st.dirty = true; s.render(); },
+      delete: async (t, s) => {
+        const ok = await confirmSheet({ title: 'この記録を削除しますか？', message: `<p>${fmtDate(rec.date, true)} の「${esc(ex.name)}」の記録を削除します。</p>`, ok: '削除する', danger: true });
+        if (!ok) return;
+        DB.records = DB.records.filter((r) => r.id !== rec.id); save(); s.close(); toast('記録を削除しました'); renderCurrent();
+      },
+      save: (t, s) => {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(st.date)) { toast('日付を入力してください'); return; }
+        const sets = st.sets.filter((x) => x.w != null && x.r > 0).map((x) => ({ w: x.w, r: x.r, done: true }));
+        if (!sets.length) { toast('重量と回数が入ったセットが1つ以上必要です'); return; }
+        Object.assign(rec, { date: st.date, sets, memo: st.memo.trim(), updatedAt: Date.now() });
+        save(); s.close(); toast('記録を更新しました', 'ok'); renderCurrent();
+      }
+    }
+  });
+}
+
+/* サンプル記録 */
+function addDemoData() {
+  let seed = 20261119;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; };
+  const memos = ['調子よし', 'フォームを意識', '少し疲れ気味', 'スピード良好', '睡眠不足'];
+  const plans = [
+    { id: 'wl_01', w: 45, step: 1, reps: 3, sets: 4, every: 7, offset: 0, prob: 0.4 },
+    { id: 'wl_02', w: 60, step: 1, reps: 2, sets: 4, every: 7, offset: 0, prob: 0.4 },
+    { id: 'wl_05', w: 70, step: 2.5, reps: 3, sets: 4, every: 7, offset: 3, prob: 0.33 },
+    { id: 'leg_01', w: 80, step: 2.5, reps: 8, sets: 3, every: 7, offset: 3, prob: 0.3 },
+    { id: 'chest_01', w: 55, step: 2.5, reps: 10, sets: 3, every: 7, offset: 2, prob: 0.25 },
+    { id: 'back_01', w: 100, step: 2.5, reps: 5, sets: 3, every: 10, offset: 5, prob: 0.35 }
+  ];
+  const today = new Date(); today.setHours(12, 0, 0, 0);
+  const recs = [];
+  for (const p of plans) {
+    let w = p.w;
+    for (let d = 330 - p.offset; d >= 1; d -= p.every + (rnd() < 0.25 ? 1 : 0)) {
+      const date = new Date(today); date.setDate(today.getDate() - d);
+      if (rnd() < p.prob) w += p.step;
+      if (rnd() < 0.05) w = Math.max(p.w, w - p.step * 2);
+      const sets = [];
+      for (let i = 0; i < p.sets; i++) sets.push({ w: round2(w), r: Math.max(1, p.reps - (i === p.sets - 1 && rnd() < 0.3 ? 1 : 0)), done: true });
+      recs.push({ id: uid('rec'), sessionId: 'demo_' + ymd(date), date: ymd(date), exerciseId: p.id, sets, memo: rnd() < 0.12 ? memos[Math.floor(rnd() * memos.length)] : '', updatedAt: date.getTime(), demo: true });
+    }
+  }
+  DB.records.push(...recs);
+  DB.ui.graphExId = 'wl_01'; DB.ui.period = 'all'; UI.selDate = null;
+  save();
+  toast(`サンプル記録を${recs.length}件追加しました`, 'ok');
+  renderCurrent();
+}
+async function removeDemoData() {
+  const n = DB.records.filter((r) => r.demo).length;
+  if (!n) { toast('サンプル記録はありません'); return; }
+  const ok = await confirmSheet({ title: 'サンプル記録を削除しますか？', message: `<p>サンプル記録 ${n}件を削除します。あなたが入力した記録は残ります。</p>`, ok: '削除する', danger: true });
+  if (!ok) return;
+  DB.records = DB.records.filter((r) => !r.demo);
+  UI.selDate = null; save(); toast('サンプル記録を削除しました'); renderCurrent();
+}
+
+/* =====================================================================
+   4. バックアップ
+   ===================================================================== */
+function renderBackup() {
+  const v = $('#view-backup');
+  const s = DB.settings;
+  const cid = Drive.clientId();
+  const doneRecs = DB.records.filter((r) => doneSets(r).length);
+  const days = new Set(doneRecs.map((r) => r.date)).size;
+  const sets = doneRecs.reduce((n, r) => n + doneSets(r).length, 0);
+  const stale = !s.lastBackupAt || (Date.now() - s.lastBackupAt > 14 * 864e5);
+  const isFile = location.protocol === 'file:';
+  let h = `<header class="view-header"><div class="brand"><span class="brand-mark">${ICON.logo}</span><div><div class="eyebrow">LiftCanvas</div><h1>バックアップ</h1></div></div></header>
+  <div class="card"><div class="data-stats"><div><b>${days}</b><span>記録した日</span></div><div><b>${sets}</b><span>完了セット</span></div><div><b>${DB.menus.length}</b><span>種目セット</span></div><div><b>${DB.customExercises.length}</b><span>自分の種目</span></div></div>
+    <div class="last-backup ${stale && doneRecs.length ? 'warn' : ''}">最終バックアップ：${s.lastBackupAt ? `${fmtDateTime(s.lastBackupAt)}（${esc(s.lastBackupVia)}）` : 'まだありません'}${stale && doneRecs.length ? '<br>機種変更やブラウザのデータ削除に備えて、バックアップをおすすめします。' : ''}</div>
+    <p class="hint small">記録はこの端末のブラウザ内に自動保存されています${storageOK ? '' : '<b style="color:var(--danger)">（現在、保存できない状態です）</b>'}。ブラウザの履歴・サイトデータを消去すると記録も消えるのでご注意ください。</p></div>
+
+  <section class="card"><h2 class="card-title"><span class="step-num">1</span>Googleドライブに直接保存</h2>
+    <p class="hint">Googleアカウントでログインし、マイドライブに「${DRIVE_FILE_NAME}」として保存・復元します（2回目以降は同じファイルを上書き更新）。</p>
+    ${cid ? '' : '<div class="notice">この方法を使うには、下の「クライアントIDの設定」が必要です。設定なしで使いたい場合は ② のファイル保存をご利用ください。</div>'}
+    <button type="button" class="btn btn-primary btn-block" data-act="drive-backup">${ICON.upload}Googleドライブにバックアップ保存</button>
+    <button type="button" class="btn btn-outline btn-block" data-act="drive-restore">${ICON.download}Googleドライブから最新データを復元</button>
+    <details class="details" id="driveDetails" ${cid ? '' : ''}><summary>クライアントIDの設定${cid ? '（設定済み）' : ''}</summary><div class="details-body">
+      <label class="field" style="margin-bottom:10px"><span class="field-label">Google Cloud のクライアントID</span>
+        <input class="input" id="clientIdInput" value="${esc(s.googleClientId)}" placeholder="xxxxxxxx.apps.googleusercontent.com" autocomplete="off" spellcheck="false" autocapitalize="off"></label>
+      <div class="row"><button type="button" class="btn btn-primary" data-act="drive-save-id">保存</button>${s.googleClientId ? '<button type="button" class="btn" data-act="drive-clear-id">削除</button>' : ''}</div>
+      ${GOOGLE_CLIENT_ID ? '<p class="hint small">※アプリ内にクライアントIDが組み込み済みです。ここに入力した場合はこちらが優先されます。</p>' : ''}
+      <ol class="steps">
+        <li><b>Google Cloud Console</b>（console.cloud.google.com）でプロジェクトを作成します。</li>
+        <li>「APIとサービス」→「ライブラリ」で <b>Google Drive API</b> を有効にします。</li>
+        <li>「OAuth同意画面」を作成し、テストユーザーに自分のGoogleアカウントを追加します。</li>
+        <li>「認証情報」→「OAuthクライアントID」→種類「<b>ウェブアプリケーション</b>」を作成し、「承認済みのJavaScript生成元」に次のURLを追加します：<br><code>${esc(isFile ? '（https:// で公開したURL）' : location.origin)}</code></li>
+        <li>表示された「クライアントID」をコピーして上の欄に貼り付け、保存します。</li>
+      </ol>
+      <p class="hint small">使用する権限は <code>drive.file</code>（このアプリが作成したファイルのみ）です。ほかのファイルが読み取られることはありません。${isFile ? '<br><b>※ファイルを直接開いた状態（file://）ではGoogleログインが使えません。https:// で公開したページから利用してください。</b>' : ''}</p>
+    </div></details></section>
+
+  <section class="card"><h2 class="card-title"><span class="step-num">2</span>ファイルで保存・復元<span class="badge badge-live">設定不要</span></h2>
+    <p class="hint">全データを1つのファイル（JSON形式）にまとめます。共有メニューで「ドライブに保存」を選べば、そのままGoogleドライブに保存できます。</p>
+    <button type="button" class="btn btn-primary btn-block" data-act="export-share">${ICON.share}ファイルに書き出す（共有）</button>
+    <button type="button" class="btn btn-outline btn-block" data-act="export-download">${ICON.download}端末にダウンロード保存</button>
+    <button type="button" class="btn btn-outline btn-block" data-act="import-open">${ICON.upload}ファイルから復元する</button>
+    <details class="details"><summary>機種変更のときの手順</summary><div class="details-body"><ol class="steps">
+      <li><b>古い端末</b>：「ファイルに書き出す（共有）」→ Googleドライブなどに保存</li>
+      <li><b>新しい端末</b>：このアプリを開き「ファイルから復元する」→ 保存したファイルを選択</li>
+      <li>「上書き復元」または「既存データと統合」を選べば完了です</li></ol></div></details></section>
+
+  <section class="card"><h2 class="card-title">休憩タイマーの設定</h2>${restSettingsHtml('act')}</section>
+
+  <section class="card"><h2 class="card-title">サンプル記録</h2>
+    <p class="hint">グラフの見え方を試せるサンプル記録（約1年分）を追加できます。あなたの記録とは区別され、いつでも削除できます。</p>
+    <div style="height:10px"></div>
+    ${DB.records.some((r) => r.demo) ? '<button type="button" class="btn btn-outline btn-block" data-act="demo-remove">サンプル記録を削除</button>' : '<button type="button" class="btn btn-outline btn-block" data-act="demo-add">サンプル記録を追加</button>'}</section>
+
+  <section class="card danger-zone"><h2 class="card-title" style="color:var(--danger)">データの初期化</h2>
+    <p class="hint">記録・種目セット・自分の種目・設定をすべて削除し、最初の状態に戻します。先にバックアップを取ることをおすすめします。</p>
+    <div style="height:10px"></div><button type="button" class="btn btn-danger-ghost btn-block" data-act="reset-all">${ICON.trash}すべて削除して初期化</button></section>
+  <p class="app-info">LiftCanvas v${APP_VERSION} ・ 保存キー：${STORAGE_KEY}</p>`;
+  v.innerHTML = h;
+  if (cid && navigator.onLine && !isFile) Drive.loadGis().catch(() => { /* 押した時に再試行 */ });
+}
+function restSettingsHtml(mode) {
+  const s = DB.settings;
+  const a = mode === 'act' ? 'data-act' : 'data-s';
+  return `<div class="field" style="margin-bottom:10px"><span class="field-label">休憩時間：<span class="num">${fmtSec(s.restSec)}</span></span>
+    <div class="preset-grid">${REST_PRESETS.map((sec) => `<button type="button" class="chip" ${a}="rest-preset" data-v="${sec}" aria-pressed="${s.restSec === sec}">${sec < 60 ? sec + '秒' : (sec % 60 ? fmtSec(sec) : sec / 60 + '分')}</button>`).join('')}</div>
+    <div class="row" style="margin-top:8px"><button type="button" class="btn" ${a}="rest-adj" data-d="-15">−15秒</button><button type="button" class="btn" ${a}="rest-adj" data-d="15">+15秒</button></div></div>
+    <div class="switch-row"><div class="sr-text"><b>セット完了で自動スタート</b><span>✓を押すと休憩タイマーが自動で動きます</span></div>
+      <label class="switch"><input type="checkbox" data-change="autoRest" ${s.autoRest ? 'checked' : ''} aria-label="セット完了で自動スタート"><span></span></label></div>
+    <div class="switch-row"><div class="sr-text"><b>終了時に音を鳴らす</b><span>マナーモード中は鳴らない場合があります</span></div>
+      <label class="switch"><input type="checkbox" data-change="sound" ${s.sound ? 'checked' : ''} aria-label="終了時に音を鳴らす"><span></span></label></div>`;
+}
+function applyRest(type, val) {
+  if (type === 'rest-preset') DB.settings.restSec = val;
+  else DB.settings.restSec = clamp(DB.settings.restSec + val, 15, 900);
+  save();
+}
+function openTimerSettings() {
+  openSheet({
+    title: '休憩タイマー',
+    render: () => restSettingsHtml('s') + `<div style="height:8px"></div><button type="button" class="btn btn-primary btn-block btn-lg" data-s="start">${ICON.timer}今すぐ休憩タイマーを開始（${fmtSec(DB.settings.restSec)}）</button>`,
+    actions: {
+      'rest-preset': (t, s) => { applyRest('rest-preset', Number(t.dataset.v)); s.render(); },
+      'rest-adj': (t, s) => { applyRest('rest-adj', Number(t.dataset.d)); s.render(); },
+      start: (t, s) => { Timer.start(DB.settings.restSec); s.close(); }
+    },
+    onClose: () => renderCurrent()
+  });
+}
+
+/* エクスポート */
+function buildExport() {
+  const data = clone(DB);
+  data.timer = null;
+  return { app: 'LiftCanvas', format: STORAGE_KEY, version: APP_VERSION, exportedAt: new Date().toISOString(), data };
+}
+function exportFileName() { const d = new Date(); return `liftcanvas_backup_${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}_${pad2(d.getHours())}${pad2(d.getMinutes())}.json`; }
+function markBackup(via) { DB.settings.lastBackupAt = Date.now(); DB.settings.lastBackupVia = via; save(); if (UI.tab === 'backup') renderBackup(); }
+function downloadJson(json, name) {
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+async function exportShare() {
+  const json = JSON.stringify(buildExport());
+  const name = exportFileName();
+  let file = null;
+  try { file = new File([json], name, { type: 'application/json' }); } catch (e) { file = null; }
+  if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: 'LiftCanvas バックアップ', text: 'LiftCanvasのバックアップファイルです' });
+      markBackup('ファイル共有'); toast('バックアップファイルを書き出しました', 'ok');
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;
+      downloadJson(json, name); markBackup('ダウンロード'); toast('共有できなかったため、ダウンロード保存しました');
+    }
+  } else {
+    downloadJson(json, name); markBackup('ダウンロード');
+    toast('この端末は共有に非対応のため、ダウンロード保存しました');
+  }
+}
+function exportDownload() { downloadJson(JSON.stringify(buildExport(), null, 1), exportFileName()); markBackup('ダウンロード'); toast('ダウンロードを開始しました', 'ok'); }
+
+/* インポート */
+function parseImport(input) {
+  const j = typeof input === 'string' ? JSON.parse(input) : input;
+  if (!j || typeof j !== 'object') throw new Error('ファイルの形式が正しくありません');
+  const d = (j.data && typeof j.data === 'object' && (j.app === 'LiftCanvas' || j.format)) ? j.data : j;
+  if (!Array.isArray(d.records) && !Array.isArray(d.menus) && !Array.isArray(d.customExercises)) throw new Error('LiftCanvasのバックアップファイルではないようです');
+  return { data: normalize(d), exportedAt: j.exportedAt || null };
+}
+async function handleImportFile(file) {
+  if (!file) return;
+  if (file.size > 30 * 1024 * 1024) { toast('ファイルが大きすぎます', 'error'); return; }
+  try {
+    const text = await file.text();
+    const parsed = parseImport(text);
+    await askImportMode(parsed, file.name);
+  } catch (e) {
+    console.error(e);
+    toast(e instanceof SyntaxError ? 'ファイルを読み取れませんでした（JSON形式ではありません）' : (e.message || '読み込みに失敗しました'), 'error');
+  }
+}
+async function askImportMode(parsed, label) {
+  const inc = parsed.data;
+  const recs = inc.records.filter((r) => doneSets(r).length);
+  const days = new Set(recs.map((r) => r.date)).size;
+  const mode = await choiceSheet({
+    title: 'データの復元',
+    message: `<div class="import-info"><span>読み込み元</span><b>${esc(label)}</b>${parsed.exportedAt ? `<span>保存日時</span><b>${esc(fmtDateTime(Date.parse(parsed.exportedAt)))}</b>` : ''}
+      <span>記録</span><b>${days}日分（${recs.length}件）</b><span>種目セット</span><b>${inc.menus.length}件</b><span>自分の種目</span><b>${inc.customExercises.length}件</b></div><p>復元の方法を選んでください。</p>`,
+    choices: [
+      { key: 'merge', label: '既存データと統合（マージ）', desc: 'この端末の記録は残したまま、バックアップの内容を追加します。同じ記録は新しい方を残します。', cls: 'btn-primary' },
+      { key: 'overwrite', label: '上書き復元', desc: 'この端末のデータをすべて消して、バックアップの内容に置き換えます。', cls: 'btn-outline danger' }
+    ]
+  });
+  if (!mode) return;
+  if (mode === 'overwrite') {
+    const ok = await confirmSheet({ title: '上書き復元しますか？', message: '<p>この端末の現在のデータは、すべてバックアップの内容に置き換わります。この操作は取り消せません。</p>', ok: '上書き復元する', danger: true });
+    if (!ok) return;
+  }
+  applyImport(inc, mode);
+}
+function mergeById(cur, inc) {
+  const map = new Map(cur.map((x) => [x.id, x]));
+  for (const x of inc) { const e = map.get(x.id); if (!e || (x.updatedAt || 0) > (e.updatedAt || 0)) map.set(x.id, x); }
+  return [...map.values()];
+}
+function applyImport(inc, mode) {
+  Timer.stop();
+  if (mode === 'overwrite') {
+    const keepId = DB.settings.googleClientId;
+    DB = normalize(clone(inc));
+    if (!DB.settings.googleClientId) DB.settings.googleClientId = keepId;
+    DB.active = null;
+  } else {
+    DB.records = mergeById(DB.records, inc.records);
+    DB.customExercises = mergeById(DB.customExercises, inc.customExercises);
+    DB.menus = mergeById(DB.menus, inc.menus);
+    DB.sessions = mergeById(DB.sessions, inc.sessions);
+    DB.overrides = { ...inc.overrides, ...DB.overrides };
+  }
+  DB.timer = null;
+  invalidateEx(); cleanupDrafts();
+  UI.selDate = null;
+  save();
+  renderCurrent();
+  toast(mode === 'overwrite' ? 'バックアップから上書き復元しました' : 'バックアップのデータを統合しました', 'ok');
+}
+async function resetAll() {
+  const ok = await confirmSheet({ title: 'すべてのデータを削除しますか？', message: '<p>記録・種目セット・自分の種目・設定がすべて削除されます。</p>', ok: '次へ', danger: true });
+  if (!ok) return;
+  const ok2 = await confirmSheet({ title: '本当に初期化しますか？', message: '<p><b>この操作は取り消せません。</b>必要ならキャンセルしてバックアップを取ってください。</p>', ok: '初期化する', danger: true });
+  if (!ok2) return;
+  Timer.stop();
+  DB = defaultData();
+  invalidateEx(); UI.selDate = null;
+  save();
+  setTab('record');
+  toast('初期状態に戻しました');
+}
+
+/* Googleドライブ連携（Google Identity Services + Drive API v3） */
+const Drive = {
+  token: null, exp: 0, gisPromise: null,
+  clientId() { return (DB.settings.googleClientId || '').trim() || GOOGLE_CLIENT_ID; },
+  loadGis() {
+    if (window.google && window.google.accounts && window.google.accounts.oauth2) return Promise.resolve();
+    if (this.gisPromise) return this.gisPromise;
+    this.gisPromise = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://accounts.google.com/gsi/client'; s.async = true; s.defer = true;
+      s.onload = () => resolve();
+      s.onerror = () => { this.gisPromise = null; s.remove(); reject(new Error('Googleのログイン機能を読み込めませんでした。ネット接続をご確認ください')); };
+      document.head.appendChild(s);
+    });
+    return this.gisPromise;
+  },
+  async getToken() {
+    if (this.token && Date.now() < this.exp - 60000) return this.token;
+    const cid = this.clientId();
+    if (!cid) throw new Error('クライアントIDが設定されていません');
+    await this.loadGis();
+    return new Promise((resolve, reject) => {
+      const client = window.google.accounts.oauth2.initTokenClient({
+        client_id: cid,
+        scope: DRIVE_SCOPE,
+        callback: (resp) => {
+          if (!resp || resp.error) { reject(new Error('Googleへのログインが許可されませんでした' + (resp && resp.error ? `（${resp.error}）` : ''))); return; }
+          this.token = resp.access_token;
+          this.exp = Date.now() + (Number(resp.expires_in) || 3600) * 1000;
+          resolve(this.token);
+        },
+        error_callback: (err) => {
+          const t = err && err.type;
+          reject(new Error(t === 'popup_closed' ? 'ログインがキャンセルされました' : t === 'popup_failed_to_open' ? 'ログイン画面を開けませんでした（ポップアップを許可してください）' : 'Googleへのログインに失敗しました'));
+        }
+      });
+      client.requestAccessToken({ prompt: '' });
+    });
+  },
+  async api(url, opts = {}, retry = true) {
+    const token = await this.getToken();
+    const res = await fetch(url, { ...opts, headers: { ...(opts.headers || {}), Authorization: 'Bearer ' + token } });
+    if (res.status === 401 && retry) { this.token = null; return this.api(url, opts, false); }
+    if (!res.ok) {
+      let detail = '';
+      try { const j = await res.json(); detail = j.error && j.error.message ? j.error.message : ''; } catch (e) { /* noop */ }
+      throw new Error(`Googleドライブでエラーが発生しました（${res.status}）${detail ? '：' + detail : ''}`);
+    }
+    return res;
+  },
+  async findFile() {
+    const q = encodeURIComponent(`name='${DRIVE_FILE_NAME}' and trashed=false`);
+    const res = await this.api(`https://www.googleapis.com/drive/v3/files?q=${q}&spaces=drive&orderBy=modifiedTime%20desc&pageSize=10&fields=files(id%2Cname%2CmodifiedTime%2Csize)`);
+    const j = await res.json();
+    return (j.files && j.files[0]) || null;
+  },
+  async upload() {
+    const body = JSON.stringify(buildExport());
+    const f = await this.findFile();
+    if (f) {
+      await this.api(`https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(f.id)}?uploadType=media&fields=id%2CmodifiedTime`, { method: 'PATCH', headers: { 'Content-Type': 'application/json; charset=UTF-8' }, body });
+      return 'updated';
+    }
+    const boundary = 'liftcanvas' + Date.now().toString(36);
+    const meta = { name: DRIVE_FILE_NAME, mimeType: 'application/json', description: 'LiftCanvas（トレーニング記録）のバックアップ' };
+    const multipart = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${body}\r\n--${boundary}--`;
+    await this.api('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id%2CmodifiedTime', { method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${boundary}` }, body: multipart });
+    return 'created';
+  },
+  async download() {
+    const f = await this.findFile();
+    if (!f) throw new Error('Googleドライブにバックアップが見つかりませんでした（このアプリで保存したファイルのみ検索できます）');
+    const res = await this.api(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(f.id)}?alt=media`);
+    return { text: await res.text(), file: f };
+  }
+};
+function driveReady() {
+  if (!Drive.clientId()) {
+    toast('先に「クライアントIDの設定」を行ってください');
+    const d = $('#driveDetails'); if (d) { d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    return false;
+  }
+  if (location.protocol === 'file:') { toast('file:// で開いたページではGoogleログインを使えません。② のファイル保存をご利用ください', 'error'); return false; }
+  if (!navigator.onLine) { toast('インターネットに接続してから実行してください', 'error'); return false; }
+  return true;
+}
+async function driveBackup() {
+  if (!driveReady()) return;
+  setBusy(true, 'Googleドライブに保存しています…');
+  try {
+    const r = await Drive.upload();
+    markBackup('Googleドライブ');
+    toast(r === 'created' ? 'Googleドライブに新しく保存しました' : 'Googleドライブのバックアップを更新しました', 'ok');
+  } catch (e) { console.error(e); toast(e.message || '保存に失敗しました', 'error'); }
+  finally { setBusy(false); }
+}
+async function driveRestore() {
+  if (!driveReady()) return;
+  setBusy(true, 'Googleドライブから読み込んでいます…');
+  let got = null;
+  try { got = await Drive.download(); } catch (e) { console.error(e); toast(e.message || '読み込みに失敗しました', 'error'); }
+  finally { setBusy(false); }
+  if (!got) return;
+  try { await askImportMode(parseImport(got.text), `Googleドライブ（${fmtDateTime(Date.parse(got.file.modifiedTime))} 更新）`); }
+  catch (e) { toast(e.message || 'バックアップの内容を読み取れませんでした', 'error'); }
+}
+
+/* =====================================================================
+   イベント処理
+   ===================================================================== */
+const ACTIONS = {
+  'tab': (el) => setTab(el.dataset.tab),
+  'welcome-close': () => { DB.ui.welcomeDone = true; save(); renderRecord(); },
+  'goto-menus': () => { UI.manageView = 'menus'; setTab('manage'); },
+  'start-menu': (el) => { const m = DB.menus.find((x) => x.id === el.dataset.id); if (m) startSession(m.exerciseIds, m.name, m.id); },
+  'start-single': () => pickExercises({ title: '記録する種目を選ぶ（複数可）', multi: true, onDone: (ids) => { if (ids.length) startSession(ids, ids.length === 1 ? getEx(ids[0]).name : 'フリートレーニング', null); } }),
+  'finish-session': () => finishSession(),
+  'goto-ex': (el) => gotoExercise(+el.dataset.i),
+  'prev-ex': () => gotoExercise(DB.active.idx - 1),
+  'next-ex': () => gotoExercise(DB.active.idx + 1),
+  'session-add-ex': () => pickExercises({ title: '今回のトレーニングに追加', multi: true, exclude: DB.active ? DB.active.exerciseIds : [], onDone: (ids) => {
+    if (!ids.length || !DB.active) return;
+    const start = DB.active.exerciseIds.length;
+    DB.active.exerciseIds.push(...ids); save(); gotoExercise(start);
+  } }),
+  'ex-more': async () => {
+    const a = DB.active; const exId = a.exerciseIds[a.idx]; const ex = getEx(exId);
+    const choices = [];
+    if (exSummary(exId)) choices.push({ key: 'graph', label: 'この種目の成長グラフを見る' });
+    if (a.idx > 0) choices.push({ key: 'left', label: '順番を1つ前にする' });
+    if (a.idx < a.exerciseIds.length - 1) choices.push({ key: 'right', label: '順番を1つ後にする' });
+    choices.push({ key: 'detail', label: '目標回数・重量の刻みを設定' });
+    choices.push({ key: 'remove', label: '今回のトレーニングから外す', cls: 'btn-outline danger' });
+    const c = await choiceSheet({ title: ex.name, choices, cancel: '閉じる' });
+    if (!c) return;
+    if (c === 'graph') { DB.ui.graphExId = exId; UI.selDate = null; save(); setTab('graph'); }
+    else if (c === 'left' || c === 'right') {
+      const j = a.idx + (c === 'left' ? -1 : 1);
+      [a.exerciseIds[a.idx], a.exerciseIds[j]] = [a.exerciseIds[j], a.exerciseIds[a.idx]];
+      a.idx = j; save(); renderRecord();
+    } else if (c === 'detail') openExerciseDetail(exId);
+    else if (c === 'remove') {
+      const rec = DB.records.find((r) => r.sessionId === a.id && r.exerciseId === exId);
+      if (rec && doneSets(rec).length) {
+        const ok = await confirmSheet({ title: 'この種目を外しますか？', message: '<p>今回完了したセットの記録も削除されます。</p>', ok: '外す', danger: true });
+        if (!ok) return;
+      }
+      DB.records = DB.records.filter((r) => !(r.sessionId === a.id && r.exerciseId === exId));
+      a.exerciseIds.splice(a.idx, 1);
+      gotoExercise(Math.min(a.idx, a.exerciseIds.length - 1));
+    }
+  },
+  'target-adj': (el) => { const rec = curRec(); if (!rec) return; setTarget(rec.exerciseId, getEx(rec.exerciseId).defaultTargetReps + Number(el.dataset.d)); renderRecord(); },
+  'copy-prev': () => {
+    const a = DB.active; const rec = curRec(); if (!rec) return;
+    const prev = prevRecords(rec.exerciseId, a.id, a.date)[0];
+    if (!prev) { toast('前回の記録がありません'); return; }
+    const pd = doneSets(prev);
+    pd.forEach((p, i) => {
+      if (!rec.sets[i]) rec.sets.push({ w: p.w, r: p.r, done: false });
+      else if (!rec.sets[i].done) { rec.sets[i].w = p.w; rec.sets[i].r = p.r; }
+    });
+    rec.updatedAt = Date.now(); save(); renderRecord();
+    toast('前回の内容をコピーしました（自由に変更できます）');
+  },
+  'apply-suggest': (el) => {
+    const a = DB.active; const rec = curRec(); if (!rec) return;
+    const ex = getEx(rec.exerciseId);
+    const prev = prevRecords(rec.exerciseId, a.id, a.date)[0]; if (!prev) return;
+    const pd = doneSets(prev);
+    const mode = el.dataset.mode;
+    const n = Math.max(rec.sets.length, pd.length);
+    for (let i = 0; i < n; i++) {
+      const p = pd[Math.min(i, pd.length - 1)];
+      if (!rec.sets[i]) rec.sets.push({ w: null, r: null, done: false });
+      const s = rec.sets[i]; if (s.done) continue;
+      if (mode === 'w') { s.w = round2(p.w + ex.stepKg); s.r = p.r; } else { s.w = p.w; s.r = p.r + 1; }
+    }
+    rec.updatedAt = Date.now(); save(); renderRecord();
+    toast('参考目安を入力欄に反映しました（自由に調整できます）');
+  },
+  'add-set': () => {
+    const rec = curRec(); if (!rec) return;
+    if (rec.sets.length >= 30) { toast('セットは30まで追加できます'); return; }
+    const l = rec.sets[rec.sets.length - 1];
+    rec.sets.push({ w: l ? l.w : null, r: l ? l.r : null, done: false });
+    rec.updatedAt = Date.now(); save(); renderRecord();
+  },
+  'set-del': async (el) => {
+    const rec = curRec(); if (!rec) return;
+    const i = +el.dataset.i; const s = rec.sets[i]; if (!s) return;
+    if (s.done || s.w != null || s.r != null) {
+      const ok = await confirmSheet({ title: `セット${i + 1}を削除しますか？`, ok: '削除する', danger: true });
+      if (!ok) return;
+    }
+    rec.sets.splice(i, 1); rec.updatedAt = Date.now(); save(); renderRecord();
+  },
+  'set-step': (el) => stepSet(el),
+  'set-done': (el) => toggleDone(+el.dataset.i),
+  'rel-swap': (el) => {
+    const a = DB.active; const old = a.exerciseIds[a.idx]; const id = el.dataset.id;
+    const rec = DB.records.find((r) => r.sessionId === a.id && r.exerciseId === old);
+    if (rec && doneSets(rec).length) {
+      a.exerciseIds.splice(a.idx + 1, 0, id); save(); gotoExercise(a.idx + 1);
+      toast('記録済みのため、入れ替えずに次へ追加しました');
+      return;
+    }
+    DB.records = DB.records.filter((r) => !(r.sessionId === a.id && r.exerciseId === old));
+    a.exerciseIds[a.idx] = id; save(); gotoExercise(a.idx);
+    toast(`「${getEx(id).name}」に入れ替えました`);
+  },
+  'rel-add': (el) => { const a = DB.active; a.exerciseIds.splice(a.idx + 1, 0, el.dataset.id); save(); gotoExercise(a.idx + 1); toast(`「${getEx(el.dataset.id).name}」を追加しました`); },
+  'open-timer-settings': () => openTimerSettings(),
+  'date-picker': (el) => { try { if (el.showPicker) el.showPicker(); } catch (e) { /* 対応ブラウザのみ */ } },
+  'timer-start': () => Timer.start(DB.settings.restSec),
+  'timer-add': (el) => Timer.add(Number(el.dataset.d)),
+  'timer-stop': () => Timer.stop(),
+  'rest-preset': (el) => { applyRest('rest-preset', Number(el.dataset.v)); renderCurrent(); },
+  'rest-adj': (el) => { applyRest('rest-adj', Number(el.dataset.d)); renderCurrent(); },
+  // 管理
+  'manage-view': (el) => { UI.manageView = el.dataset.v; renderManage(); },
+  'menu-new': () => openMenuEditor(null),
+  'menu-edit': (el) => openMenuEditor(el.dataset.id),
+  'menu-dup': (el) => {
+    const i = DB.menus.findIndex((x) => x.id === el.dataset.id); if (i < 0) return;
+    const m = DB.menus[i];
+    DB.menus.splice(i + 1, 0, { id: uid('menu'), name: (m.name + '（コピー）').slice(0, 40), exerciseIds: [...m.exerciseIds], updatedAt: Date.now() });
+    save(); renderManage(); toast('種目セットを複製しました');
+  },
+  'menu-del': async (el) => {
+    const m = DB.menus.find((x) => x.id === el.dataset.id); if (!m) return;
+    const ok = await confirmSheet({ title: '種目セットを削除しますか？', message: `<p>「${esc(m.name)}」を削除します。これまでの記録は消えません。</p>`, ok: '削除する', danger: true });
+    if (!ok) return;
+    DB.menus = DB.menus.filter((x) => x.id !== m.id); save(); renderManage(); toast('種目セットを削除しました');
+  },
+  'menu-move': (el) => {
+    const i = +el.dataset.i, j = i + Number(el.dataset.d);
+    if (j < 0 || j >= DB.menus.length) return;
+    [DB.menus[i], DB.menus[j]] = [DB.menus[j], DB.menus[i]];
+    DB.menus[i].updatedAt = DB.menus[j].updatedAt = Date.now();
+    save(); renderManage();
+  },
+  'ex-new': () => openExerciseForm(null, null, CATEGORIES.includes(UI.exCat) ? UI.exCat : undefined),
+  'ex-open': (el) => openExerciseDetail(el.dataset.id),
+  'ex-cat': (el) => { UI.exCat = el.dataset.c; $$('#view-manage .chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.c === UI.exCat))); $('#exList').innerHTML = renderExList(); },
+  // グラフ
+  'graph-pick-ex': () => pickExercises({ title: 'グラフを見る種目', initialCat: '記録あり', onDone: ([id]) => { DB.ui.graphExId = id; UI.selDate = null; UI.histLimit = 20; save(); renderGraph(); } }),
+  'graph-ex': (el) => { DB.ui.graphExId = el.dataset.id; UI.selDate = null; UI.histLimit = 20; save(); if (UI.tab === 'graph') renderGraph(); else setTab('graph'); },
+  'graph-metric': (el) => { DB.ui.metric = el.dataset.v; save(); renderView('graph'); },
+  'graph-period': (el) => { DB.ui.period = el.dataset.v; save(); renderView('graph'); },
+  'hist-edit': (el) => openRecordEditor(el.dataset.id),
+  'hist-more': () => { UI.histLimit += 20; renderView('graph'); },
+  'demo-add': () => addDemoData(),
+  'demo-remove': () => removeDemoData(),
+  // バックアップ
+  'drive-save-id': () => {
+    const v = ($('#clientIdInput').value || '').trim();
+    if (v && !/\.apps\.googleusercontent\.com$/.test(v)) { toast('クライアントIDは「〜.apps.googleusercontent.com」の形式です', 'error'); return; }
+    DB.settings.googleClientId = v; Drive.token = null; save(); renderBackup();
+    toast(v ? 'クライアントIDを保存しました' : 'クライアントIDを削除しました', 'ok');
+  },
+  'drive-clear-id': () => { DB.settings.googleClientId = ''; Drive.token = null; save(); renderBackup(); toast('クライアントIDを削除しました'); },
+  'drive-backup': () => driveBackup(),
+  'drive-restore': () => driveRestore(),
+  'export-share': () => exportShare(),
+  'export-download': () => exportDownload(),
+  'import-open': () => { const f = $('#fileInput'); f.value = ''; f.click(); },
+  'reset-all': () => resetAll()
+};
+const INPUTS = {
+  'set-w': (el) => { const rec = curRec(); const s = rec && rec.sets[+el.dataset.i]; if (!s) return; s.w = parseNum(el.value); rec.updatedAt = Date.now(); save(); },
+  'set-r': (el) => { const rec = curRec(); const s = rec && rec.sets[+el.dataset.i]; if (!s) return; const n = parseNum(el.value); s.r = n == null ? null : Math.min(999, Math.round(n)); rec.updatedAt = Date.now(); save(); },
+  'rec-memo': (el) => { const rec = curRec(); if (!rec) return; rec.memo = el.value.slice(0, 500); rec.updatedAt = Date.now(); save(); },
+  'ex-search': (el) => { UI.exQuery = el.value; $('#exList').innerHTML = renderExList(); }
+};
+const CHANGES = {
+  'session-date': async (el) => {
+    const a = DB.active; if (!a) return;
+    const v = el.value;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) { el.value = a.date; return; }
+    if (v > ymd()) { toast('未来の日付は選べません'); el.value = a.date; return; }
+    a.date = v;
+    DB.records.forEach((r) => { if (r.sessionId === a.id) { r.date = v; r.updatedAt = Date.now(); } });
+    save(); renderRecord(); toast(`日付を ${fmtDate(v, true)} に変更しました`);
+  },
+  'autoRest': (el) => { DB.settings.autoRest = el.checked; save(); if (UI.tab === 'record') renderRecord(); },
+  'sound': (el) => { DB.settings.sound = el.checked; save(); if (el.checked) Timer.unlockAudio(); },
+  'file': (el) => { const f = el.files && el.files[0]; el.value = ''; handleImportFile(f); }
+};
+
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-act]');
+  if (!el || el.disabled) return;
+  const fn = ACTIONS[el.dataset.act];
+  if (fn) fn(el, e);
+});
+document.addEventListener('input', (e) => {
+  const el = e.target;
+  if (el.dataset && el.dataset.input && INPUTS[el.dataset.input]) INPUTS[el.dataset.input](el, e);
+});
+document.addEventListener('change', (e) => {
+  const el = e.target;
+  if (el.dataset && el.dataset.change && CHANGES[el.dataset.change]) CHANGES[el.dataset.change](el, e);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && sheets.length) { const s = sheets[sheets.length - 1]; s.tryClose(); return; }
+  if (e.key !== 'Enter' || !e.target.dataset) return;
+  if (e.target.dataset.input === 'set-w') { e.preventDefault(); const r = e.target.closest('.set-row').querySelector('[data-input="set-r"]'); if (r) r.focus(); }
+  else if (e.target.dataset.input === 'set-r') { e.preventDefault(); e.target.blur(); }
+});
+document.addEventListener('focusin', (e) => {
+  if (e.target.matches && e.target.matches('.stepper input')) setTimeout(() => { try { e.target.select(); } catch (err) { /* noop */ } }, 0);
+});
+document.addEventListener('visibilitychange', () => { if (!document.hidden && DB && DB.timer) Timer.tick(); });
+let resizeT = null;
+window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if (UI.tab === 'graph' && !chartObj && graphPts.length) drawChart(); }, 200); });
+window.addEventListener('online', () => { if (chartStatus === 'failed') { chartStatus = 'idle'; loadChartJs(); } });
+window.addEventListener('storage', (e) => {
+  if (e.key !== STORAGE_KEY || !e.newValue) return;
+  try { DB = normalize(JSON.parse(e.newValue)); invalidateEx(); renderCurrent(); } catch (err) { /* noop */ }
+});
+
+/* ---------- 起動 ---------- */
+function init() {
+  DB = load();
+  invalidateEx();
+  cleanupDrafts();
+  buildTabbar();
+  $('#timerClose').innerHTML = ICON.close;
+  setTab('record');
+  Timer.resume();
+  loadChartJs();
+  save();
+  if (!storageOK) toast('この環境ではデータを保存できません（プライベートモード等）', 'error');
+}
+init();
+</script>
+</body>
+</html>
