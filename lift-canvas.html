@@ -553,7 +553,7 @@ html[data-theme="light"] .resume b{color:var(--ok-2)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.20.1';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.20.2';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '';
@@ -1172,8 +1172,14 @@ function load() {
   }
 }
 let saveErrShown = false;
-function save() {
-  DB.updatedAt = Date.now();
+/* 保存はまとめて行う（連続操作でも端末が重くならないよう0.25秒以内に1回）。
+   画面を閉じる・アプリを切り替える時は必ずその場で保存する（saveNow） */
+let saveT = null;
+function save() { DB.updatedAt = Date.now(); if (!saveT) saveT = setTimeout(saveNow, 250); }
+function flushSave() { if (saveT) saveNow(); }   // 未保存の変更があるときだけ書き込む
+function saveNow() {
+  clearTimeout(saveT); saveT = null;
+  if (!DB) return;
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); storageOK = true; }
   catch (e) {
     storageOK = false;
@@ -3748,6 +3754,25 @@ const PWA = { prompt: null, sessionHide: false, safariOnce: false, lastCheck: 0,
 const isHttp = () => /^https?:$/.test(location.protocol);
 const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
 const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+/* ブラウザの種類（インストール手順の出し分け用） */
+function browserKind() {
+  const ua = navigator.userAgent;
+  if (/Line\//i.test(ua)) return 'line';
+  if (/FBAN|FBAV|Instagram|Twitter|MicroMessenger|KAKAOTALK|YJApp|GSA\//i.test(ua) || (/Android/.test(ua) && /; wv\)/.test(ua))) return 'inapp';
+  if (isIOS()) return /CriOS|FxiOS|EdgiOS/.test(ua) ? 'ios-other' : 'ios-safari';
+  if (/SamsungBrowser/.test(ua)) return 'samsung';
+  if (/Firefox/.test(ua)) return /Android/.test(ua) ? 'firefox-android' : 'firefox';
+  if (/Android/.test(ua)) return /EdgA/.test(ua) ? 'edge-android' : 'chrome-android';
+  return 'desktop';
+}
+const BROWSER_LABEL = { line: 'LINEのアプリ内ブラウザ', inapp: 'アプリ内ブラウザ', 'ios-safari': 'iPhone / Safari', 'ios-other': 'iPhone / Safari以外', samsung: 'Samsung Internet', 'firefox-android': 'Firefox（Android）', firefox: 'Firefox', 'chrome-android': 'Chrome（Android）', 'edge-android': 'Edge（Android）', desktop: 'パソコンのブラウザ' };
+function chromeIntentUrl() { return `intent://${location.host}${location.pathname}#Intent;scheme=https;package=com.android.chrome;end`; }
+function externalOpenHtml() {
+  const k = browserKind(); const and = /Android/.test(navigator.userAgent);
+  const btn = k === 'line' ? `<a class="btn btn-primary btn-block" href="${esc(location.pathname + '?openExternalBrowser=1')}">外部ブラウザで開く</a>`
+    : and ? `<a class="btn btn-primary btn-block" href="${esc(chromeIntentUrl())}">Chromeで開く</a>` : '';
+  return `${btn}<p class="hint">${isIOS() ? '右下（または右上）のメニューから「Safariで開く」を選んでください。' : 'うまく開かない場合は、メニューの「ブラウザで開く」「Chromeで開く」を選んでください。'}</p>`;
+}
 const hasRealData = () => DB.records.some((r) => !r.demo && r.sets.some((s) => s.done)) || DB.customExercises.length > 0;
 
 /* ---------- 案内カード（トレーニングタブの最上部） ---------- */
@@ -3757,6 +3782,11 @@ function pwaCard() {
   if (isIOS() && DB.ui.pwaMoved && !PWA.safariOnce) {
     return `<div class="card pwa-card"><div class="pwa-top"><span class="pwa-ic">${appIconSvg()}</span><div class="m"><b>ホーム画面のアプリで開いてください</b><span>記録はホーム画面版に引き継ぎ済みです。Safariで記録すると、ホーム画面版には反映されません。</span></div></div>
       <div class="row"><button type="button" class="btn btn-sm" data-a="pwaSafariOnce">今回だけSafariで使う</button><button type="button" class="btn btn-sm" data-a="pwaGuide">もう一度引き継ぐ</button></div></div>`;
+  }
+  const kind = browserKind();
+  if ((kind === 'line' || kind === 'inapp' || kind === 'ios-other') && !PWA.sessionHide) {
+    return `<div class="card pwa-card"><div class="pwa-top"><span class="pwa-ic">${appIconSvg()}</span><div class="m"><b>${kind === 'ios-other' ? 'Safariで開くとアプリにできます' : 'このままではアプリとして追加できません'}</b><span>${esc(BROWSER_LABEL[kind])}で開いています。${kind === 'ios-other' ? 'iPhoneでホーム画面に追加できるのはSafariだけです。' : 'ホーム画面への追加・記録の保存を確実にするため、Chrome（iPhoneはSafari）で開き直してください。'}</span></div></div>
+      ${externalOpenHtml()}<div class="row pwa-later"><button type="button" class="btn btn-ghost btn-sm" data-a="pwaLater">このまま使う</button></div></div>`;
   }
   if (DB.ui.pwaHide || PWA.sessionHide) return '';
   const canPrompt = !!PWA.prompt;
@@ -3770,6 +3800,7 @@ function pwaSettingsCard() {
     ${st ? `<p class="small muted" style="margin:0">ホーム画面のアプリとして起動しています。電波がなくても使え、新しい版は自動で更新されます（現在 ${APP_VERSION}）。</p>`
       : `<p class="small muted" style="margin:0 0 10px">ホーム画面に追加すると、アプリのように全画面で起動でき、オフラインでも使えます。</p>
       <button type="button" class="btn btn-primary btn-block" data-a="${PWA.prompt ? 'pwaInstall' : 'pwaGuide'}">${ICON.download}ホーム画面に追加${PWA.prompt ? '' : '（手順を見る）'}</button>`}
+    <div style="height:8px"></div><button type="button" class="btn btn-ghost btn-block" data-a="pwaDiag">インストール診断（うまくいかない時）</button>
     ${isIOS() ? `<div style="height:10px"></div><button type="button" class="btn btn-line btn-block" data-a="${st ? 'pwaPaste' : 'pwaCopyCode'}">${st ? 'Safari版から記録を引き継ぐ' : '引き継ぎコードをコピー（ホーム画面版へ）'}</button>
       <p class="hint">iPhoneは「Safari」と「ホーム画面のアプリ」で保存場所が別々です。引き継ぎコードで記録を移せます。</p>` : ''}</section>`;
 }
@@ -3779,22 +3810,59 @@ function appIconSvg() {
 
 /* ---------- 追加のしかた（端末別） ---------- */
 function openInstallGuide() {
-  const ios = isIOS();
-  const android = /Android/.test(navigator.userAgent);
+  const kind = browserKind();
   const shareIc = '<svg viewBox="0 0 24 24" style="width:22px;height:22px;vertical-align:-5px;color:var(--accent)"><path d="M12 15V4.5M8 8.5l4-4 4 4M6 11.5v8h12v-8"/></svg>';
+  const oldShortcut = '<div class="card flat" style="background:var(--surface-2)"><b class="small">うまくいかない時は</b><ul class="small" style="margin:6px 0 0;padding-left:18px;line-height:1.7"><li>以前にホーム画面へ追加したアイコンがある場合は、<b>一度削除してから</b>追加し直してください（古いアイコンはブラウザで開いてしまいます）</li><li>追加の画面で<b>「ショートカットを作成」ではなく「インストール」</b>を選んでください</li><li>ページを開いて少し操作すると、メニューに「アプリをインストール」が出ることがあります</li><li>設定の「インストール診断」で状態を確認できます</li></ul></div>';
+  const steps = {
+    'ios-safari': `<ol class="guide"><li>画面下（iPadは上）の <b>共有ボタン</b> ${shareIc} をタップ</li><li>メニューを下にスクロールし <b>「ホーム画面に追加」</b> をタップ</li><li>右上の <b>「追加」</b> をタップ。ホーム画面の LiftCanvas アイコンから起動します</li></ol>`,
+    'chrome-android': `<ol class="guide"><li>Chromeの右上の <b>︙（メニュー）</b> をタップ</li><li><b>「アプリをインストール」</b>（または<b>「ホーム画面に追加」</b>）をタップ</li><li>出てきた画面で <b>「インストール」</b> をタップ（「ショートカットを作成」は選ばない）</li><li>ホーム画面（またはアプリ一覧）の LiftCanvas から起動します</li></ol>`,
+    'edge-android': `<ol class="guide"><li>画面下の <b>…（メニュー）</b> をタップ</li><li><b>「スマートフォンに追加」</b>または<b>「アプリをインストール」</b>をタップ</li><li><b>「インストール」</b>をタップ</li></ol>`,
+    samsung: `<ol class="guide"><li>アドレスバーの <b>インストール（↓）アイコン</b>、または画面下の <b>≡（メニュー）</b> をタップ</li><li><b>「ページを追加」→「ホーム画面」</b>（または「アプリをインストール」）を選ぶ</li><li><b>「追加」</b>をタップ</li></ol><p class="hint">うまくいかない場合は Chrome で開いて追加するのが確実です。</p><a class="btn btn-line btn-block" href="${esc(chromeIntentUrl())}">Chromeで開く</a><div style="height:10px"></div>`,
+    'firefox-android': `<ol class="guide"><li>右上（または下）の <b>︙（メニュー）</b> をタップ</li><li><b>「インストール」</b>または<b>「ホーム画面に追加」</b>をタップ</li></ol><p class="hint">うまくいかない場合は Chrome で開いて追加するのが確実です。</p><a class="btn btn-line btn-block" href="${esc(chromeIntentUrl())}">Chromeで開く</a><div style="height:10px"></div>`,
+    desktop: `<ol class="guide"><li>アドレスバー右端の <b>インストール</b> アイコン、またはメニューの<b>「アプリをインストール」</b>を選ぶ</li><li><b>「インストール」</b>を押す</li></ol><p class="hint">Chrome・Edge で利用できます。</p>`,
+    firefox: `<p class="small">パソコン版Firefoxはアプリとしての追加に対応していません。Chrome または Edge でお試しください。</p>`
+  };
   openSheet({
     title: 'ホーム画面に追加する方法',
-    render: () => (ios ? `<ol class="guide">
-        <li><b>Safari</b>でこのページを開いています（Chromeなど他のアプリからは追加できません）</li>
-        <li>画面下（iPadは上）の <b>共有ボタン</b> ${shareIc} をタップ</li>
-        <li>メニューを下にスクロールし <b>「ホーム画面に追加」</b> をタップ</li>
-        <li>右上の <b>「追加」</b> をタップ。ホーム画面の LiftCanvas アイコンから起動します</li></ol>
-        ${hasRealData() ? `<div class="card flat" style="background:var(--warn-soft);border-color:var(--gold-line)"><b>今までの記録を引き継ぐには</b><p class="small" style="margin:6px 0 10px">iPhoneは「Safari」と「ホーム画面のアプリ」で保存場所が別々です。先に引き継ぎコードをコピーしてから追加し、ホーム画面のアプリを初めて開いたときに貼り付けてください。</p>
+    render: () => `<p class="small muted" style="margin:0 0 8px">お使いのブラウザ：<b>${esc(BROWSER_LABEL[kind] || kind)}</b></p>` +
+      (steps[kind] || `<p class="small">このブラウザでは追加できません。Android は Chrome、iPhone は Safari で開いてください。</p>${externalOpenHtml()}`) +
+      (kind === 'ios-safari' && hasRealData() ? `<div class="card flat" style="background:var(--warn-soft);border-color:var(--gold-line)"><b>今までの記録を引き継ぐには</b><p class="small" style="margin:6px 0 10px">iPhoneは「Safari」と「ホーム画面のアプリ」で保存場所が別々です。先に引き継ぎコードをコピーしてから追加し、ホーム画面のアプリを初めて開いたときに貼り付けてください。</p>
           <button type="button" class="btn btn-primary btn-block" data-a="pwaCopyCode">${ICON.copy}引き継ぎコードをコピー</button><div style="height:8px"></div>
-          <button type="button" class="btn btn-block" data-a="pwaCodeFile">${ICON.download}コードをファイルで保存</button></div>` : ''}`
-      : android ? `<ol class="guide"><li>Chromeの右上の <b>︙（メニュー）</b> をタップ</li><li><b>「ホーム画面に追加」</b>または<b>「アプリをインストール」</b>をタップ</li><li><b>「インストール」</b>をタップ。ホーム画面のアイコンから起動します</li></ol><p class="hint">記録はそのまま引き継がれます。</p>`
-      : `<ol class="guide"><li>アドレスバー右端の <b>インストール</b> アイコン、またはブラウザのメニューの<b>「アプリをインストール」</b>を選びます</li><li>表示された画面で<b>「インストール」</b>を押します</li></ol><p class="hint">Chrome・Edge で利用できます。記録はそのまま引き継がれます。</p>`),
-    foot: () => `<button type="button" class="btn btn-primary" data-a="__close">OK</button>`
+          <button type="button" class="btn btn-block" data-a="pwaCodeFile">${ICON.download}コードをファイルで保存</button></div>` : '') +
+      (/Android/.test(navigator.userAgent) ? '<p class="hint">Androidでは、記録はそのままアプリ版に引き継がれます。</p>' : '') + (kind !== 'firefox' ? oldShortcut : ''),
+    foot: () => `<button type="button" class="btn" data-a="pwaDiag">診断する</button><button type="button" class="btn btn-primary" data-a="__close">OK</button>`
+  });
+}
+
+/* ---------- インストール診断（うまくいかない時の原因確認） ---------- */
+async function openPwaDiag() {
+  const rows = [];
+  const add = (label, ok, detail) => rows.push({ label, ok, detail });
+  add('ブラウザ', null, BROWSER_LABEL[browserKind()] || browserKind());
+  add('https で開いている', location.protocol === 'https:' || location.hostname === 'localhost', location.protocol);
+  let man = null;
+  try { const r = await fetch('lift-canvas.webmanifest', { cache: 'no-store' }); man = r.ok ? await r.json() : null; } catch (e) { man = null; }
+  add('アプリ情報（manifest）を読み込める', !!man, man ? man.short_name : '取得できません');
+  let iconOk = false; try { iconOk = (await fetch('lift-canvas-icon-512.png', { cache: 'no-store' })).ok; } catch (e) { /* noop */ }
+  add('アイコンを読み込める', iconOk, '');
+  let reg = null; try { reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration(SW_SCOPE); } catch (e) { /* noop */ }
+  add('オフライン機能（サービスワーカー）', !!(reg && reg.active), reg ? (reg.active ? '有効' : '準備中') : ('serviceWorker' in navigator ? '未登録' : '非対応のブラウザ'));
+  add('このページを制御中', !!(navigator.serviceWorker && navigator.serviceWorker.controller), navigator.serviceWorker && navigator.serviceWorker.controller ? '' : '一度ページを再読み込みしてください');
+  add('インストールボタンの準備', PWA.prompt || isStandalone() ? true : null, PWA.prompt ? 'あり（ボタンから追加できます）' : isStandalone() ? '追加済み' : 'まだ（メニューから追加してください）');
+  add('アプリとして起動中', null, isStandalone() ? 'はい' : 'いいえ（ブラウザで表示中）');
+  let persisted = null; try { persisted = navigator.storage && navigator.storage.persisted ? await navigator.storage.persisted() : null; } catch (e) { /* noop */ }
+  add('保存データの保護', null, persisted === true ? '保護されています' : '通常（ブラウザの判断で消える可能性あり）');
+  add('バージョン', null, APP_VERSION);
+  const text = rows.map((r) => `${r.ok == null ? '・' : r.ok ? '○' : '×'} ${r.label}：${r.detail}`).join('\n') + `\n${navigator.userAgent}`;
+  openSheet({
+    title: 'インストール診断',
+    render: () => `<div class="list">${rows.map((r) => `<div class="li" style="min-height:52px"><span style="font-size:18px;width:22px;text-align:center;color:${r.ok == null ? 'var(--text-3)' : r.ok ? 'var(--ok)' : 'var(--danger)'}">${r.ok == null ? '・' : r.ok ? '○' : '×'}</span><div class="m"><div class="t" style="font-size:14.5px">${esc(r.label)}</div>${r.detail ? `<div class="s">${esc(r.detail)}</div>` : ''}</div></div>`).join('')}</div>
+      <p class="hint">×がある場合は、ページを再読み込みしてからもう一度お試しください。それでも解決しない場合は、下のボタンで結果をコピーして提供者に送ってください。</p>`,
+    foot: () => `<button type="button" class="btn" data-a="reload">再読み込み</button><button type="button" class="btn btn-primary" data-a="copy">${ICON.copy}結果をコピー</button>`,
+    actions: {
+      copy: async () => { try { await navigator.clipboard.writeText(text); toast('診断結果をコピーしました', 'ok'); } catch (e) { toast('コピーできませんでした'); } },
+      reload: () => { saveNow(); location.reload(); }
+    }
   });
 }
 
@@ -3862,7 +3930,7 @@ async function checkUpdate(force) {
   try {
     const res = await fetch(location.pathname + '?check=' + Date.now(), { cache: 'no-store' });
     if (!res.ok) return;
-    const m = (await res.text()).match(/const APP_VERSION = '([^']+)'/);
+    const m = (await res.text()).match(/^const APP_VERSION = '(\d{4}\.\d{2}\.\d{2}\.\d+)'/m);
     if (!m || m[1] === APP_VERSION) return;
     PWA.updateReady = true;
     if (isBusy()) showUpdateBar(); else applyUpdate();
@@ -3873,7 +3941,7 @@ function showUpdateBar() {
   document.body.insertAdjacentHTML('beforeend', `<div id="updBar" class="upd-bar" role="status"><span>✨ 新しい版があります</span><button type="button" class="btn btn-sm btn-primary" data-a="pwaUpdate">更新する</button></div>`);
 }
 async function applyUpdate() {
-  save();
+  saveNow();
   try { sessionStorage.setItem('lc_updated', APP_VERSION); } catch (e) { /* noop */ }
   try { const r = navigator.serviceWorker && await navigator.serviceWorker.getRegistration(SW_SCOPE); if (r) await r.update(); } catch (e) { /* noop */ }
   location.reload();
@@ -3895,6 +3963,7 @@ Object.assign(ACT, {
     try { p.prompt(); const r = await p.userChoice; PWA.prompt = null; if (r && r.outcome === 'accepted') { DB.ui.pwaHide = true; save(); } renderTab(); } catch (e) { openInstallGuide(); }
   },
   pwaGuide: () => openInstallGuide(),
+  pwaDiag: () => openPwaDiag(),
   pwaLater: () => { PWA.sessionHide = true; renderTab(); toast('設定画面からいつでも追加できます'); },
   pwaNever: () => { DB.ui.pwaHide = true; save(); renderTab(); toast('案内を非表示にしました（設定画面からいつでも追加できます）'); },
   pwaSafariOnce: () => { PWA.safariOnce = true; renderTab(); },
@@ -3951,11 +4020,14 @@ document.addEventListener('pointerdown', (e) => {
   if (e.target.closest('#keypad') || e.target.closest('.cell') || e.target.closest('.done-btn') || e.target.closest('.sheet-bg')) return;
   closeKeypad();
 }, true);
-document.addEventListener('visibilitychange', () => { if (!document.hidden && DB) { if (DB.timer) Timer.tick(); tickClock(); } });
+window.addEventListener('pagehide', () => flushSave());
+window.addEventListener('beforeunload', () => flushSave());
+window.addEventListener('freeze', () => flushSave());
+document.addEventListener('visibilitychange', () => { if (document.hidden) flushSave(); if (!document.hidden && DB) { if (DB.timer) Timer.tick(); tickClock(); } });
 window.addEventListener('online', () => { if (chartStatus === 'failed') { chartStatus = 'idle'; loadChartJs(); } });
 window.addEventListener('storage', (e) => {
   if (e.key !== STORAGE_KEY || !e.newValue) return;
-  try { DB = normalize(JSON.parse(e.newValue)); invalidateEx(); refreshAll(); } catch (err) { /* noop */ }
+  try { clearTimeout(saveT); saveT = null; DB = normalize(JSON.parse(e.newValue)); invalidateEx(); refreshAll(); } catch (err) { /* noop */ }
 });
 if (window.matchMedia) { try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (DB.settings.theme === 'auto') { applyTheme(); refreshAll(); } }); } catch (e) { /* 古いブラウザ */ } }
 let resizeT = null;
@@ -3977,7 +4049,7 @@ function init() {
   loadChartJs();
   pwaInit();
   if (Drive.clientId() && navigator.onLine && location.protocol !== 'file:') setTimeout(() => Drive.loadGis().catch(() => { /* 使う時に再試行 */ }), 1500);
-  save();
+  saveNow();
   if (!storageOK) toast('この環境ではデータを保存できません（プライベートモード等）', 'error');
 }
 init();
