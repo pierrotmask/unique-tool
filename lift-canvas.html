@@ -11,6 +11,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="LiftCanvas">
+<link rel="manifest" href="lift-canvas.webmanifest">
+<link rel="apple-touch-icon" href="lift-canvas-apple-touch-icon.png">
 <title>LiftCanvas（リフトキャンバス）</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%231e3a8a'/%3E%3Cstop offset='1' stop-color='%232563eb'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='15' fill='url(%23g)'/%3E%3Cpolyline points='12,44 25,32 35,37 52,18' fill='none' stroke='%23ffffff' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='52' cy='18' r='5' fill='%23fbbf24'/%3E%3C/svg%3E">
 <style>
@@ -59,6 +61,8 @@ body{margin:0;background:var(--bg-grad);background-color:var(--bg);color:var(--t
   font-size:16px;line-height:1.55;-webkit-tap-highlight-color:transparent;
   padding-top:var(--safe-top);padding-bottom:calc(var(--tabbar-h) + var(--safe-bottom) + 28px)}
 body.has-mini{padding-bottom:calc(var(--tabbar-h) + var(--safe-bottom) + 96px)}
+body.has-fab{padding-bottom:calc(var(--tabbar-h) + var(--safe-bottom) + 100px)}
+body.has-fab.has-mini{padding-bottom:calc(var(--tabbar-h) + var(--safe-bottom) + 170px)}
 body.lock{overflow:hidden}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;-webkit-user-select:none;user-select:none;touch-action:manipulation;background:none;border:0;padding:0}
@@ -483,7 +487,7 @@ html[data-theme="light"] .resume b{color:var(--ok-2)}
 /* ===================== タブバー ===================== */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--overlay);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-top:1px solid var(--line);padding-bottom:var(--safe-bottom)}
 .tabbar-in{display:grid;grid-template-columns:repeat(5,1fr);max-width:640px;margin:0 auto}
-.tab{height:var(--tabbar-h);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--text-3);font-size:10.5px;font-weight:800;position:relative}
+.tab{white-space:nowrap;height:var(--tabbar-h);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--text-3);font-size:10.5px;font-weight:800;position:relative}
 .tab .ic{width:54px;height:30px;border-radius:999px;display:grid;place-items:center;transition:background .2s}
 .tab svg{width:23px;height:23px}
 .tab[aria-current="page"]{color:var(--accent)}
@@ -494,6 +498,17 @@ html[data-theme="light"] .resume b{color:var(--ok-2)}
 .toast{position:fixed;left:50%;top:calc(var(--safe-top) + 12px);transform:translate(-50%,-20px);z-index:500;background:var(--head);color:var(--bg);padding:12px 18px;border-radius:14px;font-size:14.5px;font-weight:700;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100% - 32px);width:max-content;text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .toast.ok{background:var(--ok);color:#fff} .toast.error{background:var(--danger);color:#fff}
+.pwa-card{border:1px solid var(--accent-soft-2);background:linear-gradient(135deg,var(--accent-soft),var(--surface) 75%)}
+.pwa-top{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.pwa-top .m{flex:1;min-width:0}
+.pwa-top b{display:block;font-size:16.5px;color:var(--head);line-height:1.35}
+.pwa-top span{display:block;font-size:12.5px;color:var(--text-2);margin-top:2px;line-height:1.5}
+.pwa-ic{width:52px;height:52px;flex:none;border-radius:14px;overflow:hidden;box-shadow:0 4px 12px rgba(37,99,235,.3)}
+.pwa-later{margin-top:4px;justify-content:center}
+.pwa-later .btn{flex:0 1 auto;color:var(--text-2)}
+.guide{margin:0 0 14px;padding-left:22px;line-height:1.8;font-size:15px}
+.guide li{margin:6px 0}
+.upd-bar{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--safe-top) + 10px);z-index:480;display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--accent-soft-2);box-shadow:var(--shadow-lg);border-radius:16px;padding:8px 8px 8px 14px;font-weight:750;color:var(--head);font-size:14px;max-width:calc(100% - 24px)}
 .busy{position:fixed;inset:0;z-index:600;background:color-mix(in srgb,var(--bg) 70%,transparent);display:grid;place-items:center}
 .busy-box{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 24px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:12px;font-weight:750;color:var(--head)}
 .spinner{width:24px;height:24px;border-radius:50%;border:3px solid var(--accent-soft-2);border-top-color:var(--accent);animation:spin .8s linear infinite}
@@ -503,6 +518,11 @@ html[data-theme="light"] .resume b{color:var(--ok-2)}
 @keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.8}}
 
 @media (max-width:370px){
+  .tab{font-size:9.5px;letter-spacing:-.03em;white-space:nowrap}
+  .tab .ic{width:46px}
+  .kpi b{font-size:19px}
+  .big2 b{font-size:25px}
+  .big2 span{font-size:11px}
   .wrap{padding:0 12px}
   .set-h,.set-r{grid-template-columns:34px minmax(0,1fr) 72px 54px 46px;gap:4px}
   .topbar h1{font-size:23px}
@@ -533,7 +553,7 @@ html[data-theme="light"] .resume b{color:var(--ok-2)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2.0.0';
+const APP_VERSION = '2026.11.20.1';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '';
@@ -1023,7 +1043,7 @@ function defaultData() {
       barKg: 20, collar: false, plates: [25, 20, 15, 10, 5, 2.5, 2, 1.5, 1, 0.5], sex: 'm',
       googleClientId: '', autoDrive: true, lastBackupAt: null, lastBackupVia: '', lastDriveAt: null, drivePending: false, changedAt: 0
     },
-    ui: { metric: 'e1rm', period: '3m', mapMode: 'sets', welcomeDone: false, wkChart: 'sets' }
+    ui: { metric: 'e1rm', period: '3m', mapMode: 'sets', welcomeDone: false, wkChart: 'sets', pwaHide: false, pwaMoved: false, transferAsked: false }
   };
 }
 
@@ -1038,6 +1058,7 @@ function normalize(src) {
   out.createdAt = num(d.createdAt) || base.createdAt;
   out.customExercises = arr(d.customExercises).filter((e) => e && e.id && e.name).map((e) => {
     const ms = arr(e.muscles).filter((m) => MUSCLE_KEYS.includes(m));
+    const part = CATEGORIES.includes(e.part) ? e.part : CATEGORIES[0];
     return {
       id: String(e.id), name: String(e.name).slice(0, 40), en: String(e.en || '').slice(0, 60),
       part: CATEGORIES.includes(e.part) ? e.part : CATEGORIES[0],
@@ -1045,7 +1066,7 @@ function normalize(src) {
       stepKg: num(e.stepKg) > 0 ? num(e.stepKg) : 2.5,
       defaultTargetReps: clamp(Math.round(num(e.defaultTargetReps) || 10), 1, e.timed ? 600 : 30),
       relatedIds: arr(e.relatedIds).map(String),
-      muscles: ms.length ? ms : (PART_DEFAULT_MUSCLES[e.part] || []).slice(),
+      muscles: ms.length ? ms : (PART_DEFAULT_MUSCLES[part] || []).slice(),
       sub: arr(e.sub).filter((m) => MUSCLE_KEYS.includes(m)),
       timed: !!e.timed,
       createdAt: num(e.createdAt) || 0, updatedAt: num(e.updatedAt) || 0
@@ -1118,7 +1139,8 @@ function normalize(src) {
     period: PERIODS.some((p) => p.key === ui.period) ? ui.period : '3m',
     mapMode: ['sets', 'last', 'rec'].includes(ui.mapMode) ? ui.mapMode : 'sets',
     welcomeDone: !!ui.welcomeDone,
-    wkChart: ['sets', 'vol'].includes(ui.wkChart) ? ui.wkChart : 'sets'
+    wkChart: ['sets', 'vol'].includes(ui.wkChart) ? ui.wkChart : 'sets',
+    pwaHide: !!ui.pwaHide, pwaMoved: !!ui.pwaMoved, transferAsked: !!ui.transferAsked
   };
   const a = obj(d.active);
   if (a.id && Array.isArray(a.exerciseIds)) {
@@ -1161,11 +1183,21 @@ function save() {
 /* 記録データが変わった時に呼ぶ（集計キャッシュ破棄＋保存） */
 function touch() { dataVer++; DB.settings.changedAt = Date.now(); save(); }
 
+/* 存在しない種目への参照だけを取り除く（画面が壊れないように） */
+function sanitizeRefs() {
+  const ok = (id) => exMap().has(id);
+  DB.records = DB.records.filter((r) => ok(r.exerciseId));
+  DB.menus.forEach((m) => { m.exerciseIds = [...new Set(m.exerciseIds.filter(ok))]; for (const k of Object.keys(m.sets)) if (!ok(k)) delete m.sets[k]; });
+  DB.favorites = DB.favorites.filter(ok);
+  if (DB.active) DB.active.exerciseIds = [...new Set(DB.active.exerciseIds.filter(ok))];
+  dataVer++;
+}
 function cleanupDrafts() {
   const aid = DB.active ? DB.active.id : null;
   const editing = UI.wo && !UI.wo.live ? UI.wo.id : null;
-  DB.records = DB.records.filter((r) => r.sessionId === aid || r.sessionId === editing || r.sets.some((s) => s.done));
-  for (const r of DB.records) if (r.sessionId !== aid && r.sessionId !== editing) r.sets = r.sets.filter((s) => s.done);
+  const live = (r) => r.sessionId === aid || r.sessionId === editing;
+  for (const r of DB.records) if (!live(r)) r.sets = r.sets.filter((s) => s.done && s.w != null && s.r > 0);
+  DB.records = DB.records.filter((r) => live(r) || r.sets.length);
   dataVer++;
 }
 
@@ -1840,7 +1872,7 @@ function renderWorkout() {
   el.innerHTML = h;
   el.scrollTop = top;
   updateRestbar();
-  if (UI.kp) highlightKp();
+  if (UI.kp && kpValid()) highlightKp();
 }
 function ssGroups(ses) {
   const map = {}; let n = 0;
@@ -1964,6 +1996,7 @@ function scrollToEx(i) { const c = $('#exc-' + i); if (c) c.scrollIntoView({ beh
 
 /* ---------- テンキー ---------- */
 function openKeypad(i, j, f) {
+  if (!UI.wo || $('#workout').hidden) return;
   const rec = recAt(i); if (!rec || !rec.sets[j]) return;
   UI.kp = { i, j, s: j, f, buf: null };
   renderKeypad(); highlightKp();
@@ -1975,6 +2008,15 @@ function openKeypad(i, j, f) {
     else if (r.top < 120) $('#workout').scrollBy({ top: r.top - 130, behavior: 'smooth' });
   });
 }
+/* テンキーの対象がまだ存在するか確認（種目の削除・画面終了後に古い対象を触らない） */
+function kpValid() {
+  const k = UI.kp; if (!k) return false;
+  if (!UI.wo || $('#workout').hidden) { closeKeypad(); return false; }
+  const ses = woSes(); const exId = ses && ses.exerciseIds[k.i];
+  const rec = exId ? DB.records.find((x) => x.sessionId === ses.id && x.exerciseId === exId) : null;
+  if (!rec || !rec.sets[k.j]) { closeKeypad(); return false; }
+  return true;
+}
 function closeKeypad() { UI.kp = null; const k = $('#keypad'); if (k) k.hidden = true; $$('.cell.on').forEach((c) => c.classList.remove('on')); $('#workout').style.paddingBottom = ''; }
 function highlightKp() {
   $$('.cell.on').forEach((c) => c.classList.remove('on'));
@@ -1982,7 +2024,8 @@ function highlightKp() {
   const c = $(`.cell[data-i="${UI.kp.i}"][data-s="${UI.kp.j}"][data-f="${UI.kp.f}"]`); if (c) c.classList.add('on');
 }
 function renderKeypad() {
-  const k = UI.kp; if (!k) return;
+  if (!kpValid()) return;
+  const k = UI.kp;
   const rec = recAt(k.i); const ex = getEx(rec.exerciseId); const s = rec.sets[k.j];
   const timed = isTimed(ex);
   const isW = k.f === 'w';
@@ -2008,6 +2051,7 @@ function renderKeypad() {
   updateRestbar();
 }
 function kpCommit() {
+  if (!kpValid()) return;
   const k = UI.kp; const rec = recAt(k.i); const s = rec.sets[k.j];
   const ex = getEx(rec.exerciseId);
   let v = k.buf === '' || k.buf == null ? null : parseNum(k.buf);
@@ -2044,8 +2088,12 @@ const KP_ACT = {
     closeKeypad();
   },
   kClose: () => closeKeypad(),
+  __guard: true,
   kDone: () => { const k = UI.kp; const rec = recAt(k.i); const i = k.i, j = k.j; closeKeypad(); if (!rec.sets[j].done) toggleDone(i, j); }
 };
+
+for (const key of Object.keys(KP_ACT)) { const f = KP_ACT[key]; if (typeof f === 'function' && key !== 'kClose') KP_ACT[key] = (el) => { if (kpValid()) f(el); }; }
+delete KP_ACT.__guard;
 
 /* ---------- 休憩タイマー ---------- */
 const Timer = {
@@ -2587,7 +2635,8 @@ function renderTab(keep = true) {
   mountCharts(v);
   if (keep) window.scrollTo(0, y);
   const fab = $('#fab'); if (fab) fab.remove();
-  const fabDef = UI.tab === 'train' ? { a: 'menuNew', l: 'メニューを作成' } : UI.tab === 'lib' ? { a: 'exNew', l: '種目を追加' } : null;
+  const fabDef = UI.tab === 'lib' ? { a: 'exNew', l: '種目を追加' } : null;
+  document.body.classList.toggle('has-fab', !!fabDef);
   if (fabDef) document.body.insertAdjacentHTML('beforeend', `<button type="button" class="fab" id="fab" data-a="${fabDef.a}">${ICON.plus}${fabDef.l}</button>`);
 }
 function topbar(title, right = '') { return `<header class="topbar"><h1><span class="sub">LiftCanvas</span>${title}</h1>${right}</header>`; }
@@ -2633,16 +2682,8 @@ function recommendMenu() {
   return best;
 }
 function renderTrain() {
-  const st = weekStreaks();
-  const thisW = weekStart(ymd());
-  const days = new Set(IDX().sessions.filter((s) => s.date >= thisW).map((s) => s.date));
-  const goal = DB.settings.weekGoal;
-  const n = days.size;
   let h = topbar('トレーニング', `<button type="button" class="icon-btn ${UI.reorder ? 'solid' : ''}" data-a="reorder" aria-label="メニューの並び替え" aria-pressed="${UI.reorder}">${ICON.sort}</button>`);
-  // 今週の目標
-  h += `<div class="card hero"><div class="goal"><div class="ring">${ringSvg(n / goal, '#fbbf24', 'rgba(255,255,255,.18)')}<div class="ring-t"><div><b>${n}</b><span>/ ${goal}日</span></div></div></div>
-    <div class="goal-text"><span>${fmtDateLong(ymd())}</span><b>${n >= goal ? '今週の目標達成！🎉' : `今週の目標まであと${goal - n}日`}</b><span>${ICON.fire} 連続 ${st.cur}週 ・ 合計 ${st.total}回</span></div></div>
-    <div class="week-strip">${[0, 1, 2, 3, 4, 5, 6].map((k) => { const d = addDays(thisW, k); return `<div>${WEEK[(k + 1) % 7]}<i class="${days.has(d) ? 'on' : ''} ${d === ymd() ? 'today' : ''}">${parseYmd(d).getDate()}</i></div>`; }).join('')}</div></div>`;
+  h += pwaCard();
   if (DB.settings.drivePending) h += `<div class="banner">${ICON.cloud}<div class="m"><b>Googleドライブへの自動保存が未完了です</b><br>電波の良い場所でもう一度保存してください。</div><button type="button" class="btn btn-sm" data-a="driveBackup">保存</button></div>`;
   else if (backupStale()) h += `<div class="banner">${ICON.cloud}<div class="m"><b>しばらくバックアップしていません</b><br>機種変更や故障に備えて保存しましょう。</div><button type="button" class="btn btn-sm" data-a="tab" data-tab="settings">保存へ</button></div>`;
   if (DB.active) {
@@ -2660,7 +2701,7 @@ function renderTrain() {
       <button type="button" class="btn btn-primary btn-block" style="margin-top:12px" data-a="startMenu" data-id="${esc(rec.m.id)}">${ICON.play}このメニューで開始</button>
       <p class="tiny faint" style="margin:6px 2px 0">筋肉の回復目安と前回からの日数で選んでいます。最終判断はご自身でどうぞ。</p></div>`;
   }
-  h += `<section class="sec"><div class="sec-h"><h2>メニュー（${DB.menus.length}）</h2>${UI.reorder ? '<button type="button" class="link" data-a="reorder">完了</button>' : ''}</div>`;
+  h += `<section class="sec"><div class="sec-h"><h2>メニュー（${DB.menus.length}）</h2>${UI.reorder ? '<button type="button" class="link" data-a="reorder">完了</button>' : `<button type="button" class="link" data-a="menuNew">${ICON.plus}メニューを作成</button>`}</div>`;
   if (!DB.menus.length) h += `<div class="card empty"><div class="big">📋</div><p>メニューがありません</p><button type="button" class="btn btn-primary" data-a="menuNew">${ICON.plus}メニューを作成</button></div>`;
   h += DB.menus.map((m, i) => {
     const ids = m.exerciseIds.filter((id) => exMap().has(id));
@@ -2757,6 +2798,9 @@ function renderCal() {
   h += `</div><div class="legend">${CATEGORIES.map((c) => `<span><i class="pdot" style="background:${partColor(c)}"></i>${PART_SHORT[c]}</span>`).join('')}</div></div>`;
   h += `<div class="kpis"><div class="kpi"><span>${mo}月のトレーニング</span><b>${mDays}<small>日</small></b></div><div class="kpi"><span>完了セット</span><b>${mSets}</b></div>
     <div class="kpi"><span>総負荷量</span><b>${fmtBig(mVol)}<small>kg</small></b></div><div class="kpi"><span>合計時間</span><b>${mDur ? fmtDur(mDur) : '-'}</b></div></div>`;
+  const sk = weekStreaks();
+  h += `<section class="card tap" data-a="openStreak" style="margin-top:12px"><div class="card-h"><h3>${ICON.layers} 積み重ね</h3><span class="small faint">週ごとの一覧</span>${ICON.chevR}</div>
+    <div class="big2" style="grid-template-columns:repeat(3,1fr);margin:0"><div><b>${sk.total}<small>回</small></b><span>合計回数</span></div><div><b>${sk.cur}<small>週</small></b><span>現在の連続</span></div><div><b>${sk.longest}<small>週</small></b><span>最長の連続</span></div></div></section>`;
   const sel = UI.calSel; const ses = byDate.get(sel) || [];
   h += `<section class="sec"><div class="sec-h"><h2>${fmtDateLong(sel)}</h2>${sel <= ymd() ? `<button type="button" class="link" data-a="calAdd">${ICON.plus}記録を追加</button>` : ''}</div>`;
   if (!ses.length) h += `<div class="card empty"><p>${sel > ymd() ? '未来の日付です' : 'この日の記録はありません'}</p></div>`;
@@ -2920,10 +2964,6 @@ function renderReview() {
       ? { type: 'bar', labels: wk.map((w) => { const d = parseYmd(w.week); return `${d.getMonth() + 1}/${d.getDate()}`; }), datasets: [{ label: '総負荷量', data: wk.map((w) => Math.round(w.vol)), color: cssVar('--accent') || '#2563eb' }], kind: 'volume', avg: Math.round(avg), aria: '週ごとの総負荷量' }
       : { type: 'bar', stacked: true, labels: wk.map((w) => { const d = parseYmd(w.week); return `${d.getMonth() + 1}/${d.getDate()}`; }), datasets: CATEGORIES.map((c) => ({ label: c, data: wk.map((w) => w.parts[c]), color: partColor(c) })), unit: 'セット', avg: round1(avg), aria: '週ごとのセット数' }, 'sm')}
     ${!isVol ? `<div class="legend">${CATEGORIES.map((c) => `<span><i class="pdot" style="background:${partColor(c)}"></i>${PART_SHORT[c]}</span>`).join('')}</div>` : ''}</section>`;
-  // 積み重ね
-  const st = weekStreaks();
-  h += `<section class="card tap" data-a="openStreak"><div class="card-h"><h3>${ICON.layers} 積み重ね</h3>${ICON.chevR}</div><div class="big2"><div><b>${st.total}<small>回</small></b><span>トレーニング回数</span></div><div><b>${st.longest}<small>週</small></b><span>最長の連続（現在 ${st.cur}週）</span></div></div>
-    ${streakGrid(6, 'parts', true)}</section>`;
   // 1RM推移
   const tr = trendRows(4);
   h += `<section class="card"><div class="card-h"><h3>推定1RMの推移</h3></div>${tr.map(trendRowHtml).join('')}
@@ -3219,7 +3259,7 @@ function openExerciseDetail(exId) {
       metric: (el) => { st.metric = el.dataset.v; st.sel = null; p.render(); },
       period: (el) => { st.period = el.dataset.v; DB.ui.period = st.period; save(); st.sel = null; p.render(); },
       record: () => {
-        if (DB.active) { if (!DB.active.exerciseIds.includes(exId)) { DB.active.exerciseIds.push(exId); ensureRec(DB.active, exId); touch(); } p.close(); openWorkout(); setTimeout(() => scrollToEx(DB.active.exerciseIds.indexOf(exId)), 120); }
+        if (DB.active) { if (!DB.active.exerciseIds.includes(exId)) { DB.active.exerciseIds.push(exId); ensureRec(DB.active, exId); touch(); } p.close(); openWorkout(); setTimeout(() => { if (DB.active) scrollToEx(DB.active.exerciseIds.indexOf(exId)); }, 120); }
         else { p.close(); startWorkout([exId], getEx(exId).name, null); }
       },
       plate: () => openPlateCalc(exSummary(exId) ? exSummary(exId).maxW : 60),
@@ -3227,7 +3267,7 @@ function openExerciseDetail(exId) {
       editSes: (el) => openSessionEdit(el.dataset.id)
     }
   });
-  p.selectPoint = (i) => { st.sel = i; const el = $('#ptd', p.el); if (el) el.innerHTML = pointDetail(exId, st._pts[i]); const c = [...CH.values()].find((x) => x.canvas && p.el.contains(x.canvas) && x.config.type === 'line'); if (c) { const pts = st._pts; const ds = c.data.datasets[0]; const head = cssVar('--head'), surface = cssVar('--surface'); const color = ds.borderColor; ds.pointRadius = pts.map((pt, k) => (k === i ? 7.5 : pt.pr ? 6 : pts.length > 50 ? 3 : 4.5)); ds.pointBackgroundColor = pts.map((pt, k) => (k === i ? head : pt.pr ? '#f5b301' : surface)); ds.pointBorderColor = pts.map((pt, k) => (k === i ? head : pt.pr ? '#b26a00' : color)); c.update('none'); } };
+  p.selectPoint = (i) => { st.sel = i; const el = $('.ptd', p.el); if (el) el.innerHTML = pointDetail(exId, st._pts[i]); const c = [...CH.values()].find((x) => x.canvas && p.el.contains(x.canvas) && x.config.type === 'line'); if (c) { const pts = st._pts; const ds = c.data.datasets[0]; const head = cssVar('--head'), surface = cssVar('--surface'); const color = ds.borderColor; ds.pointRadius = pts.map((pt, k) => (k === i ? 7.5 : pt.pr ? 6 : pts.length > 50 ? 3 : 4.5)); ds.pointBackgroundColor = pts.map((pt, k) => (k === i ? head : pt.pr ? '#f5b301' : surface)); ds.pointBorderColor = pts.map((pt, k) => (k === i ? head : pt.pr ? '#b26a00' : color)); c.update('none'); } };
 }
 function pointDetail(exId, pt) {
   if (!pt) return '';
@@ -3273,7 +3313,7 @@ function exDetailHtml(exId, st) {
   } else if (pts.length === 1) h += `<div class="delta small">記録が2回以上になると、伸びを表示します</div>`;
   if (pts.length) {
     h += chartHtml({ type: 'line', points: pts, kind: mk === 'reps' ? 'reps' : mk === 'volume' ? 'volume' : 'kg', unit, sel, color: partColor(ex.part), tipLabel: (pt) => `${fmtV(pt.y)}${unit}${pt.pr ? ' 🏆' : ''}`, onPoint: (i) => { const pg = pages.find((x) => x.state === st); if (pg && pg.selectPoint) pg.selectPoint(i); }, aria: `${ex.name}の推移` });
-    h += `<p class="chart-note">各回で最も良いセットを示しています。<span style="color:var(--gold);font-weight:800">金色の丸</span>は自己ベストを更新した回。点をタップすると内容を表示します。縦軸は変化が見やすいよう自動調整しています。</p><div id="ptd">${pointDetail(exId, pts[sel])}</div>`;
+    h += `<p class="chart-note">各回で最も良いセットを示しています。<span style="color:var(--gold);font-weight:800">金色の丸</span>は自己ベストを更新した回。点をタップすると内容を表示します。縦軸は変化が見やすいよう自動調整しています。</p><div class="ptd">${pointDetail(exId, pts[sel])}</div>`;
   } else h += `<div class="chart-box sm"><div class="chart-empty">この期間の記録はありません。期間を広げてみてください。</div></div>`;
   h += '</div>';
   if (!timed && main !== 'reps') {
@@ -3441,9 +3481,9 @@ function renderSettings() {
     <details style="margin-top:6px"><summary class="small" style="min-height:44px;display:flex;align-items:center;font-weight:750;color:var(--accent);cursor:pointer">機種変更のときの手順</summary>
       <ol class="small" style="padding-left:18px;line-height:1.8;margin:0 0 8px"><li><b>古いスマホ</b>：「Googleドライブに保存」または「バックアップファイルを書き出す」（共有メニューで「ドライブに保存」を選ぶ）</li>
       <li><b>新しいスマホ</b>：同じURLでこのアプリを開き、「Googleドライブから復元」または「ファイルから復元」</li><li>「上書き復元」を選べば完了です（新しいスマホで記録済みなら「統合」）</li></ol></details></section>`;
+  h += pwaSettingsCard();
   h += `<section class="card"><div class="card-h"><h3>${ICON.moon} 表示</h3></div><div class="seg">${[['light', 'ライト'], ['dark', 'ダーク'], ['auto', '端末に合わせる']].map(([k, l]) => `<button type="button" data-a="theme" data-v="${k}" aria-pressed="${s.theme === k}">${l}</button>`).join('')}</div></section>`;
   h += `<section class="card"><div class="card-h"><h3>${ICON.timer} トレーニング</h3></div>
-    <div class="sw-row" style="border:0"><div class="t"><b>週の目標日数</b><span>トレーニングタブのリングに表示</span></div><div class="stepper" style="gap:4px"><button type="button" data-a="goal" data-d="-1" style="width:42px;height:42px">−</button><span class="val" style="min-width:52px;font-size:18px">${s.weekGoal}<span class="u">日</span></span><button type="button" data-a="goal" data-d="1" style="width:42px;height:42px">＋</button></div></div>
     <div class="field" style="margin:8px 0 6px"><span class="lbl">標準の休憩時間：${fmtSec(s.restSec)}（WL種目は最低2:00）</span><div class="chip-wrap">${REST_PRESETS.map((v) => `<button type="button" class="chip" data-a="restDef" data-v="${v}" aria-pressed="${s.restSec === v}">${fmtSec(v)}</button>`).join('')}</div></div>
     <div class="sw-row"><div class="t"><b>セット完了で休憩タイマーを自動スタート</b></div><label class="switch"><input type="checkbox" data-ch="setAutoRest" ${s.autoRest ? 'checked' : ''}><span></span></label></div>
     <div class="sw-row"><div class="t"><b>タイマー終了時に音を鳴らす</b></div><label class="switch"><input type="checkbox" data-ch="setSound" ${s.sound ? 'checked' : ''}><span></span></label></div>
@@ -3530,14 +3570,14 @@ function applyImport(inc, mode) {
     DB.exNotes = { ...inc.exNotes, ...DB.exNotes };
   }
   DB.timer = null;
-  invalidateEx(); cleanupDrafts(); touch(); applyTheme();
+  invalidateEx(); sanitizeRefs(); cleanupDrafts(); touch(); applyTheme();
   refreshAll();
   toast(mode === 'overwrite' ? 'バックアップから復元しました' : 'バックアップのデータを統合しました', 'ok');
 }
 async function handleImportFile(file) {
   if (!file) return;
   if (file.size > 40 * 1024 * 1024) { toast('ファイルが大きすぎます', 'error'); return; }
-  try { const parsed = parseImport(await file.text()); await askImportMode(parsed, file.name); }
+  try { const text = await file.text(); const parsed = text.trim().startsWith(TRANSFER_PREFIX) ? readTransferCode(text) : parseImport(text); await askImportMode(parsed, file.name); }
   catch (e) { console.error(e); toast(e instanceof SyntaxError ? 'ファイルを読み取れませんでした（JSON形式ではありません）' : (e.message || '読み込みに失敗しました'), 'error'); }
 }
 
@@ -3686,7 +3726,6 @@ Object.assign(ACT, {
   cidSave: () => { const v = ($('#clientId').value || '').trim(); if (v && !/\.apps\.googleusercontent\.com$/.test(v)) { toast('クライアントIDは「〜.apps.googleusercontent.com」の形式です', 'error'); return; } DB.settings.googleClientId = v; Drive.token = null; save(); renderTab(); toast(v ? 'クライアントIDを保存しました' : '削除しました', 'ok'); },
   cidClear: () => { DB.settings.googleClientId = ''; Drive.token = null; save(); renderTab(); },
   theme: (el) => { DB.settings.theme = el.dataset.v; save(); applyTheme(); gcCharts(); renderTab(); },
-  goal: (el) => { DB.settings.weekGoal = clamp(DB.settings.weekGoal + Number(el.dataset.d), 1, 7); save(); renderTab(); },
   restDef: (el) => { DB.settings.restSec = Number(el.dataset.v); save(); renderTab(); },
   barKg: (el) => { DB.settings.barKg = Number(el.dataset.v); save(); renderTab(); },
   plateT: (el) => { const p = Number(el.dataset.v); const s = new Set(DB.settings.plates); if (s.has(p)) s.delete(p); else s.add(p); if (!s.size) { toast('プレートを1種類以上選んでください'); return; } DB.settings.plates = [...s].sort((a, b) => b - a); save(); renderTab(); },
@@ -3697,6 +3736,172 @@ Object.assign(CHG, {
   autoDrive: (el) => { DB.settings.autoDrive = el.checked; save(); },
   collarDef: (el) => { DB.settings.collar = el.checked; save(); },
   file: (el) => { const f = el.files && el.files[0]; el.value = ''; handleImportFile(f); }
+});
+
+/* =====================================================================
+   PWA（ホーム画面に追加・オフライン・自動更新・iPhoneの引き継ぎ）
+   ===================================================================== */
+const SW_FILE = 'lift-canvas-sw.js';
+const SW_SCOPE = './lift-canvas';
+const TRANSFER_PREFIX = 'LC1:';
+const PWA = { prompt: null, sessionHide: false, safariOnce: false, lastCheck: 0, updateReady: false };
+const isHttp = () => /^https?:$/.test(location.protocol);
+const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const hasRealData = () => DB.records.some((r) => !r.demo && r.sets.some((s) => s.done)) || DB.customExercises.length > 0;
+
+/* ---------- 案内カード（トレーニングタブの最上部） ---------- */
+function pwaCard() {
+  if (isStandalone()) return '';
+  // iPhone：引き継ぎ済みなら「ホーム画面のアプリで開いて」の案内に切り替える
+  if (isIOS() && DB.ui.pwaMoved && !PWA.safariOnce) {
+    return `<div class="card pwa-card"><div class="pwa-top"><span class="pwa-ic">${appIconSvg()}</span><div class="m"><b>ホーム画面のアプリで開いてください</b><span>記録はホーム画面版に引き継ぎ済みです。Safariで記録すると、ホーム画面版には反映されません。</span></div></div>
+      <div class="row"><button type="button" class="btn btn-sm" data-a="pwaSafariOnce">今回だけSafariで使う</button><button type="button" class="btn btn-sm" data-a="pwaGuide">もう一度引き継ぐ</button></div></div>`;
+  }
+  if (DB.ui.pwaHide || PWA.sessionHide) return '';
+  const canPrompt = !!PWA.prompt;
+  return `<div class="card pwa-card"><div class="pwa-top"><span class="pwa-ic">${appIconSvg()}</span><div class="m"><b>アプリとしてホーム画面に追加</b><span>ワンタップで全画面起動・電波がなくても使える・記録が消えにくくなります（無料・登録不要）</span></div></div>
+    <div class="row"><button type="button" class="btn btn-primary" data-a="${canPrompt ? 'pwaInstall' : 'pwaGuide'}">${ICON.download}${canPrompt ? 'ホーム画面に追加' : '追加のしかた'}</button></div>
+    <div class="row pwa-later"><button type="button" class="btn btn-ghost btn-sm" data-a="pwaLater">あとで</button><button type="button" class="btn btn-ghost btn-sm" data-a="pwaNever">表示しない</button></div></div>`;
+}
+function pwaSettingsCard() {
+  const st = isStandalone();
+  return `<section class="card"><div class="card-h"><h3>${ICON.download} アプリとして使う</h3></div>
+    ${st ? `<p class="small muted" style="margin:0">ホーム画面のアプリとして起動しています。電波がなくても使え、新しい版は自動で更新されます（現在 ${APP_VERSION}）。</p>`
+      : `<p class="small muted" style="margin:0 0 10px">ホーム画面に追加すると、アプリのように全画面で起動でき、オフラインでも使えます。</p>
+      <button type="button" class="btn btn-primary btn-block" data-a="${PWA.prompt ? 'pwaInstall' : 'pwaGuide'}">${ICON.download}ホーム画面に追加${PWA.prompt ? '' : '（手順を見る）'}</button>`}
+    ${isIOS() ? `<div style="height:10px"></div><button type="button" class="btn btn-line btn-block" data-a="${st ? 'pwaPaste' : 'pwaCopyCode'}">${st ? 'Safari版から記録を引き継ぐ' : '引き継ぎコードをコピー（ホーム画面版へ）'}</button>
+      <p class="hint">iPhoneは「Safari」と「ホーム画面のアプリ」で保存場所が別々です。引き継ぎコードで記録を移せます。</p>` : ''}</section>`;
+}
+function appIconSvg() {
+  return `<svg viewBox="0 0 64 64" aria-hidden="true" style="width:100%;height:100%;stroke:none"><defs><linearGradient id="pg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#2563eb"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#pg)"/><polyline points="12,44 25,32 35,37 52,18" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="52" cy="18" r="5" fill="#fbbf24"/></svg>`;
+}
+
+/* ---------- 追加のしかた（端末別） ---------- */
+function openInstallGuide() {
+  const ios = isIOS();
+  const android = /Android/.test(navigator.userAgent);
+  const shareIc = '<svg viewBox="0 0 24 24" style="width:22px;height:22px;vertical-align:-5px;color:var(--accent)"><path d="M12 15V4.5M8 8.5l4-4 4 4M6 11.5v8h12v-8"/></svg>';
+  openSheet({
+    title: 'ホーム画面に追加する方法',
+    render: () => (ios ? `<ol class="guide">
+        <li><b>Safari</b>でこのページを開いています（Chromeなど他のアプリからは追加できません）</li>
+        <li>画面下（iPadは上）の <b>共有ボタン</b> ${shareIc} をタップ</li>
+        <li>メニューを下にスクロールし <b>「ホーム画面に追加」</b> をタップ</li>
+        <li>右上の <b>「追加」</b> をタップ。ホーム画面の LiftCanvas アイコンから起動します</li></ol>
+        ${hasRealData() ? `<div class="card flat" style="background:var(--warn-soft);border-color:var(--gold-line)"><b>今までの記録を引き継ぐには</b><p class="small" style="margin:6px 0 10px">iPhoneは「Safari」と「ホーム画面のアプリ」で保存場所が別々です。先に引き継ぎコードをコピーしてから追加し、ホーム画面のアプリを初めて開いたときに貼り付けてください。</p>
+          <button type="button" class="btn btn-primary btn-block" data-a="pwaCopyCode">${ICON.copy}引き継ぎコードをコピー</button><div style="height:8px"></div>
+          <button type="button" class="btn btn-block" data-a="pwaCodeFile">${ICON.download}コードをファイルで保存</button></div>` : ''}`
+      : android ? `<ol class="guide"><li>Chromeの右上の <b>︙（メニュー）</b> をタップ</li><li><b>「ホーム画面に追加」</b>または<b>「アプリをインストール」</b>をタップ</li><li><b>「インストール」</b>をタップ。ホーム画面のアイコンから起動します</li></ol><p class="hint">記録はそのまま引き継がれます。</p>`
+      : `<ol class="guide"><li>アドレスバー右端の <b>インストール</b> アイコン、またはブラウザのメニューの<b>「アプリをインストール」</b>を選びます</li><li>表示された画面で<b>「インストール」</b>を押します</li></ol><p class="hint">Chrome・Edge で利用できます。記録はそのまま引き継がれます。</p>`),
+    foot: () => `<button type="button" class="btn btn-primary" data-a="__close">OK</button>`
+  });
+}
+
+/* ---------- iPhoneの引き継ぎコード ---------- */
+function makeTransferCode() {
+  const bytes = new TextEncoder().encode(JSON.stringify(buildExport()));
+  let bin = ''; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return TRANSFER_PREFIX + btoa(bin);
+}
+function readTransferCode(text) {
+  const t = String(text || '').replace(/\s+/g, '');
+  const i = t.indexOf(TRANSFER_PREFIX);
+  if (i < 0) throw new Error('引き継ぎコードが見つかりません（「LC1:」から始まる文字列を貼り付けてください）');
+  const bin = atob(t.slice(i + TRANSFER_PREFIX.length));
+  const bytes = new Uint8Array(bin.length); for (let k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
+  return parseImport(new TextDecoder().decode(bytes));
+}
+async function copyTransferCode() {
+  const code = makeTransferCode();
+  let ok = false;
+  try { await navigator.clipboard.writeText(code); ok = true; } catch (e) { ok = false; }
+  if (!ok) {
+    openSheet({ title: '引き継ぎコード', render: () => `<p class="small">下のコードを長押しして「すべてを選択」→「コピー」してください。</p><textarea class="input" rows="6" readonly style="font-size:12px">${esc(code)}</textarea>`, foot: () => `<button type="button" class="btn btn-primary" data-a="__close">閉じる</button>` });
+  } else toast('引き継ぎコードをコピーしました。ホーム画面のアプリで貼り付けてください', 'ok');
+  DB.ui.pwaMoved = true; save();
+  if (UI.tab === 'train') renderTab();
+}
+function openTransferPaste(first) {
+  const st = { code: '' };
+  openSheet({
+    title: first ? 'Safariの記録を引き継ぎますか？' : '記録を引き継ぐ', state: st, dismissible: !first,
+    render: () => `<p class="small" style="margin:0 0 10px">${first ? 'ホーム画面のアプリは、Safariとは別の場所に記録を保存します。' : ''}Safari版の「設定 → 引き継ぎコードをコピー」でコピーしたコードを貼り付けてください。</p>
+      <textarea class="input" data-in="code" rows="5" placeholder="LC1:… から始まるコード" style="font-size:12px">${esc(st.code)}</textarea>
+      <div style="height:10px"></div><button type="button" class="btn btn-line btn-block" data-a="paste">${ICON.copy}クリップボードから貼り付け</button>
+      <div style="height:8px"></div><button type="button" class="btn btn-block" data-a="file">${ICON.upload}バックアップファイルから復元</button>`,
+    foot: () => `<button type="button" class="btn" data-a="skip">${first ? '新しく始める' : 'キャンセル'}</button><button type="button" class="btn btn-primary" data-a="ok">引き継ぐ</button>`,
+    inputs: { code: (el) => { st.code = el.value; } },
+    actions: {
+      paste: async (el, e, s) => { try { st.code = await navigator.clipboard.readText(); s.render(); } catch (err) { toast('貼り付けできませんでした。入力欄を長押しして「ペースト」してください'); } },
+      file: (el, e, s) => { DB.ui.transferAsked = true; save(); s.close(); ACT.importOpen(); },
+      skip: (el, e, s) => { DB.ui.transferAsked = true; save(); s.close(); },
+      ok: (el, e, s) => {
+        let parsed; try { parsed = readTransferCode(st.code); } catch (err) { toast(err.message || 'コードを読み取れませんでした', 'error'); return; }
+        DB.ui.transferAsked = true;
+        s.close();
+        if (hasRealData()) askImportMode(parsed, '引き継ぎコード'); else { applyImport(parsed.data, 'overwrite'); DB.ui.transferAsked = true; save(); }
+      }
+    }
+  });
+}
+
+/* ---------- サービスワーカー・自動更新 ---------- */
+function registerSW() {
+  if (!('serviceWorker' in navigator) || !isHttp()) return;
+  navigator.serviceWorker.register(SW_FILE, { scope: SW_SCOPE }).catch(() => { /* 非対応・プライベート等 */ });
+}
+function isBusy() {
+  const a = document.activeElement;
+  return sheets.length > 0 || !!UI.kp || (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) || (UI.wo && !$('#workout').hidden);
+}
+async function checkUpdate(force) {
+  if (!isHttp() || !navigator.onLine) return;
+  if (!force && Date.now() - PWA.lastCheck < 10 * 60e3) return;
+  PWA.lastCheck = Date.now();
+  try {
+    const res = await fetch(location.pathname + '?check=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const m = (await res.text()).match(/const APP_VERSION = '([^']+)'/);
+    if (!m || m[1] === APP_VERSION) return;
+    PWA.updateReady = true;
+    if (isBusy()) showUpdateBar(); else applyUpdate();
+  } catch (e) { /* オフライン等 */ }
+}
+function showUpdateBar() {
+  if ($('#updBar')) return;
+  document.body.insertAdjacentHTML('beforeend', `<div id="updBar" class="upd-bar" role="status"><span>✨ 新しい版があります</span><button type="button" class="btn btn-sm btn-primary" data-a="pwaUpdate">更新する</button></div>`);
+}
+async function applyUpdate() {
+  save();
+  try { sessionStorage.setItem('lc_updated', APP_VERSION); } catch (e) { /* noop */ }
+  try { const r = navigator.serviceWorker && await navigator.serviceWorker.getRegistration(SW_SCOPE); if (r) await r.update(); } catch (e) { /* noop */ }
+  location.reload();
+}
+function pwaInit() {
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); PWA.prompt = e; if (UI.tab === 'train' || UI.tab === 'settings') renderTab(); });
+  window.addEventListener('appinstalled', () => { PWA.prompt = null; DB.ui.pwaHide = true; save(); toast('ホーム画面に追加しました', 'ok'); renderTab(); });
+  registerSW();
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) { /* noop */ }
+  try { if (sessionStorage.getItem('lc_updated')) { sessionStorage.removeItem('lc_updated'); setTimeout(() => toast('✨ 最新版に更新しました', 'ok'), 400); } } catch (e) { /* noop */ }
+  setTimeout(() => checkUpdate(true), 3000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(false); else if (PWA.updateReady && !isBusy()) { /* 次回表示時に更新 */ } });
+  // iPhoneのホーム画面版を初めて開いたとき：引き継ぎを先に案内
+  if (isIOS() && isStandalone() && !DB.ui.transferAsked && !hasRealData()) setTimeout(() => openTransferPaste(true), 300);
+}
+Object.assign(ACT, {
+  pwaInstall: async () => {
+    const p = PWA.prompt; if (!p) { openInstallGuide(); return; }
+    try { p.prompt(); const r = await p.userChoice; PWA.prompt = null; if (r && r.outcome === 'accepted') { DB.ui.pwaHide = true; save(); } renderTab(); } catch (e) { openInstallGuide(); }
+  },
+  pwaGuide: () => openInstallGuide(),
+  pwaLater: () => { PWA.sessionHide = true; renderTab(); toast('設定画面からいつでも追加できます'); },
+  pwaNever: () => { DB.ui.pwaHide = true; save(); renderTab(); toast('案内を非表示にしました（設定画面からいつでも追加できます）'); },
+  pwaSafariOnce: () => { PWA.safariOnce = true; renderTab(); },
+  pwaCopyCode: () => copyTransferCode(),
+  pwaCodeFile: () => { downloadBlob(new Blob([makeTransferCode()], { type: 'text/plain' }), 'liftcanvas_引き継ぎコード.txt'); DB.ui.pwaMoved = true; save(); toast('引き継ぎコードを保存しました'); },
+  pwaPaste: () => openTransferPaste(false),
+  pwaUpdate: () => applyUpdate()
 });
 
 /* =====================================================================
@@ -3761,13 +3966,16 @@ function init() {
   document.body.insertAdjacentHTML('afterbegin', bodyDefs());
   applyTheme();
   invalidateEx();
+  sanitizeRefs();
   cleanupDrafts();
   buildTabbar();
-  setTab('train');
+  const qTab = new URLSearchParams(location.search).get('tab');
+  setTab(TABS.some((t) => t.key === qTab) ? qTab : 'train');
   Timer.resume();
   if (DB.active && !DB.active.minimized) openWorkout();
   renderMinibar();
   loadChartJs();
+  pwaInit();
   if (Drive.clientId() && navigator.onLine && location.protocol !== 'file:') setTimeout(() => Drive.loadGis().catch(() => { /* 使う時に再試行 */ }), 1500);
   save();
   if (!storageOK) toast('この環境ではデータを保存できません（プライベートモード等）', 'error');
