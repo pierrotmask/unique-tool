@@ -22,7 +22,7 @@
 /* ===================== テーマ ===================== */
 :root{
   --bg:#f3f5f9; --bg-grad:linear-gradient(180deg,#eef2f8 0,#f3f5f9 240px);
-  --surface:#ffffff; --surface-2:#f7f8fb; --surface-3:#eef1f6; --overlay:rgba(243,245,249,.86);
+  --surface:#ffffff; --surface-solid:#ffffff; --surface-2:#f7f8fb; --surface-3:#eef1f6; --overlay:rgba(243,245,249,.86);
   --line:#e4e8ef; --line-2:#cfd6e1;
   --text:#121a2a; --text-2:#465062; --text-3:#666f80;
   --head:#0f2342; --accent:#2563eb; --accent-2:#1d4ed8; --accent-soft:#e9f0ff; --accent-soft-2:#d4e1ff; --on-accent:#fff;
@@ -43,7 +43,7 @@
 }
 html[data-theme="dark"]{
   --bg:#0d1218; --bg-grad:linear-gradient(180deg,#111925 0,#0d1218 260px);
-  --surface:#18212e; --surface-2:#1f2a39; --surface-3:#283446; --overlay:rgba(13,18,24,.9);
+  --surface:#18212e; --surface-solid:#18212e; --surface-2:#1f2a39; --surface-3:#283446; --overlay:rgba(13,18,24,.9);
   --line:#2e3b50; --line-2:#3f4e66;
   --text:#f1f4f9; --text-2:#c2cad8; --text-3:#97a3b8;
   --head:#f6f8fc; --accent:#7aa6ff; --accent-2:#9bbcff; --accent-soft:#1e3159; --accent-soft-2:#2f4a80; --on-accent:#fff;
@@ -509,7 +509,7 @@ html[data-theme="dark"] .cal .wd.sun{color:#ff8fa3} html[data-theme="dark"] .cal
 .tab svg{width:23px;height:23px}
 .tab[aria-current="page"]{color:var(--accent)}
 .tab[aria-current="page"] .ic{background:var(--accent-soft)}
-.tab .dot{position:absolute;top:8px;right:calc(50% - 22px);width:9px;height:9px;border-radius:50%;background:var(--ok);border:2px solid var(--surface)}
+.tab .dot{position:absolute;top:8px;right:calc(50% - 22px);width:9px;height:9px;border-radius:50%;background:var(--ok);border:2px solid var(--surface-solid)}
 
 /* ===================== トースト ===================== */
 .toast{position:fixed;left:50%;top:calc(var(--safe-top) + 12px);transform:translate(-50%,-20px);z-index:500;background:var(--head);color:var(--bg);padding:12px 18px;border-radius:14px;font-size:14.5px;font-weight:700;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100% - 32px);width:max-content;text-align:center}
@@ -564,7 +564,7 @@ html[data-theme="dark"] .cal .wd.sun{color:#ff8fa3} html[data-theme="dark"] .cal
   --text:#15181e; --text-2:#4a515e; --text-3:#666e7c; --head:#15181e;
   --accent:#1d4ed8; --accent-2:#173fb0; --accent-soft:#e8eefc; --accent-soft-2:#c9d6f6;
   --btn:#1d4ed8; --btn-2:#173fb0; --ok-btn:#0e7c4b; --ok:#11935a; --ok-2:#0c7a4a; --ok-soft:#e3f4eb; --ok-line:#b5e0c9;
-  --gold:#a86f00; --gold-soft:#fff4d1; --gold-line:#f2d27a;
+  --gold:#8a5a00; --gold-soft:#fff4d1; --gold-line:#f2d27a;
   --danger:#d62839; --danger-soft:#fdecee; --danger-line:#f3c1c7;
   --shadow:0 1px 0 rgba(21,24,30,.04),0 8px 24px -12px rgba(21,24,30,.12);
   --shadow-lg:0 18px 50px -12px rgba(21,24,30,.28);
@@ -610,7 +610,7 @@ body{font-family:var(--f-ui);font-feature-settings:"palt";letter-spacing:0;backg
 .btn-primary{background:var(--btn);border-color:var(--btn);box-shadow:0 10px 22px -12px var(--btn)}
 .btn-lg{min-height:58px;font-size:17px;border-radius:16px}
 .chip{font-weight:700}
-.chip[aria-pressed="true"]{background:var(--text);border-color:var(--text);color:var(--surface)}
+.chip[aria-pressed="true"]{background:var(--text);border-color:var(--text);color:var(--surface-solid)}
 .seg{border-radius:14px}
 .seg.pill button[aria-pressed="true"]{background:var(--btn);color:#fff}
 
@@ -681,6 +681,151 @@ body{font-family:var(--f-ui);font-feature-settings:"palt";letter-spacing:0;backg
 .wo-meta .chip svg{width:16px;height:16px}
 
 h1,h2,h3,.exc-h .nm>button,.reco .reco-name,.menu-card h3,.li .t,.wo-title b,.sheet-h h2,.page-h-in h2,.btn{letter-spacing:-.02em}
+/* =====================================================================
+   デザインレイヤー「ホログラム・トレーニングベイ」（立体・近未来）
+   ・人体図は「格子の床から浮かぶホログラム」＝唯一の大胆な要素
+   ・面ごとに高さ（エレベーション）を持たせる：上辺の光、下の影、押すと沈むボタン
+   ・色の意味（青＝操作／緑＝完了／黄＝自己ベスト／赤＝高負荷）は維持
+   ===================================================================== */
+:root{
+  --glow:#3b82f6; --glow-2:#22d3ee;
+  --bg:#eef2f8;
+  --bg-fx:radial-gradient(1200px 600px at 80% -10%,rgba(59,130,246,.16),transparent 60%),radial-gradient(900px 500px at -10% 30%,rgba(34,211,238,.12),transparent 60%),linear-gradient(180deg,#f3f6fb,#e9eef6);
+  --grid-line:rgba(37,99,235,.07);
+  --surface:linear-gradient(180deg,#ffffff 0%,#f7f9fd 100%); --surface-solid:#ffffff;
+  --edge-hi:rgba(255,255,255,.95); --edge-lo:rgba(15,35,80,.08);
+  --elev-1:0 1px 0 var(--edge-hi) inset,0 0 0 1px rgba(15,35,80,.06),0 2px 4px rgba(15,35,80,.04),0 14px 30px -16px rgba(15,35,80,.25);
+  --elev-2:0 1px 0 var(--edge-hi) inset,0 0 0 1px rgba(15,35,80,.07),0 6px 12px rgba(15,35,80,.06),0 28px 50px -22px rgba(15,35,80,.38);
+  --well:inset 0 2px 4px rgba(15,35,80,.10),inset 0 0 0 1px rgba(15,35,80,.08);
+  --holo-bg:radial-gradient(120% 90% at 50% 18%,#ffffff 0%,#e8eef8 46%,#d6e0ef 100%);
+  --holo-grid:rgba(37,99,235,.22); --holo-ring:rgba(37,99,235,.45); --holo-edge:#5f6f8a;
+  --dock:rgba(255,255,255,.78);
+}
+html[data-theme="dark"]{
+  --glow:#4f8cff; --glow-2:#22d3ee;
+  --bg:#070b14;
+  --bg-fx:radial-gradient(1000px 520px at 85% -10%,rgba(79,140,255,.22),transparent 60%),radial-gradient(800px 480px at -10% 35%,rgba(34,211,238,.12),transparent 60%),linear-gradient(180deg,#0a0f1c,#060910);
+  --grid-line:rgba(120,170,255,.06);
+  --surface:linear-gradient(180deg,#141b2b 0%,#0f1522 100%); --surface-solid:#121928;
+  --surface-2:#182033; --surface-3:#202a40; --line:#243049; --line-2:#33415f;
+  --text:#eef3ff; --text-2:#b8c3d9; --text-3:#90a0bc; --head:#f4f7ff;
+  --edge-hi:rgba(160,195,255,.14); --edge-lo:rgba(0,0,0,.5);
+  --elev-1:0 1px 0 var(--edge-hi) inset,0 0 0 1px rgba(120,160,255,.10),0 14px 30px -14px rgba(0,0,0,.8);
+  --elev-2:0 1px 0 var(--edge-hi) inset,0 0 0 1px rgba(120,160,255,.14),0 24px 50px -18px rgba(0,0,0,.9),0 0 40px -20px rgba(79,140,255,.45);
+  --well:inset 0 2px 6px rgba(0,0,0,.55),inset 0 0 0 1px rgba(120,160,255,.10);
+  --holo-bg:radial-gradient(120% 90% at 50% 15%,#1b2a4d 0%,#0e1628 50%,#080c16 100%);
+  --holo-grid:rgba(90,170,255,.32); --holo-ring:rgba(90,190,255,.7); --holo-edge:#8fb4ff;
+  --bd-skin:#16213a; --bd-edge:#7fa6ff; --bd-idle:#24324f; --bd-sep:#0a101d;
+  --overlay:rgba(8,12,22,.82); --dock:rgba(16,22,36,.78);
+  --accent:#86aaff; --accent-soft:#18264a; --accent-soft-2:#2b3f74;
+}
+
+/* ---- 背景：奥行きのある光と、うっすらした格子 ---- */
+body{background:var(--bg-fx);background-color:var(--bg);background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);background-size:32px 32px;
+  -webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 0%,transparent 70%);mask-image:radial-gradient(ellipse at 50% 0%,#000 0%,transparent 70%)}
+
+/* ---- 面の高さ（カード・一覧・数値タイル） ---- */
+.card,.list,.kpi,.stat-tile,.exc{background:var(--surface);border:0;box-shadow:var(--elev-1)}
+.card.tap:active,.menu-card:active{transform:translateY(1px) scale(.995);box-shadow:var(--elev-1)}
+.li{background:transparent}
+.list{overflow:hidden}
+.sheet{background:var(--surface-solid);box-shadow:0 -1px 0 var(--edge-hi) inset,0 -20px 60px -10px rgba(0,0,0,.45)}
+.page,.overlay{background:var(--bg-fx);background-color:var(--bg)}
+
+/* ---- ボタン：光る上辺と影で「押せる立体」に。押すと沈む ---- */
+.btn{box-shadow:0 1px 0 var(--edge-hi) inset,0 0 0 1px var(--line-2),0 4px 10px -6px rgba(0,0,0,.25);border:0;background:var(--surface);transition:transform .08s,box-shadow .08s}
+.btn:active:not(:disabled){transform:translateY(2px);box-shadow:0 0 0 1px var(--line-2),inset 0 2px 6px rgba(0,0,0,.18)}
+.btn-primary,.btn-start,.fab{background:linear-gradient(180deg,#4d84ff 0%,#2457e6 55%,#1d47c9 100%);color:#fff;
+  box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 -2px 0 rgba(0,0,0,.18) inset,0 10px 24px -10px rgba(37,99,235,.9),0 0 0 1px rgba(29,71,201,.6)}
+.btn-primary:active:not(:disabled),.btn-start:active,.fab:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(255,255,255,.3) inset,0 3px 10px -6px rgba(37,99,235,.9),0 0 0 1px rgba(29,71,201,.6)}
+.btn-ok,.wo-finish{background:linear-gradient(180deg,#22b06c 0%,#0e7c4b 100%);color:#fff;border:0;box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 8px 18px -10px rgba(14,124,75,.9)}
+.btn-soft{background:linear-gradient(180deg,var(--accent-soft),var(--accent-soft));color:var(--accent)}
+.btn-line{color:var(--accent)}
+.btn-danger-line{color:var(--danger)}
+.btn-ghost{background:transparent;box-shadow:none}
+.icon-btn.solid{background:var(--surface);box-shadow:var(--elev-1);border:0}
+
+/* ---- 入力欄・切替：くぼんだ「ウェル」 ---- */
+.input,.search .input{background:var(--surface-2);border:0;box-shadow:var(--well)}
+.input:focus{box-shadow:var(--well),0 0 0 3px rgba(59,130,246,.35)}
+.seg{background:var(--surface-2);box-shadow:var(--well)}
+.seg button[aria-pressed="true"]{background:var(--surface);box-shadow:var(--elev-1)}
+.seg.pill{border:0}
+.seg.pill button[aria-pressed="true"]{background:linear-gradient(180deg,#4d84ff,#2457e6);color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 6px 14px -8px rgba(37,99,235,.9)}
+.chip{background:var(--surface);border:0;box-shadow:0 1px 0 var(--edge-hi) inset,0 0 0 1px var(--line-2)}
+.chip[aria-pressed="true"]{background:linear-gradient(180deg,#4d84ff,#2457e6);color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 6px 14px -8px rgba(37,99,235,.9)}
+
+/* ---- ホログラム・ステージ（人体図） ---- */
+.stage{position:relative;overflow:hidden;background:var(--holo-bg);border-radius:22px;box-shadow:var(--elev-2);padding:14px 6px 30px;isolation:isolate}
+.stage::before{content:"";position:absolute;left:-30%;right:-30%;bottom:-6%;height:46%;z-index:-1;
+  background-image:linear-gradient(var(--holo-grid) 1.5px,transparent 1.5px),linear-gradient(90deg,var(--holo-grid) 1.5px,transparent 1.5px);background-size:38px 38px;
+  transform:perspective(320px) rotateX(64deg);transform-origin:50% 0;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 30%,#000 70%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0%,#000 30%,#000 70%,transparent 100%)}
+.stage::after{content:"";position:absolute;left:8%;right:8%;bottom:5%;height:16%;z-index:-1;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(90,190,255,.35),transparent 70%);
+  box-shadow:0 0 0 2px var(--holo-ring),0 0 22px 2px var(--holo-ring),inset 0 0 18px var(--holo-ring);opacity:.65}
+.stage .bodysvg{position:relative;filter:drop-shadow(0 0 10px rgba(80,160,255,.35)) drop-shadow(0 18px 18px rgba(0,0,0,.35));animation:holo-float 6s ease-in-out infinite}
+.stage .bodysvg::after{content:""}
+@keyframes holo-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.bodysvg .bd-sil,.bodysvg .bd-head{stroke:var(--holo-edge)}
+.reco .stage,.reco-body{background:transparent;box-shadow:none}
+.mmap.stage .bodysvg{transform-origin:50% 60%}
+
+/* ---- 今日のおすすめ：宙に浮くパネル ---- */
+.reco{background:radial-gradient(120% 120% at 15% 25%,#22345e 0%,#101a30 48%,#090e1a 100%);
+  box-shadow:0 1px 0 rgba(160,195,255,.25) inset,0 0 0 1px rgba(120,160,255,.18),0 30px 60px -24px rgba(8,14,30,.9),0 0 60px -26px rgba(79,140,255,.8)}
+.reco-body{position:relative;isolation:isolate}
+.reco-body::before{content:"";position:absolute;left:-25%;right:-25%;bottom:-4%;height:34%;z-index:-1;
+  background-image:linear-gradient(rgba(90,170,255,.32) 1.5px,transparent 1.5px),linear-gradient(90deg,rgba(90,170,255,.32) 1.5px,transparent 1.5px);background-size:22px 22px;
+  transform:perspective(200px) rotateX(64deg);transform-origin:50% 0;
+  -webkit-mask-image:radial-gradient(ellipse at 50% 30%,#000 0%,transparent 72%);mask-image:radial-gradient(ellipse at 50% 30%,#000 0%,transparent 72%)}
+.reco-body::after{content:"";position:absolute;left:10%;right:10%;bottom:2%;height:12%;z-index:-1;border-radius:50%;box-shadow:0 0 0 1.5px rgba(90,190,255,.7),0 0 16px 2px rgba(90,190,255,.55)}
+.reco-top,.reco .reco-stats,.reco .btn,.reco .reco-note{position:relative;z-index:1}
+.reco-body .bodysvg{filter:drop-shadow(0 0 12px rgba(255,140,60,.35)) drop-shadow(0 16px 14px rgba(0,0,0,.55));animation:holo-float 6s ease-in-out infinite}
+.reco .reco-stats b{text-shadow:0 0 18px rgba(120,170,255,.55)}
+
+/* ---- 記録画面：くぼんだ入力セル、光る完了オーブ ---- */
+.cell{background:var(--surface-2);border:0;box-shadow:var(--well)}
+.cell.on{box-shadow:var(--well),0 0 0 2px var(--glow),0 0 18px -2px var(--glow)}
+.set-r.done{background:linear-gradient(90deg,rgba(17,147,90,.22),rgba(17,147,90,.06));box-shadow:inset 3px 0 0 #22c27a}
+.done-btn{background:var(--surface);border:0;box-shadow:0 1px 0 var(--edge-hi) inset,0 0 0 1.5px var(--line-2),0 4px 10px -6px rgba(0,0,0,.4)}
+.done-btn[aria-pressed="true"]{background:radial-gradient(circle at 35% 30%,#4ee39a 0%,#14a05f 45%,#0b6e41 100%);box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 0 0 1px #0b6e41,0 0 20px -2px rgba(34,194,122,.85)}
+.restbar{background:var(--dock);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border-top:0;box-shadow:0 -1px 0 var(--edge-hi) inset,0 -18px 40px -20px rgba(0,0,0,.5)}
+.restbar .prog{background:linear-gradient(90deg,var(--glow-2),var(--glow));box-shadow:0 0 12px var(--glow)}
+.keypad{background:var(--surface-solid);box-shadow:0 -1px 0 var(--edge-hi) inset,0 -24px 60px -12px rgba(0,0,0,.5)}
+.kp-grid button{background:var(--surface);box-shadow:0 1px 0 var(--edge-hi) inset,0 0 0 1px var(--line),0 4px 8px -6px rgba(0,0,0,.4)}
+.kp-grid button:active{transform:translateY(2px);box-shadow:inset 0 2px 6px rgba(0,0,0,.25)}
+.kp-grid button.go{background:linear-gradient(180deg,#4d84ff,#1d47c9)}
+.kp-grid button.ok{background:linear-gradient(180deg,#22b06c,#0e7c4b)}
+.wo-head,.page-h{background:var(--overlay);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);border-bottom:0;box-shadow:0 1px 0 var(--edge-hi),0 10px 30px -18px rgba(0,0,0,.5)}
+.wo-nav button.cur{background:linear-gradient(180deg,#4d84ff,#2457e6);color:#fff;box-shadow:0 6px 14px -8px rgba(37,99,235,.9)}
+
+/* ---- 浮かぶドック型タブバー ---- */
+.tabbar{left:10px;right:10px;bottom:calc(8px + var(--safe-bottom));padding-bottom:0;border:0;border-radius:24px;background:var(--dock);
+  -webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);
+  box-shadow:0 1px 0 var(--edge-hi) inset,0 0 0 1px rgba(120,160,255,.14),0 20px 40px -16px rgba(0,0,0,.55)}
+.tabbar-in{max-width:620px}
+.tab{height:62px}
+.tab[aria-current="page"] .ic{background:linear-gradient(180deg,#4d84ff,#2457e6);box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 6px 16px -6px rgba(37,99,235,.95)}
+body{padding-bottom:calc(var(--tabbar-h) + var(--safe-bottom) + 40px)}
+.minibar{bottom:calc(var(--tabbar-h) + var(--safe-bottom) + 14px)}
+.fab{bottom:calc(var(--tabbar-h) + var(--safe-bottom) + 24px)}
+
+/* ---- 数字：ダークでは発光 ---- */
+html[data-theme="dark"] .kpi b,html[data-theme="dark"] .big2 b,html[data-theme="dark"] .trend .v{text-shadow:0 0 16px rgba(120,170,255,.35)}
+.cal .day.sel span{background:radial-gradient(circle at 35% 30%,#6f9cff,#2457e6 60%,#1a3fb0);box-shadow:0 0 16px -2px rgba(37,99,235,.9)}
+.cal .day svg.ringsvg{filter:drop-shadow(0 0 3px rgba(120,170,255,.35))}
+
+@media (prefers-reduced-motion:reduce){.stage .bodysvg,.reco-body .bodysvg{animation:none}}
+
+.set-r.done .cell{background:transparent;box-shadow:none}
+
+.kp-grid button.go,.btn-primary,.btn-start,.fab,.chip[aria-pressed="true"],.seg.pill button[aria-pressed="true"],.wo-nav button.cur{background-color:#2457e6}
+.kp-grid button.ok,.btn-ok,.wo-finish{background-color:#0e7c4b}
+
+@media (max-width:370px){.kpi b{font-size:23px;white-space:nowrap}.kpi{padding:12px}}
 
 </style>
 </head>
@@ -705,7 +850,7 @@ h1,h2,h3,.exc-h .nm>button,.reco .reco-name,.menu-card h3,.li .t,.wo-title b,.sh
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.20.5';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.20.6';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '';
@@ -1764,7 +1909,7 @@ function xRangeOf(pts) {
 function xLabel(v, span) { const d = new Date(Math.round(v) * 864e5); return span > 150 ? `${d.getUTCMonth() + 1}月` : `${d.getUTCMonth() + 1}/${d.getUTCDate()}`; }
 function fmtTick(v, kind) { return kind === 'volume' && v >= 1000 ? Math.round(v).toLocaleString('ja-JP') : fmtNum(v); }
 function chartConfig(spec) {
-  const grid = cssVar('--line'), tick = cssVar('--text-3'), head = cssVar('--head'), surface = cssVar('--surface');
+  const grid = cssVar('--line'), tick = cssVar('--text-3'), head = cssVar('--head'), surface = cssVar('--surface-solid');
   const base = {
     responsive: true, maintainAspectRatio: false, animation: { duration: 350 },
     plugins: { legend: { display: false }, tooltip: { displayColors: spec.type === 'bar' && spec.stacked, backgroundColor: head, titleColor: surface, bodyColor: surface, padding: 10 } }
@@ -1832,7 +1977,7 @@ function svgChartInto(cv, spec) {
     for (let k = 0; k < 5; k++) { const xv = xr.min + (xr.max - xr.min) * (k + 0.5) / 5; h += `<text x="${X(xv)}" y="${H - 6}" text-anchor="middle" font-size="11" fill="var(--text-3)">${xLabel(xv, xr.span)}</text>`; }
     const color = spec.color || 'var(--accent)';
     h += `<polyline fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" points="${pts.map((p) => X(p.x) + ',' + Y(p.y)).join(' ')}"/>`;
-    pts.forEach((p, i) => { const sel = i === spec.sel; h += `<circle data-i="${i}" cx="${X(p.x)}" cy="${Y(p.y)}" r="${sel ? 7.5 : p.pr ? 6 : 4.5}" fill="${sel ? 'var(--head)' : p.pr ? '#f5b301' : 'var(--surface)'}" stroke="${sel ? 'var(--head)' : p.pr ? '#b26a00' : color}" stroke-width="2.4"/>`; });
+    pts.forEach((p, i) => { const sel = i === spec.sel; h += `<circle data-i="${i}" cx="${X(p.x)}" cy="${Y(p.y)}" r="${sel ? 7.5 : p.pr ? 6 : 4.5}" fill="${sel ? 'var(--head)' : p.pr ? '#f5b301' : 'var(--surface-solid)'}" stroke="${sel ? 'var(--head)' : p.pr ? '#b26a00' : color}" stroke-width="2.4"/>`; });
     if (spec.unit) h += `<text x="4" y="11" font-size="11" fill="var(--text-3)">${spec.unit}</text>`;
     const svgEl = document.createElement('div');
     svgEl.className = 'svgc';
@@ -1875,7 +2020,7 @@ function sparkSvg(vals, { bars = false, color = 'var(--accent)', pr = [], labels
     vals.forEach((v, i) => { const x = 6 + (i + 0.5) * (W - 12) / n; const y = Y(v); h += `<rect x="${x - bw / 2}" y="${y}" width="${bw}" height="${Math.max(1.5, H - 12 - y)}" rx="2" fill="${color}" opacity="${i === n - 1 ? 1 : 0.55}"/>`; });
   } else {
     h += `<polyline fill="none" stroke="${color}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" points="${vals.map((v, i) => X(i) + ',' + Y(v)).join(' ')}"/>`;
-    vals.forEach((v, i) => { if (pr.includes(i) || i === n - 1) h += `<circle cx="${X(i)}" cy="${Y(v)}" r="${pr.includes(i) ? 3.4 : 3}" fill="${pr.includes(i) ? '#f5b301' : color}" stroke="var(--surface)" stroke-width="1.2"/>`; });
+    vals.forEach((v, i) => { if (pr.includes(i) || i === n - 1) h += `<circle cx="${X(i)}" cy="${Y(v)}" r="${pr.includes(i) ? 3.4 : 3}" fill="${pr.includes(i) ? '#f5b301' : color}" stroke="var(--surface-solid)" stroke-width="1.2"/>`; });
   }
   if (labels) labels.forEach((l) => { h += `<text x="${l.i === 0 ? 4 : X(l.i)}" y="${H - 1}" font-size="9.5" fill="var(--text-3)" text-anchor="${l.i === 0 ? 'start' : 'middle'}">${l.t}</text>`; });
   return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">${h}</svg>`;
@@ -3430,7 +3575,7 @@ function openExerciseDetail(exId) {
       editSes: (el) => openSessionEdit(el.dataset.id)
     }
   });
-  p.selectPoint = (i) => { st.sel = i; const el = $('.ptd', p.el); if (el) el.innerHTML = pointDetail(exId, st._pts[i]); const c = [...CH.values()].find((x) => x.canvas && p.el.contains(x.canvas) && x.config.type === 'line'); if (c) { const pts = st._pts; const ds = c.data.datasets[0]; const head = cssVar('--head'), surface = cssVar('--surface'); const color = ds.borderColor; ds.pointRadius = pts.map((pt, k) => (k === i ? 7.5 : pt.pr ? 6 : pts.length > 50 ? 3 : 4.5)); ds.pointBackgroundColor = pts.map((pt, k) => (k === i ? head : pt.pr ? '#f5b301' : surface)); ds.pointBorderColor = pts.map((pt, k) => (k === i ? head : pt.pr ? '#b26a00' : color)); c.update('none'); } };
+  p.selectPoint = (i) => { st.sel = i; const el = $('.ptd', p.el); if (el) el.innerHTML = pointDetail(exId, st._pts[i]); const c = [...CH.values()].find((x) => x.canvas && p.el.contains(x.canvas) && x.config.type === 'line'); if (c) { const pts = st._pts; const ds = c.data.datasets[0]; const head = cssVar('--head'), surface = cssVar('--surface-solid'); const color = ds.borderColor; ds.pointRadius = pts.map((pt, k) => (k === i ? 7.5 : pt.pr ? 6 : pts.length > 50 ? 3 : 4.5)); ds.pointBackgroundColor = pts.map((pt, k) => (k === i ? head : pt.pr ? '#f5b301' : surface)); ds.pointBorderColor = pts.map((pt, k) => (k === i ? head : pt.pr ? '#b26a00' : color)); c.update('none'); } };
 }
 function pointDetail(exId, pt) {
   if (!pt) return '';
