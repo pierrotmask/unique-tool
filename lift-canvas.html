@@ -13,6 +13,9 @@
 <meta name="apple-mobile-web-app-title" content="LiftCanvas">
 <link rel="manifest" href="lift-canvas.webmanifest">
 <link rel="apple-touch-icon" href="lift-canvas-apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap">
 <title>LiftCanvas（リフトキャンバス）</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%231e3a8a'/%3E%3Cstop offset='1' stop-color='%232563eb'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='15' fill='url(%23g)'/%3E%3Cpolyline points='12,44 25,32 35,37 52,18' fill='none' stroke='%23ffffff' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='52' cy='18' r='5' fill='%23fbbf24'/%3E%3C/svg%3E">
 <style>
@@ -544,6 +547,141 @@ html[data-theme="dark"] .cal .wd.sun{color:#ff8fa3} html[data-theme="dark"] .cal
 }
 @media (min-width:700px){ .kpis{grid-template-columns:repeat(4,1fr)} }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* =====================================================================
+   デザインレイヤー「プラットフォーム」
+   ・競技用プレートの色（青20・緑10・黄15・赤25）に意味を持たせる
+     青＝操作、緑＝完了、黄＝自己ベスト、赤＝高負荷／削除
+   ・数字は Barlow Condensed（スコアボードの数字）、日本語は Zen Kaku Gothic New
+   ・箱を増やさず余白でまとめる。カードは「主役」だけに使う
+   ===================================================================== */
+:root{
+  --f-ui:"Zen Kaku Gothic New",-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","Yu Gothic UI",sans-serif;
+  --f-num:"Barlow Condensed","Zen Kaku Gothic New",-apple-system,"Hiragino Sans",sans-serif;
+  --plate-blue:#1d4ed8; --plate-red:#d62839; --plate-yellow:#f2b400; --plate-green:#11935a;
+  --bg:#f4f5f7; --bg-grad:#f4f5f7;
+  --surface:#ffffff; --surface-2:#f6f7f9; --surface-3:#eceef2; --overlay:rgba(244,245,247,.92);
+  --line:#e3e6eb; --line-2:#cdd2da;
+  --text:#15181e; --text-2:#4a515e; --text-3:#666e7c; --head:#15181e;
+  --accent:#1d4ed8; --accent-2:#173fb0; --accent-soft:#e8eefc; --accent-soft-2:#c9d6f6;
+  --btn:#1d4ed8; --btn-2:#173fb0; --ok-btn:#0e7c4b; --ok:#11935a; --ok-2:#0c7a4a; --ok-soft:#e3f4eb; --ok-line:#b5e0c9;
+  --gold:#a86f00; --gold-soft:#fff4d1; --gold-line:#f2d27a;
+  --danger:#d62839; --danger-soft:#fdecee; --danger-line:#f3c1c7;
+  --shadow:0 1px 0 rgba(21,24,30,.04),0 8px 24px -12px rgba(21,24,30,.12);
+  --shadow-lg:0 18px 50px -12px rgba(21,24,30,.28);
+  --r-xl:22px; --r-lg:18px; --r:14px;
+  --stage:radial-gradient(ellipse at 50% 34%,#ffffff 0%,#eef1f5 52%,#e2e6ec 100%);
+}
+html[data-theme="dark"]{
+  --bg:#111317; --bg-grad:#111317;
+  --surface:#1a1d23; --surface-2:#20242b; --surface-3:#292e36; --overlay:rgba(17,19,23,.9);
+  --line:#2a2f38; --line-2:#3a404b;
+  --text:#eef0f3; --text-2:#b9c0cb; --text-3:#959dab; --head:#f5f6f8;
+  --accent:#7ea2ff; --accent-2:#a2bcff; --accent-soft:#1c2846; --accent-soft-2:#2e4278;
+  --btn:#2a5ee8; --btn-2:#2350c9; --ok-btn:#0f7d4d; --ok:#3ccf8a; --ok-2:#7ce3b0; --ok-soft:#14291f; --ok-line:#22573c;
+  --gold:#ffcf4d; --gold-soft:#2c2510; --gold-line:#5d4b15;
+  --danger:#ff6b78; --danger-soft:#33171b; --danger-line:#6d2a31;
+  --shadow:none; --shadow-lg:0 18px 50px -10px rgba(0,0,0,.6);
+  --bd-skin:#262a32; --bd-edge:#77808f; --bd-idle:#3a404b; --bd-sep:#14171c;
+  --stage:radial-gradient(ellipse at 50% 34%,#2b3140 0%,#1b1f27 55%,#14171c 100%);
+}
+body{font-family:var(--f-ui);font-feature-settings:"palt";letter-spacing:0;background:var(--bg)}
+.num,.kpi b,.big2 b,.cell,.set-no,.set-prev,.restbar .tm,.kp-lbl b,.trend .v,.reco-stats b,.ring .ring-t b,.tbl td,.stepper .val,.growth-val,.delta b,.pt-detail .v,.recent-row .v,.data-stats b,.minibar .tmr,.wo-title span,.ses-stats,.hist-sets,.ratio-h em,.exc-tags button,.exc-tags span,.sugg b,.summary-grid b,.cal .day span,.streak .c{font-family:var(--f-num);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+
+/* ---- 見出し：アイブロウ（小さな英字ラベル）をやめ、太い見出し1本に ---- */
+.topbar{padding:22px 0 12px;min-height:76px}
+.topbar h1{font-size:30px;font-weight:900;letter-spacing:-.01em;line-height:1.15}
+.topbar .sub{display:none}
+.sec{margin-top:28px}
+.sec-h h2{font-size:18px;font-weight:900}
+.card-h h3{font-size:16px;font-weight:900}
+
+/* ---- カード：主役だけを箱に。影は控えめ、階層で角丸を変える ---- */
+.card{border-radius:var(--r-lg);box-shadow:var(--shadow)}
+.list{border-radius:var(--r-lg);box-shadow:none}
+.li .t{font-weight:700}
+.kpi{box-shadow:none;border-radius:var(--r)}
+.kpi b{font-size:30px;font-weight:700;line-height:1.1;margin-top:2px}
+.kpi b small{font-family:var(--f-ui);font-size:13px}
+.big2 b{font-size:38px;font-weight:700;line-height:1.05}
+.big2 b small{font-family:var(--f-ui);font-size:14px;font-weight:700}
+
+/* ---- ボタン：押せるものは「プレートの青」、大きく・角を少し立てる ---- */
+.btn{border-radius:var(--r);font-weight:700;letter-spacing:0}
+.btn-primary{background:var(--btn);border-color:var(--btn);box-shadow:0 10px 22px -12px var(--btn)}
+.btn-lg{min-height:58px;font-size:17px;border-radius:16px}
+.chip{font-weight:700}
+.chip[aria-pressed="true"]{background:var(--text);border-color:var(--text);color:var(--surface)}
+.seg{border-radius:14px}
+.seg.pill button[aria-pressed="true"]{background:var(--btn);color:#fff}
+
+/* ---- トレーニング：今日のおすすめ（唯一の大胆な要素） ---- */
+.reco{border-radius:24px;padding:18px 18px 16px;background:radial-gradient(ellipse at 18% 40%,#2b3346 0%,#171a20 62%,#121418 100%);box-shadow:0 22px 40px -22px rgba(0,0,0,.55);
+  --bd-skin:#262a32;--bd-edge:#8a93a3;--bd-idle:#3a404b;--bd-sep:#14171c}
+.reco::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,var(--plate-red) 0 25%,var(--plate-blue) 25% 50%,var(--plate-yellow) 50% 75%,var(--plate-green) 75% 100%)}
+.reco .reco-kicker{font-size:13px;letter-spacing:.04em;color:#ffd166;font-weight:700}
+.reco .reco-name{font-size:26px;font-weight:900;letter-spacing:-.01em;line-height:1.2}
+.reco .reco-why{font-size:13.5px;color:#c7cdd8}
+.reco .reco-why b{font-size:17px;color:#fff;font-weight:700}
+.reco .reco-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:16px 0 2px;padding-top:12px;border-top:1px solid rgba(255,255,255,.1)}
+.reco .reco-stats>div{font-size:12px;color:#a7afbd;padding-left:12px;border-left:1px solid rgba(255,255,255,.1);white-space:nowrap}
+.reco .reco-stats>div:first-child{padding-left:0;border-left:0}
+.reco .reco-stats b{font-size:32px;font-weight:700;line-height:1.05}
+.reco .reco-stats b small{font-family:var(--f-ui);font-size:13px;margin-left:2px;color:#c7cdd8}
+.reco-body{width:140px}
+.menu-card{border-radius:var(--r-lg);padding:16px}
+.menu-card h3{font-size:18px;font-weight:900}
+.menu-card .mb{width:66px;background:var(--surface-2);border:0}
+.menu-card .meta{gap:2px 12px;font-size:12px}
+.btn-start{background:var(--btn);color:#fff;border-radius:14px;min-height:46px;padding:0 18px;box-shadow:0 8px 18px -10px var(--btn)}
+
+/* ---- 記録画面：数字が主役。完了は「緑のプレート」 ---- */
+.exc{border-radius:20px;box-shadow:var(--shadow)}
+.exc-h .nm>button{font-size:18px;font-weight:900}
+.exc-tags button,.exc-tags span{font-size:13px;font-weight:600;border-radius:8px;padding:2px 9px}
+.set-h{font-size:11.5px;letter-spacing:.04em}
+.set-r{min-height:58px;border-radius:14px}
+.set-r.done{background:var(--ok-soft);box-shadow:inset 4px 0 0 var(--ok-btn)}
+.set-no{font-size:20px;font-weight:700}
+.set-prev{font-size:16px;font-weight:600}
+.cell{height:50px;font-size:26px;font-weight:700;border-radius:12px;background:var(--surface-2)}
+.cell .ph{font-weight:600;opacity:.7}
+.done-btn{width:50px;height:50px;border-radius:50%}
+.done-btn[aria-pressed="true"]{background:var(--ok-btn);border-color:var(--ok-btn);box-shadow:0 6px 14px -6px var(--ok-btn)}
+.badge.pr{background:var(--plate-yellow);color:#2a1d00}
+.restbar .tm{font-size:38px;font-weight:700}
+.kp-lbl b{font-size:40px;font-weight:700}
+.kp-grid button{font-family:var(--f-num);font-size:26px;font-weight:600;height:56px;border-radius:14px}
+.kp-grid button.fn,.kp-grid button.go,.kp-grid button.ok,.kp-grid button.close{font-family:var(--f-ui);font-size:15px}
+.wo-finish{background:var(--ok-btn);border-radius:14px;font-weight:700}
+
+/* ---- 人体図：ステージの背景と輪郭 ---- */
+.stage{background:var(--stage);border:0;border-radius:20px;box-shadow:inset 0 0 0 1px var(--line)}
+.bodysvg .bd-label{letter-spacing:.12em}
+
+/* ---- タブバー ---- */
+.tabbar{background:var(--overlay)}
+.tab{font-weight:700;font-size:11px}
+.tab .ic{width:56px;height:32px;border-radius:12px}
+.tab[aria-current="page"] .ic{background:var(--btn);color:#fff}
+.tab[aria-current="page"]{color:var(--text)}
+
+/* ---- カレンダー ---- */
+.cal .day span{font-size:16px;font-weight:600}
+.cal .day.sel span{background:var(--btn)}
+.fab{background:var(--btn);border-radius:18px;font-weight:700;box-shadow:0 14px 28px -12px var(--btn)}
+@media (max-width:370px){ .topbar h1{font-size:26px} .reco .reco-name{font-size:22px} .reco-body{width:118px} .kpi b{font-size:26px} .big2 b{font-size:32px} .cell{font-size:22px} }
+
+.meta-row{display:flex;flex-wrap:wrap;gap:0 12px}
+.meta-row b{font-size:14px;font-weight:700;color:var(--text)}
+
+.menu-card .meta-row b{font-size:16px}
+.wo-meta{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:6px;margin-bottom:10px}
+.wo-meta::-webkit-scrollbar{display:none}
+.wo-meta .chip{min-height:36px;font-size:13px;padding:0 12px;flex:none}
+.wo-meta .chip svg{width:16px;height:16px}
+
+h1,h2,h3,.exc-h .nm>button,.reco .reco-name,.menu-card h3,.li .t,.wo-title b,.sheet-h h2,.page-h-in h2,.btn{letter-spacing:-.02em}
+
 </style>
 </head>
 <body>
@@ -567,7 +705,7 @@ html[data-theme="dark"] .cal .wd.sun{color:#ff8fa3} html[data-theme="dark"] .cal
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.20.4';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.20.5';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '';
@@ -905,7 +1043,7 @@ function bodySvg(fills = {}, opts = {}) {
   }
   const labels = opts.labels !== false;
   return `<svg viewBox="0 0 420 ${labels ? 470 : 446}" class="bodysvg${opts.tap ? ' tapable' : ''}${opts.stage ? ' stage' : ''}" role="img" aria-label="${esc(opts.aria || '筋肉マップ')}">
-    ${fig(BODY_FRONT, 'bdF', 0, labels ? 'FRONT' : '')}${fig(BODY_BACK, 'bdB', 220, labels ? 'BACK' : '')}</svg>`;
+    ${fig(BODY_FRONT, 'bdF', 0, labels ? '前面' : '')}${fig(BODY_BACK, 'bdB', 220, labels ? '背面' : '')}</svg>`;
 }
 
 /* ---------- 初期サンプルメニューセット（WL中心を含む6パターン） ---------- */
@@ -2660,7 +2798,7 @@ function renderTab(keep = true) {
   document.body.classList.toggle('has-fab', !!fabDef);
   if (fabDef) document.body.insertAdjacentHTML('beforeend', `<button type="button" class="fab" id="fab" data-a="${fabDef.a}">${ICON.plus}${fabDef.l}</button>`);
 }
-function topbar(title, right = '') { return `<header class="topbar"><h1><span class="sub">LiftCanvas</span>${title}</h1>${right}</header>`; }
+function topbar(title, right = '') { return `<header class="topbar"><h1>${title}</h1>${right}</header>`; }
 function backupStale() {
   const has = DB.records.some((r) => !r.demo && r.sets.some((s) => s.done));
   if (!has) return false;
@@ -2716,13 +2854,13 @@ function renderTrain() {
   const rec = !DB.active && recommendMenu();
   if (rec && !UI.reorder) {
     const parts = [...new Set(rec.m.exerciseIds.map((id) => getEx(id).part))].filter((p) => CATEGORIES.includes(p));
-    const reason = !IDX().sessions.length ? 'まずはこのメニューから始めてみましょう' : `${parts.map((p) => PART_SHORT[p]).join('・')}の回復度 ${Math.round(rec.ready * 100)}%${rec.last ? ` ・ 前回 ${fmtRelDay(rec.last)}` : ' ・ まだ実施していません'}`;
+    const reason = !IDX().sessions.length ? 'まずはこのメニューから始めてみましょう' : `${parts.map((p) => PART_SHORT[p]).join('と')}の回復度 <b class="num">${Math.round(rec.ready * 100)}</b>%<br>${rec.last ? `前回は${fmtRelDay(rec.last)}` : 'まだ実施していません'}`;
     const wk = weeklyAgg(1)[0]; const sk = weekStreaks();
     const glowFills = {}; for (const k of Object.keys(rec.mm.fills)) glowFills[k] = rec.mm.fills[k].length > 7 ? '#ffb54799' : '#ffb547';
     for (const k of rec.mm.primary) glowFills[k] = '#ff7a3d';
-    h += `<div class="card reco"><div class="reco-top"><div class="reco-body">${bodySvg(glowFills, { labels: false, glow: true })}</div><div style="flex:1;min-width:0"><div class="reco-kicker">${ICON.bolt} TODAY'S PICK</div>
-      <div class="reco-name">${esc(rec.m.name)}</div><div class="reco-why">${esc(reason)}</div>
-      <div class="reco-stats"><div><b>${wk.sets}</b>今週のセット</div><div><b>${sk.cur}</b>連続（週）</div><div><b>${sk.total}</b>合計回数</div></div></div></div>
+    h += `<div class="card reco"><div class="reco-top"><div class="reco-body">${bodySvg(glowFills, { labels: false, glow: true })}</div><div style="flex:1;min-width:0"><div class="reco-kicker">${ICON.bolt} 今日のおすすめ</div>
+      <div class="reco-name">${esc(rec.m.name)}</div><div class="reco-why">${reason}</div></div></div>
+      <div class="reco-stats"><div><b>${wk.sets}</b>今週のセット</div><div><b>${sk.cur}<small>週</small></b>連続</div><div><b>${sk.total}<small>回</small></b>これまで</div></div>
       <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top:14px" data-a="startMenu" data-id="${esc(rec.m.id)}">${ICON.play}このメニューで開始</button>
       <p class="reco-note">筋肉の回復目安と前回からの日数で選んでいます。最終判断はご自身でどうぞ。</p></div>`;
   }
@@ -2737,7 +2875,7 @@ function renderTrain() {
         ? `<button type="button" class="icon-btn" data-a="menuMove" data-i="${i}" data-d="-1" ${i === 0 ? 'disabled' : ''} aria-label="上へ">${ICON.up}</button><button type="button" class="icon-btn" data-a="menuMove" data-i="${i}" data-d="1" ${i === DB.menus.length - 1 ? 'disabled' : ''} aria-label="下へ">${ICON.down}</button>`
         : `<button type="button" class="icon-btn" data-a="menuMore" data-id="${esc(m.id)}" aria-label="${esc(m.name)}の操作" style="margin:-8px -10px -8px 0">${ICON.more}</button>`}</div>
       <div class="ex">${ids.map((id) => esc(getEx(id).name)).join('、') || '<span class="faint">種目がありません</span>'}</div>
-      <div class="mfoot"><div class="meta"><span>${ids.length}種目・${totalSets}セット</span><span>${last ? `前回 ${fmtDate(last)}（${fmtRelDay(last)}）` : '未実施'}</span><span>セット内容：前回の記録を参照</span></div>
+      <div class="mfoot"><div class="meta meta-row"><span><b class="num">${ids.length}</b> 種目</span><span><b class="num">${totalSets}</b> セット</span><span>${last ? `前回 ${fmtRelDay(last)}` : '未実施'}</span></div>
       ${UI.reorder ? '' : `<button type="button" class="btn-start" data-a="startMenu" data-id="${esc(m.id)}" ${ids.length ? '' : 'disabled'}>${ICON.play}開始</button>`}</div></div></article>`;
   }).join('');
   h += `</section><section class="sec"><div class="sec-h"><h2>ほかの始め方</h2></div><div class="row">
@@ -2904,7 +3042,7 @@ function mapFills(mode) {
     const max = Math.max(0, ...Object.values(agg.sets));
     const t1 = max / 3, t2 = max * 2 / 3;
     for (const k of MUSCLE_KEYS) { const v = agg.sets[k]; if (v > 0) fills[k] = heatColor(v > t2 ? 3 : v > t1 ? 2 : 1); }
-    legend = max ? `<span>直近4週のセット数</span><span><i class="pdot" style="background:var(--heat-1)"></i>〜${fmtNum(round1(t1))}</span><span><i class="pdot" style="background:var(--heat-2)"></i>〜${fmtNum(round1(t2))}</span><span><i class="pdot" style="background:var(--heat-3)"></i>${fmtNum(round1(t2))}超</span>` : '<span>直近4週の記録がありません</span>';
+    legend = max ? `<span>直近4週のセット数</span><span><i class="pdot" style="background:var(--heat-1)"></i>〜${Math.round(t1)}</span><span><i class="pdot" style="background:var(--heat-2)"></i>〜${Math.round(t2)}</span><span><i class="pdot" style="background:var(--heat-3)"></i>${Math.round(t2)}超</span>` : '<span>直近4週の記録がありません</span>';
   } else if (mode === 'last') {
     for (const k of MUSCLE_KEYS) { const l = agg.last[k]; if (!l) continue; const d = daysBetween(l, ymd()); fills[k] = d <= 2 ? 'var(--rec-1)' : d <= 5 ? 'var(--rec-2)' : d <= 10 ? 'var(--rec-3)' : null; }
     legend = `<span><i class="pdot" style="background:var(--rec-1)"></i>0〜2日前</span><span><i class="pdot" style="background:var(--rec-2)"></i>3〜5日前</span><span><i class="pdot" style="background:var(--rec-3)"></i>6〜10日前</span><span><i class="pdot" style="background:var(--bd-idle)"></i>それ以前</span>`;
@@ -3192,7 +3330,7 @@ function exRow(e, attrs, extra = '') {
   const sm = exSummary(e.id);
   const fav = DB.favorites.includes(e.id);
   return `<button type="button" class="li" ${attrs}>${exIcon(e)}<div class="m"><div class="t">${fav ? `<span style="color:#f5b301">${ICON.starF}</span>` : ''}${esc(e.name)}${e.custom ? '<span class="badge custom">自分で追加</span>' : ''}${extra}</div>
-    <div class="s">${esc(e.equipment)}${sm ? ` ・ 最終 ${fmtDate(sm.last)} ・ 最高 ${fmtNum(sm.maxW)}kg` : ` ・ ${e.muscles.slice(0, 2).map((m) => MUSCLES[m].replace(/（.*?）/, '')).join('・')}`}</div></div>${ICON.chevR}</button>`;
+    <div class="s meta-row"><span>${esc(e.equipment)}</span>${sm ? `<span>最終 ${fmtDate(sm.last)}</span><span>最高 <b class="num">${fmtNum(sm.maxW)}</b>kg</span>` : `<span>${e.muscles.slice(0, 2).map((m) => MUSCLES[m].replace(/（.*?）/, '')).join('、')}</span>`}</div></div>${ICON.chevR}</button>`;
 }
 function libList() {
   const L = UI.lib;
@@ -3225,7 +3363,7 @@ function pickExercises({ title = '種目を選ぶ', multi = false, exclude = [],
     const row = (e) => {
       const ex = exclude.includes(e.id); const on = st.sel.includes(e.id); const sm = exSummary(e.id);
       return `<button type="button" class="li ${on ? 'sel' : ''}" data-a="pick" data-id="${esc(e.id)}" ${ex ? 'disabled' : ''}>${multi ? `<span class="check">${ICON.check}</span>` : ''}${exIcon(e)}<div class="m"><div class="t">${esc(e.name)}${ex ? '<span class="badge">追加済み</span>' : ''}${e.custom ? '<span class="badge custom">自分</span>' : ''}</div>
-        <div class="s">${esc(e.equipment)}${sm ? ` ・ 最終 ${fmtDate(sm.last)} ・ 最高 ${fmtNum(sm.maxW)}kg` : ' ・ 未実施'}</div></div></button>`;
+        <div class="s meta-row"><span>${esc(e.equipment)}</span>${sm ? `<span>最終 ${fmtDate(sm.last)}</span><span>最高 <b class="num">${fmtNum(sm.maxW)}</b>kg</span>` : '<span>未実施</span>'}</div></div></button>`;
     };
     if (st.cat === '記録あり') return `<div class="list">${list.sort((a, b) => (exSummary(a.id).last < exSummary(b.id).last ? 1 : -1)).map(row).join('')}</div>`;
     return CATEGORIES.map((c) => { const it = list.filter((e) => e.part === c); return it.length ? `<div class="grp"><i class="pdot" style="background:${partColor(c)}"></i>${c}<span>${it.length}</span></div><div class="list">${it.map(row).join('')}</div>` : ''; }).join('');
