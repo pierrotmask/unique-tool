@@ -926,6 +926,40 @@ html[data-theme="dark"] .pr-chip b{text-shadow:0 0 14px rgba(255,209,102,.35)}
 @keyframes flash{0%,40%{background:var(--accent-soft)}100%{background:transparent}}
 
 @media (prefers-reduced-motion:reduce){.hud.scan::after,.reco-kicker .live,.acc>.list,.flash{animation:none}.hud.scan::after{display:none}}
+/* =====================================================================
+   ワイヤーフレーム・モデル：人体を「線と網目」で描く
+   ・面は塗らずに輪郭・筋肉の境目を発光する線で表現
+   ・三角メッシュ、関節点、走査線で3Dモデルらしさを出す
+   ・鍛えた筋肉だけを色で満たす（色の意味は従来どおり）
+   ===================================================================== */
+:root{--wf-line:#2563eb;--wf-idle:rgba(37,99,235,.42);--wf-mesh:rgba(37,99,235,.3);--wf-fill:rgba(37,99,235,.05);--wf-node:#0284c7;--wf-spine:rgba(37,99,235,.28)}
+html[data-theme="dark"]{--wf-line:#7cc4ff;--wf-idle:rgba(124,196,255,.45);--wf-mesh:rgba(150,210,255,.34);--wf-fill:rgba(80,160,255,.06);--wf-node:#bff0ff;--wf-spine:rgba(124,196,255,.3)}
+.bodysvg .bd-sil,.bodysvg .bd-head{fill:var(--wf-fill);stroke:var(--wf-line);stroke-width:1.3;stroke-linejoin:round}
+.bodysvg .bd-m{fill:rgba(0,0,0,0);stroke:var(--wf-idle);stroke-width:.85;stroke-linejoin:round;transition:fill-opacity .3s}
+.bodysvg .bd-m.on{fill-opacity:.45;stroke-width:1.6}
+.bodysvg .bd-m.sel{stroke:var(--head)!important;stroke-width:2.6}
+.bd-meshp{stroke:var(--wf-mesh)}
+.bodysvg .bd-meshfill{stroke:none}
+.bodysvg .bd-spine path{fill:none;stroke:var(--wf-spine);stroke-width:.8;stroke-dasharray:3 4}
+.bodysvg .bd-nodes circle{fill:var(--wf-node);stroke:none}
+html[data-theme="dark"] .bodysvg .bd-nodes circle{filter:drop-shadow(0 0 2px #5ad1ff)}
+.bodysvg .bd-scan{animation:bd-scan 5.5s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes bd-scan{0%{transform:translateY(0)}55%,100%{transform:translateY(520px)}}
+/* 小さいアイコン：網目なし、線を太めにして判読性を優先 */
+.bodysvg.mini .bd-sil,.bodysvg.mini .bd-head{stroke-width:2.2}
+.bodysvg.mini .bd-m{stroke-width:1.5}
+.bodysvg.mini .bd-m.on{fill-opacity:.78;stroke-width:2}
+/* 発光（ダーク・ステージ上） */
+html[data-theme="dark"] .bodysvg .bd-sil{filter:drop-shadow(0 0 3px rgba(90,190,255,.55))}
+html[data-theme="dark"] .bodysvg.mini .bd-sil{filter:none}
+.reco .bodysvg{--wf-line:#7cc4ff;--wf-idle:rgba(124,196,255,.45);--wf-mesh:rgba(150,210,255,.34);--wf-fill:rgba(80,160,255,.06);--wf-node:#bff0ff;--wf-spine:rgba(124,196,255,.3)}
+.reco-body .bodysvg{filter:drop-shadow(0 0 10px rgba(90,190,255,.35)) drop-shadow(0 16px 14px rgba(0,0,0,.55))}
+@media (prefers-reduced-motion:reduce){.bodysvg .bd-scan{animation:none;display:none}}
+/* メニューカードの小さな人体：網目・関節点を省き、色をはっきり */
+.menu-card .bd-nodes,.menu-card .bd-spine,.menu-card .bd-mesh{display:none}
+.menu-card .bodysvg .bd-m.on{fill-opacity:.75}
+.menu-card .bodysvg .bd-sil{stroke-width:2}
+.ptd .bodysvg .bd-m.on,.exd .bodysvg .bd-m.on{fill-opacity:.55}
 
 </style>
 </head>
@@ -950,7 +984,7 @@ html[data-theme="dark"] .pr-chip b{text-shadow:0 0 14px rgba(255,209,102,.35)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.21.1';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.21.2';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '';
@@ -1256,6 +1290,8 @@ const MUSCLES = {
   hams: 'ハムストリングス（もも裏）', adduct: '内転筋（内もも）', calves: 'ふくらはぎ'
 };
 const MUSCLE_KEYS = Object.keys(MUSCLES);
+/* ワイヤーフレームの関節点（左半身。右は反転）：肩・肘・手首・股関節・膝・足首 */
+const BODY_NODES = [[52, 96], [40, 180], [29, 252], [72, 214], [77, 326], [80, 408]];
 /* 図形は一度だけ <defs> に定義し、<use> で使い回す（大量表示でも軽い） */
 function bodyDefs() {
   const g = (id, list) => `<g id="${id}">${list.map((d) => `<path d="${d}"/>`).join('')}</g>`;
@@ -1264,6 +1300,8 @@ function bodyDefs() {
   for (const k of Object.keys(BODY_BACK.m)) h += g('bdB-' + k, BODY_BACK.m[k]);
   h += `<clipPath id="bd-clip"><path d="${BODY_OUTLINE}"/><path d="${BODY_OUTLINE}" transform="matrix(-1,0,0,1,200,0)"/><ellipse cx="100" cy="34" rx="20" ry="26"/><rect x="83" y="54" width="34" height="20"/></clipPath>
     <linearGradient id="bd-shade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".22"/><stop offset=".45" stop-color="#000" stop-opacity="0"/><stop offset=".55" stop-color="#fff" stop-opacity=".07"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient>
+    <pattern id="bd-mesh" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M0 0H12M0 0V12M0 12L12 0" class="bd-meshp" fill="none" stroke-width=".6"/></pattern>
+    <linearGradient id="bd-scanG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5ad1ff" stop-opacity="0"/><stop offset=".85" stop-color="#5ad1ff" stop-opacity=".22"/><stop offset=".97" stop-color="#bff0ff" stop-opacity=".9"/><stop offset="1" stop-color="#bff0ff" stop-opacity="0"/></linearGradient>
     <filter id="bd-glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
   return `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>${h}</defs></svg>`;
 }
@@ -1274,12 +1312,14 @@ function bodySvg(fills = {}, opts = {}) {
       let h = '<use href="#bd-sil" class="bd-sil"/>';
       for (const k of Object.keys(def.m)) {
         const f = fills[k];
-        h += `<use href="#${pre}-${k}" data-m="${k}" class="bd-m${f ? ' on' : ''}${opts.sel === k ? ' sel' : ''}"${f ? ` style="fill:${f}"` : ''}${f && opts.glow ? ' filter="url(#bd-glow)"' : ''}/>`;
+        h += `<use href="#${pre}-${k}" data-m="${k}" class="bd-m${f ? ' on' : ''}${opts.sel === k ? ' sel' : ''}"${f ? ` style="fill:${f};stroke:${f}"` : ''}${f && opts.glow ? ' filter="url(#bd-glow)"' : ''}/>`;
       }
       return mirror ? `<g transform="matrix(-1,0,0,1,200,0)">${h}</g>` : h;
     };
     const head = '<ellipse cx="100" cy="34" rx="20" ry="26" class="bd-head"/><path d="M89,55 C89,63 87,69 83,73 L117,73 C113,69 111,63 111,55 Z" class="bd-head"/>';
-    return `<g transform="translate(${dx},0)">${head}${half(false)}${half(true)}${opts.mini ? '' : '<rect x="0" y="0" width="200" height="440" fill="url(#bd-shade)" clip-path="url(#bd-clip)" pointer-events="none"/>'}${label ? `<text x="100" y="458" class="bd-label">${label}</text>` : ''}</g>`;
+    const wire = opts.mini ? '' : `<rect x="0" y="0" width="200" height="440" fill="url(#bd-mesh)" clip-path="url(#bd-clip)" class="bd-mesh" pointer-events="none"/><g class="bd-spine" pointer-events="none"><path d="M100,8 V60 M100,74 V228"/></g><g class="bd-nodes" pointer-events="none">${BODY_NODES.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.1"/><circle cx="${200 - x}" cy="${y}" r="2.1"/>`).join('')}<circle cx="100" cy="72" r="2.1"/><circle cx="100" cy="228" r="2.1"/></g>`;
+    const scan = !opts.mini && (opts.stage || opts.glow) ? '<g clip-path="url(#bd-clip)" pointer-events="none"><rect x="0" y="-60" width="200" height="60" fill="url(#bd-scanG)" class="bd-scan"/></g>' : '';
+    return `<g transform="translate(${dx},0)">${head}${half(false)}${half(true)}${wire}${scan}${label ? `<text x="100" y="458" class="bd-label">${label}</text>` : ''}</g>`;
   };
   if (opts.mini) {
     const back = opts.side === 'back';
