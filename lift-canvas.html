@@ -930,6 +930,104 @@ html[data-theme="dark"] .pr-chip b{text-shadow:0 0 14px rgba(255,209,102,.35)}
 .reco-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .reco-tags span{font-size:12px;font-weight:700;color:#ffd3b0;padding:3px 9px;border-radius:999px;background:rgba(255,122,61,.14);box-shadow:inset 0 0 0 1px rgba(255,140,80,.45),0 0 12px -4px rgba(255,122,61,.8)}
 .kpi b small,.reco-stats b small{font-family:var(--f-ui)}
+/* =====================================================================
+   コンパクト表示：余白・カード高さを詰め、スクロール距離を減らす
+   ===================================================================== */
+.sec{margin-top:20px}
+.sec-h{margin-bottom:8px}
+.card{margin-bottom:10px}
+.card-h{margin-bottom:8px}
+/* ホーム：アプリ追加の帯 */
+.pwa-card.slim{padding:10px 10px 4px 12px}
+.pwa-card.slim .pwa-top{margin-bottom:0;gap:10px}
+.pwa-card.slim .pwa-ic{width:38px;height:38px;border-radius:10px}
+.pwa-card.slim .pwa-top b{font-size:15px}
+.pwa-card.slim .pwa-top span{font-size:11.5px;margin-top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pwa-card.slim .btn-sm{flex:none;min-height:36px;padding:0 14px}
+.pwa-card.slim .icon-btn{flex:none;width:36px;height:36px;margin-right:-4px}
+.pwa-card.slim .pwa-later{display:flex;justify-content:flex-end;margin:0}
+.pwa-card.slim .pwa-later .link{min-height:28px;font-size:11.5px;color:var(--text-3);font-weight:700}
+/* ホーム：おすすめ */
+.reco .reco-note{margin-top:8px}
+/* ホーム：メニュー（1枚 約110px） */
+.menu-card{padding:12px;gap:10px;align-items:center;contain-intrinsic-size:auto 108px}
+.menu-card .mb{width:50px;padding:2px 1px;border-radius:10px;align-self:center}
+.menu-card .mb::after{display:none}
+.menu-card h3{font-size:16px;display:flex;align-items:center;min-width:0}
+.menu-card h3 .tag-preset{flex:none;margin-left:6px;padding:1px 7px;font-size:10.5px;vertical-align:0}
+.menu-card .mt .icon-btn{width:40px;height:40px}
+.menu-card .ex{margin-top:1px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.menu-card .mfoot{align-items:center;margin-top:6px}
+.menu-card .meta{margin-top:0;gap:2px 10px}
+.menu-card .meta-row b{font-size:15px;margin-right:1px}
+.menu-card .btn-start{min-height:38px;padding:0 14px;font-size:14px;border-radius:12px}
+.card.tip{padding:12px 12px 12px 14px}
+.card.tip p{margin:2px 0 0}
+.other-start .row .btn{min-height:42px}
+.other-start .card.repeat{margin-bottom:8px}
+/* 共通：4つ並びの数字 */
+.stat4{display:grid;grid-template-columns:repeat(4,1fr);margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.stat4>div{min-width:0;padding:0 6px;border-left:1px solid var(--line)}
+.stat4>div:first-child{border-left:0;padding-left:2px}
+.stat4 b{display:block;font-size:20px;font-weight:700;line-height:1.15;color:var(--head);white-space:nowrap;font-variant-numeric:tabular-nums;font-family:var(--f-num,inherit)}
+.stat4 b small{font-family:var(--f-ui);font-size:10.5px;font-weight:700;color:var(--text-2);margin-left:1px}
+.stat4 span{display:block;font-size:11px;font-weight:700;color:var(--text-2);margin-top:1px;white-space:nowrap}
+.stat4 em{display:block;font-size:11px;white-space:nowrap}
+.wk-card .stat4{margin-top:0;padding-top:0;border-top:0}
+@media (max-width:370px){.stat4 b{font-size:17px}.stat4>div{padding:0 4px}}
+/* 記録：積み重ね（1行） */
+.streak-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;font:inherit;color:inherit}
+.streak-row .sr-i{width:36px;height:36px;flex:none;border-radius:10px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+.streak-row .sr-i svg{width:20px;height:20px}
+.streak-row .m{flex:1;min-width:0}
+.streak-row .m>b{display:block;font-size:15px;color:var(--head)}
+.streak-row .m>span{font-size:12.5px;color:var(--text-2)}
+.streak-row .m>span b{font-size:15px;color:var(--head);margin:0 2px}
+.streak-row>svg{width:20px;height:20px;color:var(--text-3)}
+/* 振り返り：小さい切り替え・推移・自己ベスト */
+.seg.pill.mini{flex:none;padding:2px}
+.seg.pill.mini button{min-height:34px;font-size:12.5px;padding:0 12px}
+.trend{padding:8px 0}
+.trend .m b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trend .m .v{font-size:20px;line-height:1.2}
+.trend .m .v .d{font-family:var(--f-ui);font-size:11.5px;font-weight:600;margin-left:8px}
+.trend .spark{height:42px;width:40%}
+.trends .btn-sm{margin-top:4px;min-height:40px}
+.pr-row{display:flex;align-items:center;gap:10px;width:100%;padding:9px 0;border-top:1px solid var(--line);text-align:left;font:inherit;color:inherit;background:none}
+.pr-row:first-of-type{border-top:0}
+.pr-m{flex:1;min-width:0}
+.pr-m b{display:block;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pr-m span{font-size:11.5px;color:var(--text-3)}
+.pr-v{text-align:right;flex:none}
+.pr-v b{display:block;font-size:18px;color:var(--gold);line-height:1.15}
+.pr-v b small{font-size:11px;margin-left:1px;font-family:var(--f-ui)}
+.pr-v em{font-size:11px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tiles>.tile:only-child{grid-column:1/-1}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;font:inherit;color:inherit;padding:12px 14px;margin:0;min-width:0;width:100%}
+.tile .tl-h{display:flex;align-items:center;gap:6px;width:100%;font-size:14px;font-weight:800;color:var(--head)}
+.tile .tl-h svg{width:17px;height:17px}
+.tile .tl-h svg:last-child{margin-left:auto;color:var(--text-3)}
+.tile>b{font-size:22px;color:var(--head);line-height:1.2;white-space:nowrap}
+.tile>b small{font-size:11px;margin:0 2px;color:var(--text-2);font-family:var(--f-ui)}
+.tile .tl-d{font-size:11.5px;color:var(--text-2)}
+.tile .spark{width:100%;max-width:none;height:30px;margin-top:4px}
+/* 設定：折りたたみ */
+.set-sec{padding:0 16px}
+.set-sec>summary{list-style:none;cursor:pointer;min-height:56px;margin:0;-webkit-tap-highlight-color:transparent}
+.set-sec>summary::-webkit-details-marker{display:none}
+.set-sec>summary h3{flex:0 1 auto}
+.set-sec>summary .ss-sub{flex:1;text-align:right;font-size:12px;color:var(--text-3);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.set-sec>summary>svg{width:20px;height:20px;flex:none;margin-left:auto;color:var(--text-3);transition:transform .2s}
+.set-sec[open]>summary>svg{transform:rotate(180deg);color:var(--accent)}
+.set-sec[open]{padding-bottom:16px}
+.set-sec[open]>summary{margin-bottom:8px;box-shadow:inset 0 -1px 0 var(--line)}
+.sub-acc{margin-top:10px;border-radius:var(--r);background:var(--surface-2);padding:0 12px}
+.sub-acc>summary{list-style:none;min-height:46px;display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:750;color:var(--text-2);cursor:pointer}
+.sub-acc>summary::-webkit-details-marker{display:none}
+.sub-acc>summary svg{width:18px;height:18px}
+.sub-acc[open]{padding-bottom:10px}
+@media (max-width:360px){.pwa-card.slim .pwa-top b{font-size:14px;white-space:nowrap}}
 
 </style>
 </head>
@@ -954,7 +1052,7 @@ html[data-theme="dark"] .pr-chip b{text-shadow:0 0 14px rgba(255,209,102,.35)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.21.4';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.21.5';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '';
@@ -3193,16 +3291,14 @@ function renderTrain() {
   if (rec && !UI.reorder) {
     const parts = [...new Set(rec.m.exerciseIds.map((id) => getEx(id).part))].filter((p) => CATEGORIES.includes(p));
     const reason = !IDX().sessions.length ? 'まずはこのメニューから始めてみましょう' : `${parts.map((p) => PART_SHORT[p]).join('と')}の回復度 <b class="num">${Math.round(rec.ready * 100)}</b>%<br>${rec.last ? `前回は${fmtRelDay(rec.last)}` : 'まだ実施していません'}`;
-    const wk = weeklyAgg(1)[0]; const sk = weekStreaks();
     const glowFills = {}; for (const k of Object.keys(rec.mm.fills)) glowFills[k] = rec.mm.fills[k].length > 7 ? '#ffb54799' : '#ffb547';
     for (const k of rec.mm.primary) glowFills[k] = '#ff7a3d';
     const first = !UI.scanned && DB.ui.onboarded; if (first) UI.scanned = true;
     h += `<div class="card reco${first ? ' intro' : ''}"><i class="hud${first ? ' scan' : ''}" aria-hidden="true"></i><div class="reco-top"><div class="reco-body">${bodySvg(glowFills, { labels: false, glow: true })}</div><div style="flex:1;min-width:0"><div class="reco-kicker"><i class="live" aria-hidden="true"></i>今日のおすすめ</div>
       <div class="reco-name">${esc(rec.m.name)}</div><div class="reco-why">${reason}</div>
       ${rec.mm.primary.length ? `<div class="reco-tags">${rec.mm.primary.slice(0, 4).map((k) => `<span>${esc(MUSCLES[k].replace(/（.*?）/g, ''))}</span>`).join('')}</div>` : ''}</div></div>
-      <div class="reco-stats"><div><b>${wk.sets}</b>今週のセット</div><div><b>${sk.cur}<small>週</small></b>連続</div><div><b>${sk.total}<small>回</small></b>これまで</div></div>
-      <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top:14px" data-a="startMenu" data-id="${esc(rec.m.id)}">${ICON.play}このメニューで開始</button>
-      <p class="reco-note">筋肉の回復目安と前回からの日数で選んでいます。最終判断はご自身でどうぞ。</p></div>`;
+      <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top:12px" data-a="startMenu" data-id="${esc(rec.m.id)}">${ICON.play}このメニューで開始</button>
+      <p class="reco-note">回復の目安と前回からの日数で選んでいます</p></div>`;
   }
   h += prStrip();
   const menus = UI.reorder ? DB.menus : DB.menus.filter(menuVisible);
@@ -3210,7 +3306,7 @@ function renderTrain() {
   h += `<section class="sec"><div class="sec-h"><h2>メニュー（${menus.length}）</h2>${UI.reorder ? '<button type="button" class="link" data-a="reorder">完了</button>' : `<button type="button" class="link" data-a="menuNew">${ICON.plus}メニューを作成</button>`}</div>`;
   if (!DB.menus.length) h += `<div class="card empty"><div class="big">📋</div><p>メニューがありません</p><button type="button" class="btn btn-primary" data-a="menuNew">${ICON.plus}メニューを作成</button></div>`;
   if (!DB.ui.menuTipDone && !UI.reorder && DB.menus.some(presetUnchanged)) {
-    h += `<div class="card tip"><div class="tip-i">${ICON.edit || ICON.more}</div><div class="m"><b>メニューは「例」です。自由に変えてください</b><p>右上の<span class="kbd">${ICON.more}</span>から<b>編集・複製・削除</b>できます。種目やセット数の入れ替えも自由。自分専用のメニューも作れます。</p></div><button type="button" class="icon-btn" data-a="menuTipOk" aria-label="このヒントを閉じる">${ICON.close}</button></div>`;
+    h += `<div class="card tip"><div class="tip-i">${ICON.edit || ICON.more}</div><div class="m"><b>メニューは「例」です。自由に変えてください</b><p>「例」の付いたメニューは<span class="kbd">${ICON.more}</span>から<b>編集・複製・削除</b>できます。</p></div><button type="button" class="icon-btn" data-a="menuTipOk" aria-label="このヒントを閉じる">${ICON.close}</button></div>`;
   }
   h += menus.map((m) => {
     const i = DB.menus.indexOf(m);
@@ -3218,19 +3314,19 @@ function renderTrain() {
     const last = DB.sessions.filter((s) => s.menuId === m.id && s.date).map((s) => s.date).sort().pop();
     const totalSets = ids.reduce((a, id) => a + (m.sets[id] || 3), 0);
     return `<article class="card menu-card"><div class="mb">${bodySvg(menuMuscles(m).fills, { labels: false })}</div><div class="mm">
-      <div class="mt"><h3>${esc(m.name)}${presetUnchanged(m) ? '<span class="tag-preset">例・編集できます</span>' : ''}</h3>${UI.reorder
+      <div class="mt"><h3>${esc(m.name)}${presetUnchanged(m) ? '<span class="tag-preset" title="例のメニュー（編集できます）">例</span>' : ''}</h3>${UI.reorder
         ? `<button type="button" class="icon-btn" data-a="menuMove" data-i="${i}" data-d="-1" ${i === 0 ? 'disabled' : ''} aria-label="上へ">${ICON.up}</button><button type="button" class="icon-btn" data-a="menuMove" data-i="${i}" data-d="1" ${i === DB.menus.length - 1 ? 'disabled' : ''} aria-label="下へ">${ICON.down}</button>`
         : `<button type="button" class="icon-btn" data-a="menuMore" data-id="${esc(m.id)}" aria-label="${esc(m.name)}の操作" style="margin:-8px -10px -8px 0">${ICON.more}</button>`}</div>
       <div class="ex">${ids.map((id) => esc(getEx(id).name)).join('、') || '<span class="faint">種目がありません</span>'}</div>
-      <div class="mfoot"><div class="meta meta-row"><span><b class="num">${ids.length}</b> 種目</span><span><b class="num">${totalSets}</b> セット</span><span>${last ? `前回 ${fmtRelDay(last)}` : '未実施'}</span></div>
+      <div class="mfoot"><div class="meta meta-row"><span><b class="num">${ids.length}</b>種目</span><span><b class="num">${totalSets}</b>セット</span><span>${last ? fmtRelDay(last) : '未実施'}</span></div>
       ${UI.reorder ? '' : `<button type="button" class="btn-start" data-a="startMenu" data-id="${esc(m.id)}" ${ids.length ? '' : 'disabled'}>${ICON.play}開始</button>`}</div></div></article>`;
   }).join('');
   if (hidden > 0 && !UI.reorder) h += `<p class="hidden-note">ウェイトリフティングのメニュー ${hidden}件を非表示にしています。<button type="button" class="link" data-a="goWlSetting">表示する</button></p>`;
   const lastSes = IDX().sessions.find((s) => !s.live && s.recs.length);
-  h += `</section><section class="sec"><div class="sec-h"><h2>ほかの始め方</h2></div>
+  h += `</section><section class="sec other-start">
     ${lastSes && !DB.active ? `<button type="button" class="card repeat tap" data-a="repeatLast"><span class="rp-i">${ICON.copy}</span><span class="m"><b>前回と同じ内容でもう一度</b><span class="small muted">${esc(lastSes.name)}（${fmtRelDay(lastSes.date)}）・${lastSes.recs.length}種目</span></span>${ICON.chevR}</button>` : ''}
     <div class="row">
-    <button type="button" class="btn" data-a="startPick">${ICON.search}種目を選ぶ</button><button type="button" class="btn" data-a="startEmpty">${ICON.plus}空で始める</button></div></section>`;
+    <button type="button" class="btn btn-sm" data-a="startPick">${ICON.search}種目を選ぶ</button><button type="button" class="btn btn-sm" data-a="startEmpty">${ICON.plus}空で始める</button></div></section>`;
   return h;
 }
 
@@ -3318,12 +3414,10 @@ function renderCal() {
     if (ses.length) { mDays++; for (const s of ses) { mSets += s.sets; mVol += s.vol; if (s.endedAt && s.startedAt) mDur += s.endedAt - s.startedAt; } }
     h += `<button type="button" class="day ${ds === ymd() ? 'today' : ''} ${ds === UI.calSel ? 'sel' : ''} ${ds > ymd() ? 'future' : ''}" data-a="calSel" data-d="${ds}" aria-label="${mo}月${d}日${ses.length ? '（記録あり）' : ''}">${dayRingSvg(parts)}<span>${d}</span></button>`;
   }
-  h += `</div><div class="legend">${dataCats().map((c) => `<span><i class="pdot" style="background:${partColor(c)}"></i>${PART_SHORT[c]}</span>`).join('')}</div></div>`;
-  h += `<div class="kpis"><div class="kpi"><span>${mo}月のトレーニング</span><b>${mDays}<small>日</small></b></div><div class="kpi"><span>完了セット</span><b>${mSets}</b></div>
-    <div class="kpi"><span>総負荷量</span><b>${fmtBig(mVol)}<small>kg</small></b></div><div class="kpi"><span>合計時間</span><b>${mDur ? durHtml(mDur) : '-'}</b></div></div>`;
+  h += `</div><div class="legend">${dataCats().map((c) => `<span><i class="pdot" style="background:${partColor(c)}"></i>${PART_SHORT[c]}</span>`).join('')}</div>
+    <div class="stat4"><div><b>${mDays}<small>日</small></b><span>${mo}月の日数</span></div><div><b>${mSets}</b><span>セット</span></div><div><b>${fmtBig(mVol)}<small>kg</small></b><span>総負荷量</span></div><div><b>${mDur ? durHtml(mDur) : '-'}</b><span>合計時間</span></div></div></div>`;
   const sk = weekStreaks();
-  h += `<section class="card tap" data-a="openStreak" style="margin-top:12px"><div class="card-h"><h3>${ICON.layers} 積み重ね</h3><span class="small faint">週ごとの一覧</span>${ICON.chevR}</div>
-    <div class="big2" style="grid-template-columns:repeat(3,1fr);margin:0"><div><b>${sk.total}<small>回</small></b><span>合計回数</span></div><div><b>${sk.cur}<small>週</small></b><span>現在の連続</span></div><div><b>${sk.longest}<small>週</small></b><span>最長の連続</span></div></div></section>`;
+  h += `<button type="button" class="card tap streak-row" data-a="openStreak"><span class="sr-i">${ICON.layers}</span><span class="m"><b>積み重ね</b><span><b class="num">${sk.total}</b>回 ・ 連続<b class="num">${sk.cur}</b>週（最長${sk.longest}週）</span></span>${ICON.chevR}</button>`;
   const sel = UI.calSel; const ses = byDate.get(sel) || [];
   h += `<section class="sec"><div class="sec-h"><h2>${fmtDateLong(sel)}</h2>${sel <= ymd() ? `<button type="button" class="link" data-a="calAdd">${ICON.plus}記録を追加</button>` : ''}</div>`;
   if (!ses.length) h += `<div class="card empty"><p>${sel > ymd() ? '未来の日付です' : 'この日の記録はありません'}</p></div>`;
@@ -3465,11 +3559,11 @@ function renderReview() {
   }
   if (DB.records.some((r) => r.demo)) h += `<div class="banner"><div class="m"><b>サンプル記録を表示中</b></div><button type="button" class="btn btn-sm" data-a="demoRemove">サンプルを削除</button></div>`;
   const wk = weeklyAgg(12); const tw = wk[wk.length - 1], lw = wk[wk.length - 2];
-  h += `<div class="sec-h" style="margin-top:4px"><h2>今週の状況</h2><span class="small faint">先週比</span></div><div class="kpis">
-    <div class="kpi"><span>トレーニング日数</span><b>${tw.days.size}<small>日</small></b>${deltaHtml(tw.days.size, lw.days.size, '日')}</div>
-    <div class="kpi"><span>セット数</span><b>${tw.sets}</b>${deltaHtml(tw.sets, lw.sets)}</div>
-    <div class="kpi"><span>総負荷量</span><b>${fmtBig(tw.vol)}<small>kg</small></b>${deltaHtml(tw.vol, lw.vol, 'kg', true)}</div>
-    <div class="kpi"><span>トレーニング時間</span><b>${tw.dur ? durHtml(tw.dur) : '-'}</b>${tw.dur || lw.dur ? deltaHtml(Math.round(tw.dur / 60000), Math.round(lw.dur / 60000), '分') : ''}</div></div>`;
+  h += `<section class="card wk-card"><div class="card-h"><h3>今週の状況</h3><span class="tiny faint">先週比</span></div><div class="stat4">
+    <div><b>${tw.days.size}<small>日</small></b><span>日数</span>${deltaHtml(tw.days.size, lw.days.size, '日')}</div>
+    <div><b>${tw.sets}</b><span>セット</span>${deltaHtml(tw.sets, lw.sets)}</div>
+    <div><b>${fmtBig(tw.vol)}<small>kg</small></b><span>総負荷量</span>${deltaHtml(tw.vol, lw.vol, 'kg', true)}</div>
+    <div><b>${tw.dur ? durHtml(tw.dur) : '-'}</b><span>時間</span>${tw.dur || lw.dur ? deltaHtml(Math.round(tw.dur / 60000), Math.round(lw.dur / 60000), '分') : ''}</div></div></section>`;
   // 筋肉マップ
   const mode = DB.ui.mapMode; const mf = mapFills(mode);
   h += `<section class="card sec"><div class="card-h"><h3>筋肉別</h3><button type="button" class="icon-btn" data-a="mapHelp" aria-label="説明" style="width:36px;height:36px">${ICON.info}</button></div>
@@ -3480,8 +3574,7 @@ function renderReview() {
   const isVol = DB.ui.wkChart === 'vol';
   const vals = wk.map((w) => (isVol ? w.vol : w.sets));
   const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
-  h += `<section class="card"><div class="card-h"><h3>週ごとの${isVol ? '総負荷量' : 'セット数'}（直近12週）</h3></div>
-    <div class="seg pill" style="margin-bottom:8px"><button type="button" data-a="wkChart" data-v="sets" aria-pressed="${!isVol}">セット数（部位別）</button><button type="button" data-a="wkChart" data-v="vol" aria-pressed="${isVol}">総負荷量</button></div>
+  h += `<section class="card"><div class="card-h"><h3>週ごと（12週）</h3><div class="seg pill mini"><button type="button" data-a="wkChart" data-v="sets" aria-pressed="${!isVol}">セット</button><button type="button" data-a="wkChart" data-v="vol" aria-pressed="${isVol}">負荷量</button></div></div>
     <div class="small muted">平均 <b style="font-size:20px;color:var(--head)">${isVol ? fmtBig(avg) : fmtNum(round1(avg))}</b> ${isVol ? 'kg' : 'セット'}／週</div>
     ${chartHtml(isVol
       ? { type: 'bar', labels: wk.map((w) => { const d = parseYmd(w.week); return `${d.getMonth() + 1}/${d.getDate()}`; }), datasets: [{ label: '総負荷量', data: wk.map((w) => Math.round(w.vol)), color: cssVar('--accent') || '#2563eb' }], kind: 'volume', avg: Math.round(avg), aria: '週ごとの総負荷量' }
@@ -3489,23 +3582,21 @@ function renderReview() {
     ${!isVol ? `<div class="legend">${dataCats().map((c) => `<span><i class="pdot" style="background:${partColor(c)}"></i>${PART_SHORT[c]}</span>`).join('')}</div>` : ''}</section>`;
   // 1RM推移
   const tr = trendRows(4);
-  h += `<section class="card"><div class="card-h"><h3>推定1RMの推移</h3></div>${tr.map(trendRowHtml).join('')}
-    <button type="button" class="btn btn-ghost btn-block" data-a="openTrends">すべての種目（${IDX().byEx.size}）${ICON.chevR}</button></section>`;
-  // ボリューム推移
-  h += `<section class="card"><div class="card-h"><h3>ボリュームの推移（週ごと）</h3></div>${tr.slice(0, 3).map((t) => {
+  const trV = UI.trMode === 'vol';
+  h += `<section class="card trends"><div class="card-h"><h3>種目ごとの推移</h3><div class="seg pill mini"><button type="button" data-a="trMode" data-v="e1rm" aria-pressed="${!trV}">1RM</button><button type="button" data-a="trMode" data-v="vol" aria-pressed="${trV}">負荷量</button></div></div>${trV ? tr.map((t) => {
     const ws = weeklyExVol(t.ex.id, 12); const cur = ws[ws.length - 1], prev = ws[ws.length - 2];
-    return `<button type="button" class="trend" data-a="exDetail" data-id="${esc(t.ex.id)}"><div class="m"><b>${esc(t.ex.name)}</b><div class="v">${fmtBig(cur)}<small>kg</small></div><div class="d">今週 ・ 先週 ${fmtBig(prev)}kg</div></div><div class="spark">${sparkSvg(ws, { bars: true, color: partColor(t.ex.part) })}</div></button>`;
-  }).join('')}</section>`;
+    return `<button type="button" class="trend" data-a="exDetail" data-id="${esc(t.ex.id)}"><div class="m"><b>${esc(t.ex.name)}</b><div class="v">${fmtBig(cur)}<small>kg</small><span class="d">今週 ・ 先週 ${fmtBig(prev)}kg</span></div></div><div class="spark">${sparkSvg(ws, { bars: true, color: partColor(t.ex.part) })}</div></button>`;
+  }).join('') : tr.map(trendRowHtml).join('')}
+    <button type="button" class="btn btn-ghost btn-block btn-sm" data-a="openTrends">すべての種目（${IDX().byEx.size}）${ICON.chevR}</button></section>`;
   // 自己ベスト
-  const prs = prEvents().slice(0, 6);
-  h += `<section class="card"><div class="card-h"><h3>${ICON.trophy} 最近の自己ベスト更新</h3></div>${prs.length ? prs.map((p) => `<button type="button" class="trend" data-a="exDetail" data-id="${esc(p.ex.id)}"><div class="m"><b>${esc(p.ex.name)}</b><div class="d">${fmtDate(p.date)} ・ ${p.key === 'e1rm' ? '推定1RM' : p.key === 'time' ? '最長' : '最多回数'} <b style="color:var(--gold)">${fmtNum(p.v)}${p.key === 'e1rm' ? 'kg' : p.key === 'time' ? '秒' : '回'}</b>（${fmtNum(p.prev)}から ${deltaHtml(p.v, p.prev)}）</div></div></button>`).join('') : '<p class="empty-mini">記録を重ねると、自己ベストの更新がここに並びます。</p>'}</section>`;
+  const prAll = prEvents().slice(0, 10); const prs = UI.prMore ? prAll : prAll.slice(0, 3);
+  h += `<section class="card"><div class="card-h"><h3>${ICON.trophy} 自己ベスト更新</h3></div>${prs.length ? prs.map((p) => `<button type="button" class="pr-row" data-a="exDetail" data-id="${esc(p.ex.id)}"><span class="pr-m"><b>${esc(p.ex.name)}</b><span>${fmtDate(p.date)} ・ ${p.key === 'e1rm' ? '推定1RM' : p.key === 'time' ? '最長' : '最多回数'}</span></span><span class="pr-v"><b class="num">${fmtNum(p.v)}<small>${p.key === 'e1rm' ? 'kg' : p.key === 'time' ? '秒' : '回'}</small></b>${deltaHtml(p.v, p.prev)}</span></button>`).join('') : '<p class="empty-mini">記録を重ねると、自己ベストの更新がここに並びます。</p>'}
+    ${prAll.length > 3 ? `<button type="button" class="btn btn-ghost btn-block btn-sm" data-a="prMore">${UI.prMore ? '閉じる' : `もっと見る（${prAll.length - 3}）`}</button>` : ''}</section>`;
   // WL分析
-  if (wlOn()) h += wlCard();
-  // 体重
   const bl = DB.bodylog;
-  h += `<section class="card tap" data-a="openBody"><div class="card-h"><h3>${ICON.body} 体重</h3>${ICON.chevR}</div>${bl.length
-    ? `<div class="trend" style="border:0;padding:0"><div class="m"><div class="v">${fmtNum(bl[bl.length - 1].kg)}<small>kg</small></div><div class="d">${fmtDate(bl[bl.length - 1].date)}${bl.length > 1 ? ` ・ 前回から ${deltaHtml(bl[bl.length - 1].kg, bl[bl.length - 2].kg, 'kg')}` : ''}</div></div><div class="spark">${sparkSvg(bl.slice(-20).map((b) => b.kg))}</div></div>`
-    : '<p class="empty-mini">体重を記録すると、推移と「体重あたりの強さ」がわかります。</p>'}</section>`;
+  h += `<div class="tiles">${wlOn() ? wlCard() : ''}<button type="button" class="card tap tile" data-a="openBody"><span class="tl-h">${ICON.body}体重${ICON.chevR}</span>${bl.length
+    ? `<b class="num">${fmtNum(bl[bl.length - 1].kg)}<small>kg</small></b><span class="tl-d">${bl.length > 1 ? `前回から ${deltaHtml(bl[bl.length - 1].kg, bl[bl.length - 2].kg, 'kg')}` : fmtDate(bl[bl.length - 1].date)}</span><span class="spark">${sparkSvg(bl.slice(-20).map((b) => b.kg))}</span>`
+    : '<span class="tl-d">記録すると推移がわかります</span>'}</button></div>`;
   return h;
 }
 function weeklyExVol(exId, weeks) {
@@ -3614,9 +3705,9 @@ function sinclairCoef(bw, sex) {
 function wlCard() {
   const sn = wlBest('wl_01'), cj = wlBest('wl_02');
   const any = WL_RATIOS.some((r) => wlBest(r.a) && wlBest(r.b));
-  return `<section class="card tap" data-a="openWl"><div class="card-h"><h3>${ICON.bolt} ウェイトリフティング分析</h3>${ICON.chevR}</div>
-    ${sn || cj ? `<div class="big2"><div><b>${sn ? fmtNum(sn.v) : '-'}<small>kg</small></b><span>スナッチ最高</span></div><div><b>${cj ? fmtNum(cj.v) : '-'}<small>kg</small></b><span>クリーン＆ジャーク最高</span></div></div>` : ''}
-    <p class="small muted" style="margin:0">${any ? 'リフト間の比率・Sinclair・試技重量の目安を確認できます' : 'スナッチ・C&J・スクワットを記録すると、リフト比率から弱点の目安がわかります'}</p></section>`;
+  return `<button type="button" class="card tap tile" data-a="openWl"><span class="tl-h">${ICON.bolt}WL分析${ICON.chevR}</span>
+    ${sn || cj ? `<b class="num">${sn ? fmtNum(sn.v) : '-'}<small>/</small>${cj ? fmtNum(cj.v) : '-'}<small>kg</small></b><span class="tl-d">スナッチ / C&J 最高</span>` : ''}
+    <span class="tl-d">${any ? 'リフト比率・Sinclair' : 'リフト比率で弱点がわかります'}</span></button>`;
 }
 function openWl() {
   openPage({
@@ -3656,6 +3747,8 @@ Object.assign(ACT, {
   mapMode: (el) => { DB.ui.mapMode = el.dataset.v; save(); renderTab(); },
   mapHelp: () => openSheet({ title: '筋肉別の見方', render: () => `<div class="sheet-msg"><p><b>セット数</b>：直近4週間に各筋肉を使ったセット数。主に使う筋肉は1セット、補助的に使う筋肉は0.5セットとして数えます。</p><p><b>最後に鍛えた日</b>：色が濃いほど最近鍛えた筋肉です。</p><p><b>回復状態</b>：直近のセット数と経過時間から、回復の目安を3段階で表示します（医学的な診断ではありません）。</p></div>` }),
   wkChart: (el) => { DB.ui.wkChart = el.dataset.v; save(); renderTab(); },
+  trMode: (el) => { UI.trMode = el.dataset.v; renderTab(); },
+  prMore: () => { UI.prMore = !UI.prMore; renderTab(); },
   openStreak: () => openStreak(),
   openTrends: () => openTrends(),
   openBody: () => openBody(),
@@ -3988,6 +4081,10 @@ Object.assign(INP, { libQ: (el) => { UI.lib.q = el.value; const l = $('#libList'
 /* =====================================================================
    5. 設定（バックアップ・表示・トレーニング・プレート・データ）
    ===================================================================== */
+/* 設定の折りたたみ（開閉はこのセッション中だけ覚える） */
+function setOpenAttr(k, def) { const o = UI.setOpen && k in UI.setOpen ? UI.setOpen[k] : def; return o ? ' open' : ''; }
+function setSecHead(k, def, title, sub = '') { return `<details class="card set-sec" data-sk="${k}"${setOpenAttr(k, def)}><summary class="card-h"><h3>${title}</h3>${sub ? `<span class="ss-sub">${sub}</span>` : ''}${ICON.chevD}</summary>`; }
+document.addEventListener('toggle', (e) => { const d = e.target; if (d && d.dataset && d.dataset.sk) { UI.setOpen = UI.setOpen || {}; UI.setOpen[d.dataset.sk] = d.open; } }, true);
 function renderSettings() {
   const s = DB.settings;
   const cid = Drive.clientId();
@@ -3996,19 +4093,20 @@ function renderSettings() {
   const stale = backupStale();
   const isFile = location.protocol === 'file:';
   let h = topbar('設定');
-  h += `<section class="card"><div class="card-h"><h3>${ICON.cloud} バックアップ（機種変更・故障に備える）</h3></div>
+  h += `${setSecHead('backup', true, `${ICON.cloud} バックアップ`, s.lastBackupAt ? fmtRelDay(ymd(new Date(s.lastBackupAt))) : '未実施')}
     <div class="banner ${stale || s.drivePending ? '' : 'info'}" style="margin-bottom:12px"><div class="m"><b>${s.lastBackupAt ? `最終バックアップ：${fmtDateTime(s.lastBackupAt)}` : 'まだバックアップしていません'}</b><br><span class="small">${s.lastBackupAt ? `方法：${esc(s.lastBackupVia)}` : ''}${s.drivePending ? ' ・ ドライブへの自動保存が未完了です' : stale ? ' ・ 前回のバックアップ以降に記録が増えています' : ''}</span></div></div>
     <div class="small muted" style="margin-bottom:12px">記録した日 ${days}日 ・ 記録 ${recN}件 ・ メニュー ${DB.menus.length} ・ 自分の種目 ${DB.customExercises.length}</div>
-    <div class="grp" style="margin-top:4px">① Googleドライブ（自分のドライブに保存）</div>`;
+`;
+    let dh = '';
   if (cid) {
-    h += `<div class="sw-row" style="border:0"><div class="t"><b>トレーニング終了時に自動保存</b><span>終わるたびに自分のGoogleドライブへ自動でバックアップします</span></div><label class="switch"><input type="checkbox" data-ch="autoDrive" ${s.autoDrive ? 'checked' : ''}><span></span></label></div>
+    dh += `<div class="sw-row" style="border:0"><div class="t"><b>トレーニング終了時に自動保存</b><span>終わるたびに自分のGoogleドライブへ自動でバックアップします</span></div><label class="switch"><input type="checkbox" data-ch="autoDrive" ${s.autoDrive ? 'checked' : ''}><span></span></label></div>
       <div class="stack"><button type="button" class="btn btn-primary btn-block" data-a="driveBackup">${ICON.upload}今すぐGoogleドライブに保存</button>
       <button type="button" class="btn btn-line btn-block" data-a="driveRestore">${ICON.download}Googleドライブから復元</button></div>
       <p class="hint">初回だけGoogleのログイン画面が出ます。保存されるのはあなたのマイドライブの「${DRIVE_FILE_NAME}」で、他の人からは見えません。${s.lastDriveAt ? `<br>最終ドライブ保存：${fmtDateTime(s.lastDriveAt)}` : ''}</p>`;
   } else {
-    h += `<p class="small muted" style="margin:0 2px 8px">Googleドライブへの自動保存は、<b>アプリの提供者がGoogleの登録を済ませると</b>使えるようになります。それまでは下の「② ファイルで保存」をお使いください（ファイルをGoogleドライブに保存することもできます）。</p>`;
+    dh += `<p class="small muted" style="margin:0 2px 8px">Googleドライブへの自動保存は、<b>アプリの提供者がGoogleの登録を済ませると</b>使えるようになります。それまでは「ファイルで保存」をお使いください（共有メニューからGoogleドライブに保存することもできます）。</p>`;
   }
-  h += `<details class="card flat" style="padding:0 14px;margin:8px 0 4px"><summary style="min-height:48px;display:flex;align-items:center;font-weight:750;font-size:14px;color:var(--text-2);cursor:pointer">提供者向け：GoogleクライアントIDの設定</summary>
+  dh += `<details class="card flat cid" style="padding:0 14px;margin:8px 0 4px"><summary style="min-height:48px;display:flex;align-items:center;font-weight:750;font-size:14px;color:var(--text-2);cursor:pointer">提供者向け：GoogleクライアントIDの設定</summary>
       <label class="field"><span class="lbl">クライアントID（〜.apps.googleusercontent.com）</span><input class="input" id="clientId" value="${esc(s.googleClientId)}" placeholder="${GOOGLE_CLIENT_ID ? '（アプリに設定済み）' : 'xxxxxxxx.apps.googleusercontent.com'}" autocomplete="off" spellcheck="false" autocapitalize="off"></label>
       <div class="row" style="margin-bottom:10px"><button type="button" class="btn btn-sm btn-primary" data-a="cidSave">保存</button>${s.googleClientId ? '<button type="button" class="btn btn-sm" data-a="cidClear">削除</button>' : ''}</div>
       <ol class="small" style="padding-left:18px;line-height:1.75;margin:0 0 12px">
@@ -4016,33 +4114,35 @@ function renderSettings() {
         <li>「OAuth同意画面」を作成（公開前はテストユーザーに自分を追加。誰でも使うには「本番」へ公開申請）</li>
         <li>「認証情報」→「OAuthクライアントID」→ 種類<b>「ウェブアプリケーション」</b>。「承認済みのJavaScript生成元」に <code>${esc(isFile ? 'https://（公開URLのドメイン）' : location.origin)}</code> を追加</li>
         <li>発行されたIDを、コード内の <code>GOOGLE_CLIENT_ID</code> に書く（全員で使える）か、ここに入力（この端末のみ）</li></ol>
-      <p class="tiny faint" style="margin:0 0 12px">権限は <code>drive.file</code>（このアプリが作ったファイルだけ）です。1つのIDを全員で使っても、保存先は各自のGoogleドライブです。</p></details>
-    <div class="grp">② ファイルで保存（設定不要・誰でもすぐ使える）</div>
+      <p class="tiny faint" style="margin:0 0 12px">権限は <code>drive.file</code>（このアプリが作ったファイルだけ）です。1つのIDを全員で使っても、保存先は各自のGoogleドライブです。</p></details>`;
+  const fileH = `    ${cid ? '<div class="grp">② ファイルで保存（設定不要・誰でもすぐ使える）</div>' : ''}
     <div class="stack"><button type="button" class="btn btn-primary btn-block" data-a="exportShare">${ICON.share}バックアップファイルを書き出す</button>
       <div class="row"><button type="button" class="btn" data-a="exportDownload">${ICON.download}ダウンロード</button><button type="button" class="btn" data-a="importOpen">${ICON.upload}復元する</button></div>
-      <button type="button" class="btn btn-ghost btn-block" data-a="exportCsv">表計算用（CSV）で書き出す</button></div>
-    <details style="margin-top:6px"><summary class="small" style="min-height:44px;display:flex;align-items:center;font-weight:750;color:var(--accent);cursor:pointer">機種変更のときの手順</summary>
+      <button type="button" class="btn btn-ghost btn-block" data-a="exportCsv">表計算用（CSV）で書き出す</button></div>`;
+  h += cid ? `<div class="grp" style="margin-top:4px">① Googleドライブ（自分のドライブに保存）</div>${dh}${fileH}`
+    : `${fileH}<details class="sub-acc"><summary>${ICON.cloud}Googleドライブに自動保存（準備中）</summary>${dh}</details>`;
+  h += `    <details style="margin-top:6px"><summary class="small" style="min-height:44px;display:flex;align-items:center;font-weight:750;color:var(--accent);cursor:pointer">機種変更のときの手順</summary>
       <ol class="small" style="padding-left:18px;line-height:1.8;margin:0 0 8px"><li><b>古いスマホ</b>：「Googleドライブに保存」または「バックアップファイルを書き出す」（共有メニューで「ドライブに保存」を選ぶ）</li>
-      <li><b>新しいスマホ</b>：同じURLでこのアプリを開き、「Googleドライブから復元」または「ファイルから復元」</li><li>「上書き復元」を選べば完了です（新しいスマホで記録済みなら「統合」）</li></ol></details></section>`;
+      <li><b>新しいスマホ</b>：同じURLでこのアプリを開き、「Googleドライブから復元」または「ファイルから復元」</li><li>「上書き復元」を選べば完了です（新しいスマホで記録済みなら「統合」）</li></ol></details></details>`;
   h += pwaSettingsCard();
-  h += `<section class="card"><div class="card-h"><h3>${ICON.moon} 表示</h3></div><div class="seg">${[['light', 'ライト'], ['dark', 'ダーク'], ['auto', '端末に合わせる']].map(([k, l]) => `<button type="button" data-a="theme" data-v="${k}" aria-pressed="${s.theme === k}">${l}</button>`).join('')}</div></section>`;
-  h += `<section class="card"><div class="card-h"><h3>${ICON.timer} トレーニング</h3></div>
+  h += `${setSecHead('display', true, `${ICON.moon} 表示`)}<div class="seg">${[['light', 'ライト'], ['dark', 'ダーク'], ['auto', '端末に合わせる']].map(([k, l]) => `<button type="button" data-a="theme" data-v="${k}" aria-pressed="${s.theme === k}">${l}</button>`).join('')}</div></details>`;
+  h += `${setSecHead('training', true, `${ICON.timer} トレーニング`)}
     <div class="sw-row" id="wlRow"><div class="t"><b>ウェイトリフティング機能</b><span>スナッチ・クリーン＆ジャークなどのWL種目、WLメニュー、リフト比率・Sinclair分析を表示します。OFFでも記録は消えません</span></div><label class="switch"><input type="checkbox" data-ch="setWl" ${s.wl ? 'checked' : ''}><span></span></label></div>
     <div class="field" style="margin:8px 0 6px"><span class="lbl">標準の休憩時間：${fmtSec(s.restSec)}${s.wl ? '（WL種目は最低2:00）' : ''}</span><div class="chip-wrap">${REST_PRESETS.map((v) => `<button type="button" class="chip" data-a="restDef" data-v="${v}" aria-pressed="${s.restSec === v}">${fmtSec(v)}</button>`).join('')}</div></div>
     <div class="sw-row"><div class="t"><b>セット完了で休憩タイマーを自動スタート</b></div><label class="switch"><input type="checkbox" data-ch="setAutoRest" ${s.autoRest ? 'checked' : ''}><span></span></label></div>
     <div class="sw-row"><div class="t"><b>タイマー終了時に音を鳴らす</b></div><label class="switch"><input type="checkbox" data-ch="setSound" ${s.sound ? 'checked' : ''}><span></span></label></div>
-    <div class="sw-row"><div class="t"><b>振動（バイブ）</b><span>対応端末のみ</span></div><label class="switch"><input type="checkbox" data-ch="setVib" ${s.vib ? 'checked' : ''}><span></span></label></div></section>`;
-  h += `<section class="card"><div class="card-h"><h3>${ICON.plate} プレート（プレート計算・ウォームアップ用）</h3></div>
+    <div class="sw-row"><div class="t"><b>振動（バイブ）</b><span>対応端末のみ</span></div><label class="switch"><input type="checkbox" data-ch="setVib" ${s.vib ? 'checked' : ''}><span></span></label></div></details>`;
+  h += `${setSecHead('plate', false, `${ICON.plate} プレート`, `バー${s.barKg}kg ・ ${s.plates.length}種類`)}
     <div class="field" style="margin-bottom:10px"><span class="lbl">バーの重さ</span><div class="chip-wrap">${[20, 15, 10, 7].map((b) => `<button type="button" class="chip" data-a="barKg" data-v="${b}" aria-pressed="${s.barKg === b}">${b}kg</button>`).join('')}</div></div>
     <div class="field" style="margin-bottom:6px"><span class="lbl">使えるプレート（タップで切り替え）</span><div class="chip-wrap">${ALL_PLATES.map((p) => `<button type="button" class="chip" data-a="plateT" data-v="${p}" aria-pressed="${s.plates.includes(p)}"><i class="dot" style="background:${PLATE_COLORS[p]};border:1px solid var(--line-2)"></i>${p}kg</button>`).join('')}</div></div>
-    <div class="sw-row"><div class="t"><b>カラー（2.5kg×2）を含めて計算</b><span>ウェイトリフティング競技用</span></div><label class="switch"><input type="checkbox" data-ch="collarDef" ${s.collar ? 'checked' : ''}><span></span></label></div></section>`;
-  h += `<section class="card"><div class="card-h"><h3>${ICON.body} プロフィール</h3></div>
+    <div class="sw-row"><div class="t"><b>カラー（2.5kg×2）を含めて計算</b><span>ウェイトリフティング競技用</span></div><label class="switch"><input type="checkbox" data-ch="collarDef" ${s.collar ? 'checked' : ''}><span></span></label></div></details>`;
+  h += `${setSecHead('profile', false, `${ICON.body} プロフィール`, `${s.sex === 'f' ? '女性' : '男性'}${DB.bodylog.length ? ` ・ ${fmtNum(DB.bodylog[DB.bodylog.length - 1].kg)}kg` : ''}`)}
     <div class="field" style="margin-bottom:10px"><span class="lbl">性別（Sinclair計算に使用）</span><div class="seg"><button type="button" data-a="sex" data-v="m" aria-pressed="${s.sex === 'm'}">男性</button><button type="button" data-a="sex" data-v="f" aria-pressed="${s.sex === 'f'}">女性</button></div></div>
-    <button type="button" class="btn btn-line btn-block" data-a="openBody">${ICON.weight}体重を記録・推移を見る${DB.bodylog.length ? `（最新 ${fmtNum(DB.bodylog[DB.bodylog.length - 1].kg)}kg）` : ''}</button></section>`;
-  h += `<section class="card"><div class="card-h"><h3>データ</h3></div><div class="stack">
+    <button type="button" class="btn btn-line btn-block" data-a="openBody">${ICON.weight}体重を記録・推移を見る${DB.bodylog.length ? `（最新 ${fmtNum(DB.bodylog[DB.bodylog.length - 1].kg)}kg）` : ''}</button></details>`;
+  h += `${setSecHead('data', false, `${ICON.trash} データ`, `約${fmtNum(Math.round(JSON.stringify(DB).length / 1024))}KB`)}<div class="stack">
     ${DB.records.some((r) => r.demo) ? '<button type="button" class="btn btn-block" data-a="demoRemove">サンプル記録を削除</button>' : '<button type="button" class="btn btn-block" data-a="demoAdd">サンプル記録を追加（グラフのお試し）</button>'}
     <button type="button" class="btn btn-danger-line btn-block" data-a="resetAll">${ICON.trash}すべてのデータを削除して初期化</button></div>
-    <p class="hint">保存容量の目安：約${fmtNum(round1(JSON.stringify(DB).length / 1024))}KB（ブラウザ内の記憶領域）。ブラウザの「サイトデータ削除」を行うと記録も消えるのでご注意ください。</p></section>
+    <p class="hint">保存容量の目安：約${fmtNum(round1(JSON.stringify(DB).length / 1024))}KB（ブラウザ内の記憶領域）。ブラウザの「サイトデータ削除」を行うと記録も消えるのでご注意ください。</p></details>
     <p class="center tiny faint" style="margin:18px 0 8px">LiftCanvas v${APP_VERSION} ・ 種目 ${allEx().length} ・ 保存キー ${STORAGE_KEY}<br>データはこの端末の中だけに保存され、外部に送信されません（Googleドライブ保存を除く）。</p>`;
   return h;
 }
@@ -4329,19 +4429,20 @@ function pwaCard() {
   }
   if (DB.ui.pwaHide || PWA.sessionHide) return '';
   const canPrompt = !!PWA.prompt;
-  return `<div class="card pwa-card"><div class="pwa-top"><span class="pwa-ic">${appIconSvg()}</span><div class="m"><b>アプリとしてホーム画面に追加</b><span>ワンタップで全画面起動・電波がなくても使える・記録が消えにくくなります（無料・登録不要）</span></div></div>
-    <div class="row"><button type="button" class="btn btn-primary" data-a="${canPrompt ? 'pwaInstall' : 'pwaGuide'}">${ICON.download}${canPrompt ? 'ホーム画面に追加' : '追加のしかた'}</button></div>
-    <div class="row pwa-later"><button type="button" class="btn btn-ghost btn-sm" data-a="pwaLater">あとで</button><button type="button" class="btn btn-ghost btn-sm" data-a="pwaNever">表示しない</button></div></div>`;
+  return `<div class="card pwa-card slim"><div class="pwa-top"><span class="pwa-ic">${appIconSvg()}</span><div class="m"><b>ホーム画面に追加</b><span>全画面・オフラインで使えて記録も消えにくい</span></div>
+    <button type="button" class="btn btn-primary btn-sm" data-a="${canPrompt ? 'pwaInstall' : 'pwaGuide'}">${canPrompt ? '追加' : '方法'}</button>
+    <button type="button" class="icon-btn" data-a="pwaLater" aria-label="あとで（閉じる）">${ICON.close}</button></div>
+    <div class="pwa-later"><button type="button" class="link tiny" data-a="pwaNever">今後表示しない</button></div></div>`;
 }
 function pwaSettingsCard() {
   const st = isStandalone();
-  return `<section class="card"><div class="card-h"><h3>${ICON.download} アプリとして使う</h3></div>
+  return `${setSecHead('app', false, `${ICON.download} アプリとして使う`, st ? '追加済み' : '未追加')}
     ${st ? `<p class="small muted" style="margin:0">ホーム画面のアプリとして起動しています。電波がなくても使え、新しい版は自動で更新されます（現在 ${APP_VERSION}）。</p>`
       : `<p class="small muted" style="margin:0 0 10px">ホーム画面に追加すると、アプリのように全画面で起動でき、オフラインでも使えます。</p>
       <button type="button" class="btn btn-primary btn-block" data-a="${PWA.prompt ? 'pwaInstall' : 'pwaGuide'}">${ICON.download}ホーム画面に追加${PWA.prompt ? '' : '（手順を見る）'}</button>`}
     <div style="height:8px"></div><button type="button" class="btn btn-ghost btn-block" data-a="pwaDiag">インストール診断（うまくいかない時）</button>
     ${isIOS() ? `<div style="height:10px"></div><button type="button" class="btn btn-line btn-block" data-a="${st ? 'pwaPaste' : 'pwaCopyCode'}">${st ? 'Safari版から記録を引き継ぐ' : '引き継ぎコードをコピー（ホーム画面版へ）'}</button>
-      <p class="hint">iPhoneは「Safari」と「ホーム画面のアプリ」で保存場所が別々です。引き継ぎコードで記録を移せます。</p>` : ''}</section>`;
+      <p class="hint">iPhoneは「Safari」と「ホーム画面のアプリ」で保存場所が別々です。引き継ぎコードで記録を移せます。</p>` : ''}</details>`;
 }
 function appIconSvg() {
   return `<svg viewBox="0 0 64 64" aria-hidden="true" style="width:100%;height:100%;stroke:none"><defs><linearGradient id="pg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#2563eb"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#pg)"/><polyline points="12,44 25,32 35,37 52,18" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="52" cy="18" r="5" fill="#fbbf24"/></svg>`;
