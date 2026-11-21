@@ -926,41 +926,7 @@ html[data-theme="dark"] .pr-chip b{text-shadow:0 0 14px rgba(255,209,102,.35)}
 @keyframes flash{0%,40%{background:var(--accent-soft)}100%{background:transparent}}
 
 @media (prefers-reduced-motion:reduce){.hud.scan::after,.reco-kicker .live,.acc>.list,.flash{animation:none}.hud.scan::after{display:none}}
-/* =====================================================================
-   3Dワイヤーフレーム・モデル
-   ・本体：暗い面＋立体に沿った網目（輪と縦線）。奥に隠れる線は描かない
-   ・影：面の向きで3段階（端ほど暗く＝丸みが出る）
-   ・鍛えた筋肉：網目の線そのものを色で光らせ、面はうっすら色づける
-   ===================================================================== */
-:root{--wf-body:#e6edf7;--wf-wire:rgba(28,52,100,.58);--wf-shade:#0b1730}
-html[data-theme="dark"]{--wf-body:#0e1628;--wf-wire:rgba(200,228,255,.55);--wf-shade:#000}
-.bodysvg .bd-sil{fill:var(--wf-body);stroke:none}
-.bodysvg .bd-m{fill:rgba(0,0,0,0);stroke:none}
-.bodysvg .bd-m.on{fill-opacity:.62}
-html[data-theme="dark"] .bodysvg .bd-m.on{fill-opacity:.42}
-.bodysvg .bd-m.sel{fill-opacity:.9}
-.bodysvg .bd-shade use{fill:var(--wf-shade)}
-.bodysvg .bd-sh1{opacity:.1}.bodysvg .bd-sh2{opacity:.24}.bodysvg .bd-sh3{opacity:.4}
-.bodysvg .bd-wire use{fill:none;stroke:var(--wf-wire);stroke-width:.6;stroke-linejoin:round;stroke-linecap:round}
-.bodysvg .bd-wire use.on{stroke-width:1.05}
-html[data-theme="dark"] .bodysvg:not(.mini) .bd-wire use.on{filter:drop-shadow(0 0 1.5px currentColor)}
-.bodysvg.mini .bd-wire use{stroke-width:.9}
-.bodysvg.mini .bd-wire use:not(.on){opacity:.5}
-.bodysvg.mini .bd-m.on,.menu-card .bodysvg .bd-m.on{fill-opacity:.7}
-.menu-card .bodysvg .bd-wire use{stroke-width:1.2}
-.bodysvg .bd-scan{animation:bd-scan 5.5s cubic-bezier(.45,0,.55,1) infinite}
-@keyframes bd-scan{0%{transform:translateY(0)}55%,100%{transform:translateY(520px)}}
-html[data-theme="dark"] .stage .bodysvg,html[data-theme="dark"] .reco-body .bodysvg{filter:drop-shadow(0 0 8px rgba(90,170,255,.3)) drop-shadow(0 16px 14px rgba(0,0,0,.5))}
-.reco .bodysvg{--wf-body:#0e1628;--wf-wire:rgba(200,228,255,.55);--wf-shade:#000}
-@media (prefers-reduced-motion:reduce){.bodysvg .bd-scan{animation:none;display:none}}
-/* 今日のおすすめ：回転するホログラム */
-.reco-body canvas.holo{display:block;width:100%;height:250px;position:relative;z-index:1;filter:drop-shadow(0 0 10px rgba(90,170,255,.35))}
-.reco-body{width:128px;margin:2px -4px -8px -10px}
-.reco-top{align-items:center}
-@media (max-width:370px){.reco-body{width:108px}.reco-body canvas.holo{height:210px}}
-/* おすすめカード：ホログラムのガラス縁、色帯は外す */
-.reco::before{display:none}
-.reco{border:1px solid rgba(120,190,255,.22);background:radial-gradient(90% 70% at 20% 30%,rgba(70,130,255,.22),transparent 70%),radial-gradient(120% 120% at 15% 25%,#18264a 0%,#0b1326 50%,#060a14 100%)}
+/* おすすめカード：鍛える筋肉のタグ */
 .reco-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .reco-tags span{font-size:12px;font-weight:700;color:#ffd3b0;padding:3px 9px;border-radius:999px;background:rgba(255,122,61,.14);box-shadow:inset 0 0 0 1px rgba(255,140,80,.45),0 0 12px -4px rgba(255,122,61,.8)}
 .kpi b small,.reco-stats b small{font-family:var(--f-ui)}
@@ -988,7 +954,7 @@ html[data-theme="dark"] .stage .bodysvg,html[data-theme="dark"] .reco-body .body
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.21.3';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.21.4';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '';
@@ -1254,13 +1220,39 @@ const MASTER_EXERCISES = [
   { id: "abs_24", name: "ウインドシールドワイパー", en: "Windshield Wiper", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["abs_10", "abs_14", "abs_07", "abs_15"], muscles: ["oblique"], sub: ["abs"] },
   { id: "abs_25", name: "アブローラー（立ちコロ）", en: "Standing Ab Rollout", part: "腹筋", equipment: "その他", stepKg: 2.5, defaultTargetReps: 5, relatedIds: ["abs_05", "abs_08", "abs_01", "abs_02"], muscles: ["abs"], sub: ["lats", "delt_f", "oblique"] }
 ];
-/* ---------- 人体図（3Dワイヤーフレーム・モデル） ----------
-   体を「断面が楕円の筒（胴・頭・首・腕・脚・足）」の集まりとして3Dで組み立て、
-   起動時に一度だけ前面／背面へ投影して SVG の <defs> に入れる（各画面は <use> で再利用）。
-   ・網目：輪切りの輪（横線）と体に沿う縦線。端ほど線が詰まって立体的に見える
-   ・筋肉：3Dの表面上で部位を塗り分け（タップ判定も同じ図形）
-   ・陰影：面の向きと光の向きから3段階の影を重ねる
-   座標系は従来どおり 1体あたり 幅200×高さ440（中心線 x=100）。 */
+/* ---------- 人体図（筋肉マップ）SVG ----------
+   座標系：1体あたり 幅200 × 高さ440（中心線 x=100）。左半身だけを定義し、中心線で反転して左右対称にする。
+   頭身・関節位置は成人男性の標準的なプロポーション（約8頭身）に合わせている。 */
+const BODY_OUTLINE = 'M92,70 C84,74 72,77 60,80 C48,82 38,90 35,102 C33,112 32,124 32,138 C31,152 30,164 28,176 C25,192 21,212 19,232 C18,242 18,250 19,256 C16,262 15,272 17,282 C19,290 26,292 29,285 C31,279 32,270 33,262 C34,256 35,252 37,248 C40,232 44,214 46,198 C47,190 47,184 47,178 C50,166 53,150 55,136 C56,130 57,126 58,122 C61,138 64,154 67,170 C68,178 68,186 66,196 C62,206 59,216 58,226 C55,248 55,272 57,294 C58,306 60,316 62,324 C60,340 59,356 61,372 C63,388 66,400 69,410 C67,418 65,426 68,432 C74,437 88,437 92,432 C93,426 91,418 89,410 C90,396 91,380 91,364 C91,350 91,338 92,326 C95,310 97,290 98,268 C99,252 99,238 100,228 L100,70 Z';
+const BODY_FRONT = {
+  m: {
+    traps: ['M93,71 C86,74 75,77 62,80 C72,83 82,84 93,82 Z'],
+    delt_s: ['M58,81 C46,82 37,90 34.5,102 C33,111 34,120 37,127 L43,125 C41.5,113 43.5,101 49.5,92.5 C52.5,87.5 55,84 58,81 Z'],
+    delt_f: ['M61,82.5 C55.5,86.5 50.5,93.5 47.5,103 C45.5,111 45.5,118 46.5,124 C52.5,118.5 58.5,112.5 64.5,107.5 C66.5,99 66,90 61,82.5 Z'],
+    chest: ['M67,84 C77,82 88,82.5 99,84.5 L99,119 C93,126.5 82,130 72.5,128.5 C64.5,127 58.5,121 55,115 C59,107.5 63,98 67,84 Z'],
+    biceps: ['M45,128 C41,138 38.5,150 39.5,162 C40.5,168 42.5,172 45.5,174.5 C49.5,166 52.5,156 53.5,146 C54.5,138 52.5,130 48.5,124.5 Z'],
+    forearm: ['M40.5,181 C34.5,193 30.5,209 28.5,227 C27.5,235 27.5,243 28.5,249 L33,249.5 C36,236 40,222 44,206 C46,196 47,188 46.5,180.5 Z', 'M33.5,178.5 C28.5,188 25.5,200 23.5,214 C22.5,224 23,236 24.5,246.5 L28,247.5 C28,232 30,214 35,196 C37,188 38,182 38,178.5 Z'],
+    abs: ['M88.5,132 h10.5 v14 h-10.5 a2,2 0 0 1 0,0 Z', 'M88,148.5 h11 v14 h-11 Z', 'M88,165 h11 v14 h-11 Z', 'M88.5,181.5 h10.5 v34 C94.5,212 91,206 88.5,196 Z'],
+    oblique: ['M72.5,131 C78.5,133 84,134.5 86.5,134.5 L86.5,196 C82.5,200 78.5,206 74.5,212 C70.5,200 69.5,186 70,170 C70,156 70.5,142 72.5,131 Z', 'M62.5,121.5 L71,125.5 L70,131 L61.5,127 Z', 'M63.5,131 L71,134.5 L70,140 L63,136.5 Z', 'M64.5,140.5 L70.5,143.5 L69.5,149 L64.5,146 Z'],
+    quads: ['M76.5,226 C72.5,240 70.5,262 72.5,284 C73.5,298 76.5,310 80.5,318 L86,317 C88,305 89,290 88,270 C87,252 84,236 80.5,226 Z', 'M64,220 C58,236 56,258 57,280 C58,298 62,312 68,322 L74,320 C70,304 68,286 69,266 C70,248 72,234 74.5,223 Z', 'M88.5,283 C92.5,291 94,303 92,315 C90.5,321 87.5,324.5 84.5,326.5 L81,321 C85,312 87.5,300 88.5,283 Z'],
+    adduct: ['M90.5,229 C94.5,237 97.5,247 98.5,257 L98.5,266 C96.5,278 92.5,288 89,293 C88.5,276 88.5,256 90.5,229 Z'],
+    calves: ['M86.5,333 C92,343 93.5,357 92,372 C91,382 89,390 87,396 C83.5,380 83,360 84.5,341 Z', 'M70.5,331 C66.5,347 66.5,367 69,385 C70,393 72,401 74,407 L78,405 C77,389 76,369 77,351 C77,343 76,335 74.5,329 Z', 'M64,336 C60.5,349 61,364 64,377 L68,378 C66,364 66,349 68,335 Z']
+  }
+};
+const BODY_BACK = {
+  m: {
+    traps: ['M100,62 C96,68 88,74 74,78 C66,80 60,82 56,84 C66,90 78,98 86,110 C92,122 96,138 100,153 Z'],
+    delt_r: ['M56,84.5 C46,84.5 38,92 36,104 C35,112 37,120 40,126 C46,118 52,110 60,104.5 C64,98 62,90 56,84.5 Z'],
+    upback: ['M62.5,105 C56.5,110.5 52.5,118.5 52.5,128 C60.5,128.5 70.5,127 80,124.5 C84,118.5 84,112.5 82,106.5 C76,100.5 68.5,100.5 62.5,105 Z'],
+    lats: ['M58.5,129.5 C66.5,131.5 76.5,131.5 84.5,129.5 C88.5,141 90.5,157 92,173 C92,185 90,197 88,205 C80,199 72,191 68,181 C62,167 58.5,149 58.5,129.5 Z'],
+    lowback: ['M93,154 C96.5,163 98.5,178 98.5,197 L98.5,214 C94.5,214 90.5,212.5 88.5,208.5 C90,197 91,182 93,154 Z'],
+    triceps: ['M42.5,126.5 C38.5,136.5 36.5,150.5 37.5,162.5 C38.5,170.5 41.5,175 45.5,177 C49.5,168 52.5,156 53.5,144 C54.5,136 51.5,128 47.5,122.5 Z'],
+    forearm: ['M40.5,181 C34.5,193 30.5,209 28.5,227 C27.5,235 27.5,243 28.5,249 L33,249.5 C36,236 40,222 44,206 C46,196 47,188 46.5,180.5 Z', 'M33.5,178.5 C28.5,188 25.5,200 23.5,214 C22.5,224 23,236 24.5,246.5 L28,247.5 C28,232 30,214 35,196 C37,188 38,182 38,178.5 Z'],
+    glutes: ['M98.5,213 C86.5,211 74.5,215 66.5,225 C60.5,235 60.5,249 66.5,259 C74.5,267 88.5,267 98.5,263 Z', 'M66.5,205 C64.5,211 64.5,217 66,223 C74,215 84,211 94,210.5 C86,204.5 76,202.5 66.5,205 Z'],
+    hams: ['M64.5,268 C60.5,284 60.5,304 64.5,320 C66.5,326 68.5,330 70.5,332 L78,330 C76,314 76,294 78,274 C74,270 68.5,268 64.5,268 Z', 'M80.5,272 C78.5,292 79.5,312 82.5,330 L90.5,328 C94.5,314 96.5,298 95.5,282 C94.5,274 90.5,270 84.5,268 Z'],
+    calves: ['M66.5,336 C60.5,348 60.5,364 64.5,376 C68.5,386 72.5,394 76.5,400 L80.5,398 C79.5,382 79.5,364 80.5,348 C80.5,342 78.5,338 74.5,334 Z', 'M82.5,336 C90.5,342 94.5,354 93.5,368 C92.5,380 88.5,390 84.5,398 L82.5,398 C82.5,382 81.5,362 82.5,336 Z']
+  }
+};
 const MUSCLES = {
   chest: '大胸筋', delt_f: '三角筋（前部）', delt_s: '三角筋（中部）', delt_r: '三角筋（後部）', traps: '僧帽筋',
   lats: '広背筋', upback: '背中上部（菱形筋）', lowback: '脊柱起立筋（腰）', biceps: '上腕二頭筋', triceps: '上腕三頭筋',
@@ -1268,307 +1260,40 @@ const MUSCLES = {
   hams: 'ハムストリングス（もも裏）', adduct: '内転筋（内もも）', calves: 'ふくらはぎ'
 };
 const MUSCLE_KEYS = Object.keys(MUSCLES);
-const BODY3D = (() => {
-  const K = 16;                    // 1周の分割数（網目・塗り・陰影すべて同じ格子）
-  const STEP = 8.5;                // 輪切りの間隔
-  const PITCH = 0.17;              // 少し上から見下ろす（sin 10°）
-  const lerp = (a, b, t) => a + (b - a) * t;
-  const sm = (t) => t * t * (3 - 2 * t);
-  /* キーフレーム（中心 x,y,z と 横半径 rx、前後の半径 rzf/rzb）を滑らかに補間して輪切りを作る */
-  const tube = (keys) => {
-    const out = []; let acc = 0; const len = [0];
-    for (let i = 1; i < keys.length; i++) { acc += Math.hypot(keys[i][0] - keys[i - 1][0], keys[i][1] - keys[i - 1][1], keys[i][2] - keys[i - 1][2]); len.push(acc); }
-    const n = Math.max(2, Math.round(acc / STEP));
-    for (let s = 0; s <= n; s++) {
-      const d = (acc * s) / n; let i = 1; while (i < keys.length - 1 && len[i] < d) i++;
-      const t = sm(Math.min(1, Math.max(0, (d - len[i - 1]) / (len[i] - len[i - 1] || 1))));
-      const a = keys[i - 1], b = keys[i];
-      out.push(a.map((v, j) => lerp(v, b[j], t)));
-    }
-    return out;
-  };
-  const T = (y, rx, rzf, rzb, z = 0) => [100, y, z, rx, rzf, rzb];
-  const L = (x, y, z, rx, rz) => [x, y, z, rx, rz, rz];
-  const head = []; for (let y = 7; y <= 61; y += 6) { const e = Math.max(0, 1 - ((y - 32) / 26) ** 2); const jaw = y > 40 ? 1 - (y - 40) / 55 : 1; head.push(T(y, Math.max(0.8, 19.5 * Math.sqrt(e) * jaw), Math.max(0.8, 21 * Math.sqrt(e) * jaw), Math.max(0.8, 22 * Math.sqrt(e)), y > 44 ? (y - 44) * 0.25 : 0)); }
-  const PARTS = [
-    { name: 'head', side: 0, keys: head, raw: true },
-    { name: 'neck', side: 0, keys: [T(50, 11, 10.5, 11, -2), T(62, 12, 11, 12, -3), T(74, 14, 12, 14, -3)] },
-    { name: 'torso', side: 0, keys: [T(69, 12, 9, 10, -2), T(73, 21, 12, 13, -2), T(78, 31, 16, 17, -2), T(85, 39.5, 21, 20, -2), T(95, 43, 25, 22, -1), T(108, 43.5, 27, 22.5, 0), T(122, 40.5, 25, 22, 0), T(138, 36, 21.5, 20.5, 0),
-      T(154, 32.5, 20, 19, 0), T(168, 31.5, 20, 19, 0), T(182, 32.5, 20.5, 20.5, 0), T(196, 35, 21, 24, 0), T(208, 37, 20.5, 26.5, -1), T(218, 35.5, 19, 25.5, -1), T(227, 30, 15.5, 21, -1), T(235, 16, 9, 11, -1)] },
-    { name: 'arm', side: 1, keys: [L(54, 78, -2, 3, 3), L(52.5, 82, -2, 10, 10), L(50, 90, -2, 13, 13), L(47, 103, -2, 13, 12.5), L(45, 121, -2, 11.5, 11), L(42, 146, -2, 10.5, 10), L(39, 170, -2, 9, 8.5),
-      L(37, 181, -1, 9.5, 9), L(34, 201, 0, 9.5, 8.5), L(31, 226, 1, 7.5, 6.5), L(28.5, 247, 2, 5.5, 4.5), L(27, 255, 2, 6.2, 3.6), L(24.5, 271, 2, 6.6, 3.2), L(22, 284, 2, 4.6, 2.6), L(21, 290, 2, 1.2, 1.2)] },
-    { name: 'leg', side: 1, keys: [L(81, 192, -2, 14, 14), L(79.5, 208, -1, 19.5, 19.5), L(78.5, 226, 0, 21.5, 21), L(78, 240, 0, 21.5, 21), L(77.5, 270, 0, 21, 21), L(77, 300, 0, 19, 18), L(77, 326, 1, 14.5, 14), L(76, 346, -1, 15.5, 15),
-      L(76, 366, -1, 15, 14), L(77, 390, 0, 12, 11), L(79, 406, 0, 9.5, 9), L(79.5, 413, 1, 8.8, 8)] },
-    { name: 'foot', side: 1, keys: [L(79.5, 410, 1, 9, 7.5), L(80, 422, 7, 10, 5.5), L(80, 429, 13, 9.5, 4), L(80.5, 433, 18, 7, 2.6), L(80.5, 434.5, 21, 2, 1.2)] }
-  ];
-  /* 3Dの表面上の筋肉（y：高さ、th：角度。0=正面、±90=側面、180=背面。手足は＋が外側） */
-  const muscleAt = (part, y, th) => {
-    const a = Math.abs(th);
-    if (part === 'torso') {
-      if (a <= 90) {
-        if (y < 82) return a > 14 ? 'traps' : null;
-        if (y < 129) return a > 5 && a < 78 ? 'chest' : null;
-        if (y < 214) return a < 24 ? 'abs' : y < 206 ? 'oblique' : null;
-        return null;
-      }
-      if (y < 98) return 'traps';
-      if (y < 156 && a > 160) return 'traps';
-      if (y < 148 && a > 128) return 'upback';
-      if (y < 192 && a <= 138) return 'lats';
-      if (y < 205) return a > 138 ? 'lowback' : 'oblique';
-      return 'glutes';
-    }
-    if (part === 'neck') return a > 110 && y > 60 ? 'traps' : null;
-    if (part === 'arm') {
-      if (y < 111) return a < 55 ? 'delt_f' : a < 125 ? 'delt_s' : 'delt_r';
-      if (y < 178) return a <= 90 ? 'biceps' : 'triceps';
-      return y < 250 ? 'forearm' : null;
-    }
-    if (part === 'leg') {
-      if (y < 244 && a > 112) return 'glutes';
-      if (y < 327) return a > 118 ? 'hams' : th < -58 && y < 304 ? 'adduct' : 'quads';
-      if (y < 398) return a > (y < 380 ? 78 : 100) ? 'calves' : null;
-    }
-    return null;
-  };
-  const sub = (p, q) => [p[0] - q[0], p[1] - q[1], p[2] - q[2]];
-  const cross = (p, q) => [p[1] * q[2] - p[2] * q[1], p[2] * q[0] - p[0] * q[2], p[0] * q[1] - p[1] * q[0]];
-  const dot = (p, q) => p[0] * q[0] + p[1] * q[1] + p[2] * q[2];
-  const norm = (p) => { const l = Math.hypot(p[0], p[1], p[2]) || 1; return [p[0] / l, p[1] / l, p[2] / l]; };
-  /* 各パーツの格子点（左右の手足は鏡写し） */
-  const meshes = [];
-  for (const P of PARTS) {
-    const secs = P.raw ? P.keys : tube(P.keys);
-    for (const mir of P.side ? [1, -1] : [1]) {
-      const pts = []; const info = [];
-      for (let i = 0; i < secs.length; i++) {
-        const s = secs[i]; const c = [mir === 1 ? s[0] : 200 - s[0], s[1], s[2]];
-        const pv = secs[Math.max(0, i - 1)], nx = secs[Math.min(secs.length - 1, i + 1)];
-        let ax = norm([(nx[0] - pv[0]) * mir, nx[1] - pv[1], nx[2] - pv[2]]); if (P.raw) ax = [0, 1, 0];
-        const out = [-mir, 0, 0];                                   // 外側（手足は体の外、胴は図の左）
-        const u = norm(sub(out, ax.map((v) => v * dot(out, ax))));
-        let n = cross(ax, u); if (n[2] < 0) n = n.map((v) => -v);
-        const row = [];
-        for (let k = 0; k <= K; k++) {
-          const th = -Math.PI + (2 * Math.PI * k) / K; const sn = Math.sin(th), cs = Math.cos(th);
-          const rz = cs >= 0 ? s[4] : s[5];
-          row.push([c[0] + u[0] * s[3] * sn + n[0] * rz * cs, c[1] + u[1] * s[3] * sn + n[1] * rz * cs, c[2] + u[2] * s[3] * sn + n[2] * rz * cs]);
-        }
-        pts.push(row); info.push({ c, y: s[1] });
-      }
-      meshes.push({ part: P.name, pts, info });
-    }
-  }
-  const LIGHT = norm([-0.45, -0.55, 1]);
-  const f1 = (v) => Math.round(v * 10) / 10;
-  /* 投影して、見えている面・筋肉・影・網目を SVG パスにする（奥に隠れる面は深度バッファで除外） */
-  const view = (back) => {
-    const tr = (p) => (back ? [200 - p[0], p[1], -p[2]] : p);
-    const D = norm([0, -PITCH, 1]);
-    const P2 = (q) => [q[0], q[1] + q[2] * PITCH];
-    const dep = (q) => dot(q, D);
-    const f2 = (q) => f1(q[0]) + ' ' + f1(q[1] + q[2] * PITCH);
-    /* 1) 各パーツを変換し、面の向き・陰影・筋肉を求める */
-    const M = meshes.map((m) => {
-      const pts = m.pts.map((row) => row.map(tr)); const R = pts.length;
-      const face = []; const gm = []; const sh = [];
-      for (let i = 0; i < R - 1; i++) {
-        face.push([]); gm.push([]); sh.push([]);
-        const yc = (m.info[i].y + m.info[i + 1].y) / 2; const cc = tr(m.info[i].c);
-        for (let k = 0; k < K; k++) {
-          const a = pts[i][k], b = pts[i][k + 1], c = pts[i + 1][k + 1], d = pts[i + 1][k];
-          let N = cross(sub(c, a), sub(b, d));
-          const ctr = [(a[0] + c[0]) / 2, (a[1] + c[1]) / 2, (a[2] + c[2]) / 2];
-          if (dot(N, sub(ctr, cc)) < 0) N = N.map((v) => -v);
-          N = norm(N); const f = dot(N, D);
-          face[i].push(f > 0.02);
-          gm[i].push(muscleAt(m.part, yc, -180 + (360 * (k + 0.5)) / K));
-          const lit = Math.max(0, dot(N, LIGHT)) * 0.75 + f * 0.25;
-          const shv = lit > 0.72 ? 0 : lit > 0.5 ? 1 : lit > 0.28 ? 2 : 3; sh[i].push(m.part === 'torso' && yc > 220 ? Math.min(shv, 1) : shv);
-        }
-      }
-      return { pts, R, face, gm, sh };
-    });
-    /* 2) 深度バッファ（1単位の格子）に手前向きの面を描き込む */
-    const W = 200, H = 450; const zb = new Float32Array(W * H).fill(-1e9);
-    const tri = (A, B, C) => {
-      const x0 = Math.max(0, Math.floor(Math.min(A[0], B[0], C[0]))), x1 = Math.min(W - 1, Math.ceil(Math.max(A[0], B[0], C[0])));
-      const y0 = Math.max(0, Math.floor(Math.min(A[1], B[1], C[1]))), y1 = Math.min(H - 1, Math.ceil(Math.max(A[1], B[1], C[1])));
-      const den = (B[1] - C[1]) * (A[0] - C[0]) + (C[0] - B[0]) * (A[1] - C[1]); if (Math.abs(den) < 1e-6) return;
-      for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
-        const px = x + 0.5, py = y + 0.5;
-        const w1 = ((B[1] - C[1]) * (px - C[0]) + (C[0] - B[0]) * (py - C[1])) / den;
-        const w2 = ((C[1] - A[1]) * (px - C[0]) + (A[0] - C[0]) * (py - C[1])) / den;
-        const w3 = 1 - w1 - w2; if (w1 < -0.01 || w2 < -0.01 || w3 < -0.01) continue;
-        const z = w1 * A[2] + w2 * B[2] + w3 * C[2]; const j = y * W + x; if (z > zb[j]) zb[j] = z;
-      }
-    };
-    const S = (q) => { const p = P2(q); return [p[0], p[1], dep(q)]; };
-    for (const m of M) for (let i = 0; i < m.R - 1; i++) for (let k = 0; k < K; k++) {
-      if (!m.face[i][k]) continue;
-      const a = S(m.pts[i][k]), b = S(m.pts[i][k + 1]), c = S(m.pts[i + 1][k + 1]), d = S(m.pts[i + 1][k]);
-      tri(a, b, c); tri(a, c, d);
-    }
-    const seen = (q, eps = 1.6) => { const p = P2(q); const x = Math.floor(p[0]), y = Math.floor(p[1]); if (x < 0 || y < 0 || x >= W || y >= H) return true; return dep(q) >= zb[y * W + x] - eps; };
-    const mid = (p, q) => [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2, (p[2] + q[2]) / 2];
-    /* 3) 見えている面を帯ごとにまとめてパスにする */
-    const groups = {}; const add = (g, str) => { (groups[g] = groups[g] || []).push(str); };
-    for (const m of M) {
-      const vis = m.face.map((row, i) => row.map((f, k) => f && seen(mid(m.pts[i][k], m.pts[i + 1][k + 1]))));
-      m.vis = vis;
-      const band = (i, key) => {
-        let k = 0;
-        while (k < K) {
-          if (!vis[i][k] || key(k) == null) { k++; continue; }
-          const g = key(k); let e = k; while (e + 1 < K && vis[i][e + 1] && key(e + 1) === g) e++;
-          const top = []; const bot = [];
-          for (let j = k; j <= e + 1; j++) { top.push(f2(m.pts[i][j])); bot.push(f2(m.pts[i + 1][j])); }
-          add(g, 'M' + top.concat(bot.reverse()).join(' ') + 'Z'); k = e + 1;
-        }
-      };
-      for (let i = 0; i < m.R - 1; i++) { band(i, () => 'sil'); band(i, (k) => m.gm[i][k]); band(i, (k) => (m.sh[i][k] ? 'sh' + m.sh[i][k] : null)); }
-      /* 網目：輪は1つおき・縦線も1つおき。手前に見える線だけを、接する筋肉ごとに分けて描く */
-      const owner = (i, k) => { k = ((k % K) + K) % K; return i >= 0 && i < m.R - 1 && vis[i][k] ? m.gm[i][k] || 'n' : null; };
-      const lines = (getPt, n, ownerOf) => {
-        let cur = null, curG = null;
-        const flush = () => { if (cur && (cur.length > 2 || segLen > 2.5)) add('w-' + curG, 'M' + cur.join(' ')); cur = null; segLen = 0; };
-        let segLen = 0;
-        for (let j = 0; j < n; j++) {
-          const p = getPt(j), q = getPt(j + 1); const o = ownerOf(j);
-          const on = o && seen(mid(p, q), 1.2);
-          if (!on || o !== curG) flush();
-          if (on) { if (!cur) { cur = [f2(p)]; curG = o; } cur.push(f2(q)); segLen += Math.hypot(q[0] - p[0], q[1] - p[1]); }
-        }
-        flush();
-      };
-      for (let i = 0; i < m.R; i++) lines((j) => m.pts[i][j], K, (j) => owner(i, j) || owner(i - 1, j));
-      for (let k = 0; k < K; k++) lines((j) => m.pts[j][k], m.R - 1, (j) => owner(j, k) || owner(j, k - 1));
-    }
-    const out = {};
-    for (const g of Object.keys(groups)) out[g] = groups[g].join('');
-    return out;
-  };
-  /* 回転表示用の粗いメッシュ（縦横とも1つおき） */
-  const coarse = () => {
-    const verts = []; const quads = []; const parts = [];
-    for (const m of meshes) {
-      const q0 = quads.length;
-      const R = m.pts.length; const rows = []; for (let i = 0; i < R; i++) rows.push(i);
-      const base = verts.length / 3; const KC = K;
-      for (const i of rows) for (let k = 0; k <= K; k++) verts.push(m.pts[i][k][0], m.pts[i][k][1], m.pts[i][k][2]);
-      const P = (j) => [verts[j * 3], verts[j * 3 + 1], verts[j * 3 + 2]];
-      for (let r = 0; r < rows.length - 1; r++) for (let k = 0; k < KC; k++) {
-        const a = base + r * (KC + 1) + k, b = a + 1, c = a + KC + 2, d = a + KC + 1;
-        let N = cross(sub(P(c), P(a)), sub(P(b), P(d)));
-        const cc = m.info[rows[r]].c; const pa = P(a), pc = P(c); const ctr = [(pa[0] + pc[0]) / 2, (pa[1] + pc[1]) / 2, (pa[2] + pc[2]) / 2];
-        if (dot(N, sub(ctr, cc)) < 0) N = N.map((v) => -v);
-        N = norm(N);
-        quads.push({ v: [a, b, c, d], n: N, m: muscleAt(m.part, (m.info[rows[r]].y + m.info[rows[r + 1]].y) / 2, -180 + (360 * (k + 0.5)) / KC) });
-      }
-      parts.push({ q0, q1: quads.length, v0: base, v1: verts.length / 3 });
-    }
-    return { verts: new Float32Array(verts), quads, parts };
-  };
-  return { F: view(false), B: view(true), coarse, PITCH, LIGHT };
-})();
 /* 図形は一度だけ <defs> に定義し、<use> で使い回す（大量表示でも軽い） */
 function bodyDefs() {
-  let h = '';
-  for (const [pre, v] of [['bdF', BODY3D.F], ['bdB', BODY3D.B]]) {
-    for (const g of Object.keys(v)) h += `<path id="${pre}-${g}" d="${v[g]}"/>`;
-    h += `<clipPath id="${pre}-clip"><use href="#${pre}-sil"/></clipPath>`;
-  }
-  h += `<linearGradient id="bd-scanG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5ad1ff" stop-opacity="0"/><stop offset=".85" stop-color="#5ad1ff" stop-opacity=".22"/><stop offset=".97" stop-color="#bff0ff" stop-opacity=".9"/><stop offset="1" stop-color="#bff0ff" stop-opacity="0"/></linearGradient>
+  const g = (id, list) => `<g id="${id}">${list.map((d) => `<path d="${d}"/>`).join('')}</g>`;
+  let h = `<g id="bd-sil"><path d="${BODY_OUTLINE}"/></g>`;
+  for (const k of Object.keys(BODY_FRONT.m)) h += g('bdF-' + k, BODY_FRONT.m[k]);
+  for (const k of Object.keys(BODY_BACK.m)) h += g('bdB-' + k, BODY_BACK.m[k]);
+  h += `<clipPath id="bd-clip"><path d="${BODY_OUTLINE}"/><path d="${BODY_OUTLINE}" transform="matrix(-1,0,0,1,200,0)"/><ellipse cx="100" cy="34" rx="20" ry="26"/><rect x="83" y="54" width="34" height="20"/></clipPath>
+    <linearGradient id="bd-shade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".22"/><stop offset=".45" stop-color="#000" stop-opacity="0"/><stop offset=".55" stop-color="#fff" stop-opacity=".07"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient>
     <filter id="bd-glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
   return `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>${h}</defs></svg>`;
 }
 /* fills: { 筋肉キー: 色 }。opts.mini=true で種目アイコン用、opts.sel で選択中の筋肉を強調、opts.glow で発光 */
 function bodySvg(fills = {}, opts = {}) {
-  const fig = (pre, dx, label) => {
-    const v = pre === 'bdF' ? BODY3D.F : BODY3D.B;
-    let h = `<use href="#${pre}-sil" class="bd-sil"/>`;
-    for (const k of MUSCLE_KEYS) {
-      if (!v[k]) continue; const f = fills[k];
-      h += `<use href="#${pre}-${k}" data-m="${k}" class="bd-m${f ? ' on' : ''}${opts.sel === k ? ' sel' : ''}"${f ? ` style="fill:${f}"` : ''}${f && opts.glow ? ' filter="url(#bd-glow)"' : ''}/>`;
-    }
-    h += `<g class="bd-shade" pointer-events="none"><use href="#${pre}-sh1" class="bd-sh1"/><use href="#${pre}-sh2" class="bd-sh2"/><use href="#${pre}-sh3" class="bd-sh3"/></g><g class="bd-wire" pointer-events="none"><use href="#${pre}-w-n"/>`;
-    for (const k of MUSCLE_KEYS) { if (!v['w-' + k]) continue; const f = fills[k]; h += `<use href="#${pre}-w-${k}"${f ? ` class="on" style="stroke:${f}"` : ''}/>`; }
-    h += '</g>';
-    if (!opts.mini && (opts.stage || opts.glow)) h += `<g clip-path="url(#${pre}-clip)" pointer-events="none"><rect x="0" y="-60" width="200" height="60" fill="url(#bd-scanG)" class="bd-scan"/></g>`;
-    return `<g transform="translate(${dx},0)">${h}${label ? `<text x="100" y="458" class="bd-label">${label}</text>` : ''}</g>`;
+  const fig = (def, pre, dx, label) => {
+    const half = (mirror) => {
+      let h = '<use href="#bd-sil" class="bd-sil"/>';
+      for (const k of Object.keys(def.m)) {
+        const f = fills[k];
+        h += `<use href="#${pre}-${k}" data-m="${k}" class="bd-m${f ? ' on' : ''}${opts.sel === k ? ' sel' : ''}"${f ? ` style="fill:${f}"` : ''}${f && opts.glow ? ' filter="url(#bd-glow)"' : ''}/>`;
+      }
+      return mirror ? `<g transform="matrix(-1,0,0,1,200,0)">${h}</g>` : h;
+    };
+    const head = '<ellipse cx="100" cy="34" rx="20" ry="26" class="bd-head"/><path d="M89,55 C89,63 87,69 83,73 L117,73 C113,69 111,63 111,55 Z" class="bd-head"/>';
+    return `<g transform="translate(${dx},0)">${head}${half(false)}${half(true)}${opts.mini ? '' : '<rect x="0" y="0" width="200" height="440" fill="url(#bd-shade)" clip-path="url(#bd-clip)" pointer-events="none"/>'}${label ? `<text x="100" y="458" class="bd-label">${label}</text>` : ''}</g>`;
   };
   if (opts.mini) {
     const back = opts.side === 'back';
     const vb = opts.crop === 'upper' ? '30 68 140 140' : opts.crop === 'lower' ? '50 206 100 200' : '36 64 128 210';
-    return `<svg viewBox="${vb}" class="bodysvg mini" aria-hidden="true">${fig(back ? 'bdB' : 'bdF', 0, '')}</svg>`;
+    return `<svg viewBox="${vb}" class="bodysvg mini" aria-hidden="true">${fig(back ? BODY_BACK : BODY_FRONT, back ? 'bdB' : 'bdF', 0, '')}</svg>`;
   }
   const labels = opts.labels !== false;
   return `<svg viewBox="0 0 420 ${labels ? 470 : 446}" class="bodysvg${opts.tap ? ' tapable' : ''}${opts.stage ? ' stage' : ''}" role="img" aria-label="${esc(opts.aria || '筋肉マップ')}">
-    ${fig('bdF', 0, labels ? '前面' : '')}${fig('bdB', 220, labels ? '背面' : '')}</svg>`;
+    ${fig(BODY_FRONT, 'bdF', 0, labels ? '前面' : '')}${fig(BODY_BACK, 'bdB', 220, labels ? '背面' : '')}</svg>`;
 }
-
-/* ---------- 回転するホログラム（canvas）：今日のおすすめ用 ---------- */
-const Holo = (() => {
-  let mesh = null, cur = null;
-  const hexA = (hex, a) => { const n = parseInt(String(hex).replace('#', '').slice(0, 6), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; };
-  function mount(cv, fills) {
-    if (cur) cur.stop();
-    if (!cv || !cv.getContext) return;
-    const ctx = cv.getContext('2d'); if (!ctx) return;
-    if (!mesh) mesh = BODY3D.coarse();
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const st = { yaw: -0.45, raf: 0, last: 0, vis: true, stopped: false };
-    const N = mesh.verts.length / 3; const sx = new Float32Array(N), sy = new Float32Array(N), sz = new Float32Array(N);
-    const P = BODY3D.PITCH; const Dl = Math.hypot(P, 1); const L = BODY3D.LIGHT;
-    const draw = () => {
-      const dpr = Math.min(2, window.devicePixelRatio || 1); const w = cv.clientWidth, h = cv.clientHeight; if (!w || !h) return;
-      if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
-      const sc = Math.min(w / 168, h / 470) * dpr; const ox = cv.width / 2, oy = (cv.height - 440 * sc) / 2 - 2 * sc;
-      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
-      const c = Math.cos(st.yaw), s = Math.sin(st.yaw); const V = mesh.verts;
-      for (let j = 0; j < N; j++) { const x = V[j * 3] - 100, y = V[j * 3 + 1], z = V[j * 3 + 2]; const xr = x * c + z * s, zr = -x * s + z * c; sx[j] = ox + xr * sc; sy[j] = oy + (y + zr * P) * sc; sz[j] = (zr - y * P) / Dl; }
-      const order = mesh.parts.map((pt) => { let z = 0; for (let j = pt.v0; j < pt.v1; j++) z += sz[j]; return [z / (pt.v1 - pt.v0), pt]; }).sort((x, y) => x[0] - y[0]);
-      ctx.lineJoin = 'round'; ctx.lineWidth = Math.max(0.6, 0.5 * sc);
-      const Q = mesh.quads;
-      for (const [, pt] of order) {
-        const buckets = new Map();
-        for (let qi = pt.q0; qi < pt.q1; qi++) {
-          const q = Q[qi];
-          const nx = q.n[0] * c + q.n[2] * s, ny = q.n[1], nz = -q.n[0] * s + q.n[2] * c;
-          const f = (nz - ny * P) / Dl; if (f <= 0.01) continue;
-          const lit = Math.max(0, nx * L[0] + ny * L[1] + nz * L[2]) * 0.7 + f * 0.3;
-          const lv = Math.min(4, Math.floor(lit * 5)); const col = (q.m && fills[q.m]) || '';
-          const key = col + '|' + lv; let bk = buckets.get(key); if (!bk) { bk = { col, lv, q: [] }; buckets.set(key, bk); }
-          bk.q.push(q.v);
-        }
-        for (const bk of buckets.values()) {
-          ctx.beginPath();
-          for (const v of bk.q) { ctx.moveTo(sx[v[0]], sy[v[0]]); ctx.lineTo(sx[v[1]], sy[v[1]]); ctx.lineTo(sx[v[2]], sy[v[2]]); ctx.lineTo(sx[v[3]], sy[v[3]]); ctx.closePath(); }
-          const l = 0.25 + (bk.lv + 0.5) / 5 * 0.75;
-          ctx.fillStyle = bk.col ? hexA(bk.col, 0.16 + 0.38 * l) : `rgba(${Math.round(8 + 20 * l)},${Math.round(15 + 30 * l)},${Math.round(30 + 52 * l)},0.96)`;
-          ctx.fill();
-          ctx.strokeStyle = bk.col ? hexA(bk.col, 0.55 + 0.45 * l) : `rgba(190,226,255,${(0.16 + 0.5 * l).toFixed(3)})`;
-          ctx.stroke();
-        }
-      }
-    };
-    let io = null;
-    const stop = () => { st.stopped = true; cancelAnimationFrame(st.raf); if (io) io.disconnect(); if (cur && cur.cv === cv) cur = null; };
-    const loop = (t) => {
-      if (st.stopped || !cv.isConnected) { stop(); return; }
-      st.raf = requestAnimationFrame(loop);
-      if (!st.vis || document.hidden) { st.last = 0; return; }
-      if (st.last && t - st.last < 33) return;   // 約30fpsで十分
-      const dt = st.last ? Math.min(100, t - st.last) : 0; st.last = t;
-      st.yaw += dt * 0.00042; draw();
-    };
-    if ('IntersectionObserver' in window) { io = new IntersectionObserver((es) => { st.vis = es[es.length - 1].isIntersecting; }); io.observe(cv); }
-    cur = { cv, stop };
-    draw();
-    if (!reduce) st.raf = requestAnimationFrame(loop);
-  }
-  return { mount, stop: () => { if (cur) cur.stop(); } };
-})();
 
 /* ---------- 初期サンプルメニューセット（WL中心を含む6パターン） ---------- */
 const DEFAULT_MENUS = [
@@ -3360,7 +3085,6 @@ function renderTab(keep = true) {
   v.innerHTML = t.render();
   mountCharts(v);
   const intro = $('.reco.intro', v); if (intro) countUp($$('.reco-stats b', intro));
-  const holo = $('.reco canvas.holo', v); if (holo) { let f = {}; try { f = JSON.parse(holo.dataset.fills); } catch (e) { /* 既定 */ } Holo.mount(holo, f); } else Holo.stop();
   if (keep) window.scrollTo(0, y);
   const fab = $('#fab'); if (fab) fab.remove();
   const fabDef = UI.tab === 'lib' ? { a: 'exNew', l: '種目を追加' } : null;
@@ -3473,7 +3197,7 @@ function renderTrain() {
     const glowFills = {}; for (const k of Object.keys(rec.mm.fills)) glowFills[k] = rec.mm.fills[k].length > 7 ? '#ffb54799' : '#ffb547';
     for (const k of rec.mm.primary) glowFills[k] = '#ff7a3d';
     const first = !UI.scanned && DB.ui.onboarded; if (first) UI.scanned = true;
-    h += `<div class="card reco${first ? ' intro' : ''}"><i class="hud${first ? ' scan' : ''}" aria-hidden="true"></i><div class="reco-top"><div class="reco-body"><canvas class="holo" data-fills="${esc(JSON.stringify(glowFills))}" role="img" aria-label="鍛える筋肉（回転する人体モデル）"></canvas></div><div style="flex:1;min-width:0"><div class="reco-kicker"><i class="live" aria-hidden="true"></i>今日のおすすめ</div>
+    h += `<div class="card reco${first ? ' intro' : ''}"><i class="hud${first ? ' scan' : ''}" aria-hidden="true"></i><div class="reco-top"><div class="reco-body">${bodySvg(glowFills, { labels: false, glow: true })}</div><div style="flex:1;min-width:0"><div class="reco-kicker"><i class="live" aria-hidden="true"></i>今日のおすすめ</div>
       <div class="reco-name">${esc(rec.m.name)}</div><div class="reco-why">${reason}</div>
       ${rec.mm.primary.length ? `<div class="reco-tags">${rec.mm.primary.slice(0, 4).map((k) => `<span>${esc(MUSCLES[k].replace(/（.*?）/g, ''))}</span>`).join('')}</div>` : ''}</div></div>
       <div class="reco-stats"><div><b>${wk.sets}</b>今週のセット</div><div><b>${sk.cur}<small>週</small></b>連続</div><div><b>${sk.total}<small>回</small></b>これまで</div></div>
