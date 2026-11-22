@@ -1052,12 +1052,14 @@ html[data-theme="dark"] .pr-chip b{text-shadow:0 0 14px rgba(255,209,102,.35)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.21.5';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.22.1';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
-const GOOGLE_CLIENT_ID = '';
+const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 const DRIVE_FILE_NAME = 'liftcanvas_backup.json';
+// 保存先：各利用者のマイドライブ /Unique Tool/LiftCanvas/（同じ Google プロジェクトの他アプリと共通の親フォルダ）
+const DRIVE_FOLDERS = ['Unique Tool', 'LiftCanvas'];
 const CHART_JS_SOURCES = [
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js',
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js',
@@ -4099,14 +4101,14 @@ function renderSettings() {
 `;
     let dh = '';
   if (cid) {
-    dh += `<div class="sw-row" style="border:0"><div class="t"><b>トレーニング終了時に自動保存</b><span>終わるたびに自分のGoogleドライブへ自動でバックアップします</span></div><label class="switch"><input type="checkbox" data-ch="autoDrive" ${s.autoDrive ? 'checked' : ''}><span></span></label></div>
+    dh += `<div class="sw-row" style="border:0"><div class="t"><b>トレーニング終了時に自動保存</b><span>${s.lastDriveAt ? '終わるたびに自分のGoogleドライブへ自動でバックアップします' : '下のボタンで一度保存（Googleにログイン）すると、以降は自動になります'}</span></div><label class="switch"><input type="checkbox" data-ch="autoDrive" ${s.autoDrive ? 'checked' : ''}><span></span></label></div>
       <div class="stack"><button type="button" class="btn btn-primary btn-block" data-a="driveBackup">${ICON.upload}今すぐGoogleドライブに保存</button>
       <button type="button" class="btn btn-line btn-block" data-a="driveRestore">${ICON.download}Googleドライブから復元</button></div>
-      <p class="hint">初回だけGoogleのログイン画面が出ます。保存されるのはあなたのマイドライブの「${DRIVE_FILE_NAME}」で、他の人からは見えません。${s.lastDriveAt ? `<br>最終ドライブ保存：${fmtDateTime(s.lastDriveAt)}` : ''}</p>`;
+      <p class="hint">初回だけGoogleのログイン画面が出ます。保存先はあなたのマイドライブの「${DRIVE_FOLDERS.join(' / ')}」フォルダで、他の人（アプリの提供者を含む）からは見えません。${s.lastDriveAt ? `<br>最終ドライブ保存：${fmtDateTime(s.lastDriveAt)}` : ''}</p>`;
   } else {
     dh += `<p class="small muted" style="margin:0 2px 8px">Googleドライブへの自動保存は、<b>アプリの提供者がGoogleの登録を済ませると</b>使えるようになります。それまでは「ファイルで保存」をお使いください（共有メニューからGoogleドライブに保存することもできます）。</p>`;
   }
-  dh += `<details class="card flat cid" style="padding:0 14px;margin:8px 0 4px"><summary style="min-height:48px;display:flex;align-items:center;font-weight:750;font-size:14px;color:var(--text-2);cursor:pointer">提供者向け：GoogleクライアントIDの設定</summary>
+  if (!GOOGLE_CLIENT_ID || s.googleClientId) dh += `<details class="card flat cid" style="padding:0 14px;margin:8px 0 4px"><summary style="min-height:48px;display:flex;align-items:center;font-weight:750;font-size:14px;color:var(--text-2);cursor:pointer">提供者向け：GoogleクライアントIDの設定</summary>
       <label class="field"><span class="lbl">クライアントID（〜.apps.googleusercontent.com）</span><input class="input" id="clientId" value="${esc(s.googleClientId)}" placeholder="${GOOGLE_CLIENT_ID ? '（アプリに設定済み）' : 'xxxxxxxx.apps.googleusercontent.com'}" autocomplete="off" spellcheck="false" autocapitalize="off"></label>
       <div class="row" style="margin-bottom:10px"><button type="button" class="btn btn-sm btn-primary" data-a="cidSave">保存</button>${s.googleClientId ? '<button type="button" class="btn btn-sm" data-a="cidClear">削除</button>' : ''}</div>
       <ol class="small" style="padding-left:18px;line-height:1.75;margin:0 0 12px">
@@ -4260,16 +4262,33 @@ const Drive = {
     if (!res.ok) { let d = ''; try { const j = await res.json(); d = j.error && j.error.message ? j.error.message : ''; } catch (e) { /* noop */ } throw new Error(`Googleドライブでエラーが発生しました（${res.status}）${d ? '：' + d : ''}`); }
     return res;
   },
+  folderId: null,
+  async folder() {
+    if (this.folderId) return this.folderId;
+    let parent = 'root';
+    for (const name of DRIVE_FOLDERS) {
+      const q = encodeURIComponent(`mimeType='application/vnd.google-apps.folder' and name='${name.replace(/'/g, "\\'")}' and '${parent}' in parents and trashed=false`);
+      const j = await (await this.api(`https://www.googleapis.com/drive/v3/files?q=${q}&spaces=drive&pageSize=1&fields=files(id)`)).json();
+      if (j.files && j.files[0]) { parent = j.files[0].id; continue; }
+      const c = await (await this.api('https://www.googleapis.com/drive/v3/files?fields=id', { method: 'POST', headers: { 'Content-Type': 'application/json; charset=UTF-8' }, body: JSON.stringify({ name, mimeType: 'application/vnd.google-apps.folder', parents: [parent] }) })).json();
+      parent = c.id;
+    }
+    this.folderId = parent; return parent;
+  },
   async findFile() {
     const q = encodeURIComponent(`name='${DRIVE_FILE_NAME}' and trashed=false`);
     const res = await this.api(`https://www.googleapis.com/drive/v3/files?q=${q}&spaces=drive&orderBy=modifiedTime%20desc&pageSize=10&fields=files(id%2Cname%2CmodifiedTime%2Csize)`);
     const j = await res.json(); return (j.files && j.files[0]) || null;
   },
   async upload() {
+    try { return await this.upload1(); }
+    catch (e) { if (!this.folderId) throw e; this.folderId = null; return this.upload1(); }   // フォルダが消された等：作り直して再試行
+  },
+  async upload1() {
     const body = JSON.stringify(buildExport()); const f = await this.findFile();
     if (f) { await this.api(`https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(f.id)}?uploadType=media&fields=id%2CmodifiedTime`, { method: 'PATCH', headers: { 'Content-Type': 'application/json; charset=UTF-8' }, body }); return 'updated'; }
     const b = 'liftcanvas' + Date.now().toString(36);
-    const meta = { name: DRIVE_FILE_NAME, mimeType: 'application/json', description: 'LiftCanvas（トレーニング記録）のバックアップ' };
+    const meta = { name: DRIVE_FILE_NAME, mimeType: 'application/json', description: 'LiftCanvas（トレーニング記録）のバックアップ', parents: [await this.folder()] };
     await this.api('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id%2CmodifiedTime', { method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${b}` }, body: `--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${body}\r\n--${b}--` });
     return 'created';
   },
@@ -4295,7 +4314,7 @@ async function driveBackup() {
 }
 /* トレーニング終了時の自動保存（失敗しても記録は端末に残り、あとで再保存できる） */
 async function autoDriveBackup() {
-  if (!DB.settings.autoDrive || !Drive.clientId() || location.protocol === 'file:') return;
+  if (!DB.settings.autoDrive || !DB.settings.lastDriveAt || !Drive.clientId() || location.protocol === 'file:') return;
   if (!navigator.onLine) { DB.settings.drivePending = true; save(); return; }
   try { await Drive.upload(); markBackup('Googleドライブ（自動）'); toast('Googleドライブに自動保存しました', 'ok'); }
   catch (e) { console.warn(e); DB.settings.drivePending = true; save(); updateTabbar(); toast('ドライブへの自動保存ができませんでした。あとで「設定」から保存できます'); }
