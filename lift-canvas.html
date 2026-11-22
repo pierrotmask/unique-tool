@@ -1052,7 +1052,7 @@ html[data-theme="dark"] .pr-chip b{text-shadow:0 0 14px rgba(255,209,102,.35)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.22.2';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.22.3';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -1566,6 +1566,22 @@ function defaultData() {
   };
 }
 
+/* ===== サンプル記録の判定（バックアップ・復元・削除のすべてでこれだけを使う） =====
+   ・サンプルのトレーニングは id が 'demo_' で始まる。その中の記録は、あとから追加・編集したものも含めてサンプル扱い
+   ・サンプルの体重は updatedAt === 1（利用者が編集すると更新時刻が入り、本人の記録になる） */
+const isDemoSes = (x) => String((x && x.id) || '').startsWith('demo_');
+const isDemoRec = (r) => !!(r && (r.demo || String(r.sessionId || '').startsWith('demo_')));
+const isDemoBody = (b) => !!(b && (b.demo || b.updatedAt === 1));
+const hasDemo = () => DB.records.some(isDemoRec) || DB.sessions.some(isDemoSes) || DB.bodylog.some(isDemoBody);
+/* data からサンプルを取り除いた写し（書き出し・復元用） */
+function stripDemo(data) {
+  const d = { ...data };
+  d.records = (data.records || []).filter((r) => !isDemoRec(r));
+  d.sessions = (data.sessions || []).filter((x) => !isDemoSes(x));
+  d.bodylog = (data.bodylog || []).filter((b) => !isDemoBody(b));
+  d.active = data.active && String(data.active.id || '').startsWith('demo_') ? null : data.active;
+  return d;
+}
 function normalize(src) {
   const d = (src && typeof src === 'object') ? src : {};
   const base = defaultData();
@@ -1814,7 +1830,7 @@ function IDX() {
     const sid = r.sessionId || ('day_' + r.date);
     if (!ses.has(sid)) {
       const meta = metaMap.get(sid) || (DB.active && DB.active.id === sid ? DB.active : null);
-      ses.set(sid, { id: sid, date: r.date, name: meta && meta.name ? meta.name : 'トレーニング', menuId: meta ? meta.menuId : null, startedAt: meta ? meta.startedAt : 0, endedAt: meta ? meta.endedAt || 0 : 0, note: meta ? meta.note || '' : '', rating: meta ? meta.rating || 0 : 0, order: meta && meta.exerciseIds ? meta.exerciseIds : [], recs: [], live: !!(DB.active && DB.active.id === sid), demo: !!r.demo });
+      ses.set(sid, { id: sid, date: r.date, name: meta && meta.name ? meta.name : 'トレーニング', menuId: meta ? meta.menuId : null, startedAt: meta ? meta.startedAt : 0, endedAt: meta ? meta.endedAt || 0 : 0, note: meta ? meta.note || '' : '', rating: meta ? meta.rating || 0 : 0, order: meta && meta.exerciseIds ? meta.exerciseIds : [], recs: [], live: !!(DB.active && DB.active.id === sid), demo: isDemoRec(r) });
     }
     ses.get(sid).recs.push(r);
   }
@@ -3204,7 +3220,7 @@ function countUp(els) {
 }
 function topbar(title, right = '') { return `<header class="topbar"><h1>${title}</h1>${right}</header>`; }
 function backupStale() {
-  const has = DB.records.some((r) => !r.demo && r.sets.some((s) => s.done));
+  const has = DB.records.some((r) => !isDemoRec(r) && r.sets.some((s) => s.done));
   if (!has) return false;
   const last = DB.settings.lastBackupAt || 0;
   return DB.settings.changedAt > last && Date.now() - last > 7 * 864e5;
@@ -3559,7 +3575,7 @@ function renderReview() {
       <button type="button" class="btn btn-primary btn-block" data-a="tab" data-tab="train">トレーニングを始める</button><div style="height:10px"></div>
       <button type="button" class="btn btn-line btn-block" data-a="demoAdd">サンプル記録で試してみる</button><p class="hint">サンプルは設定からいつでも削除できます。</p></div>`;
   }
-  if (DB.records.some((r) => r.demo)) h += `<div class="banner"><div class="m"><b>サンプル記録を表示中</b></div><button type="button" class="btn btn-sm" data-a="demoRemove">サンプルを削除</button></div>`;
+  if (hasDemo()) h += `<div class="banner"><div class="m"><b>サンプル記録を表示中</b></div><button type="button" class="btn btn-sm" data-a="demoRemove">サンプルを削除</button></div>`;
   const wk = weeklyAgg(12); const tw = wk[wk.length - 1], lw = wk[wk.length - 2];
   h += `<section class="card wk-card"><div class="card-h"><h3>今週の状況</h3><span class="tiny faint">先週比</span></div><div class="stat4">
     <div><b>${tw.days.size}<small>日</small></b><span>日数</span>${deltaHtml(tw.days.size, lw.days.size, '日')}</div>
@@ -3971,7 +3987,7 @@ function exDetailHtml(exId, st) {
   h += noteHtml(exId);
   h += `<div class="sec-h"><h2>履歴</h2><span class="small faint">${recs.length}件</span></div>` + recs.slice(0, st.hist).map((r) => {
     const s2 = setsStats(work(r), ex);
-    return `<div class="card" style="padding:12px 14px"><div class="card-h" style="margin-bottom:4px"><h3>${fmtDate(r.date, true)}${r.demo ? '<span class="badge">サンプル</span>' : ''}</h3><button type="button" class="icon-btn" data-a="editSes" data-id="${esc(r.sessionId || 'day_' + r.date)}" aria-label="編集" style="width:40px;height:40px">${ICON.edit}</button></div>
+    return `<div class="card" style="padding:12px 14px"><div class="card-h" style="margin-bottom:4px"><h3>${fmtDate(r.date, true)}${isDemoRec(r) ? '<span class="badge">サンプル</span>' : ''}</h3><button type="button" class="icon-btn" data-a="editSes" data-id="${esc(r.sessionId || 'day_' + r.date)}" aria-label="編集" style="width:40px;height:40px">${ICON.edit}</button></div>
       <div style="font-weight:750;font-variant-numeric:tabular-nums">${esc(fmtSets(doneSets(r), ex))}</div>
       <div class="small muted">${timed ? `最長 ${s2.maxR}秒` : s2.vol ? `最大 ${fmtNum(s2.maxW)}kg ・ 推定1RM ${fmtNum(round1(s2.e1rm))}kg ・ 総負荷 ${fmtBig(s2.vol)}kg` : `最多 ${s2.maxR}回`}</div>${r.memo ? `<div class="small muted">📝 ${esc(r.memo)}</div>` : ''}</div>`;
   }).join('') + (recs.length > st.hist ? `<button type="button" class="btn btn-ghost btn-block" data-a="more">さらに表示（残り${recs.length - st.hist}件）</button>` : '');
@@ -4142,7 +4158,7 @@ function renderSettings() {
     <div class="field" style="margin-bottom:10px"><span class="lbl">性別（Sinclair計算に使用）</span><div class="seg"><button type="button" data-a="sex" data-v="m" aria-pressed="${s.sex === 'm'}">男性</button><button type="button" data-a="sex" data-v="f" aria-pressed="${s.sex === 'f'}">女性</button></div></div>
     <button type="button" class="btn btn-line btn-block" data-a="openBody">${ICON.weight}体重を記録・推移を見る${DB.bodylog.length ? `（最新 ${fmtNum(DB.bodylog[DB.bodylog.length - 1].kg)}kg）` : ''}</button></details>`;
   h += `${setSecHead('data', false, `${ICON.trash} データ`, `約${fmtNum(Math.round(JSON.stringify(DB).length / 1024))}KB`)}<div class="stack">
-    ${DB.records.some((r) => r.demo) ? '<button type="button" class="btn btn-block" data-a="demoRemove">サンプル記録を削除</button>' : '<button type="button" class="btn btn-block" data-a="demoAdd">サンプル記録を追加（グラフのお試し）</button>'}
+    ${hasDemo() ? '<button type="button" class="btn btn-block" data-a="demoRemove">サンプル記録を削除</button>' : '<button type="button" class="btn btn-block" data-a="demoAdd">サンプル記録を追加（グラフのお試し）</button>'}
     <button type="button" class="btn btn-danger-line btn-block" data-a="resetAll">${ICON.trash}すべてのデータを削除して初期化</button></div>
     <p class="hint">保存容量の目安：約${fmtNum(round1(JSON.stringify(DB).length / 1024))}KB（ブラウザ内の記憶領域）。ブラウザの「サイトデータ削除」を行うと記録も消えるのでご注意ください。</p></details>
     <p class="center tiny faint" style="margin:18px 0 8px">LiftCanvas v${APP_VERSION} ・ 種目 ${allEx().length} ・ 保存キー ${STORAGE_KEY}<br>データはこの端末の中だけに保存され、外部に送信されません（Googleドライブ保存を除く）。</p>`;
@@ -4151,9 +4167,7 @@ function renderSettings() {
 
 /* ---------- エクスポート／インポート ---------- */
 /* バックアップにはサンプル記録を含めない（復元で紛れ込まないように） */
-const isDemoSes = (x) => String(x.id || '').startsWith('demo_');
-const isDemoBody = (b) => b.demo || b.updatedAt === 1;
-function buildExport() { const data = clone(DB); data.timer = null; data.records = data.records.filter((r) => !r.demo); data.sessions = data.sessions.filter((x) => !isDemoSes(x)); data.bodylog = data.bodylog.filter((b) => !isDemoBody(b)); return { app: 'LiftCanvas', format: STORAGE_KEY, version: APP_VERSION, exportedAt: new Date().toISOString(), data }; }
+function buildExport() { const data = stripDemo(clone(DB)); data.timer = null; return { app: 'LiftCanvas', format: STORAGE_KEY, version: APP_VERSION, exportedAt: new Date().toISOString(), data }; }
 function exportName(ext = 'json') { const d = new Date(); return `liftcanvas_backup_${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}_${pad2(d.getHours())}${pad2(d.getMinutes())}.${ext}`; }
 function markBackup(via) { DB.settings.lastBackupAt = Date.now(); DB.settings.lastBackupVia = via; if (via.startsWith('Google')) { DB.settings.lastDriveAt = Date.now(); DB.settings.drivePending = false; } save(); updateTabbar(); if (UI.tab === 'settings' || UI.tab === 'train') renderTab(); }
 function downloadBlob(blob, name) { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000); }
@@ -4168,8 +4182,8 @@ async function exportShare() {
 }
 function exportCsv() {
   const rows = [['日付', 'トレーニング', '種目', 'カテゴリ', 'セット', '種類', '重量kg', '回数/秒', 'RPE', '推定1RM', 'メモ']];
-  const ses = IDX().sessions.slice().reverse();
-  for (const s of ses) for (const r of s.recs) { const ex = getEx(r.exerciseId); doneSets(r).forEach((x, k) => rows.push([r.date, s.name, ex.name, ex.part, k + 1, SET_TYPES[x.t].label, x.w, x.r, x.rpe || '', isTimed(ex) ? '' : round1(e1rm(x.w, x.r)), k === 0 ? r.memo : ''])); }
+  const ses = IDX().sessions.filter((s) => !isDemoSes(s)).slice().reverse();
+  for (const s of ses) for (const r of s.recs.filter((x) => !isDemoRec(x))) { const ex = getEx(r.exerciseId); doneSets(r).forEach((x, k) => rows.push([r.date, s.name, ex.name, ex.part, k + 1, SET_TYPES[x.t].label, x.w, x.r, x.rpe || '', isTimed(ex) ? '' : round1(e1rm(x.w, x.r)), k === 0 ? r.memo : ''])); }
   const csv = '﻿' + rows.map((r) => r.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
   downloadBlob(new Blob([csv], { type: 'text/csv' }), exportName('csv')); toast('CSVを書き出しました（Excel・スプレッドシートで開けます）', 'ok');
 }
@@ -4178,7 +4192,7 @@ function parseImport(input) {
   if (!j || typeof j !== 'object') throw new Error('ファイルの形式が正しくありません');
   const d = (j.data && typeof j.data === 'object' && (j.app === 'LiftCanvas' || j.format)) ? j.data : j;
   if (!Array.isArray(d.records) && !Array.isArray(d.menus)) throw new Error('LiftCanvasのバックアップファイルではないようです');
-  return { data: normalize(d), exportedAt: j.exportedAt || null };
+  return { data: stripDemo(normalize(d)), exportedAt: j.exportedAt || null };
 }
 async function askImportMode(parsed, label) {
   const inc = parsed.data; const recs = inc.records.filter((r) => r.sets.some((s) => s.done));
@@ -4192,7 +4206,7 @@ async function askImportMode(parsed, label) {
     ]
   });
   if (!mode) return;
-  if (mode === 'overwrite' && DB.records.some((r) => r.sets.some((s) => s.done) && !r.demo)) {
+  if (mode === 'overwrite' && DB.records.some((r) => r.sets.some((s) => s.done) && !isDemoRec(r))) {
     const ok = await confirmSheet({ title: '上書き復元しますか？', message: '<p>この端末の現在の記録は、すべてバックアップの内容に置き換わります。この操作は取り消せません。</p>', ok: '上書き復元する', danger: true });
     if (!ok) return;
   }
@@ -4314,7 +4328,7 @@ async function driveBackup() {
   // 新しい端末・データが空の端末から、ドライブにある本物のバックアップを上書きしてしまう事故を防ぐ
   let f = null;
   try { f = await Drive.findFile(); } catch (e) { setBusy(false); console.error(e); toast(e.message || 'Googleドライブに接続できませんでした', 'error'); return; }
-  const real = DB.records.filter((r) => !r.demo && r.sets.some((x) => x.done)).length;
+  const real = DB.records.filter((r) => !isDemoRec(r) && r.sets.some((x) => x.done)).length;
   if (f && (!DB.settings.lastDriveAt || !real)) {
     setBusy(false);
     const ok = await confirmSheet({ title: 'ドライブのバックアップを上書きしますか？', message: `<p>Googleドライブには、すでにバックアップがあります（${esc(fmtDateTime(Date.parse(f.modifiedTime)))} 更新）。</p><p>${real ? `この端末の記録（${real}件）で` : '<b>この端末には記録がないため、保存すると空のデータで</b>'}置き換わります。<b>機種変更の直後なら、先に「Googleドライブから復元」</b>を行ってください。</p>`, ok: '上書きして保存', danger: true });
@@ -4344,6 +4358,7 @@ async function driveRestore() {
 
 /* ---------- サンプル記録・初期化 ---------- */
 function addDemoData() {
+  if (hasDemo()) { toast('サンプル記録はすでに追加されています'); return; }
   let seed = 20261119;
   const rnd = () => { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; };
   const plans = [
@@ -4381,9 +4396,11 @@ function addDemoData() {
 async function removeDemoData() {
   const ok = await confirmSheet({ title: 'サンプル記録を削除しますか？', message: '<p>サンプルの記録だけを削除します。あなたが入力した記録は残ります。</p>', ok: '削除する', danger: true });
   if (!ok) return;
-  DB.records = DB.records.filter((r) => !r.demo);
-  DB.sessions = DB.sessions.filter((s) => !s.id.startsWith('demo_'));
-  DB.bodylog = DB.bodylog.filter((b) => b.updatedAt !== 1);
+  if (UI.wo && String(UI.wo.id || '').startsWith('demo_')) { UI.wo = null; closeWorkoutView(); }
+  if (DB.active && String(DB.active.id || '').startsWith('demo_')) DB.active = null;
+  DB.records = DB.records.filter((r) => !isDemoRec(r));
+  DB.sessions = DB.sessions.filter((s) => !isDemoSes(s));
+  DB.bodylog = DB.bodylog.filter((b) => !isDemoBody(b));
   touch(); refreshAll(); toast('サンプル記録を削除しました');
 }
 async function resetAll() {
@@ -4444,7 +4461,7 @@ function externalOpenHtml() {
     : and ? `<a class="btn btn-primary btn-block" href="${esc(chromeIntentUrl())}">Chromeで開く</a>` : '';
   return `${btn}<p class="hint">${isIOS() ? '右下（または右上）のメニューから「Safariで開く」を選んでください。' : 'うまく開かない場合は、メニューの「ブラウザで開く」「Chromeで開く」を選んでください。'}</p>`;
 }
-const hasRealData = () => DB.records.some((r) => !r.demo && r.sets.some((s) => s.done)) || DB.customExercises.length > 0;
+const hasRealData = () => DB.records.some((r) => !isDemoRec(r) && r.sets.some((s) => s.done)) || DB.customExercises.length > 0;
 
 /* ---------- 案内カード（トレーニングタブの最上部） ---------- */
 function pwaCard() {
