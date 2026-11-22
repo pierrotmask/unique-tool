@@ -1028,6 +1028,63 @@ html[data-theme="dark"] .pr-chip b{text-shadow:0 0 14px rgba(255,209,102,.35)}
 .sub-acc>summary svg{width:18px;height:18px}
 .sub-acc[open]{padding-bottom:10px}
 @media (max-width:360px){.pwa-card.slim .pwa-top b{font-size:14px;white-space:nowrap}}
+/* ===== 記録の取り込み ===== */
+.imp-fmts{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 2px}
+.imp-fmts span{font-size:12px;font-weight:700;color:var(--text-2);background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.imp-ta{min-height:150px;font-size:15px;line-height:1.55;resize:vertical}
+.imp-ex{white-space:pre-wrap;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:8px 10px;margin:0;font-size:13px;line-height:1.6}
+.imp code{font-size:12.5px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:0 5px;white-space:nowrap}
+.imp-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:2px 0 4px}
+.imp-sum>div{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:10px 6px;text-align:center}
+.imp-sum b{display:block;font-size:24px;line-height:1.1;color:var(--head)}
+.imp-sum span{font-size:12px;color:var(--text-2);font-weight:700}
+.imp-names{display:flex;flex-direction:column;gap:6px}
+.imp-n{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1.15fr);align-items:center;gap:8px;width:100%;text-align:left;min-height:52px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--text);font:inherit;cursor:pointer}
+.imp-n .src{display:flex;flex-direction:column;min-width:0}
+.imp-n .src b{font-size:14px;overflow-wrap:anywhere}
+.imp-n .src small{font-size:11.5px;color:var(--text-3)}
+.imp-n .arr{color:var(--text-3)}
+.imp-n .dst{display:flex;flex-direction:column;align-items:flex-start;gap:3px;font-size:14px;font-weight:700;min-width:0;overflow-wrap:anywhere}
+.imp-tag{font-size:11px;font-weight:800;border-radius:999px;padding:1px 8px;white-space:nowrap}
+.imp-tag.ok{background:var(--ok-soft);color:var(--ok)}
+.imp-tag.warn{background:var(--warn-soft);color:var(--warn)}
+.imp-tag.new{background:var(--accent-soft);color:var(--accent)}
+.imp-tag.skip{background:var(--surface-3);color:var(--text-3)}
+.imp-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;padding:2px 0 4px}
+.imp-cols label{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:700;color:var(--text-2);min-width:0}
+.imp-cols select{min-height:42px;padding:0 8px;font-size:14px}
+.imp-skip>div,.imp-prev>div{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.imp-skip span,.imp-prev .d{color:var(--text-3);white-space:nowrap}
+.imp-skip code{white-space:normal;overflow-wrap:anywhere}
+.imp-skip em{grid-column:2;font-style:normal;color:var(--warn);font-weight:700}
+.imp-prev b{font-size:13px}
+.imp-prev .v{grid-column:2;color:var(--text-2);overflow-wrap:anywhere}
+.imp-done{width:56px;height:56px;margin:8px auto 0;border-radius:50%;display:grid;place-items:center;background:var(--ok-soft);color:var(--ok)}
+.imp-done svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:2.4}
+.imp-list{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.imp-li{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface-2)}
+.imp-li .m{flex:1;min-width:0;display:flex;flex-direction:column;font-size:12.5px;color:var(--text-2)}
+.imp-li .m b{font-size:14px;color:var(--text);overflow-wrap:anywhere}
+.imp-cta{margin-top:8px;color:var(--accent)}
+/* ===== 経験レベル ===== */
+.card.beg>summary{list-style:none;cursor:pointer}
+.card.beg>summary::-webkit-details-marker{display:none}
+.card.beg>summary>svg{margin-left:auto;width:20px;height:20px;transition:transform .2s}
+.card.beg[open]>summary>svg{transform:rotate(180deg)}
+.beg-list{margin:4px 0 10px;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:13.5px;line-height:1.55}
+.beg-list b{display:block;color:var(--head)}
+.beg-list span{color:var(--text-2)}
+.beg-act{margin-top:8px}.beg-act .btn{flex:1;white-space:nowrap}
+.card.beg .btn-block{flex-wrap:wrap;row-gap:0}
+.beg-hint{line-height:1.6}
+.gloss{margin:0}
+.gloss dt{font-weight:800;color:var(--head);margin-top:12px}
+.gloss dt:first-child{margin-top:0}
+.gloss dd{margin:3px 0 0;font-size:14px;line-height:1.65;color:var(--text-2)}
+.rpe-q{display:flex;align-items:center;gap:4px;padding:2px 10px 8px;overflow-x:auto;scrollbar-width:none}
+.rpe-q span{font-size:11.5px;font-weight:800;color:var(--text-3);margin-right:2px}
+.rpe-q button{flex:1 1 0;min-width:0;min-height:34px;padding:0 6px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface);color:var(--text-2);font:inherit;font-size:13px;font-weight:750;cursor:pointer}
+@media (max-width:360px){.imp-n{grid-template-columns:1fr;gap:4px}.imp-n .arr{display:none}.imp-cols{grid-template-columns:1fr}}
 
 </style>
 </head>
@@ -1052,7 +1109,7 @@ html[data-theme="dark"] .pr-chip b{text-shadow:0 0 14px rgba(255,209,102,.35)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.22.3';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.22.4';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -1066,6 +1123,25 @@ const CHART_JS_SOURCES = [
   'https://unpkg.com/chart.js@4.4.1/dist/chart.umd.js'
 ];
 
+/* 経験レベル：表示の詳しさだけが変わる（記録・集計の仕組みは共通。いつでも変更可） */
+const LEVELS = {
+  beginner: { label: 'はじめて・初心者', short: '初心者', desc: '重さの選び方・フォームのヒント、用語の説明、はじめ向けの全身メニューを表示します' },
+  standard: { label: '経験あり', short: '経験者', desc: '前回の記録・成長の目安・グラフなど、記録に必要な機能を表示します' },
+  advanced: { label: '上級・競技', short: '上級', desc: 'セット完了後すぐにRPEを入力でき、推定1RMと%計算を種目ごとに表示します' }
+};
+const BEGINNER_MENU = ['leg_02', 'chest_06', 'back_03', 'shoulder_08', 'abs_09'];
+const GLOSSARY = [
+  ['推定1RM', '重量と回数から計算した「1回だけ挙げられる最大重量」の目安です。60kgを10回できれば約80kg。実際に限界まで挙げなくても成長がわかります。'],
+  ['総負荷量（ボリューム）', '重量×回数を全セット合計した値。練習量の目安で、筋肉を大きくしたいときは少しずつ増やしていくのが基本です。'],
+  ['RPE（きつさ）', 'セットのきつさを10段階で表します。10＝もう1回もできない、8＝あと2回できた、7＝あと3回できた。初心者は記録しなくてもかまいません。'],
+  ['ウォームアップセット', '本番の前に軽い重さで行うセット（W）。集計や自己ベストには含めません。'],
+  ['ドロップセット・失敗', 'ドロップセット（D）は重さを下げてすぐ続けるセット、失敗（F）は限界まで行ったセットです。'],
+  ['スーパーセット', '2つの種目を休憩なしで交互に行う方法。時間の短縮になります。'],
+  ['自己ベスト', 'その種目でこれまでで最も重い重量（自重種目は最多回数）を更新したときに表示します。'],
+  ['回復の目安（人体図）', '最近鍛えた部位ほど色が濃くなります。同じ部位は2〜3日空けるのが一般的です。'],
+  ['1RMの%', '推定1RM（WL種目は最高重量）に対する割合で重量を決める方法。例：5回×3セットなら80〜85%前後。'],
+  ['Sinclair（WL）', '体重の違いを補正したウェイトリフティングのトータル。体重が違う人同士でも比べられます。']
+];
 const CATEGORIES = ['全身・WL', '胸', '背中', '肩', '脚', '腕', '腹筋'];
 const PART_HEX = { '全身・WL': '#0d9488', '胸': '#e11d48', '背中': '#2563eb', '肩': '#d97706', '脚': '#16a34a', '腕': '#db2777', '腹筋': '#7c3aed' };
 const PART_SHORT = { '全身・WL': 'WL', '胸': '胸', '背中': '背中', '肩': '肩', '脚': '脚', '腕': '腕', '腹筋': '腹筋' };
@@ -1555,14 +1631,14 @@ function defaultData() {
     schema: SCHEMA, createdAt: now, updatedAt: now,
     customExercises: [], overrides: {}, favorites: [], exNotes: {},
     menus: DEFAULT_MENUS.map((m) => ({ id: m.id, name: m.name, exerciseIds: [...m.exerciseIds], sets: { ...m.sets }, updatedAt: 0 })),
-    records: [], sessions: [], bodylog: [],
+    records: [], sessions: [], bodylog: [], imports: [],
     active: null, timer: null,
     settings: {
       restSec: 90, autoRest: true, sound: true, vib: true, theme: 'auto', weekGoal: 3,
       barKg: 20, collar: false, plates: [25, 20, 15, 10, 5, 2.5, 2, 1.5, 1, 0.5], sex: 'm',
-      wl: false, googleClientId: '', autoDrive: true, lastBackupAt: null, lastBackupVia: '', lastDriveAt: null, drivePending: false, changedAt: 0
+      wl: false, level: 'standard', googleClientId: '', autoDrive: true, lastBackupAt: null, lastBackupVia: '', lastDriveAt: null, drivePending: false, changedAt: 0
     },
-    ui: { metric: 'e1rm', period: '3m', mapMode: 'sets', welcomeDone: false, wkChart: 'sets', pwaHide: false, pwaMoved: false, transferAsked: false, themeV2: true, onboarded: false, menuTipDone: false }
+    ui: { metric: 'e1rm', period: '3m', mapMode: 'sets', welcomeDone: false, wkChart: 'sets', pwaHide: false, pwaMoved: false, transferAsked: false, themeV2: true, onboarded: false, menuTipDone: false, wlDef2: true }
   };
 }
 
@@ -1649,6 +1725,7 @@ function normalize(src) {
     exerciseIds: arr(s.exerciseIds).map(String),
     updatedAt: num(s.updatedAt) || num(s.endedAt) || 0
   }));
+  out.imports = arr(d.imports).filter((x) => x && x.id).map((x) => ({ id: String(x.id).slice(0, 20), label: String(x.label || '').slice(0, 60), at: num(x.at) || 0, days: num(x.days) || 0, sets: num(x.sets) || 0, from: isYmd(x.from) ? x.from : '', to: isYmd(x.to) ? x.to : '', updatedAt: num(x.updatedAt) || 0 }));
   out.bodylog = arr(d.bodylog).filter((b) => b && isYmd(b.date) && num(b.kg) > 0).map((b) => ({
     date: b.date, kg: num(b.kg), fat: num(b.fat) > 0 ? num(b.fat) : null, updatedAt: num(b.updatedAt) || 0
   })).sort((a, b) => (a.date < b.date ? -1 : 1));
@@ -1663,8 +1740,9 @@ function normalize(src) {
     collar: bool(st.collar, false),
     plates: plates.length ? plates.sort((a, b) => b - a) : base.settings.plates,
     sex: st.sex === 'f' ? 'f' : 'm',
-    // WL機能：未設定（旧データ）なら、WL種目の記録がある人だけON（突然消えないように）
-    wl: st.wl === undefined ? arr(d.records).some((r) => r && typeof r.exerciseId === 'string' && r.exerciseId.startsWith('wl_') && arr(r.sets).some((x) => x && x.done)) : !!st.wl,
+    // WL機能：初期値はOFF。旧データ（未設定、または以前の自動判定でONになった人）は、本人のWL記録がある場合だけONのまま
+    wl: (st.wl === undefined || (st.wl && !obj(d.ui).wlDef2)) ? arr(d.records).some((r) => r && !isDemoRec(r) && typeof r.exerciseId === 'string' && r.exerciseId.startsWith('wl_') && arr(r.sets).some((x) => x && x.done)) : !!st.wl,
+    level: ['beginner', 'standard', 'advanced'].includes(st.level) ? st.level : 'standard',
     googleClientId: typeof st.googleClientId === 'string' ? st.googleClientId.trim() : '',
     autoDrive: bool(st.autoDrive, true),
     lastBackupAt: num(st.lastBackupAt), lastBackupVia: typeof st.lastBackupVia === 'string' ? st.lastBackupVia : '',
@@ -1677,9 +1755,9 @@ function normalize(src) {
     mapMode: ['sets', 'last', 'rec'].includes(ui.mapMode) ? ui.mapMode : 'sets',
     welcomeDone: !!ui.welcomeDone,
     onboarded: ui.onboarded === undefined ? (arr(d.records).length > 0 || !!ui.welcomeDone || !!st.lastBackupAt) : !!ui.onboarded,
-    menuTipDone: !!ui.menuTipDone,
+    menuTipDone: !!ui.menuTipDone, begHide: !!ui.begHide,
     wkChart: ['sets', 'vol'].includes(ui.wkChart) ? ui.wkChart : 'sets',
-    pwaHide: !!ui.pwaHide, pwaMoved: !!ui.pwaMoved, transferAsked: !!ui.transferAsked, themeV2: true
+    pwaHide: !!ui.pwaHide, pwaMoved: !!ui.pwaMoved, transferAsked: !!ui.transferAsked, themeV2: true, wlDef2: true
   };
   const a = obj(d.active);
   if (a.id && Array.isArray(a.exerciseIds)) {
@@ -1918,6 +1996,7 @@ function muscleAgg(days) {
 function recoveryLevel(f) { return f >= 6 ? 2 : f >= 2.5 ? 1 : 0; }  // 0:回復済み 1:回復中 2:休養推奨
 
 /* ---------- ウェイトリフティング機能のON/OFF ---------- */
+function lv() { return (DB && DB.settings.level) || 'standard'; }
 function wlOn() { return !!(DB && DB.settings.wl); }
 function visibleCats() { return wlOn() ? CATEGORIES : CATEGORIES.filter((c) => c !== '全身・WL'); }
 function wlShare(m) { const ids = m.exerciseIds.filter((id) => exMap().has(id)); return ids.length ? ids.filter((id) => getEx(id).part === '全身・WL').length / ids.length : 0; }
@@ -2453,7 +2532,7 @@ function exCard(ses, i, rec, groups) {
   let h = `<section class="exc ${g ? 'ss' : ''}" id="exc-${i}" aria-label="${esc(ex.name)}">`;
   if (g) h += `<div class="ss-tag" style="padding-top:10px">${ICON.link} スーパーセット ${groups[g]}</div>`;
   h += `<div class="exc-h">${exIcon(ex)}<div class="nm"><button type="button" data-a="exDetail" data-id="${esc(exId)}">${esc(ex.name)}${ICON.chevR}</button>
-    <div class="exc-tags"><button type="button" data-a="exTarget" data-i="${i}">目標 ${target}${unit}</button><button type="button" data-a="exRest" data-i="${i}">休憩 ${fmtSec(restOf(ex))}</button>${ex.equipment === 'バーベル' ? `<button type="button" data-a="exPlate" data-i="${i}">${ICON.plate}プレート</button>` : ''}</div></div>
+    <div class="exc-tags"><button type="button" data-a="exTarget" data-i="${i}">目標 ${target}${unit}</button><button type="button" data-a="exRest" data-i="${i}">休憩 ${fmtSec(restOf(ex))}</button>${lv() === 'advanced' && !bw && exSummary(exId) && exSummary(exId).bestE1 ? `<button type="button" data-a="exPct" data-i="${i}">${ICON.percent}${ex.part === '全身・WL' ? `最高 ${fmtNum(exSummary(exId).maxW)}` : `1RM ${fmtNum(round1(exSummary(exId).bestE1))}`}kg</button>` : ''}${ex.equipment === 'バーベル' ? `<button type="button" data-a="exPlate" data-i="${i}">${ICON.plate}プレート</button>` : ''}</div></div>
     <button type="button" class="icon-btn" data-a="exMore" data-i="${i}" aria-label="${esc(ex.name)}の操作">${ICON.more}</button></div>`;
   // 参考目安（前回の通常セットが全て目標回数に到達した時のみ）
   if (prevWork.length && prevWork.every((s) => s.r >= target)) {
@@ -2465,11 +2544,13 @@ function exCard(ses, i, rec, groups) {
     h += `<div class="recent" aria-label="直近3回の実績">${prevs.slice(0, 3).map((r, k) => `<div class="recent-row"><span class="d">${k === 0 ? '前回 ' : ''}${fmtDate(r.date)}</span><span class="v">${esc(fmtSets(doneSets(r), ex))}</span>${r.memo ? `<span class="memo">📝 ${esc(r.memo)}</span>` : ''}</div>`).join('')}</div>
       <div class="recent-act"><button type="button" class="btn btn-soft" data-a="copyPrev" data-i="${i}">${ICON.copy}前回をコピー</button><button type="button" class="btn" data-a="exHistory" data-id="${esc(exId)}">${ICON.chart}推移</button></div>`;
   } else {
-    h += `<p class="empty-mini" style="margin:4px 12px 10px">この種目は初めての記録です。がんばりましょう！</p>`;
+    h += lv() === 'beginner' ? `<p class="empty-mini beg-hint" style="margin:4px 12px 10px">🔰 初めての種目です。まずは<b>軽めの重さ</b>で、正しいフォームで余裕をもって${bw ? 'できる回数' : '10〜12回できる重さ'}を探しましょう。きつさは「あと2〜3回できる」くらいが目安です。</p>`
+      : `<p class="empty-mini" style="margin:4px 12px 10px">この種目は初めての記録です。がんばりましょう！</p>`;
   }
   // セット表
   h += `<div class="sets"><div class="set-h"><span>セット</span><span>前回</span><span>${bw ? '+kg' : 'kg'}</span><span>${unit}</span><span>完了</span></div>`;
   let wi = 0, pwi = 0;
+  const rpeAt = lv() === 'advanced' && !timed ? (() => { let k = -1; rec.sets.forEach((s, j) => { if (s.done && s.t !== 'w') k = j; }); return k >= 0 && !rec.sets[k].rpe && !rec.sets.slice(k + 1).some((s) => s.done) ? k : -1; })() : -1;
   rec.sets.forEach((s, j) => {
     if (s.t !== 'w') wi++;
     let earlier = null;
@@ -2495,7 +2576,7 @@ function exCard(ses, i, rec, groups) {
       <button type="button" class="cell${on('r')}" data-a="kp" data-i="${i}" data-s="${j}" data-f="r" aria-label="セット${j + 1}の${timed ? '秒数' : '回数'}">${s.r != null ? s.r : `<span class="ph">${phR}</span>`}</button>
       <button type="button" class="done-btn" data-a="setDone" data-i="${i}" data-s="${j}" aria-pressed="${s.done}" aria-label="セット${j + 1}を完了">${ICON.check}</button>
       <input type="hidden" data-ph="${i}-${j}" data-w="${phW}" data-r="${phR}">
-    </div>${badges ? `<div class="set-b">${badges}</div>` : ''}`;
+    </div>${badges ? `<div class="set-b">${badges}</div>` : ''}${j === rpeAt ? `<div class="rpe-q" role="group" aria-label="セット${j + 1}のRPE"><span>RPE</span>${[6, 7, 7.5, 8, 8.5, 9, 9.5, 10].map((v) => `<button type="button" data-a="rpeQ" data-i="${i}" data-s="${j}" data-v="${v}">${v}</button>`).join('')}</div>` : ''}`;
   });
   h += `</div><div class="add-set"><button type="button" class="btn btn-soft" data-a="addSet" data-i="${i}">${ICON.plus}セットを追加</button><button type="button" class="btn" data-a="warmup" data-i="${i}">W ウォームアップ</button></div>`;
   h += `<div class="exc-memo"><textarea class="input" data-in="recMemo" data-i="${i}" rows="1" maxlength="500" placeholder="メモ（フォーム・体調など）">${esc(rec.memo)}</textarea></div>`;
@@ -3043,6 +3124,8 @@ Object.assign(ACT, {
   } }),
   kp: (el) => openKeypad(Number(el.dataset.i), Number(el.dataset.s), el.dataset.f),
   setDone: (el) => toggleDone(Number(el.dataset.i), Number(el.dataset.s)),
+  rpeQ: (el) => { const rec = recAt(Number(el.dataset.i)); const s = rec && rec.sets[Number(el.dataset.s)]; if (!s) return; s.rpe = Number(el.dataset.v); rec.updatedAt = Date.now(); touch(); renderWorkout(); },
+  exPct: (el) => openPercent(Number(el.dataset.i)),
   usePrev: (el) => {
     const i = Number(el.dataset.i), j = Number(el.dataset.s); const ses = woSes(); const rec = recAt(i);
     const prev = prevRecords(rec.exerciseId, ses.id, ses.date)[0]; const p = prev && doneSets(prev)[j]; if (!p) return;
@@ -3270,26 +3353,46 @@ function prStrip() {
   return `<section class="sec"><div class="sec-h"><h2>${ICON.trophy || ICON.bolt} 最近の自己ベスト</h2><button type="button" class="link" data-a="tab" data-tab="review">すべて見る</button></div>
     <div class="pr-strip">${top.map((x) => `<button type="button" class="pr-chip" data-a="exDetail" data-id="${esc(x.ex.id)}"><span class="pr-n">${esc(x.ex.name)}</span><b class="num">${fmtNum(x.v)}<small>${x.key === 'e1rm' ? 'kg' : unitOf(x.ex)}</small></b><span class="pr-d">+${fmtNum(round1(x.v - x.prev))} ・ ${fmtRelDay(x.date)}</span></button>`).join('')}</div></section>`;
 }
+/* 初心者向けの案内（設定で「はじめて・初心者」のときだけ） */
+function beginnerCard() {
+  if (lv() !== 'beginner' || DB.ui.begHide) return '';
+  const n = DB.sessions.filter((s) => !isDemoSes(s)).length;
+  return `<details class="card beg" ${n < 3 ? 'open' : ''}><summary class="card-h"><h3>🔰 初心者のポイント</h3>${ICON.chevD}</summary>
+    <ol class="beg-list">
+      <li><b>軽めの重さから</b><span>正しいフォームで、余裕をもって10〜12回できる重さで始めます。</span></li>
+      <li><b>きつさは「あと2〜3回できる」</b><span>毎セット限界までやらなくて大丈夫です。</span></li>
+      <li><b>少しずつ増やす</b><span>全セットで目標回数ができたら、次回は重さを1段階上げます（アプリが目安を表示します）。</span></li>
+      <li><b>休養も練習のうち</b><span>同じ部位は2〜3日空けましょう。人体図の色で回復の目安がわかります。</span></li></ol>
+    ${DB.active ? '' : `<button type="button" class="btn btn-primary btn-block" data-a="begStart">${ICON.play}はじめての全身メニューで始める<span class="small" style="opacity:.85;font-weight:600">（マシン中心・5種目）</span></button>`}
+    <div class="row beg-act"><button type="button" class="btn btn-sm" data-a="glossary">用語の説明</button><button type="button" class="btn btn-ghost btn-sm" data-a="begHide">このカードを隠す</button></div></details>`;
+}
+function openGlossary() {
+  openSheet({ title: '用語の説明', render: () => `<dl class="gloss">${GLOSSARY.filter(([k]) => wlOn() || !k.includes('WL')).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>` });
+}
 /* 初回の案内（WLの有無・メニューは編集できること） */
 function openOnboarding() {
-  const st = { wl: false };
+  const st = { wl: false, level: 'standard' };
   openSheet({
     title: 'LiftCanvasへようこそ', state: st, dismissible: false,
     render: () => `<div class="onb">
-      <p class="onb-lead">はじめに1つだけ教えてください。あとから<b>設定</b>でいつでも変更できます。</p>
+      <p class="onb-lead">はじめに2つだけ教えてください。あとから<b>設定</b>でいつでも変更できます。</p>
+      <div class="field"><span class="lbl">筋トレの経験は？</span><div class="choices">${Object.entries(LEVELS).map(([k, v]) => `<button type="button" class="btn btn-block choice ${st.level === k ? 'btn-soft' : ''}" data-a="lv" data-v="${k}" aria-pressed="${st.level === k}"><span>${v.label}${st.level === k ? ' ✓' : ''}</span><span class="d">${v.desc}</span></button>`).join('')}</div></div>
       <div class="field"><span class="lbl">ウェイトリフティング（スナッチ・クリーン＆ジャーク）もしますか？</span>
       <div class="choices">
-        <button type="button" class="btn btn-block choice ${!st.wl ? 'btn-soft' : ''}" data-a="wl" data-v="0" aria-pressed="${!st.wl}"><span>筋トレだけ${!st.wl ? ' ✓' : ''}</span><span class="d">一般的な筋トレの種目・メニューだけを表示します（おすすめ）</span></button>
+        <button type="button" class="btn btn-block choice ${!st.wl ? 'btn-soft' : ''}" data-a="wl" data-v="0" aria-pressed="${!st.wl}"><span>筋トレだけ${!st.wl ? ' ✓' : ''}</span><span class="d">一般的な筋トレの種目・メニューだけを表示します</span></button>
         <button type="button" class="btn btn-block choice ${st.wl ? 'btn-soft' : ''}" data-a="wl" data-v="1" aria-pressed="${st.wl}"><span>ウェイトリフティングもする${st.wl ? ' ✓' : ''}</span><span class="d">WL種目48種、WLメニュー、リフト比率・Sinclair分析も表示します</span></button>
       </div></div>
       <ul class="onb-list">
         <li>${ICON.edit || ICON.more}<span>用意したメニューは<b>例</b>です。種目・セット数・名前は自由に編集でき、削除や新規作成もできます</span></li>
         <li>${ICON.check}<span>記録は入力した瞬間にこの端末へ自動保存されます</span></li>
-      </ul></div>`,
+      </ul>
+      <button type="button" class="btn btn-line btn-block" data-a="imp">${ICON.upload}これまでの記録を取り込む<span class="small muted" style="font-weight:600">（他のアプリ・Excel・メモ）</span></button></div>`,
     foot: () => `<button type="button" class="btn btn-primary btn-lg" data-a="ok">はじめる</button>`,
     actions: {
       wl: (el, e, s) => { st.wl = el.dataset.v === '1'; s.render(); },
-      ok: (el, e, s) => { DB.settings.wl = st.wl; DB.ui.onboarded = true; touch(); s.close(); renderTab(); },
+      lv: (el, e, s) => { st.level = el.dataset.v; s.render(); },
+      ok: (el, e, s) => { DB.settings.wl = st.wl; DB.settings.level = st.level; DB.ui.onboarded = true; touch(); s.close(); renderTab(); },
+      imp: (el, e, s) => { DB.settings.wl = st.wl; DB.settings.level = st.level; DB.ui.onboarded = true; touch(); s.close(); renderTab(); openImportWizard(); },
       __close: (el, e, s) => { DB.ui.onboarded = true; save(); s.close(); renderTab(); }
     }
   });
@@ -3299,6 +3402,7 @@ function renderTrain() {
   h += pwaCard();
   if (DB.settings.drivePending) h += `<div class="banner">${ICON.cloud}<div class="m"><b>Googleドライブへの自動保存が未完了です</b><br>電波の良い場所でもう一度保存してください。</div><button type="button" class="btn btn-sm" data-a="driveBackup">保存</button></div>`;
   else if (backupStale()) h += `<div class="banner">${ICON.cloud}<div class="m"><b>しばらくバックアップしていません</b><br>機種変更や故障に備えて保存しましょう。</div><button type="button" class="btn btn-sm" data-a="tab" data-tab="settings">保存へ</button></div>`;
+  h += beginnerCard();
   if (DB.active) {
     h += `<div class="card resume tap" data-a="openWo"><div class="m"><b>${ICON.play} 進行中：${esc(DB.active.name)}</b><span class="small muted">${fmtClock(DB.active.startedAt)}開始 ・ タップで再開</span></div>${ICON.chevR}</div>`;
   }
@@ -3344,7 +3448,8 @@ function renderTrain() {
   h += `</section><section class="sec other-start">
     ${lastSes && !DB.active ? `<button type="button" class="card repeat tap" data-a="repeatLast"><span class="rp-i">${ICON.copy}</span><span class="m"><b>前回と同じ内容でもう一度</b><span class="small muted">${esc(lastSes.name)}（${fmtRelDay(lastSes.date)}）・${lastSes.recs.length}種目</span></span>${ICON.chevR}</button>` : ''}
     <div class="row">
-    <button type="button" class="btn btn-sm" data-a="startPick">${ICON.search}種目を選ぶ</button><button type="button" class="btn btn-sm" data-a="startEmpty">${ICON.plus}空で始める</button></div></section>`;
+    <button type="button" class="btn btn-sm" data-a="startPick">${ICON.search}種目を選ぶ</button><button type="button" class="btn btn-sm" data-a="startEmpty">${ICON.plus}空で始める</button></div>
+    ${hasRealData() ? '' : `<button type="button" class="btn btn-ghost btn-sm btn-block imp-cta" data-a="importWizard">${ICON.upload}これまでの記録を取り込む（他のアプリ・Excel・メモ）</button>`}</section>`;
   return h;
 }
 
@@ -3390,6 +3495,9 @@ function deleteMenu(m) {
   undoToast(`「${m.name}」を削除しました（記録は残ります）`, () => { if (DB.menus.some((x) => x.id === m.id)) return; DB.menus.splice(Math.min(i, DB.menus.length), 0, m); touch(); refreshAll(); });
 }
 Object.assign(ACT, {
+  begStart: () => startWorkout(BEGINNER_MENU, 'はじめての全身', null),
+  begHide: () => { DB.ui.begHide = true; save(); renderTab(); toast('設定の「経験レベル」からいつでも戻せます'); },
+  glossary: () => openGlossary(),
   undo: () => { const f = UI.undo; UI.undo = null; $('#toast').className = 'toast'; if (f) f(); },
   menuTipOk: () => { DB.ui.menuTipDone = true; save(); renderTab(); },
   goWlSetting: () => { setTab('settings'); setTimeout(() => { const el = $('#wlRow'); if (el) { el.scrollIntoView({ block: 'center' }); el.classList.add('flash'); } }, 60); },
@@ -3569,7 +3677,7 @@ function trendRowHtml(t) {
     <div class="d">3ヶ月前から ${deltaHtml(t.cur, t.base, t.unit)} <span class="faint">${t.key === 'e1rm' ? '推定1RM' : t.key === 'time' ? '最長' : '最多回数'}</span></div></div><div class="spark">${sparkSvg(t.recent.map((p) => p.y), { pr: t.prIdx, color: partColor(t.ex.part) })}</div></button>`;
 }
 function renderReview() {
-  let h = topbar('振り返り');
+  let h = topbar('振り返り', `<button type="button" class="icon-btn" data-a="glossary" aria-label="用語の説明"><b style="font-size:17px">?</b></button>`);
   if (!IDX().sessions.length) {
     return h + `<div class="card empty"><div class="big">📈</div><p><b>まだ記録がありません</b><br>トレーニングを記録すると、ここに成長の様子が表示されます。</p>
       <button type="button" class="btn btn-primary btn-block" data-a="tab" data-tab="train">トレーニングを始める</button><div style="height:10px"></div>
@@ -4142,9 +4250,11 @@ function renderSettings() {
   h += `    <details style="margin-top:6px"><summary class="small" style="min-height:44px;display:flex;align-items:center;font-weight:750;color:var(--accent);cursor:pointer">機種変更のときの手順</summary>
       <ol class="small" style="padding-left:18px;line-height:1.8;margin:0 0 8px"><li><b>古いスマホ</b>：「Googleドライブに保存」または「バックアップファイルを書き出す」（共有メニューで「ドライブに保存」を選ぶ）</li>
       <li><b>新しいスマホ</b>：同じURLでこのアプリを開き、「Googleドライブから復元」または「ファイルから復元」</li><li>「上書き復元」を選べば完了です（新しいスマホで記録済みなら「統合」）</li></ol></details></details>`;
+  h += importSettingsHtml();
   h += pwaSettingsCard();
   h += `${setSecHead('display', true, `${ICON.moon} 表示`)}<div class="seg">${[['light', 'ライト'], ['dark', 'ダーク'], ['auto', '端末に合わせる']].map(([k, l]) => `<button type="button" data-a="theme" data-v="${k}" aria-pressed="${s.theme === k}">${l}</button>`).join('')}</div></details>`;
-  h += `${setSecHead('training', true, `${ICON.timer} トレーニング`)}
+  h += `${setSecHead('training', true, `${ICON.timer} トレーニング`, LEVELS[s.level].short + (s.wl ? '・WL' : ''))}
+    <div class="field" style="margin-bottom:8px"><span class="lbl">経験レベル（表示の詳しさ）</span><div class="seg">${Object.entries(LEVELS).map(([k, v]) => `<button type="button" data-a="setLevel" data-v="${k}" aria-pressed="${s.level === k}">${v.short}</button>`).join('')}</div><p class="hint" style="margin:6px 2px 0">${LEVELS[s.level].desc}</p></div>
     <div class="sw-row" id="wlRow"><div class="t"><b>ウェイトリフティング機能</b><span>スナッチ・クリーン＆ジャークなどのWL種目、WLメニュー、リフト比率・Sinclair分析を表示します。OFFでも記録は消えません</span></div><label class="switch"><input type="checkbox" data-ch="setWl" ${s.wl ? 'checked' : ''}><span></span></label></div>
     <div class="field" style="margin:8px 0 6px"><span class="lbl">標準の休憩時間：${fmtSec(s.restSec)}${s.wl ? '（WL種目は最低2:00）' : ''}</span><div class="chip-wrap">${REST_PRESETS.map((v) => `<button type="button" class="chip" data-a="restDef" data-v="${v}" aria-pressed="${s.restSec === v}">${fmtSec(v)}</button>`).join('')}</div></div>
     <div class="sw-row"><div class="t"><b>セット完了で休憩タイマーを自動スタート</b></div><label class="switch"><input type="checkbox" data-ch="setAutoRest" ${s.autoRest ? 'checked' : ''}><span></span></label></div>
@@ -4226,6 +4336,7 @@ function applyImport(inc, mode) {
     DB.customExercises = mergeById(DB.customExercises, inc.customExercises);
     DB.menus = mergeById(DB.menus, inc.menus);
     DB.sessions = mergeById(DB.sessions, inc.sessions);
+    DB.imports = mergeById(DB.imports || [], inc.imports || []);
     const bl = new Map(DB.bodylog.map((b) => [b.date, b])); for (const b of inc.bodylog) { const e = bl.get(b.date); if (!e || (b.updatedAt || 0) > (e.updatedAt || 0)) bl.set(b.date, b); }
     DB.bodylog = [...bl.values()].sort((a, b) => (a.date < b.date ? -1 : 1));
     DB.overrides = { ...inc.overrides, ...DB.overrides };
@@ -4411,6 +4522,7 @@ async function resetAll() {
 }
 
 Object.assign(ACT, {
+  setLevel: (el) => { DB.settings.level = el.dataset.v; if (el.dataset.v === 'beginner') DB.ui.begHide = false; touch(); toast(`経験レベル：${LEVELS[el.dataset.v].label}`); renderTab(); },
   driveBackup: () => driveBackup(), driveRestore: () => driveRestore(),
   exportShare: () => exportShare(),
   exportDownload: () => { downloadBlob(new Blob([JSON.stringify(buildExport(), null, 1)], { type: 'application/json' }), exportName()); markBackup('ダウンロード'); toast('ダウンロードを開始しました', 'ok'); },
@@ -4430,6 +4542,692 @@ Object.assign(CHG, {
   autoDrive: (el) => { DB.settings.autoDrive = el.checked; save(); },
   collarDef: (el) => { DB.settings.collar = el.checked; save(); },
   file: (el) => { const f = el.files && el.files[0]; el.value = ''; handleImportFile(f); }
+});
+/* =====================================================================
+   6. これまでの記録の取り込み（他アプリのCSV・表計算・メモの文章）
+   ・Strong / Hevy / FitNotes / LiftCanvas CSV / Excel・Googleスプレッドシート / メモ帳の文章
+   ・取り込んだ記録は id が 'imp_<取り込みID>_' で始まり、取り込みごとにまとめて取り消せる
+   ===================================================================== */
+const IMP = {};
+const XLSX_SOURCES = [
+  'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+  'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js'
+];
+const LB = 0.45359237;
+IMP.hash = (s) => { let h1 = 0x811c9dc5, h2 = 0x1234567; for (let i = 0; i < s.length; i++) { const c = s.charCodeAt(i); h1 = Math.imul(h1 ^ c, 16777619); h2 = Math.imul(h2 ^ c, 2246822519); } return ((h1 >>> 0).toString(36) + (h2 >>> 0).toString(36)).slice(0, 10); };
+IMP.nfkc = (s) => String(s == null ? '' : s).normalize('NFKC').replace(/ /g, ' ');
+
+/* ---------- 文字コード・ファイル ---------- */
+IMP.decode = (buf) => {
+  const u8 = new Uint8Array(buf);
+  if (u8[0] === 0xff && u8[1] === 0xfe) return new TextDecoder('utf-16le').decode(u8);
+  if (u8[0] === 0xfe && u8[1] === 0xff) return new TextDecoder('utf-16be').decode(u8);
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(u8).replace(/^﻿/, ''); }
+  catch (e) { try { return new TextDecoder('shift_jis').decode(u8); } catch (e2) { return new TextDecoder('utf-8').decode(u8); } }
+};
+IMP.loadXlsx = () => {
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  return new Promise((resolve, reject) => {
+    let i = 0;
+    const next = () => {
+      if (i >= XLSX_SOURCES.length) { reject(new Error('Excelファイルの読み込み部品を取得できませんでした。電波の良い場所で試すか、CSV形式で保存してから読み込んでください')); return; }
+      const sc = document.createElement('script'); sc.src = XLSX_SOURCES[i++]; sc.async = true;
+      sc.onload = () => (window.XLSX ? resolve(window.XLSX) : next()); sc.onerror = () => { sc.remove(); next(); };
+      document.head.appendChild(sc);
+    };
+    next();
+  });
+};
+/* Excel：全シートを表（行の配列）にする */
+IMP.xlsxRows = async (buf) => {
+  const X = await IMP.loadXlsx();
+  const wb = X.read(new Uint8Array(buf), { type: 'array', cellDates: true });
+  const out = [];
+  for (const name of wb.SheetNames) {
+    const rows = X.utils.sheet_to_json(wb.Sheets[name], { header: 1, raw: false, dateNF: 'yyyy-mm-dd', defval: '', blankrows: false });
+    if (rows.length) out.push({ name, rows: rows.map((r) => r.map((v) => String(v == null ? '' : v))) });
+  }
+  return out;
+};
+
+/* ---------- 表（CSV/TSV）の読み取り ---------- */
+IMP.splitDelim = (text, d) => {
+  const rows = []; let row = [], f = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; continue; }
+    if (c === '"' && f === '') q = true;
+    else if (c === d) { row.push(f); f = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(f); rows.push(row); row = []; f = ''; }
+    else f += c;
+  }
+  if (f !== '' || row.length) { row.push(f); rows.push(row); }
+  return rows.filter((r) => r.some((v) => String(v).trim() !== ''));
+};
+IMP.detectDelim = (text) => {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim()).slice(0, 12);
+  if (lines.length < 2) return null;
+  let best = null, bestScore = 0;
+  for (const d of ['\t', ',', ';']) {
+    const counts = lines.map((l) => IMP.splitDelim(l, d)[0] ? IMP.splitDelim(l, d)[0].length : 1);
+    const head = counts[0]; if (head < 3) continue;
+    const same = counts.filter((c) => c === head).length / counts.length;
+    const score = same * head;
+    if (same >= 0.7 && score > bestScore) { best = d; bestScore = score; }
+  }
+  return best;
+};
+
+/* 見出しの名前 → 項目 */
+const IMP_FIELDS = {
+  date: { label: '日付', keys: ['date', '日付', '日時', '年月日', '実施日', 'starttime', 'start', 'day', 'workoutdate', 'datetime', '日にち'] },
+  workout: { label: 'トレーニング名', keys: ['workoutname', 'workout', 'title', 'トレーニング', 'トレーニング名', 'メニュー', 'メニュー名', 'routine', 'ルーティン', 'ワークアウト'] },
+  exercise: { label: '種目', keys: ['exercisename', 'exercisetitle', 'exercise', '種目', '種目名', 'エクササイズ', 'name', 'exercisetype', '内容'] },
+  setNo: { label: 'セット番号', keys: ['setorder', 'setindex', 'set', 'setno', 'set#', 'セット', 'セット番号', 'セット目'] },
+  sets: { label: 'セット数', keys: ['sets', 'セット数', 'set数', 'setcount', 'numberofsets'] },
+  weight: { label: '重量', keys: ['weight', 'weightkg', 'weightkgs', 'weightlb', 'weightlbs', '重量', '重量kg', '重さ', 'kg', 'load', '重量(kg)', 'lbs', 'lb'] },
+  reps: { label: '回数', keys: ['reps', 'rep', '回数', 'レップ', 'レップ数', '回数/秒', 'repetitions', 'count'] },
+  secs: { label: '秒数', keys: ['seconds', 'durationseconds', 'time', '秒', '秒数'] },
+  rpe: { label: 'RPE', keys: ['rpe'] },
+  type: { label: 'セットの種類', keys: ['settype', 'type', '種類', 'セットの種類', 'セット種類'] },
+  note: { label: 'メモ', keys: ['notes', 'note', 'exercisenotes', 'comment', 'comments', 'memo', 'メモ', '備考', 'コメント'] },
+  unit: { label: '単位', keys: ['weightunit', 'unit', 'units', '単位'] },
+  dist: { label: '距離', keys: ['distance', 'distancekm', 'distancem', '距離'] }
+};
+IMP.headKey = (h) => IMP.nfkc(h).toLowerCase().replace(/[\s_\-]/g, '').replace(/\((kgs?|lbs?)\)/, '$1');
+IMP.mapHeader = (row) => {
+  const map = {}; let hits = 0; let unit = null;
+  row.forEach((h, i) => {
+    const k = IMP.headKey(h);
+    if (!k) return;
+    if (/lbs?/.test(k) && /weight|重量|^lbs?$/.test(k)) unit = 'lb';
+    if (/kgs?/.test(k) && /weight|重量/.test(k)) unit = unit || 'kg';
+    for (const [f, def] of Object.entries(IMP_FIELDS)) {
+      if (map[f] != null) continue;
+      if (def.keys.includes(k) || def.keys.includes(k.replace(/\(.*?\)/g, ''))) { map[f] = i; hits++; break; }
+    }
+  });
+  if (map.duration != null) delete map.duration;
+  return { map, hits, unit };
+};
+IMP.detectTable = (rows) => {
+  for (let i = 0; i < Math.min(rows.length, 8); i++) {
+    const h = IMP.mapHeader(rows[i]);
+    if (h.map.exercise != null && (h.map.date != null || h.map.weight != null || h.map.reps != null) && h.hits >= 2) {
+      const heads = rows[i].map(IMP.headKey);
+      const fmt = heads.includes('exercisetitle') && heads.includes('settype') ? 'Hevy'
+        : heads.includes('workoutname') && heads.includes('setorder') ? 'Strong'
+          : heads.includes('category') && (heads.includes('weightkgs') || heads.includes('weightlbs')) ? 'FitNotes'
+            : heads.includes('推定1rm') ? 'LiftCanvas CSV' : '表形式';
+      return { headRow: i, map: h.map, unit: h.unit, format: fmt, headers: rows[i] };
+    }
+  }
+  return null;
+};
+
+/* ---------- 日付 ---------- */
+const IMP_MON = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12 };
+IMP.validMD = (m, d) => m >= 1 && m <= 12 && d >= 1 && d <= 31;
+/* 文字列の先頭から日付を読む → { y|null, m, d, time, rest } */
+IMP.readDate = (raw, pref = 'md') => {
+  const s = IMP.nfkc(raw).trim().replace(/^[■□●○◆◇★☆▼▽▶▷◎・*#>\-\s]+/, '').replace(/^[\[【(（<＜]\s*/, '');
+  let m;
+  const tail = (str) => { const t = str.match(/^\s*(?:\(.\)|（.）|\([月火水木金土日]\)|[月火水木金土日]曜日?)?\s*(?:,?\s*(\d{1,2}):(\d{2})(?::\d{2})?(?:\s*(am|pm))?)?/i); return { time: t && t[1] ? `${pad2(Number(t[1]) + (t[3] && /pm/i.test(t[3]) && Number(t[1]) < 12 ? 12 : 0))}:${t[2]}` : '', rest: str.slice(t ? t[0].length : 0).replace(/^[\]】)）>＞\s:：\-、,]+/, '') }; };
+  if ((m = s.match(/^(\d{4})\s*[-/.年]\s*(\d{1,2})\s*[-/.月]\s*(\d{1,2})\s*日?(?:T(\d{2}):(\d{2})\S*)?/))) {
+    const t = tail(s.slice(m[0].length)); if (m[4]) t.time = `${m[4]}:${m[5]}`;
+    if (IMP.validMD(+m[2], +m[3])) return { y: +m[1], m: +m[2], d: +m[3], ...t };
+  }
+  if ((m = s.match(/^(\d{4})(\d{2})(\d{2})(?!\d)/)) && IMP.validMD(+m[2], +m[3]) && +m[1] > 1980) return { y: +m[1], m: +m[2], d: +m[3], ...tail(s.slice(m[0].length)) };
+  if ((m = s.match(/^(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{4}|\d{2})(?!\d)/))) {
+    let a = +m[1], b = +m[2]; const y = m[3].length === 2 ? 2000 + +m[3] : +m[3];
+    let mo, da; if (a > 12) { mo = b; da = a; } else if (b > 12) { mo = a; da = b; } else if (pref === 'dm') { mo = b; da = a; } else { mo = a; da = b; }
+    if (IMP.validMD(mo, da)) return { y, m: mo, d: da, ...tail(s.slice(m[0].length)) };
+  }
+  if ((m = s.match(/^(\d{1,2})\s+([a-z]{3,9})\.?,?\s+(\d{4})/i)) && IMP_MON[m[2].toLowerCase().slice(0, 3)]) {
+    const mo = IMP_MON[m[2].toLowerCase().slice(0, 3)]; if (IMP.validMD(mo, +m[1])) return { y: +m[3], m: mo, d: +m[1], ...tail(s.slice(m[0].length)) };
+  }
+  if ((m = s.match(/^([a-z]{3,9})\.?\s+(\d{1,2}),?\s+(\d{4})/i)) && IMP_MON[m[1].toLowerCase().slice(0, 3)]) {
+    const mo = IMP_MON[m[1].toLowerCase().slice(0, 3)]; if (IMP.validMD(mo, +m[2])) return { y: +m[3], m: mo, d: +m[2], ...tail(s.slice(m[0].length)) };
+  }
+  if ((m = s.match(/^(\d{1,2})\s*(?:\/|月)\s*(\d{1,2})\s*日?(?![\d./]|\s*(?:kg|キロ|回|x|×|lb|セット|set))/i))) {
+    const t = tail(s.slice(m[0].length));
+    if (IMP.validMD(+m[1], +m[2]) && !(t.rest && /^[\d+]/.test(t.rest) && IMP.SET_HEAD.test(t.rest))) return { y: null, m: +m[1], d: +m[2], ...t };
+  }
+  return null;
+};
+IMP.serialDate = (v) => { const n = Number(v); if (!(n > 20000 && n < 80000) || String(v).includes('.') && !/^\d+\.\d+$/.test(v)) return null; const d = new Date(Date.UTC(1899, 11, 30) + Math.floor(n) * 864e5); return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, d: d.getUTCDate(), time: '', rest: '' }; };
+/* 年のない日付に年を補う（前後の日付から月の進み方を見て、年をまたぐ場合も推定） */
+IMP.resolveYears = (ds, today = ymd()) => {
+  if (!ds.length) return;
+  const ty = Number(today.slice(0, 4));
+  const ord = (x) => x.m * 31 + x.d;
+  const step = (prev, cur, dir) => { // prev は年が決まっている。cur の年を決める
+    let y = prev.y; if (dir > 0) { if (cur.m < prev.m - 5) y++; } else if (cur.m > prev.m + 5) y--; return y;
+  };
+  let anchor = ds.findIndex((x) => x.y != null);
+  if (anchor < 0) {
+    let up = 0;
+    for (let i = 1; i < ds.length; i++) { const df = ord(ds[i]) - ord(ds[i - 1]); if (df === 0) continue; const wrap = Math.abs(df) > 150; up += (df > 0) !== wrap ? 1 : -1; }
+    anchor = up >= 0 ? ds.length - 1 : 0;
+    const a = ds[anchor]; a.y = ty; if (`${ty}-${pad2(a.m)}-${pad2(a.d)}` > today) a.y = ty - 1;
+  }
+  for (let i = anchor + 1; i < ds.length; i++) if (ds[i].y == null) ds[i].y = step(ds[i - 1], ds[i], 1);
+  for (let i = anchor - 1; i >= 0; i--) if (ds[i].y == null) ds[i].y = step(ds[i + 1], ds[i], -1);
+  for (const x of ds) x.ymd = `${x.y}-${pad2(x.m)}-${pad2(x.d)}`;
+};
+
+/* ---------- セットの書き方（60kg×10×3 / 60kg 10回 3セット / 80x8,8,6 / 10回×3 / 30秒 / @8 …） ---------- */
+IMP.prepSets = (s) => IMP.nfkc(s).toLowerCase()
+  .replace(/[×✕✖＊*]/g, 'x').replace(/(\d)\s*[xX]\s*(?=\d)/g, '$1x')
+  .replace(/㎏|kgs|キロ/g, 'kg').replace(/(\d)\s*k(?![a-z])/g, '$1kg').replace(/ポンド|lbs|lb/g, 'lb')
+  .replace(/レップ|reps|rep/g, '回').replace(/セット|sets|set/g, 'set')
+  .replace(/(\d)\s*(?:秒|seconds|secs|sec|s)(?![a-z])/g, '$1秒').replace(/(\d)\s*(?:分|minutes|mins|min)(?![a-z])/g, '$1分')
+  .replace(/rpe\s*/g, '@');
+const IMP_NUM = '\\+?\\d+(?:\\.\\d+)?';
+IMP.reps = (s) => String(s).split('+').reduce((a, b) => a + (Number(b) || 0), 0);
+/* 1行のセット部分 → { sets:[{w,r,t,rpe,sec}], bare:[数字のみ], lb } */
+IMP.parseSets = (str) => {
+  const t0 = IMP.prepSets(str);
+  const out = { sets: [], bare: [], lb: /lb/.test(t0), unknown: '' };
+  const typ = /ウォームアップ|アップ|warm-?up|\bwu\b/.test(t0) ? 'w' : /ドロップ|drop/.test(t0) ? 'd' : /失敗|限界|failure/.test(t0) ? 'f' : 'n';
+  // 「100kg 5x5」「5x5 100kg」＝セット数×回数
+  const uw = [...t0.matchAll(new RegExp(`(${IMP_NUM})\\s*(kg|lb)(?!\\s*x)`, 'g'))];
+  const sx = t0.match(/(?:^|[^\d.kgb])(\d{1,2})x(\d{1,3})(?![\d.]|\s*(?:kg|lb|x))/);
+  if (uw.length === 1 && sx && !new RegExp(`(${IMP_NUM})\\s*(kg|lb)\\s*x`).test(t0) && !/回/.test(t0)) {
+    const w = Number(uw[0][1].replace('+', '')); const n = Math.min(Number(sx[1]), 20); const rpe = t0.match(/@(\d+(?:\.\d)?)/);
+    for (let i = 0; i < n; i++) out.sets.push({ w, r: Number(sx[2]), t: typ, rpe: rpe ? Number(rpe[1]) : null });
+    return out;
+  }
+  let lastW = null; let lastGroup = [];
+  const push = (w, r, sec = false) => { const s = { w, r, t: typ, rpe: null, sec }; out.sets.push(s); lastGroup.push(s); return s; };
+  const segs = t0.split(/[,、/／;|]+|\s{2,}|・/);
+  for (const seg of segs) {
+    const s = seg.trim(); if (!s) continue;
+    let i = 0; const bareHere = []; let tokens = 0;
+    const R = (re) => { re.lastIndex = i; const m = re.exec(s); if (m) { i = re.lastIndex; tokens++; } return m; };
+    while (i < s.length) {
+      if (/\s/.test(s[i])) { i++; continue; }
+      let m;
+      if ((m = R(new RegExp(`(${IMP_NUM})\\s*(kg|lb)?\\s*x\\s*(\\d+(?:\\+\\d+)*)\\s*回?(?:\\s*x\\s*(\\d+)\\s*(?:set)?)?`, 'y')))) {
+        const w = Number(m[1].replace('+', '')); lastW = w; lastGroup = []; const n = m[4] ? Math.min(Number(m[4]), 20) : 1;
+        for (let k = 0; k < n; k++) push(w, IMP.reps(m[3])); continue;
+      }
+      if ((m = R(new RegExp(`(${IMP_NUM})\\s*(kg|lb)\\s*(\\d+(?:\\+\\d+)*)\\s*回(?:\\s*x\\s*(\\d+)\\s*(?:set)?)?`, 'y')))) { const w = Number(m[1].replace('+', '')); lastW = w; lastGroup = []; const n = m[4] ? Math.min(Number(m[4]), 20) : 1; for (let k = 0; k < n; k++) push(w, IMP.reps(m[3])); continue; }
+      if ((m = R(new RegExp(`(${IMP_NUM})\\s*(kg|lb)`, 'y')))) { lastW = Number(m[1].replace('+', '')); lastGroup = []; continue; }
+      if ((m = R(/(\d+(?:\+\d+)*)\s*回(?:\s*x\s*(\d+)\s*(?:set)?)?/y))) { lastGroup = []; const n = m[2] ? Math.min(Number(m[2]), 20) : 1; for (let k = 0; k < n; k++) push(lastW == null ? 0 : lastW, IMP.reps(m[1])); continue; }
+      if ((m = R(/(\d+)\s*set/y))) { const n = Math.min(Number(m[1]), 20); const last = out.sets[out.sets.length - 1]; if (last) for (let k = 1; k < n; k++) push(last.w, last.r, last.sec); continue; }
+      if ((m = R(/(?:(\d+)分(?:\s*(\d+)秒)?|(\d+)秒|(\d{1,2}):(\d{2})(?!\d))(?:\s*x\s*(\d+)\s*(?:set)?)?/y))) {
+        const sec = m[3] ? Number(m[3]) : m[4] ? Number(m[4]) * 60 + Number(m[5]) : Number(m[1]) * 60 + (Number(m[2]) || 0);
+        lastGroup = []; const n = m[6] ? Math.min(Number(m[6]), 20) : 1; for (let k = 0; k < n; k++) push(lastW == null ? 0 : lastW, sec, true); continue;
+      }
+      if ((m = R(/@\s*(\d+(?:\.\d+)?)/y))) { const v = Number(m[1]); for (const x of lastGroup.length ? lastGroup : out.sets.slice(-1)) if (v >= 5 && v <= 10) x.rpe = v; continue; }
+      if ((m = R(/自重|bw/y))) { lastW = 0; lastGroup = []; continue; }
+      if ((m = R(/(\d+(?:\.\d+)?)/y))) { bareHere.push(Number(m[1])); continue; }
+      out.unknown += s[i]; i++;
+    }
+    if (bareHere.length) {
+      if (lastW != null) { lastGroup = []; for (const r of bareHere) push(lastW, Math.round(r)); }
+      else out.bare.push(...bareHere);
+    }
+  }
+  return out;
+};
+/* 数字だけのセット（「懸垂 10 10 8」「ベンチ 60 10 3」）は種目が決まってから解釈する */
+IMP.resolveBare = (bare, ex) => {
+  if (!bare.length) return [];
+  const bw = ex && (ex.equipment === '自重' || isTimed(ex));
+  if (bw) return bare.map((r) => ({ w: 0, r: Math.round(r), t: 'n', rpe: null }));
+  if (bare.length === 1) return [{ w: 0, r: Math.round(bare[0]), t: 'n', rpe: null }];
+  const [w, r, n] = bare;
+  if (bare.length === 3 && n <= 10 && w > n) return Array.from({ length: n }, () => ({ w, r: Math.round(r), t: 'n', rpe: null }));
+  return bare.slice(1).map((x) => ({ w, r: Math.round(x), t: 'n', rpe: null }));
+};
+
+/* ---------- 名前とセットの境目 ---------- */
+IMP.SET_HEAD = /^(?:\+?\d+(?:\.\d+)?\s*(?:kg|㎏|キロ|lbs?|ポンド|[xX×✕＊*]|回|reps?|レップ|秒|分|sec|min|セット|sets?|@)|自重|bw\b|\d+(?:\.\d+)?(?:[\s,、/]+\d+(?:\.\d+)?)*\s*(?:$|[(（]))/i;
+IMP.splitLine = (line) => {
+  const s = IMP.nfkc(line).trim();
+  for (let i = 0; i < s.length; i++) {
+    if (i > 0 && /[0-9.A-Za-z+]/.test(s[i - 1])) continue;
+    if (!/[\d自bB+]/.test(s[i])) continue;
+    if (IMP.SET_HEAD.test(s.slice(i))) return { name: s.slice(0, i).replace(/[\s:：\-—=、,・]+$/, '').replace(/^[・\-*•●○◯■□▶>]+\s*/, '').trim(), sets: s.slice(i) };
+  }
+  return { name: s.replace(/^[・\-*•●○◯■□▶>]+\s*/, '').replace(/[\s:：]+$/, '').trim(), sets: '' };
+};
+
+/* ---------- 文章（メモ帳など）の読み取り ---------- */
+IMP.parseText = (text) => {
+  const lines = String(text).split(/\r?\n/);
+  const items = []; const dates = []; const skipped = [];
+  let cur = null; let curEx = null; let pend = null; let lineNo = 0;
+  for (const raw of lines) {
+    lineNo++;
+    const line = IMP.nfkc(raw).trim(); if (!line) { pend = null; continue; }
+    if (/^(#|\/\/)/.test(line) && !IMP.readDate(line.replace(/^#+\s*/, ''))) continue;
+    const dt = IMP.readDate(line.replace(/^#+\s*/, ''));
+    if (dt) {
+      dates.push(dt); cur = { dt, title: '', line: lineNo }; curEx = null; pend = null;
+      const rest = dt.rest.trim();
+      if (rest) { const sp = IMP.splitLine(rest); if (sp.sets && sp.name) { const p = IMP.parseSets(sp.sets); if (p.sets.length || p.bare.length) { curEx = { name: sp.name, line: lineNo }; items.push({ day: cur, name: sp.name, p, line: lineNo, raw }); continue; } } cur.title = rest.slice(0, 40); }
+      continue;
+    }
+    const sp = IMP.splitLine(line);
+    if (/^(?:ウォーミングアップ|ウォームアップ|アップ|w-?up|warm-?up|wu|w)$/i.test(sp.name) && sp.sets) { sp.name = ''; sp.sets = 'アップ ' + sp.sets; }
+    const p = sp.sets ? IMP.parseSets(sp.sets) : null;
+    const has = p && (p.sets.length || p.bare.length);
+    if (!cur) { if (has || sp.name) skipped.push({ line: lineNo, raw, why: '日付より前の行' }); continue; }
+    if (has && sp.name) { if (pend && !cur.title && !items.some((x) => x.day === cur)) cur.title = pend.slice(0, 40); curEx = { name: sp.name }; items.push({ day: cur, name: sp.name, p, line: lineNo, raw }); pend = null; continue; }
+    if (has && !sp.name) {
+      const nm = pend || (curEx && curEx.name);
+      if (nm) { curEx = { name: nm }; items.push({ day: cur, name: nm, p, line: lineNo, raw }); pend = null; }
+      else skipped.push({ line: lineNo, raw, why: '種目名がない' });
+      continue;
+    }
+    // 名前だけの行：次の行がセットなら種目名。それ以外は見出し・メモとして扱う
+    if (pend && !cur.title && !items.some((x) => x.day === cur)) cur.title = pend.slice(0, 40);
+    pend = sp.name.slice(0, 60);
+  }
+  IMP.resolveYears(dates);
+  return { items, skipped };
+};
+
+/* ---------- 表 → 取り込み単位 ---------- */
+IMP.num = (v) => { const s = IMP.nfkc(v).trim().replace(/\s/g, ''); if (!s) return null; const t = /^\d+,\d{1,3}$/.test(s) && !/^\d{1,3},\d{3}$/.test(s) ? s.replace(',', '.') : s.replace(/,/g, ''); const m = t.match(/-?\d+(?:\.\d+)?/); return m ? Number(m[0]) : null; };
+IMP.parseTable = (rows, info) => {
+  const mp = info.map; const items = []; const skipped = []; const dates = [];
+  const get = (r, f) => (mp[f] != null && mp[f] >= 0 ? String(r[mp[f]] == null ? '' : r[mp[f]]).trim() : '');
+  let pref = 'md';
+  if (mp.date != null) for (let i = info.headRow + 1; i < rows.length; i++) { const m = IMP.nfkc(get(rows[i], 'date')).match(/^(\d{1,2})[/.\-](\d{1,2})[/.\-]\d{2,4}/); if (m) { if (+m[1] > 12) { pref = 'dm'; break; } if (+m[2] > 12) { pref = 'md'; break; } } }
+  let lastDay = null, lastEx = '', lastKey = '';
+  const used = new Set(Object.values(mp));
+  for (let i = info.headRow + 1; i < rows.length; i++) {
+    const r = rows[i]; const lineNo = i + 1; const raw = r.join(' | ');
+    const dv = get(r, 'date');
+    if (dv) {
+      const dt = IMP.readDate(dv, pref) || IMP.serialDate(dv);
+      if (!dt) { skipped.push({ line: lineNo, raw, why: '日付を読めない' }); continue; }
+      const title = get(r, 'workout');
+      const key = `${dt.y}|${dt.m}|${dt.d}|${dt.time}|${title}`;
+      if (key !== lastKey) { dates.push(dt); lastDay = { dt, title: title.slice(0, 40), line: lineNo }; lastKey = key; }
+    } else if (!lastDay) { skipped.push({ line: lineNo, raw, why: '日付がない' }); continue; }
+    const name = IMP.nfkc(get(r, 'exercise')).trim() || lastEx;
+    if (!name) { skipped.push({ line: lineNo, raw, why: '種目名がない' }); continue; }
+    lastEx = name;
+    const so = get(r, 'setNo'); const ty = (get(r, 'type') + ' ' + so).toLowerCase();
+    if (/rest\s*timer|休憩/.test(ty)) continue;
+    const t = /warm|^w\b|\bw$|ウォーム|アップ/.test(ty.trim()) ? 'w' : /drop|^d\b|\bd$|ドロップ/.test(ty.trim()) ? 'd' : /fail|^f\b|\bf$|失敗/.test(ty.trim()) ? 'f' : 'n';
+    const unitCell = get(r, 'unit').toLowerCase();
+    const lb = info.unitOverride ? info.unitOverride === 'lb' : (/lb/.test(unitCell) || (!unitCell && info.unit === 'lb'));
+    let w = IMP.num(get(r, 'weight')); const repsCell = get(r, 'reps'); let reps = IMP.num(repsCell);
+    const secRaw = IMP.nfkc(get(r, 'secs')); const hms = secRaw.match(/^(?:(\d+):)?(\d{1,2}):(\d{2})$/); const secs = hms ? (Number(hms[1] || 0) * 3600 + Number(hms[2]) * 60 + Number(hms[3])) : IMP.num(secRaw);
+    if (!(reps > 0) && IMP.num(get(r, 'dist')) > 0) { skipped.push({ line: lineNo, raw, why: '有酸素（距離）は対象外' }); continue; }
+    const rpe = IMP.num(get(r, 'rpe')); const cnt = IMP.num(get(r, 'sets')); const note = get(r, 'note');
+    let p;
+    if (repsCell && /[,、/x×\s]/.test(IMP.nfkc(repsCell).trim()) && w != null) { p = IMP.parseSets(`${w}kg ${repsCell}`); p.lb = lb; }
+    else if (reps != null && reps > 0) {
+      const n = cnt && cnt > 1 ? Math.min(Math.round(cnt), 20) : 1;
+      p = { sets: Array.from({ length: n }, () => ({ w: w == null ? 0 : w, r: Math.round(reps), t, rpe: rpe >= 5 && rpe <= 10 ? rpe : null })), bare: [], lb };
+    } else if (secs != null && secs > 0) {
+      p = { sets: [{ w: w == null ? 0 : w, r: Math.round(secs), t, rpe: null, sec: true }], bare: [], lb };
+    } else {
+      // 列に分かれていない書き方（「60kg×10」などがセルに入っている）
+      const restTxt = r.filter((v, k) => !used.has(k) || k === mp.weight || k === mp.reps).map((v) => String(v)).filter((v) => v.trim()).join('  ');
+      p = IMP.parseSets(restTxt);
+      if (!p.sets.length && !p.bare.length) { if (IMP.num(get(r, 'dist')) > 0) skipped.push({ line: lineNo, raw, why: '距離のみ（有酸素）' }); else if (w != null || reps != null) skipped.push({ line: lineNo, raw, why: '回数が0' }); else skipped.push({ line: lineNo, raw, why: '重量・回数がない' }); continue; }
+      if (info.unitOverride) p.lb = info.unitOverride === 'lb';
+      for (const s of p.sets) if (s.t === 'n') s.t = t;
+    }
+    items.push({ day: lastDay, name, p, line: lineNo, raw, note });
+  }
+  IMP.resolveYears(dates);
+  return { items, skipped };
+};
+
+/* ---------- 種目名の照合 ---------- */
+const IMP_ALIAS = {
+  'flatbarbellbenchpress': 'chest_01', 'flatdumbbellbenchpress': 'chest_03', 'inclinedumbbellbenchpress': 'chest_04', 'ベンチ': 'chest_01', 'ベンチプレス': 'chest_01', 'bp': 'chest_01', 'bench': 'chest_01', 'benchpressbarbell': 'chest_01',
+  'スクワット': 'leg_01', 'sq': 'leg_01', 'squat': 'leg_01', 'squatbarbell': 'leg_01', 'barbellsquat': 'leg_01', 'ハイバー': 'leg_01', 'ハイバースクワット': 'leg_01', 'ローバー': 'leg_15', 'フルスクワット': 'leg_01',
+  'デッド': 'back_01', 'デッドリフト': 'back_01', 'dl': 'back_01', 'deadliftbarbell': 'back_01', 'deadlift': 'back_01', 'トラップバーデッド': 'back_23',
+  '懸垂': 'back_02', 'チンニング': 'back_02', 'pullup': 'back_02', 'chinup': 'back_18', 'ラットプル': 'back_03', 'ラットプルダウン': 'back_03', 'latpulldowncable': 'back_03', 'latpulldownmachine': 'back_03',
+  'ベントオーバー': 'back_04', 'ベントロウ': 'back_04', 'バーベルロウ': 'back_04', 'bentoverrowbarbell': 'back_04', 'barbellrow': 'back_04', 'ワンハンドロウ': 'back_05', 'ダンベルロウ': 'back_05', 'dumbbellrow': 'back_05',
+  'シーテッドロウ': 'back_06', 'ケーブルロウ': 'back_06', 'seatedrow': 'back_06', 'seatedcablerow': 'back_06', 'seatedrowcable': 'back_06', '背筋': 'back_08', 'バックエクステンション': 'back_08',
+  'ショルダープレス': 'shoulder_02', 'ohp': 'shoulder_01', 'overheadpress': 'shoulder_01', 'overheadpressbarbell': 'shoulder_01', 'militarypress': 'shoulder_01', 'shoulderpressbarbell': 'shoulder_01', 'shoulderpressdumbbell': 'shoulder_02', 'shoulderpressmachine': 'shoulder_08', 'ミリタリープレス': 'shoulder_01',
+  'サイドレイズ': 'shoulder_03', 'lateralraise': 'shoulder_03', 'lateralraisedumbbell': 'shoulder_03', 'サイドレイズダンベル': 'shoulder_03', 'リアレイズ': 'shoulder_05', 'リアデルト': 'shoulder_05', 'フェイスプル': 'shoulder_07', 'シュラッグ': 'shoulder_09',
+  'アームカール': 'arm_02', 'カール': 'arm_02', 'バーベルカール': 'arm_01', 'bicepcurlbarbell': 'arm_01', 'bicepcurldumbbell': 'arm_02', 'bicepcurl': 'arm_02', 'curl': 'arm_02', 'ハンマーカール': 'arm_03',
+  'プレスダウン': 'arm_05', 'トライセプスプレスダウン': 'arm_05', 'tricepspushdown': 'arm_05', 'triceppushdown': 'arm_05', 'pushdown': 'arm_05', 'フレンチプレス': 'arm_07', 'スカルクラッシャー': 'arm_06', 'ナローベンチ': 'arm_08', 'ナロー': 'arm_08', 'キックバック': 'arm_17',
+  'ダンベルプレス': 'chest_03', 'ダンベルベンチ': 'chest_03', 'ダンベルベンチプレス': 'chest_03', 'benchpressdumbbell': 'chest_03', 'インクライン': 'chest_02', 'インクラインベンチ': 'chest_02', 'インクラインベンチプレス': 'chest_02', 'インクラインダンベル': 'chest_04', 'inclinebenchpressdumbbell': 'chest_04', 'inclinebenchpressbarbell': 'chest_02',
+  'チェストプレス': 'chest_06', 'chestpressmachine': 'chest_06', 'マシンチェストプレス': 'chest_06', 'フライ': 'chest_05', 'ペックフライ': 'chest_13', 'ペクトラルフライ': 'chest_13', 'マシンフライ': 'chest_13', 'chestflymachine': 'chest_13', 'ケーブルクロス': 'chest_07',
+  '腕立て': 'chest_08', '腕立て伏せ': 'chest_08', 'プッシュアップ': 'chest_08', 'pushup': 'chest_08', 'ディップ': 'chest_09', 'ディップス': 'chest_09', 'dip': 'chest_09', 'dips': 'chest_09', 'chestdip': 'chest_09', 'tricepsdip': 'chest_09',
+  'レッグプレス': 'leg_02', 'legpressmachine': 'leg_02', 'legpress': 'leg_02', 'rdl': 'leg_03', 'ルーマニアン': 'leg_03', 'ルーマニアンデッド': 'leg_03', 'romaniandeadliftbarbell': 'leg_03', 'romaniandeadliftdumbbell': 'leg_03', 'ブルガリアン': 'leg_04', 'ブルスク': 'leg_04',
+  'レッグエクステンション': 'leg_05', 'legextensionmachine': 'leg_05', 'レッグカール': 'leg_06', 'legcurl': 'leg_06', 'seatedlegcurlmachine': 'leg_06', 'lyinglegcurlmachine': 'leg_22', 'カーフ': 'leg_08', 'カーフレイズ': 'leg_08', 'calfraise': 'leg_08', 'standingcalfraisemachine': 'leg_08',
+  'ヒップスラスト': 'leg_09', 'hipthrustbarbell': 'leg_09', 'ランジ': 'leg_07', 'lunge': 'leg_07', 'lungedumbbell': 'leg_07', 'ゴブレット': 'leg_12', 'gobletsquat': 'leg_12', 'ハック': 'leg_10', 'ハックスクワット': 'leg_10',
+  '腹筋': 'abs_01', 'クランチ': 'abs_01', 'crunch': 'abs_01', 'シットアップ': 'abs_02', 'プランク': 'abs_09', 'plank': 'abs_09', 'アブローラー': 'abs_05', '腹筋ローラー': 'abs_05', 'abwheel': 'abs_05', 'ハンギングレッグレイズ': 'abs_04', 'レッグレイズ': 'abs_03',
+  'スナッチ': 'wl_01', 'snatch': 'wl_01', 'クリーン&ジャーク': 'wl_02', 'クリーンアンドジャーク': 'wl_02', 'c&j': 'wl_02', 'cj': 'wl_02', 'クリーンジャーク': 'wl_02', 'ジャーク': 'wl_14', 'jerk': 'wl_14',
+  'パワクリ': 'wl_03', 'パワークリーン': 'wl_03', 'powerclean': 'wl_03', 'パワスナ': 'wl_09', 'クリーン': 'wl_13', 'clean': 'wl_13', 'フロントスクワット': 'wl_05', 'フロント': 'wl_05', 'frontsquat': 'wl_05', 'frontsquatbarbell': 'wl_05', 'ohs': 'wl_06', 'オーバーヘッドスクワット': 'wl_06', 'プッシュプレス': 'wl_07', 'スナッチプル': 'wl_10', 'クリーンプル': 'wl_08', 'ケトルベルスイング': 'wl_43', 'kettlebellswing': 'wl_43'
+};
+const IMP_EQT = { barbell: 'バーベル', dumbbell: 'ダンベル', cable: 'ケーブル', machine: 'マシン', smith: 'マシン', bodyweight: '自重', weighted: '', assisted: '', band: 'その他', kettlebell: 'その他', ez: 'バーベル', bar: '', straight: '', rope: '' };
+const IMP_ALIAS_WEAK = new Set(['ショルダープレス', 'カール', 'アームカール', 'フライ', 'インクライン', 'フロント', 'クリーン', 'ナロー', 'ジャーク', 'curl', 'bench', 'ディップ', 'ディップス']);
+IMP.kata = (s) => s.replace(/[ぁ-ゖ]/g, (c) => String.fromCharCode(c.charCodeAt(0) + 0x60));
+IMP.normName = (s) => IMP.kata(IMP.nfkc(s).toLowerCase()).replace(/[\s・･\-‐_.,，、。'"’`/／()（）[\]［］{}「」『』【】:：~〜]/g, '').replace(/＆/g, '&').replace(/and/g, '&').replace(/ぷ/g, 'プ');
+IMP.tokens = (s) => IMP.nfkc(s).toLowerCase().replace(/[()（）\[\]]/g, ' ').replace(/-/g, '').split(/[^a-z0-9&]+/).filter(Boolean).map((w) => (w.length > 3 && w.endsWith('s') && !w.endsWith('ss') ? w.slice(0, -1) : w)).map((w) => ({ bicep: '', biceps: '', db: 'dumbbell', bb: 'barbell', flat: '', standing: '', seated: w === 'seated' ? 'seated' : '' }[w] ?? w)).filter(Boolean);
+IMP.bigrams = (s) => { const out = new Map(); for (let i = 0; i < s.length - 1; i++) { const b = s.slice(i, i + 2); out.set(b, (out.get(b) || 0) + 1); } return out; };
+IMP.dice = (a, b) => { if (a === b) return 1; if (a.length < 2 || b.length < 2) return 0; const A = IMP.bigrams(a), B = IMP.bigrams(b); let n = 0; for (const [k, v] of A) n += Math.min(v, B.get(k) || 0); return 2 * n / (a.length - 1 + b.length - 1); };
+IMP.matchEx = (src) => {
+  const key = IMP.normName(src).replace(/片手|両手|片側|左右|各|片脚|片足/g, '') || IMP.normName(src); const list = allEx();
+  if (!key) return { id: null, score: 0, cands: [] };
+  const alias = IMP_ALIAS[key] || IMP_ALIAS[IMP.normName(src.replace(/[(（].*?[)）]/g, ''))];
+  const scored = [];
+  const toks = IMP.tokens(src); const latin = toks.length && /[a-z]/i.test(src) && !/[぀-ヿ一-鿿]/.test(src);
+  for (const e of list) {
+    const names = [e.name, e.name.replace(/[（(].*?[)）]/g, '')].map(IMP.normName);
+    let sc = 0;
+    for (const n of names) { if (n === key) sc = 1; else sc = Math.max(sc, IMP.dice(key, n) * 0.92, n.includes(key) && key.length >= 3 ? 0.55 + 0.35 * key.length / n.length : 0, key.includes(n) && n.length >= 3 ? 0.5 + 0.4 * n.length / key.length : 0); }
+    if (e.en) {
+      const en = IMP.normName(e.en); if (en === key) sc = 1;
+      if (latin) {
+        const et = IMP.tokens(e.en); const inter = toks.filter((t) => et.includes(t)).length; const uni = new Set([...toks, ...et]).size;
+        const cs = toks.filter((t) => !IMP_EQT[t]), ce = et.filter((t) => !IMP_EQT[t]);
+        const ci = cs.filter((t) => ce.includes(t)).length, cu = new Set([...cs, ...ce]).size;
+        const seq = toks.map((t) => IMP_EQT[t]).find(Boolean); const eqOk = !seq || seq === e.equipment || (et.some((t) => IMP_EQT[t]) && et.map((t) => IMP_EQT[t]).includes(seq));
+        sc = Math.max(sc, uni ? inter / uni : 0, cu ? ci / cu * (eqOk ? 0.95 : 0.78) : 0, IMP.dice(key, en) * 0.85);
+      }
+    }
+    if (e.custom) sc += 0.02;
+    if (sc > 0.3) scored.push({ id: e.id, score: Math.min(1, sc) });
+  }
+  if (alias && exMap().has(alias)) { const v = IMP_ALIAS_WEAK.has(key) ? 0.8 : 0.97; const a = scored.find((x) => x.id === alias); if (a) a.score = Math.max(a.score, v); else scored.push({ id: alias, score: v }); }
+  scored.sort((a, b) => b.score - a.score || (getEx(a.id).name.length - getEx(b.id).name.length));
+  const top = scored[0];
+  return { id: top ? top.id : null, score: top ? top.score : 0, cands: scored.slice(0, 4).map((x) => x.id) };
+};
+IMP.guessPart = (name) => {
+  const s = IMP.nfkc(name).toLowerCase();
+  const rules = [['胸', /胸|ベンチ|チェスト|フライ|bench|chest|fly|腕立|push ?up|ディップ|dip/], ['背中', /背|ロウ|row|ラット|lat|プル(?!ダウン)?|pull|懸垂|チン|デッド|deadlift/], ['肩', /肩|ショルダー|shoulder|レイズ|raise|プレス(?=.*肩)|delt|ohp/], ['脚', /脚|足|スクワット|squat|レッグ|leg|ランジ|lunge|カーフ|calf|ヒップ|hip|グルート|glute|尻/], ['腕', /腕|カール|curl|トライセプス|tricep|bicep|エクステンション|extension|プレスダウン|pushdown/], ['腹筋', /腹|クランチ|crunch|プランク|plank|アブ|\bab|コア|core|シットアップ|sit ?up/], ['全身・WL', /スナッチ|snatch|クリーン|clean|ジャーク|jerk|スラスター|thruster|ケトル|kettle|バーピー|burpee/]];
+  for (const [p, re] of rules) if (re.test(s)) return p;
+  return '胸';
+};
+IMP.guessEquip = (name) => { const s = IMP.nfkc(name).toLowerCase(); return /ダンベル|dumbbell|db\b/.test(s) ? 'ダンベル' : /マシン|machine|スミス|smith/.test(s) ? 'マシン' : /ケーブル|cable/.test(s) ? 'ケーブル' : /バーベル|barbell|bb\b/.test(s) ? 'バーベル' : /自重|bodyweight|腕立|懸垂|プランク|plank|push ?up|pull ?up|dip/.test(s) ? '自重' : 'その他'; };
+
+/* ---------- 解析のまとめ ---------- */
+/* text/rows → { kind:'table'|'text', items, skipped, names:[{src,count,id,score,cands,act}] } */
+IMP.analyze = (input, opt = {}) => {
+  let res, kind, table = null;
+  if (input.rows) {
+    table = IMP.detectTable(input.rows);
+    if (table) { if (opt.map) table.map = { ...opt.map }; table.unitOverride = opt.unit || null; res = IMP.parseTable(input.rows, table); kind = 'table'; }
+    else { res = IMP.parseText(input.rows.map((r) => r.filter((v) => String(v).trim()).join('  ')).join('\n')); kind = 'text'; }
+  } else {
+    const text = String(input.text || '');
+    const d = IMP.detectDelim(text);
+    const rows = d ? IMP.splitDelim(text, d) : null;
+    table = rows && IMP.detectTable(rows);
+    if (table) { if (opt.map) table.map = { ...opt.map }; table.unitOverride = opt.unit || null; res = IMP.parseTable(rows, table); kind = 'table'; input.rows = rows; }
+    else { res = IMP.parseText(text); kind = 'text'; }
+  }
+  const counts = new Map();
+  for (const it of res.items) { const k = it.name.trim(); counts.set(k, (counts.get(k) || 0) + Math.max(1, it.p.sets.length + it.p.bare.length)); }
+  const prev = opt.names ? new Map(opt.names.map((n) => [n.src, n])) : new Map();
+  const names = [...counts].map(([src, count]) => {
+    const old = prev.get(src); if (old) return { ...old, count };
+    const m = IMP.matchEx(src);
+    return { src, count, id: m.score >= 0.5 ? m.id : null, score: m.score, cands: m.cands, act: m.score >= 0.5 ? 'map' : 'new', part: m.id && m.score >= 0.35 ? getEx(m.id).part : IMP.guessPart(src) };
+  }).sort((a, b) => b.count - a.count);
+  const lb = kind === 'text' ? res.items.some((x) => x.p.lb) : null;
+  return { kind, table, format: table ? table.format : 'メモ・文章', items: res.items, skipped: res.skipped, names, lb };
+};
+
+/* 取り込む記録を組み立てる（DBはまだ変えない） */
+IMP.build = (an, opt = {}) => {
+  const batch = opt.batch || IMP.hash(JSON.stringify(an.items.map((x) => [x.day.dt.ymd, x.day.dt.time, x.day.title, x.name, x.p.sets, x.p.bare])));
+  const pre = `imp_${batch}_`; const now = Date.now();
+  const nameMap = new Map(an.names.map((n) => [n.src, n]));
+  const newEx = new Map(); const customs = [];
+  const exFor = (src) => {
+    const n = nameMap.get(src.trim()); if (!n || n.act === 'skip') return null;
+    if (n.act === 'map' && n.id && exMap().has(n.id)) return getEx(n.id);
+    if (newEx.has(src)) return newEx.get(src);
+    const part = n.part || IMP.guessPart(src); const eq = IMP.guessEquip(src); const timed = /プランク|plank|ホールド|hold|秒/.test(src);
+    const id = `${pre}ex_${IMP.hash(src)}`;
+    const e = { id, name: src.slice(0, 40), en: '', part, equipment: eq, stepKg: 2.5, defaultTargetReps: timed ? 30 : 10, muscles: [...(PART_DEFAULT_MUSCLES[part] || [])], sub: [], timed, relatedIds: [], createdAt: now, updatedAt: now, custom: true };
+    newEx.set(src, e); customs.push(e); return e;
+  };
+  const existing = new Set(DB.records.filter((r) => !isDemoRec(r) && !r.id.startsWith(pre) && r.sets.some((s) => s.done)).map((r) => r.date));
+  const sessions = new Map(); const records = new Map(); let sets = 0; const skipDays = new Set(); const overlapDays = new Set();
+  for (const it of an.items) {
+    const d = it.day.dt.ymd; if (!isYmd(d)) continue;
+    if (d > addDays(ymd(), 1)) continue;
+    if (existing.has(d)) { overlapDays.add(d); if (opt.skipOverlap) { skipDays.add(d); continue; } }
+    const ex = exFor(it.name); if (!ex) continue;
+    let list = it.p.sets.map((s) => ({ ...s }));
+    if (it.p.bare.length) list = list.concat(IMP.resolveBare(it.p.bare, ex));
+    const lb = an.kind === 'text' ? (opt.unit ? opt.unit === 'lb' : it.p.lb) : it.p.lb;
+    list = list.filter((s) => s.r > 0).map((s) => {
+      const w0 = s.w == null || !(s.w > 0) ? 0 : s.w;
+      const o = { w: lb ? Math.round(w0 * LB * 10) / 10 : Math.round(w0 * 100) / 100, r: Math.min(Math.round(s.r), isTimed(ex) || s.sec ? 3600 : 999), done: true, t: s.t || 'n' };
+      if (s.rpe >= 5 && s.rpe <= 10) o.rpe = s.rpe; return o;
+    }).filter((s) => s.w <= 1000);
+    if (!list.length) continue;
+    const sk = `${d}|${it.day.dt.time}|${it.day.title}|${it.day.line}`;
+    let ses = sessions.get(sk);
+    if (!ses) {
+      const [hh, mm] = (it.day.dt.time || '12:00').split(':').map(Number); const t0 = new Date(Number(d.slice(0, 4)), Number(d.slice(5, 7)) - 1, Number(d.slice(8, 10)), hh || 12, mm || 0).getTime();
+      ses = { id: pre + IMP.hash(sk), name: it.day.title || (an.format === 'メモ・文章' || an.format === '表形式' ? '取り込んだ記録' : `${an.format}から取り込み`), menuId: null, date: d, startedAt: t0, endedAt: t0, note: '', rating: 0, exerciseIds: [], updatedAt: now };
+      sessions.set(sk, ses);
+    }
+    const rk = `${ses.id}|${ex.id}`; let rec = records.get(rk);
+    if (!rec) { rec = { id: pre + IMP.hash(rk), sessionId: ses.id, date: d, exerciseId: ex.id, sets: [], memo: '', order: ses.exerciseIds.length, updatedAt: now }; records.set(rk, rec); ses.exerciseIds.push(ex.id); }
+    for (const s of list) { if (rec.sets.length < 60) { rec.sets.push(s); sets++; } }
+    if (it.note && !rec.memo.includes(it.note)) rec.memo = (rec.memo ? rec.memo + ' / ' : '') + String(it.note).slice(0, 200);
+  }
+  const usedEx = new Set([...records.values()].map((r) => r.exerciseId));
+  const recs = [...records.values()]; const sess = [...sessions.values()].filter((s) => s.exerciseIds.length);
+  const days = [...new Set(recs.map((r) => r.date))].sort();
+  return { batch, pre, sessions: sess, records: recs, customs: customs.filter((e) => usedEx.has(e.id)), sets, days, skipDays: [...skipDays], overlapDays: [...overlapDays], wl: recs.some((r) => ((customs.find((c) => c.id === r.exerciseId) || (exMap().get(r.exerciseId)) || {}).part) === '全身・WL') };
+};
+/* DBへ反映（同じ取り込みを再度行ったら置き換え） */
+IMP.commit = (b, label) => {
+  IMP.removeBatch(b.batch, true);
+  for (const e of b.customs) { const { custom, ...x } = e; DB.customExercises.push(x); }
+  DB.sessions.push(...b.sessions); DB.records.push(...b.records);
+  DB.imports = (DB.imports || []).filter((x) => x.id !== b.batch);
+  DB.imports.push({ id: b.batch, label: String(label || '').slice(0, 60), at: Date.now(), days: b.days.length, sets: b.sets, from: b.days[0] || '', to: b.days[b.days.length - 1] || '', updatedAt: Date.now() });
+  invalidateEx(); touch();
+};
+IMP.removeBatch = (batch, quiet) => {
+  const pre = `imp_${batch}_`;
+  DB.records = DB.records.filter((r) => !r.id.startsWith(pre) && !r.sessionId.startsWith(pre));
+  DB.sessions = DB.sessions.filter((s) => !s.id.startsWith(pre));
+  DB.customExercises = DB.customExercises.filter((e) => !e.id.startsWith(pre) || DB.records.some((r) => r.exerciseId === e.id));
+  DB.menus.forEach((m) => { m.exerciseIds = m.exerciseIds.filter((id) => !id.startsWith(pre) || exMap().has(id)); });
+  if (!quiet) DB.imports = (DB.imports || []).filter((x) => x.id !== batch);
+  invalidateEx(); sanitizeRefs(); touch();
+};
+
+/* ---------- 記入用テンプレート ---------- */
+IMP.templateCsv = () => {
+  const rows = [['日付', 'トレーニング名', '種目', '重量kg', '回数', 'セット数', 'RPE', 'メモ'],
+    ['2025-04-01', '胸の日', 'ベンチプレス', '60', '10', '3', '', ''], ['2025-04-01', '胸の日', 'ダンベルフライ', '12', '12', '3', '', ''],
+    ['2025-04-03', '脚の日', 'スクワット', '80', '8', '1', '8', '1セット目'], ['2025-04-03', '脚の日', 'スクワット', '85', '6', '2', '9', ''], ['2025-04-03', '脚の日', 'プランク', '', '', '', '', '60秒×2']];
+  return '﻿' + rows.map((r) => r.map((v) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v)).join(',')).join('\r\n');
+};
+const IMP_EXAMPLE = `2025/4/1 胸の日
+ベンチプレス 60kg×10×3
+ダンベルフライ 12kg 12回 3セット
+腕立て伏せ 20, 18, 15
+
+4/3
+スクワット 80×8, 85×6, 85×6 @9
+懸垂 10回×3
+プランク 60秒×2`;
+
+/* ---------- 画面 ---------- */
+function openImportWizard() {
+  const st = { step: 'src', text: '', label: '', an: null, input: null, unit: '', skipOverlap: true, busy: false, showSkip: false, showCols: false };
+  const reAnalyze = () => {
+    const opt = { names: st.an ? st.an.names : null, unit: st.unit || null, map: st.an && st.an.table && st.mapEdited ? st.an.table.map : null };
+    st.an = IMP.analyze(st.input, opt);
+  };
+  const preview = () => IMP.build(st.an, { skipOverlap: st.skipOverlap, unit: st.unit || null });
+  const start = async (input, label) => {
+    st.input = input; st.label = label; st.an = null; st.mapEdited = false; st.unit = '';
+    try { reAnalyze(); } catch (e) { console.error(e); toast('読み取りに失敗しました', 'error'); return false; }
+    if (!st.an.items.length) { toast(st.an.kind === 'table' ? '記録の行が見つかりませんでした。列の対応を確認してください' : '記録を読み取れませんでした。下の書き方の例を参考にしてください', 'error'); if (st.an.kind !== 'table') return false; }
+    st.step = 'check'; return true;
+  };
+  const nameRow = (n, i) => {
+    const ex = n.act === 'map' && n.id ? getEx(n.id) : null;
+    const tag = n.act === 'skip' ? '<span class="imp-tag skip">取り込まない</span>' : n.act === 'new' ? `<span class="imp-tag new">新しい種目（${esc(n.part)}）</span>` : n.score >= 0.85 || n.confirmed ? '<span class="imp-tag ok">一致</span>' : '<span class="imp-tag warn">要確認</span>';
+    return `<button type="button" class="imp-n" data-a="nm" data-i="${i}"><span class="src"><b>${esc(n.src)}</b><small>${n.count}セット</small></span><span class="arr">→</span><span class="dst">${ex ? esc(ex.name) : n.act === 'new' ? `「${esc(n.src.slice(0, 40))}」を追加` : '—'}${tag}</span></button>`;
+  };
+  const colsHtml = () => {
+    const t = st.an.table; const heads = (t.headers || []).map((h, i) => [i, String(h).trim() || `列${i + 1}`]);
+    return `<details class="sub-acc" ${st.showCols ? 'open' : ''} data-sk2="cols"><summary>列の対応（${esc(st.an.format)}）</summary>
+      <div class="imp-cols">${['date', 'workout', 'exercise', 'weight', 'reps', 'sets', 'secs', 'rpe', 'type', 'note'].map((f) => `<label><span>${IMP_FIELDS[f].label}</span><select class="input" data-ch="col" data-f="${f}"><option value="-1">（なし）</option>${heads.map(([i, h]) => `<option value="${i}" ${t.map[f] === i ? 'selected' : ''}>${esc(h)}</option>`).join('')}</select></label>`).join('')}</div></details>`;
+  };
+  openSheet({
+    title: '記録の取り込み', state: st,
+    isDirty: () => st.step === 'check',
+    render: () => {
+      if (st.step === 'src') return `<div class="imp">
+        <p class="small muted" style="margin:0 0 10px">ほかのアプリ・表計算・メモに残してきた記録を、このアプリの記録として取り込みます。取り込んだ記録はグラフや自己ベストにそのまま反映され、あとから<b>取り込みごとに取り消せます</b>。</p>
+        <input type="file" id="impFile" data-ch="file" accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.xlsm,text/csv,text/plain,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+        <button type="button" class="btn btn-primary btn-block btn-lg" data-a="pick">${ICON.upload}ファイルを選ぶ</button>
+        <div class="imp-fmts"><span>Strong</span><span>Hevy</span><span>FitNotes</span><span>Excel（.xlsx）</span><span>CSV・TSV</span><span>テキスト（.txt）</span><span>LiftCanvasのバックアップ</span></div>
+        <div class="grp" style="margin-top:16px">または、文章・表をそのまま貼り付け</div>
+        <textarea class="input imp-ta" data-in="text" rows="7" placeholder="メモ帳やスプレッドシートからコピーして貼り付け&#10;&#10;${esc(IMP_EXAMPLE).replace(/\n/g, '&#10;')}">${esc(st.text)}</textarea>
+        <div class="row" style="margin-top:8px"><button type="button" class="btn btn-primary" data-a="paste" ${st.text.trim() ? '' : 'disabled'}>読み取る</button><button type="button" class="btn" data-a="example">例を入れてみる</button></div>
+        <details class="sub-acc"><summary>書き方の例・対応している形式</summary><div class="small" style="line-height:1.8">
+          <p style="margin:0 0 6px"><b>メモの書き方</b>（日付の行のあとに種目を書く。年は省略可）</p>
+          <pre class="imp-ex">${esc(IMP_EXAMPLE)}</pre>
+          <ul style="padding-left:18px;margin:6px 0">
+            <li>重量×回数×セット数：<code>60×10×3</code>　<code>60kg 10回 3セット</code>　<code>100kg 5x5</code></li>
+            <li>重量を変えたセット：<code>80×8, 85×6, 85×6</code>　同じ重量で回数違い：<code>60kg 10,10,8</code></li>
+            <li>自重・時間：<code>懸垂 10回×3</code>　<code>プランク 60秒</code>　加重は <code>+10kg×8</code></li>
+            <li>RPE：<code>@8</code>　ウォームアップ：行に「アップ」　ポンド：<code>135lb</code></li></ul>
+          <p style="margin:6px 0"><b>アプリから</b>：Strong（設定→データを書き出す）、Hevy（設定→データを書き出す→ワークアウト）、FitNotes（バックアップ→CSV書き出し）のCSVをそのまま選べます。</p>
+          <p style="margin:6px 0"><b>表計算</b>：「日付・種目・重量・回数（・セット数）」の列があれば読めます。日付が最初の行にしかない書き方や、セルに「60×10」と書く書き方も読めます。</p>
+          <p style="margin:6px 0"><b>紙のノート</b>：テンプレートに入力するか、上の書き方でメモに打ち込んで貼り付けてください。</p>
+          <button type="button" class="btn btn-sm" data-a="tpl">${ICON.download}記入用テンプレート（CSV）</button></div></details></div>`;
+      if (st.step === 'done') {
+        const r = st.result;
+        return `<div class="imp center"><div class="imp-done">${ICON.check}</div><h3 style="margin:6px 0">取り込みました</h3>
+          <p class="muted">${r.days.length}日分 ・ ${r.records.length}種目 ・ ${r.sets}セット<br>${fmtDate(r.days[0], true)} 〜 ${fmtDate(r.days[r.days.length - 1], true)}</p>
+          ${r.customs.length ? `<p class="small muted">新しい種目を${r.customs.length}個追加しました（ライブラリの「自分の種目」で部位・筋肉を直せます）</p>` : ''}
+          ${r.wl && !DB.settings.wl ? `<div class="banner info" style="text-align:left"><div class="m"><b>ウェイトリフティング種目が含まれています</b><br><span class="small">WLのメニューや分析も使うならONにしてください。</span></div><button type="button" class="btn btn-sm" data-a="wlOn">ONにする</button></div>` : ''}
+          <p class="tiny faint">設定 →「記録の取り込み」から、この取り込みをまとめて取り消せます。</p></div>`;
+      }
+      const an = st.an; const b = preview();
+      const needs = an.names.filter((n) => n.act === 'map' && n.score < 0.85 && !n.confirmed).length;
+      let h = `<div class="imp"><div class="imp-sum"><div><b class="num">${b.days.length}</b><span>日</span></div><div><b class="num">${b.records.length}</b><span>種目（のべ）</span></div><div><b class="num">${b.sets}</b><span>セット</span></div></div>
+        <p class="small muted center" style="margin:4px 0 10px">${esc(st.label)} ・ ${esc(an.format)}${b.days.length ? ` ・ ${fmtDate(b.days[0], true)}〜${fmtDate(b.days[b.days.length - 1], true)}` : ''}</p>`;
+      if (an.kind === 'table') h += colsHtml();
+      const autoLb = an.kind === 'text' ? an.lb : !!(an.table && an.table.unit === 'lb');
+      h += `<div class="field" style="margin:8px 0"><span class="lbl">重量の単位</span><div class="seg pill mini"><button type="button" data-a="unit" data-v="" aria-pressed="${!st.unit}">自動</button><button type="button" data-a="unit" data-v="kg" aria-pressed="${st.unit === 'kg'}">kg</button><button type="button" data-a="unit" data-v="lb" aria-pressed="${st.unit === 'lb'}">lb</button></div>
+        <p class="tiny faint" style="margin:4px 2px 0">${st.unit === 'lb' ? 'すべてポンドとして読み、kgに換算します' : st.unit === 'kg' ? 'すべてkgとして読みます' : autoLb ? 'ポンド（lb）の記録を見つけました。kgに換算して取り込みます' : 'kgとして読みます（ポンドの記録なら「lb」を選択）'}</p></div>`;
+      if (b.overlapDays.length) h += `<label class="sw-row" style="border:0"><div class="t"><b>すでに記録がある日（${b.overlapDays.length}日）は取り込まない</b><span>このアプリで記録済みの日と重なっています。二重に数えないようにします</span></div><span class="switch"><input type="checkbox" data-ch="ovl" ${st.skipOverlap ? 'checked' : ''}><span></span></span></label>`;
+      h += `<div class="grp" style="margin-top:6px">種目の対応（${an.names.length}）${needs ? ` ・ <span style="color:var(--warn,#d97706)">要確認 ${needs}</span>` : ''}</div>
+        <p class="tiny faint" style="margin:0 0 6px">タップで変更できます。見つからない種目は「自分の種目」として追加されます。</p>
+        <div class="imp-names">${an.names.map((n, i) => ({ n, i })).sort((a, c) => (rank(a.n) - rank(c.n))).map(({ n, i }) => nameRow(n, i)).join('')}</div>`;
+      if (an.skipped.length) {
+        h += `<details class="sub-acc"><summary>読み取れなかった行（${an.skipped.length}）</summary><div class="imp-skip">${an.skipped.slice(0, 80).map((x) => `<div><span>${x.line}行目</span><code>${esc(String(x.raw).slice(0, 80))}</code><em>${esc(x.why)}</em></div>`).join('')}</div>
+          ${an.kind === 'text' ? '<button type="button" class="btn btn-sm" data-a="back">文章を直す</button>' : ''}</details>`;
+      }
+      h += `<details class="sub-acc"><summary>読み取り結果を確認（最初の20件）</summary><div class="imp-prev">${an.items.slice(0, 20).map((it) => {
+        const nm = an.names.find((n) => n.src === it.name.trim()); const ex = nm && nm.act === 'map' && nm.id ? getEx(nm.id) : null;
+        const sets = it.p.sets.concat(IMP.resolveBare(it.p.bare, ex));
+        return `<div><span class="d">${esc(it.day.dt.ymd ? fmtDate(it.day.dt.ymd, true) : '?')}</span><b>${esc(ex ? ex.name : it.name)}</b><span class="v">${sets.length ? esc(sets.map((s) => `${s.w ? fmtNum(s.w) + (it.p.lb && st.unit !== 'kg' || st.unit === 'lb' ? 'lb' : 'kg') + '×' : ''}${s.r}${s.sec ? '秒' : ''}${s.rpe ? '@' + s.rpe : ''}`).join(', ')) : '—'}</span></div>`;
+      }).join('')}</div></details></div>`;
+      return h;
+    },
+    foot: () => {
+      if (st.step === 'src') return `<button type="button" class="btn" data-a="__close">閉じる</button>`;
+      if (st.step === 'done') return `<button type="button" class="btn" data-a="doneClose">閉じる</button><button type="button" class="btn btn-primary" data-a="goReview">記録を見る</button>`;
+      const b = preview();
+      return `<button type="button" class="btn" data-a="back">戻る</button><button type="button" class="btn btn-primary" data-a="commit" ${b.sets ? '' : 'disabled'}>${b.sets ? `${b.days.length}日分を取り込む` : '取り込める記録がありません'}</button>`;
+    },
+    inputs: { text: (el, e, s) => { st.text = el.value; const btn = $('[data-a="paste"]', s.body); if (btn) btn.disabled = !st.text.trim(); } },
+    changes: {
+      file: async (el, e, s) => {
+        const f = el.files && el.files[0]; el.value = ''; if (!f) return;
+        if (f.size > 40 * 1024 * 1024) { toast('ファイルが大きすぎます', 'error'); return; }
+        try {
+          setBusy(true, '読み込み中…');
+          const buf = await f.arrayBuffer();
+          if (/\.(xlsx|xlsm|xls)$/i.test(f.name) || (new Uint8Array(buf)[0] === 0x50 && new Uint8Array(buf)[1] === 0x4b)) {
+            const sheets2 = await IMP.xlsxRows(buf);
+            const rows = []; for (const sh of sheets2) { if (rows.length && sh.rows.length && IMP.detectTable(sh.rows) && IMP.detectTable(rows)) rows.push(...sh.rows.slice(IMP.detectTable(sh.rows).headRow + 1)); else rows.push(...sh.rows, ['']); }
+            setBusy(false); if (await start({ rows: rows.filter((r) => r.some((v) => String(v).trim())) }, f.name)) { s.render(); s.renderFoot(); s.body.scrollTop = 0; }
+            return;
+          }
+          const text = IMP.decode(buf); setBusy(false);
+          const tt = text.trim();
+          if (tt.startsWith(TRANSFER_PREFIX) || tt.startsWith('{')) { s.close(); await handleImportFile(new File([text], f.name, { type: 'application/json' })); return; }
+          if (await start({ text }, f.name)) { s.render(); s.renderFoot(); s.body.scrollTop = 0; }
+        } catch (err) { console.error(err); setBusy(false); toast(err.message || '読み込みに失敗しました', 'error'); }
+      },
+      col: (el, e, s) => { const f = el.dataset.f; const v = Number(el.value); st.an.table.map[f] = v >= 0 ? v : undefined; if (v < 0) delete st.an.table.map[f]; st.mapEdited = true; st.showCols = true; reAnalyze(); s.render(); s.renderFoot(); },
+      ovl: (el, e, s) => { st.skipOverlap = el.checked; s.render(); s.renderFoot(); }
+    },
+    actions: {
+      pick: (el, e, s) => { const f = $('#impFile', s.body); if (f) f.click(); },
+      example: (el, e, s) => { st.text = IMP_EXAMPLE; s.render(); },
+      tpl: () => { downloadBlob(new Blob([IMP.templateCsv()], { type: 'text/csv' }), 'liftcanvas_import_template.csv'); toast('テンプレートを保存しました。Excelやスプレッドシートで開いて記入できます'); },
+      paste: async (el, e, s) => {
+        const t = st.text.trim(); if (!t) return;
+        if (t.startsWith(TRANSFER_PREFIX) || (t.startsWith('{') && t.includes('"records"'))) { s.close(); await handleImportFile(new File([t], '貼り付け', { type: 'application/json' })); return; }
+        if (await start({ text: st.text }, '貼り付けた文章')) { s.render(); s.renderFoot(); s.body.scrollTop = 0; }
+      },
+      back: (el, e, s) => { st.step = 'src'; s.render(); s.renderFoot(); s.body.scrollTop = 0; },
+      unit: (el, e, s) => { st.unit = el.dataset.v; reAnalyze(); s.render(); s.renderFoot(); },
+      nm: async (el, e, s) => {
+        const n = st.an.names[Number(el.dataset.i)];
+        const choices = n.cands.filter((id) => exMap().has(id)).map((id) => ({ key: 'id:' + id, label: getEx(id).name + (n.act === 'map' && n.id === id ? ' ✓' : ''), desc: `${getEx(id).part} ・ ${getEx(id).equipment}` }));
+        choices.push({ key: 'pick', label: 'ほかの種目から選ぶ…' }, { key: 'new', label: `新しい種目として追加${n.act === 'new' ? ' ✓' : ''}`, desc: `「${n.src.slice(0, 40)}」を自分の種目に追加します` }, { key: 'skip', label: `取り込まない${n.act === 'skip' ? ' ✓' : ''}` });
+        const k = await choiceSheet({ title: `「${n.src.slice(0, 30)}」をどの種目として取り込みますか？`, choices });
+        if (!k) return;
+        if (k.startsWith('id:')) { n.act = 'map'; n.id = k.slice(3); n.confirmed = true; }
+        else if (k === 'skip') n.act = 'skip';
+        else if (k === 'new') {
+          const p = await choiceSheet({ title: '部位を選んでください', choices: CATEGORIES.map((c) => ({ key: c, label: c + (c === n.part ? ' ✓' : '') })) });
+          if (!p) return; n.act = 'new'; n.part = p;
+        } else if (k === 'pick') {
+          pickExercises({ title: `「${n.src.slice(0, 20)}」に対応する種目`, onDone: (ids) => { if (ids && ids[0]) { n.act = 'map'; n.id = ids[0]; n.confirmed = true; if (!n.cands.includes(ids[0])) n.cands.unshift(ids[0]); } s.render(); s.renderFoot(); } });
+          return;
+        }
+        s.render(); s.renderFoot();
+      },
+      commit: async (el, e, s) => {
+        const b = preview(); if (!b.sets) return;
+        const again = (DB.imports || []).find((x) => x.id === b.batch);
+        if (again) { const ok = await confirmSheet({ title: '同じ内容を以前に取り込んでいます', message: `<p>${esc(fmtDateTime(again.at))}の取り込みを、今回の内容で置き換えます（取り込み後に編集した内容は元に戻ります）。</p>`, ok: '置き換える' }); if (!ok) return; }
+        IMP.commit(b, st.label);
+        st.result = b; st.step = 'done'; refreshAll(); s.render(); s.renderFoot(); s.body.scrollTop = 0;
+      },
+      wlOn: (el, e, s) => { DB.settings.wl = true; touch(); refreshAll(); s.render(); toast('ウェイトリフティング機能をONにしました'); },
+      doneClose: (el, e, s) => s.close(),
+      goReview: (el, e, s) => { s.close(); setTab('review'); }
+    }
+  });
+  function rank(n) { return n.act === 'map' && n.score < 0.85 && !n.confirmed ? 0 : n.act === 'new' ? 1 : n.act === 'skip' ? 3 : 2; }
+}
+/* 設定画面：取り込みの一覧と取り消し */
+function importSettingsHtml() {
+  const list = (DB.imports || []).slice().sort((a, b) => b.at - a.at);
+  return `${setSecHead('import', false, `${ICON.download} 記録の取り込み`, list.length ? `${list.length}件` : 'ほかのアプリ・メモから')}
+    <p class="small muted" style="margin:0 0 10px">Strong・Hevy・FitNotes などのアプリ、Excel・スプレッドシート、メモ帳の文章から、これまでの記録を取り込めます。</p>
+    <button type="button" class="btn btn-primary btn-block" data-a="importWizard">${ICON.upload}これまでの記録を取り込む</button>
+    ${list.length ? `<div class="imp-list">${list.map((x) => `<div class="imp-li"><div class="m"><b>${esc(x.label || '取り込み')}</b><span>${x.days}日分・${x.sets}セット${x.from ? ` ・ ${fmtDate(x.from, true)}〜${fmtDate(x.to, true)}` : ''}<br>${esc(fmtDateTime(x.at))}に取り込み</span></div><button type="button" class="btn btn-sm btn-danger-line" data-a="importUndo" data-id="${esc(x.id)}">取り消す</button></div>`).join('')}</div>` : ''}</details>`;
+}
+Object.assign(ACT, {
+  importWizard: () => openImportWizard(),
+  importUndo: async (el) => {
+    const id = el.dataset.id; const x = (DB.imports || []).find((y) => y.id === id); if (!x) return;
+    const ok = await confirmSheet({ title: 'この取り込みを取り消しますか？', message: `<p>「${esc(x.label || '取り込み')}」で取り込んだ${x.days}日分の記録を削除します。ほかの記録には影響しません。</p>`, ok: '取り消す', danger: true });
+    if (!ok) return;
+    if (UI.wo && String(UI.wo.id || '').startsWith(`imp_${id}_`)) { UI.wo = null; closeWorkoutView(); }
+    IMP.removeBatch(id); refreshAll(); toast('取り込みを取り消しました', 'ok');
+  }
 });
 
 /* =====================================================================
