@@ -1052,7 +1052,7 @@ html[data-theme="dark"] .pr-chip b{text-shadow:0 0 14px rgba(255,209,102,.35)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.22.1';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.22.2';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -4150,7 +4150,10 @@ function renderSettings() {
 }
 
 /* ---------- エクスポート／インポート ---------- */
-function buildExport() { const data = clone(DB); data.timer = null; return { app: 'LiftCanvas', format: STORAGE_KEY, version: APP_VERSION, exportedAt: new Date().toISOString(), data }; }
+/* バックアップにはサンプル記録を含めない（復元で紛れ込まないように） */
+const isDemoSes = (x) => String(x.id || '').startsWith('demo_');
+const isDemoBody = (b) => b.demo || b.updatedAt === 1;
+function buildExport() { const data = clone(DB); data.timer = null; data.records = data.records.filter((r) => !r.demo); data.sessions = data.sessions.filter((x) => !isDemoSes(x)); data.bodylog = data.bodylog.filter((b) => !isDemoBody(b)); return { app: 'LiftCanvas', format: STORAGE_KEY, version: APP_VERSION, exportedAt: new Date().toISOString(), data }; }
 function exportName(ext = 'json') { const d = new Date(); return `liftcanvas_backup_${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}_${pad2(d.getHours())}${pad2(d.getMinutes())}.${ext}`; }
 function markBackup(via) { DB.settings.lastBackupAt = Date.now(); DB.settings.lastBackupVia = via; if (via.startsWith('Google')) { DB.settings.lastDriveAt = Date.now(); DB.settings.drivePending = false; } save(); updateTabbar(); if (UI.tab === 'settings' || UI.tab === 'train') renderTab(); }
 function downloadBlob(blob, name) { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000); }
@@ -4307,6 +4310,16 @@ function driveReady() {
 }
 async function driveBackup() {
   if (!driveReady()) return;
+  setBusy(true, 'Googleドライブを確認しています…');
+  // 新しい端末・データが空の端末から、ドライブにある本物のバックアップを上書きしてしまう事故を防ぐ
+  let f = null;
+  try { f = await Drive.findFile(); } catch (e) { setBusy(false); console.error(e); toast(e.message || 'Googleドライブに接続できませんでした', 'error'); return; }
+  const real = DB.records.filter((r) => !r.demo && r.sets.some((x) => x.done)).length;
+  if (f && (!DB.settings.lastDriveAt || !real)) {
+    setBusy(false);
+    const ok = await confirmSheet({ title: 'ドライブのバックアップを上書きしますか？', message: `<p>Googleドライブには、すでにバックアップがあります（${esc(fmtDateTime(Date.parse(f.modifiedTime)))} 更新）。</p><p>${real ? `この端末の記録（${real}件）で` : '<b>この端末には記録がないため、保存すると空のデータで</b>'}置き換わります。<b>機種変更の直後なら、先に「Googleドライブから復元」</b>を行ってください。</p>`, ok: '上書きして保存', danger: true });
+    if (!ok) return;
+  }
   setBusy(true, 'Googleドライブに保存しています…');
   try { const r = await Drive.upload(); markBackup('Googleドライブ'); toast(r === 'created' ? 'Googleドライブに保存しました' : 'Googleドライブのバックアップを更新しました', 'ok'); }
   catch (e) { console.error(e); DB.settings.drivePending = true; save(); toast(e.message || '保存に失敗しました', 'error'); }
