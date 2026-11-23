@@ -3406,6 +3406,7 @@ function renderMenuSheet(){
     <button class="menu-item" data-act="profileSheet"><span class="mi">${curProfile().emoji}</span><span>ユーザー切り替え（${esc(curProfile().name)}）<small>家族で同じブラウザを使うとき、データを人ごとに分けて保存</small></span></button>
     <button class="menu-item" data-act="genreSheet"><span class="mi">🍽️</span><span>使うジャンル<small>${activeGenres().length===GENRES.length?'和・洋・中・韓・エスニックすべて使用中':'使用中：'+activeGenres().join('・')}</small></span></button>
     <button class="menu-item" data-act="shareSheet"><span class="mi">👪</span><span>家族と献立を共有<small>献立と買い物リストを送る／届いた献立を取り込む</small></span></button>
+    <button class="menu-item" data-act="shareApp"><span class="mi">💌</span><span>このアプリを知り合いに教える<small>アプリのリンクをLINEなどで送ります（あなたのデータは送られません）</small></span></button>
     <button class="menu-item" data-act="equipSheet"><span class="mi">🍳</span><span>調理器具の設定<small>持っている器具に合わせて料理を提案（オーブン・せいろ・ノンフライヤーなど）</small></span></button>
     <button class="menu-item" data-act="seasonSheet"><span class="mi">🧂</span><span>調味料をカスタマイズ<span class="tagx">上級者向け</span><small>塩麹・醤油麹など手持ちの調味料を追加／自分だけの味付けを作る</small></span></button>
     ${isStandalone()?'':`<button class="menu-item" data-act="installGuide"><span class="mi">📲</span><span>ホーム画面に追加（アプリとして使う）<small>データが消えにくくなり、オフラインでも使えます</small></span></button>`}
@@ -3595,7 +3596,7 @@ function closeModalUI(){ closeModal(); popOv(); }
 /* =====================================================================
    14. PWA（ホーム画面に追加・オフライン・自動アップデート・引き継ぎ）
    ===================================================================== */
-const APP_VERSION = '2026.11.17.3';
+const APP_VERSION = '2026.11.23.1';
 const SW_FILE = 'stock-arrange-meal-sw.js', SW_SCOPE = './stock-arrange-meal';
 const PWA = { deferred:null };
 const isHttp = ()=>/^https?:$/.test(location.protocol);
@@ -3854,6 +3855,14 @@ function planText(p){
 const SHARE_BASES = ["w_teriyaki", "w_negishio", "w_shoga", "w_misomayo", "w_dashiankake", "w_oroshiponzu", "w_nimono", "w_kinpira", "w_gomaae", "w_nibitashi", "w_misoshiru", "y_garibata", "y_tomatogarlic", "y_tonyu", "y_curry", "y_cheeseyaki", "y_lemonbutter", "y_mustardmayo", "y_marine", "y_consomme", "c_oyster", "c_toban", "c_umashioan", "c_mabo", "c_amazu", "c_banbanji", "c_gomatonyu", "c_chukasoup", "k_yangnyeom", "k_bulgogi", "k_chijimi", "k_jjim", "k_namul", "k_chorogi", "k_sundubu", "t_gapao", "t_sweetchili", "t_coconut", "t_kaomangai", "t_yam", "t_tomyum", "x_shiokoji_yaki", "x_shiokoji_soup", "x_shoyukoji_itame", "x_shoyukoji_ae", "x_yuzu_ponzu", "x_yuzu_mayo", "x_saikyo", "x_shiromiso_soup", "x_hoikoro", "x_jajan", "x_kurozu", "x_balsamico", "x_balsamico_marine", "x_shiokonbu_ae", "x_dashida_soup", "e_yuan", "e_spicegrill", "e_panko", "e_gochumayo", "e_seiro_goma", "e_seiro_chuka", "e_af_karaage", "e_af_curry", "e_auto_tomato", "e_auto_wa", "g_nikujaga", "g_buta_daikon", "g_aquapazza", "g_confit", "g_ebichili", "g_mapo", "g_stew", "g_samgye", "g_roast"];
 const SHARE_PARTS = ["p_mushidori", "p_butakoma", "p_momo", "p_hikiniku", "p_sake", "p_shiromi", "p_tofu", "p_egg", "p_tuna", "p_saba", "p_butabara", "p_sasami", "p_atsuage", "p_ebi", "v_ninjin", "v_cabbage", "v_tamanegi", "v_broccoli", "v_kinoko", "v_horenso", "v_komatsuna", "v_nasu", "v_jagaimo", "v_piman", "v_moyashi", "v_negi", "v_kabocha", "v_hakusai", "v_tomato", "v_daikon", "v_paprika", "v_gobo", "p_mune", "p_gyukoma", "p_torihiki", "p_sausage", "p_aburaage", "v_renkon", "v_ingen", "v_asupara", "v_nira", "v_chingensai", "v_satoimo", "v_satsuma", "v_kyuri", "p_tamago", "p_butahiki", "p_tebamoto", "p_bacon", "p_ham", "p_seafood", "p_buri", "p_chikuwa", "p_kanikama", "p_daizu", "v_mixveg", "v_corn", "v_edamame", "v_lettuce", "v_mizuna", "v_toumyou", "v_nagaimo", "v_okra", "v_zucchini", "v_minitomato", "v_kabu", "v_takenoko", "v_konnyaku", "v_hijiki", "v_wakame", "v_wamix", "v_cutmix"];
 const APP_URL = 'https://pierrotmask.github.io/unique-tool/stock-arrange-meal.html';
+// アプリの紹介（データは含めず、公開URLだけを送る。LINEでは端末のブラウザで開くよう指定）
+const APP_SHARE_URL = APP_URL+'?openExternalBrowser=1';
+const APP_SHARE_TEXT = '週末に下処理した食材を登録すると、毎日の献立を自動で考えてくれるアプリ「かけ算ごはん」。無料・登録不要で使えます。';
+async function shareApp(){
+  if(navigator.share){ try{ await navigator.share({ title:'かけ算ごはん', text:APP_SHARE_TEXT, url:APP_SHARE_URL }); return 'shared'; }catch(e){ if(e&&e.name==='AbortError') return 'cancel'; } }
+  try{ await navigator.clipboard.writeText(APP_SHARE_TEXT+'\n'+APP_SHARE_URL); return 'copied'; }catch(e){}
+  prompt('このリンクをコピーして送ってください', APP_SHARE_URL); return 'prompt';
+}
 const B62 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 const e62 = (n,w)=>{ let r=''; for(let i=0;i<w;i++){ r=B62[n%62]+r; n=Math.floor(n/62); } return r; };
 const d62 = str=>[...str].reduce((a,c)=>{ const v=B62.indexOf(c); if(v<0) throw new Error('char'); return a*62+v; },0);
@@ -4483,6 +4492,7 @@ const ACTIONS={
   swapMode:ds=>{ if(swapDish(+ds.d,0,ds.m)){ render(); toast(ds.m==='gochiso'?'🍷 ごちそうに変更しました':'⚡ 時短の料理に変更しました'); } else toast(ds.m==='gochiso'?'手持ちの食材・設定で作れるごちそうがありません':'他に条件を満たす料理がありません'); },
   swap:ds=>{ if(swapDish(+ds.d,+ds.j)){ render(); toast('↻ 別のアレンジに差し替えました'); } else toast('他に条件を満たす組み合わせがありません'); },
   addOpen:ds=>{ ADD_OPEN=+ds.d; render(); },
+  shareApp:async()=>{ const r=await shareApp(); if(r==='copied') toast('📋 紹介文とリンクをコピーしました。LINEなどに貼り付けて送ってください'); },
   wantSheet:()=>{ const had=!!$('#sheet').innerHTML; WANT_Q=''; WANT_CACHE={}; renderWantSheet(); if(!had) pushOv(); setTimeout(()=>{ const i=$('#want_q'); if(i&&!('ontouchstart' in window)) i.focus(); },50); },
   wantDay:ds=>{ WANT_DAY=+ds.v; renderWantSheet(); },
   wantMore:()=>{ WANT_CACHE={}; const el=$('#want_res'); if(el) el.innerHTML=wantResultsHTML(WANT_Q); },
