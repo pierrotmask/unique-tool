@@ -2,7 +2,7 @@
    ・このアプリ（stock-arrange-meal*）だけを担当し、同じリポジトリの他ツールには影響しない
    ・HTMLは「ネット優先」：オンラインなら毎回最新版を取得し、オフライン時だけ保存版を表示
    ・アイコン等は保存版を即表示しつつ裏で更新 */
-const VERSION = '2026.11.17.3';
+const VERSION = '2026.11.23.1';
 const CACHE = 'kakezan-gohan-' + VERSION;
 const PAGE = './stock-arrange-meal.html';
 const ASSETS = [PAGE, './stock-arrange-meal.webmanifest', './stock-arrange-meal-icon-192.png', './stock-arrange-meal-icon-512.png', './stock-arrange-meal-apple-touch-icon.png'];
