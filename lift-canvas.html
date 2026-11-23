@@ -1156,6 +1156,171 @@ svg.qr{stroke:none;fill:#000}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ev-h{color:#6ee7b7}:root:not([data-theme="light"]) .ev-m{color:#93c5fd}}
 :root[data-theme="dark"] .ev-h{color:#6ee7b7}:root[data-theme="dark"] .ev-m{color:#93c5fd}
 
+/* =====================================================================
+   デザインレイヤー「カーボン×ボルト」
+   ・グラファイトの面と細い線で、ジムの器具のように硬質ですっきりと
+   ・操作の色は1色（ボルト＝蛍光ライム）。ライトでは黒いボタン＋ライムの差し色
+   ・見出しには英字の小見出し（Barlow Condensed）を添えて、スコアボードのような緊張感
+   ・色の意味（緑＝完了／黄＝自己ベスト／赤＝高負荷）は維持
+   ===================================================================== */
+:root{
+  --volt:#c6f000; --volt-ink:#3f5c00;
+  --glow:#9cc800; --glow-2:#c6f000;
+  --bg:#f0f1ed;
+  --bg-fx:linear-gradient(180deg,#f6f7f3 0,#eeefea 520px);
+  --grid-line:rgba(20,24,16,.035);
+  --surface:#ffffff; --surface-solid:#ffffff; --surface-2:#f5f6f2; --surface-3:#eaece6; --overlay:rgba(246,247,243,.9);
+  --line:#e1e3dc; --line-2:#cdd0c6;
+  --text:#0e100c; --text-2:#454a40; --text-3:#666b61; --head:#0b0c09;
+  --accent:#3f6a00; --accent-2:#2f5000; --accent-soft:#eef6d6; --accent-soft-2:#dbecab; --on-accent:#fff;
+  --btn:#121410; --btn-2:#000000; --on-btn:#ffffff; --btn-ic:#c6f000;
+  --edge-hi:rgba(255,255,255,.9); --edge-lo:rgba(0,0,0,.06);
+  --elev-1:0 0 0 1px var(--line),0 1px 2px rgba(20,24,16,.04),0 10px 24px -18px rgba(20,24,16,.28);
+  --elev-2:0 0 0 1px var(--line),0 4px 10px rgba(20,24,16,.05),0 24px 44px -24px rgba(20,24,16,.36);
+  --well:inset 0 0 0 1px var(--line-2),inset 0 2px 3px rgba(20,24,16,.05);
+  --holo-bg:radial-gradient(120% 90% at 50% 18%,#ffffff 0%,#eef0ea 50%,#e1e4dc 100%);
+  --holo-grid:rgba(60,90,0,.16); --holo-ring:rgba(90,130,0,.4); --holo-edge:#666b61;
+  --dock:rgba(250,250,247,.86);
+  --r-xl:22px; --r-lg:18px; --r:14px; --r-sm:11px;
+}
+html[data-theme="dark"]{
+  --volt:#c8f031; --volt-ink:#c8f031;
+  --glow:#a6d11c; --glow-2:#d4ff4a;
+  --bg:#08090a;
+  --bg-fx:radial-gradient(900px 460px at 90% -8%,rgba(200,240,49,.07),transparent 62%),linear-gradient(180deg,#0c0d0c,#070808);
+  --grid-line:rgba(255,255,255,.022);
+  --surface:#121412; --surface-solid:#121412; --surface-2:#1a1c19; --surface-3:#232621; --overlay:rgba(10,11,10,.86);
+  --line:#252823; --line-2:#353932;
+  --text:#f1f3ee; --text-2:#bcc1b6; --text-3:#8e9488; --head:#fafbf7;
+  --accent:#cdf25a; --accent-2:#e0ff8c; --accent-soft:#1f270b; --accent-soft-2:#34421a; --on-accent:#0a0b09;
+  --btn:#c8f031; --btn-2:#b2d91f; --on-btn:#0a0b09; --btn-ic:#0a0b09;
+  --edge-hi:rgba(255,255,255,.05); --edge-lo:rgba(0,0,0,.6);
+  --elev-1:0 0 0 1px var(--line),0 14px 30px -18px rgba(0,0,0,.9);
+  --elev-2:0 0 0 1px var(--line-2),0 24px 50px -20px rgba(0,0,0,.95);
+  --well:inset 0 0 0 1px var(--line-2),inset 0 2px 6px rgba(0,0,0,.5);
+  --holo-bg:radial-gradient(120% 90% at 50% 15%,#1c2115 0%,#0f110e 52%,#070807 100%);
+  --holo-grid:rgba(200,240,49,.2); --holo-ring:rgba(200,240,49,.55); --holo-edge:#a9c46a;
+  --bd-skin:#1b1e1a; --bd-edge:#7d8577; --bd-idle:#2b2f29; --bd-sep:#0b0c0b;
+  --dock:rgba(14,15,14,.84);
+  --ok:#4ade80; --ok-2:#86efac;
+}
+
+/* ---- 背景：格子は消して、面と余白で見せる ---- */
+body::before{display:none}
+body{letter-spacing:.01em}
+
+/* ---- 見出し：英字の小見出し＋太い和文 ---- */
+.topbar{padding-top:calc(var(--safe-top) + 18px)}
+.topbar h1{font-size:30px;font-weight:900;letter-spacing:-.01em;line-height:1.08}
+.topbar .kick{display:flex;align-items:center;gap:7px;font-family:var(--f-num);font-size:13px;font-weight:700;letter-spacing:.22em;color:var(--text-3);margin-bottom:3px;text-transform:uppercase}
+.topbar .kick::before{content:"";width:16px;height:3px;border-radius:2px;background:var(--volt)}
+.sec-h h2{font-weight:900;letter-spacing:.01em}
+.sec-h h2::before{background:var(--volt);box-shadow:none;width:4px;height:15px}
+
+/* ---- 面：細い線で区切る、硬質なカード ---- */
+.card,.list,.kpi,.stat-tile,.exc{box-shadow:var(--elev-1)}
+.sheet{background:var(--surface-solid);box-shadow:0 -20px 60px -10px rgba(0,0,0,.45)}
+
+/* ---- ボタン：フラット・太字・はっきり押せる ---- */
+.btn{box-shadow:0 0 0 1px var(--line-2);background:var(--surface-solid);font-weight:800}
+.btn:active:not(:disabled){transform:translateY(1px);box-shadow:0 0 0 1px var(--line-2),inset 0 2px 6px rgba(0,0,0,.12)}
+.btn-primary,.btn-start,.fab,.kp-grid button.go,.chip[aria-pressed="true"],.seg.pill button[aria-pressed="true"],.wo-nav button.cur,.toast-undo{
+  background:var(--btn) !important;color:var(--on-btn) !important;border-color:var(--btn);
+  box-shadow:0 10px 24px -14px color-mix(in srgb,var(--btn) 85%,transparent)}
+.btn-primary svg,.btn-start svg,.fab svg{color:var(--btn-ic)}
+.btn-primary:active:not(:disabled),.btn-start:active,.fab:active{background:var(--btn-2) !important;transform:translateY(1px);box-shadow:none}
+.btn-primary{letter-spacing:.04em}
+.btn-lg{font-weight:900}
+.btn-soft{background:var(--accent-soft);color:var(--accent);box-shadow:0 0 0 1.5px var(--accent)}
+html[data-theme="dark"] .btn-primary,html[data-theme="dark"] .btn-start,html[data-theme="dark"] .fab{box-shadow:0 10px 26px -14px rgba(200,240,49,.75)}
+.input:focus{box-shadow:var(--well),0 0 0 3px color-mix(in srgb,var(--volt) 55%,transparent)}
+.cell.on{box-shadow:var(--well),0 0 0 2px var(--volt),0 0 16px -4px var(--volt)}
+.restbar .prog{background:var(--volt);box-shadow:none}
+.tip-i{background:var(--btn);color:var(--btn-ic);box-shadow:none}
+.card.tip::before{background:var(--volt);box-shadow:none}
+.reco .reco-stats::before{background:linear-gradient(90deg,var(--volt),transparent);box-shadow:none}
+
+/* ---- タブバー：選択中は黒（ダークではライム）の塊 ---- */
+.tabbar{background:var(--dock);box-shadow:0 -1px 0 var(--line)}
+.tab[aria-current="page"] .ic{background:var(--btn);color:var(--on-btn);box-shadow:none}
+.tab[aria-current="page"]::after{display:none}
+.tab[aria-current="page"]{color:var(--head)}
+
+/* ---- カレンダーの選択日 ---- */
+.cal .day.sel span{background:var(--btn);color:var(--on-btn);box-shadow:none}
+
+/* ---- 分析・取り込みの青をテーマ色に ---- */
+.ins-info .dot{background:var(--text-3)}
+.ev-m{background:var(--accent-soft);color:var(--accent)}
+.vb .bar.hi{background:var(--accent)}
+.share-card .ic{background:var(--btn);color:var(--btn-ic)}
+.imp-l.k-d .lk{background:var(--accent-soft);color:var(--accent)}
+
+/* ---- おすすめ（主役のカード）：黒い面＋ライムの照準 ---- */
+.card.reco{background:radial-gradient(130% 120% at 85% 0%,#1d2412 0%,#0d0f0c 55%,#070807 100%) !important;box-shadow:0 0 0 1px #262a22,0 24px 50px -24px rgba(0,0,0,.8)}
+.card.reco .hud{--c:rgba(200,240,49,.75)}
+.reco-kicker{color:#c8f031 !important;font-family:var(--f-num);letter-spacing:.2em;text-transform:uppercase}
+.reco-kicker .live{background:#c8f031 !important;box-shadow:0 0 10px #c8f031 !important}
+.card.reco .btn-primary{background:#c8f031 !important;color:#0a0b09 !important}
+.card.reco .btn-primary svg{color:#0a0b09}
+
+/* ---- その他の開始方法（メニューの上） ---- */
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.quick .btn{min-height:46px;font-size:14px}
+.quick .card.repeat{grid-column:1/-1;margin:0}
+.quick .imp-cta{grid-column:1/-1}
+
+/* ---- レベル比較 ---- */
+.lv-cmp{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+.lv-cmp th,.lv-cmp td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-align:top;text-align:center}
+.lv-cmp th:first-child,.lv-cmp td:first-child{text-align:left;font-weight:700;color:var(--text-2)}
+.lv-cmp thead th{font-size:11.5px;color:var(--text-3);font-weight:800;position:sticky;top:0;background:var(--surface-solid)}
+.lv-cmp thead th.on{color:var(--head)}
+.lv-cmp td.on{background:var(--accent-soft)}
+.lv-cmp .y{color:var(--accent);font-weight:900}
+.lv-cmp .n{color:var(--text-3);opacity:.6}
+.lv-cmp tr.all td{color:var(--text-3)}
+.lv-note{font-size:12px;color:var(--text-3);margin:8px 0 0;line-height:1.6}
+details.lv-more>summary{list-style:none;cursor:pointer;font-size:13px;font-weight:800;color:var(--accent);padding:8px 0;display:flex;align-items:center;gap:4px}
+details.lv-more>summary::-webkit-details-marker{display:none}
+details.lv-more>summary svg{width:16px;height:16px;transition:transform .2s}
+details.lv-more[open]>summary svg{transform:rotate(180deg)}
+
+/* =====================================================================
+   使い方ガイド（スポットライト式のオーバーレイ）
+   ===================================================================== */
+.tour-bk{position:fixed;inset:0;z-index:700}
+.tour-hole{position:fixed;z-index:701;border-radius:16px;box-shadow:0 0 0 9999px rgba(6,8,5,.72);pointer-events:none;transition:left .25s ease,top .25s ease,width .25s ease,height .25s ease}
+.tour-hole::after{content:"";position:absolute;inset:-4px;border-radius:19px;border:2.5px solid #c8f031;animation:tour-pulse 1.4s ease-in-out infinite}
+@keyframes tour-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(1.015)}}
+.tour-dim{position:fixed;inset:0;z-index:701;background:rgba(6,8,5,.72);pointer-events:none}
+.tour-bub{position:fixed;z-index:702;background:var(--surface-solid);color:var(--text);border-radius:20px;padding:16px 16px 12px;box-shadow:0 0 0 1px var(--line),0 24px 60px -10px rgba(0,0,0,.55);animation:tour-in .22s ease}
+@keyframes tour-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.tour-bub.mid{animation:none}
+.tour-step{font-family:var(--f-num);font-size:12px;font-weight:700;letter-spacing:.2em;color:var(--text-3);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.tour-step i{flex:1;height:3px;border-radius:2px;background:var(--surface-3);overflow:hidden;position:relative}
+.tour-step i b{position:absolute;left:0;top:0;bottom:0;background:var(--volt)}
+.tour-bub h4{margin:0 0 6px;font-size:17px;font-weight:900;line-height:1.4;color:var(--head)}
+.tour-bub p{margin:0;font-size:14px;line-height:1.75;color:var(--text-2)}
+.tour-bub p b{color:var(--text)}
+.tour-bub ul{margin:6px 0 0;padding:0;list-style:none;font-size:13.5px;line-height:1.6;color:var(--text-2)}
+.tour-bub ul li{display:flex;gap:8px;padding:3px 0}
+.tour-bub ul li::before{content:"";flex:none;width:6px;height:6px;border-radius:2px;background:var(--volt);margin-top:8px}
+.tour-btns{display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:12px}
+.tour-btns .btn{min-height:42px;padding:0 16px;font-size:14px}
+.tour-btns .sp{flex:1}
+.tour-btns.col{flex-direction:column;align-items:stretch}
+.tour-arr{position:absolute;width:16px;height:16px;background:var(--surface-solid);transform:translateX(-50%) rotate(45deg)}
+.tour-arr.up{top:-7px}
+.tour-arr.down{bottom:-7px}
+.tour-skip{background:none;border:0;color:var(--text-3);font-weight:800;font-size:13px;padding:8px 4px;min-height:40px}
+.tour-hero{font-family:var(--f-num);font-weight:700;font-size:13px;letter-spacing:.24em;color:var(--accent);text-transform:uppercase;margin-bottom:2px}
+@media (prefers-reduced-motion:reduce){.tour-hole::after{animation:none}.tour-bub{animation:none}.tour-hole{transition:none}}
+.reco::before{background:linear-gradient(90deg,#c8f031,rgba(200,240,49,.15) 70%,transparent);height:3px}
+.lv-cmp th:not(:first-child),.lv-cmp td:not(:first-child){width:46px;white-space:nowrap;padding-left:2px;padding-right:2px}
+/* 記録画面ではヘッダーのボタン（終了など）を隠さない位置に通知を出す */
+body.covered .toast{top:calc(var(--safe-top) + 112px)}
+
 </style>
 </head>
 <body>
@@ -1179,7 +1344,7 @@ svg.qr{stroke:none;fill:#000}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.23.3';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.23.4';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -1195,9 +1360,9 @@ const CHART_JS_SOURCES = [
 
 /* 経験レベル：表示の詳しさだけが変わる（記録・集計の仕組みは共通。いつでも変更可） */
 const LEVELS = {
-  beginner: { label: 'はじめて・初心者', short: '初心者', desc: '重さの選び方・フォームのヒント、用語の説明、はじめ向けの全身メニューを表示します' },
-  standard: { label: '経験あり', short: '経験者', desc: '前回の記録・成長の目安・グラフなど、記録に必要な機能を表示します' },
-  advanced: { label: '上級・競技', short: '上級', desc: 'セット完了後すぐにRPEを入力でき、推定1RMと%計算を種目ごとに表示します' }
+  beginner: { label: 'はじめて・初心者', short: '初心者', desc: '基本の表示に加えて、ホームに「初心者のポイント」とはじめての全身メニュー、初めての種目では重さの選び方のヒントを出します' },
+  standard: { label: '経験あり', short: '経験者', desc: '基本の表示（前回の記録・重さを上げる目安・休憩タイマー・分析）だけ。初心者向けのヒントは出しません' },
+  advanced: { label: '上級・競技', short: '上級', desc: '基本の表示に加えて、セット完了の直後にRPE（きつさ）の入力欄と、種目ごとに推定1RM・%計算ボタンを出します' }
 };
 const BEGINNER_MENU = ['leg_02', 'chest_06', 'back_03', 'shoulder_08', 'abs_09'];
 const GLOSSARY = [
@@ -1708,9 +1873,9 @@ function defaultData() {
     settings: {
       restSec: 90, autoRest: true, sound: true, vib: true, theme: 'auto', weekGoal: 3,
       barKg: 20, collar: false, plates: [25, 20, 15, 10, 5, 2.5, 2, 1.5, 1, 0.5], sex: 'm',
-      wl: false, level: 'standard', goal: 'hyp', googleClientId: '', autoDrive: true, lastBackupAt: null, lastBackupVia: '', lastDriveAt: null, drivePending: false, changedAt: 0
+      wl: false, level: 'standard', goal: 'hyp', googleClientId: '', autoDrive: true, tipsOff: false, wake: true, lastBackupAt: null, lastBackupVia: '', lastDriveAt: null, drivePending: false, changedAt: 0
     },
-    ui: { metric: 'e1rm', period: '3m', mapMode: 'sets', welcomeDone: false, wkChart: 'sets', pwaHide: false, pwaMoved: false, transferAsked: false, themeV2: true, onboarded: false, menuTipDone: false, wlDef2: true }
+    ui: { metric: 'e1rm', period: '3m', mapMode: 'sets', welcomeDone: false, wkChart: 'sets', pwaHide: false, pwaMoved: false, transferAsked: false, themeV2: true, onboarded: false, menuTipDone: false, wlDef2: true, tourDone: false, tips: {} }
   };
 }
 
@@ -1815,6 +1980,7 @@ function normalize(src) {
     // WL機能：初期値はOFF。旧データ（未設定、または以前の自動判定でONになった人）は、本人のWL記録がある場合だけONのまま
     wl: (st.wl === undefined || (st.wl && !obj(d.ui).wlDef2)) ? arr(d.records).some((r) => r && !isDemoRec(r) && typeof r.exerciseId === 'string' && r.exerciseId.startsWith('wl_') && arr(r.sets).some((x) => x && x.done)) : !!st.wl,
     level: ['beginner', 'standard', 'advanced'].includes(st.level) ? st.level : 'standard',
+    tipsOff: !!st.tipsOff, wake: st.wake === undefined ? true : !!st.wake,
     goal: ['hyp', 'str', 'health'].includes(st.goal) ? st.goal : 'hyp',
     googleClientId: typeof st.googleClientId === 'string' ? st.googleClientId.trim() : '',
     autoDrive: bool(st.autoDrive, true),
@@ -1829,6 +1995,9 @@ function normalize(src) {
     welcomeDone: !!ui.welcomeDone,
     onboarded: ui.onboarded === undefined ? (arr(d.records).length > 0 || !!ui.welcomeDone || !!st.lastBackupAt) : !!ui.onboarded,
     menuTipDone: !!ui.menuTipDone, begHide: !!ui.begHide,
+    // 既存の利用者（案内済み）には、新しいガイドを強制表示しない（設定からいつでも見られる）
+    tourDone: ui.tourDone === undefined ? (ui.onboarded === undefined ? (arr(d.records).length > 0 || !!ui.welcomeDone) : !!ui.onboarded) : !!ui.tourDone,
+    tips: ui.tips === undefined && ui.onboarded ? { wo: true, kp: true, cal: true, review: true, lib: true, settings: true } : Object.fromEntries(Object.entries(obj(ui.tips)).filter(([, v]) => v === true)),
     wkChart: ['sets', 'vol'].includes(ui.wkChart) ? ui.wkChart : 'sets',
     pwaHide: !!ui.pwaHide, pwaMoved: !!ui.pwaMoved, transferAsked: !!ui.transferAsked, themeV2: true, wlDef2: true
   };
@@ -2603,6 +2772,7 @@ function renderWorkout() {
   el.scrollTop = top;
   updateRestbar();
   if (UI.kp && kpValid()) highlightKp();
+  if (typeof maybeTip === 'function') maybeTip();
 }
 function ssGroups(ses) {
   const map = {}; let n = 0;
@@ -2732,6 +2902,7 @@ function openKeypad(i, j, f) {
   const rec = recAt(i); if (!rec || !rec.sets[j]) return;
   UI.kp = { i, j, s: j, f, buf: null };
   renderKeypad(); highlightKp();
+  if (typeof maybeTip === 'function') maybeTip();
   requestAnimationFrame(() => {
     const cell = $(`.cell[data-i="${i}"][data-s="${j}"][data-f="${f}"]`); const kp = $('#keypad');
     if (!cell || !kp) return;
@@ -2898,7 +3069,20 @@ function openRestMenu() {
 }
 
 /* ---------- ミニバー（最小化中） ---------- */
+/* トレーニング中は画面を消さない（対応ブラウザのみ。設定で切り替え） */
+const Wake = {
+  s: null, busy: false,
+  async sync() {
+    const want = !!(DB && DB.active && DB.settings.wake) && !document.hidden && 'wakeLock' in navigator;
+    if (!want) { if (this.s) { const s = this.s; this.s = null; try { await s.release(); } catch (e) { /* 解放済み */ } } return; }
+    if (this.s || this.busy) return;
+    this.busy = true;
+    try { const s = await navigator.wakeLock.request('screen'); this.s = s; s.addEventListener('release', () => { if (this.s === s) this.s = null; }); } catch (e) { /* 省電力モード等で拒否 */ }
+    this.busy = false;
+  }
+};
 function renderMinibar() {
+  Wake.sync();
   const m = $('#minibar');
   const show = !!DB.active && !(UI.wo && UI.wo.live && !$('#workout').hidden);
   m.hidden = !show;
@@ -3382,6 +3566,7 @@ function renderTab(keep = true) {
   const fabDef = UI.tab === 'lib' ? { a: 'exNew', l: '種目を追加' } : null;
   document.body.classList.toggle('has-fab', !!fabDef);
   if (fabDef) document.body.insertAdjacentHTML('beforeend', `<button type="button" class="fab" id="fab" data-a="${fabDef.a}">${ICON.plus}${fabDef.l}</button>`);
+  if (typeof maybeTip === 'function') maybeTip();
 }
 /* 数字のカウントアップ（初回表示のみ） */
 function countUp(els) {
@@ -3394,7 +3579,8 @@ function countUp(els) {
     n.nodeValue = '0'; requestAnimationFrame(step);
   }
 }
-function topbar(title, right = '') { return `<header class="topbar"><h1>${title}</h1>${right}</header>`; }
+const KICK = { 'トレーニング': 'Training', '記録': 'Log', '分析': 'Analytics', '種目': 'Exercises', '設定': 'Settings' };
+function topbar(title, right = '') { const k = KICK[String(title).replace(/\s*<.*$/, '')]; return `<header class="topbar"><div style="flex:1;min-width:0">${k ? `<span class="kick">${k}</span>` : ''}<h1>${title}</h1></div>${right}</header>`; }
 function backupStale() {
   const has = DB.records.some((r) => !isDemoRec(r) && r.sets.some((s) => s.done));
   if (!has) return false;
@@ -3446,6 +3632,14 @@ function prStrip() {
   return `<section class="sec"><div class="sec-h"><h2>${ICON.trophy || ICON.bolt} 最近の自己ベスト</h2><button type="button" class="link" data-a="tab" data-tab="review">すべて見る</button></div>
     <div class="pr-strip">${top.map((x) => `<button type="button" class="pr-chip" data-a="exDetail" data-id="${esc(x.ex.id)}"><span class="pr-n">${esc(x.ex.name)}</span><b class="num">${fmtNum(x.v)}<small>${x.key === 'e1rm' ? 'kg' : unitOf(x.ex)}</small></b><span class="pr-d">+${fmtNum(round1(x.v - x.prev))} ・ ${fmtRelDay(x.date)}</span></button>`).join('')}</div></section>`;
 }
+/* メニューを使わない開始方法（メニュー一覧の上に置く） */
+function quickStart() {
+  const lastSes = IDX().sessions.find((s) => !s.live && s.recs.length);
+  return `<section class="sec quick-sec"><div class="quick">
+    ${lastSes && !DB.active ? `<button type="button" class="card repeat tap" data-a="repeatLast"><span class="rp-i">${ICON.copy}</span><span class="m"><b>前回と同じ内容でもう一度</b><span class="small muted">${esc(lastSes.name)}（${fmtRelDay(lastSes.date)}）・${lastSes.recs.length}種目</span></span>${ICON.chevR}</button>` : ''}
+    <button type="button" class="btn" data-a="startPick">${ICON.search}種目を選んで開始</button><button type="button" class="btn" data-a="startEmpty">${ICON.plus}空で開始</button>
+    ${hasRealData() ? '' : `<button type="button" class="btn btn-ghost btn-sm btn-block imp-cta" data-a="importWizard">${ICON.upload}これまでの記録を取り込む（他のアプリ・Excel・メモ）</button>`}</div></section>`;
+}
 /* 初心者向けの案内（設定で「はじめて・初心者」のときだけ） */
 function beginnerCard() {
   if (lv() !== 'beginner' || DB.ui.begHide) return '';
@@ -3464,12 +3658,13 @@ function openGlossary() {
 }
 /* 初回の案内（WLの有無・メニューは編集できること） */
 function openOnboarding() {
-  const st = { wl: false, level: 'standard' };
+  const st = { wl: false, level: 'standard', cmp: false };
   openSheet({
     title: 'LiftCanvasへようこそ', state: st, dismissible: false,
     render: () => `<div class="onb">
       <p class="onb-lead">はじめに2つだけ教えてください。あとから<b>設定</b>でいつでも変更できます。</p>
-      <div class="field"><span class="lbl">筋トレの経験は？</span><div class="choices">${Object.entries(LEVELS).map(([k, v]) => `<button type="button" class="btn btn-block choice ${st.level === k ? 'btn-soft' : ''}" data-a="lv" data-v="${k}" aria-pressed="${st.level === k}"><span>${v.label}${st.level === k ? ' ✓' : ''}</span><span class="d">${v.desc}</span></button>`).join('')}</div></div>
+      <div class="field"><span class="lbl">筋トレの経験は？</span><div class="choices">${Object.entries(LEVELS).map(([k, v]) => `<button type="button" class="btn btn-block choice ${st.level === k ? 'btn-soft' : ''}" data-a="lv" data-v="${k}" aria-pressed="${st.level === k}"><span>${v.label}${st.level === k ? ' ✓' : ''}</span><span class="d">${v.desc}</span></button>`).join('')}</div>
+      <details class="lv-more"${st.cmp ? ' open' : ''}><summary>レベルで変わる表示を比べる${ICON.chevD}</summary>${levelCompareHtml(st.level)}</details></div>
       <div class="field"><span class="lbl">ウェイトリフティング（スナッチ・クリーン＆ジャーク）もしますか？</span>
       <div class="choices">
         <button type="button" class="btn btn-block choice ${!st.wl ? 'btn-soft' : ''}" data-a="wl" data-v="0" aria-pressed="${!st.wl}"><span>筋トレだけ${!st.wl ? ' ✓' : ''}</span><span class="d">一般的な筋トレの種目・メニューだけを表示します</span></button>
@@ -3483,10 +3678,10 @@ function openOnboarding() {
     foot: () => `<button type="button" class="btn btn-primary btn-lg" data-a="ok">はじめる</button>`,
     actions: {
       wl: (el, e, s) => { st.wl = el.dataset.v === '1'; s.render(); },
-      lv: (el, e, s) => { st.level = el.dataset.v; s.render(); },
-      ok: (el, e, s) => { DB.settings.wl = st.wl; DB.settings.level = st.level; DB.ui.onboarded = true; touch(); s.close(); renderTab(); },
-      imp: (el, e, s) => { DB.settings.wl = st.wl; DB.settings.level = st.level; DB.ui.onboarded = true; touch(); s.close(); renderTab(); openImportWizard(); },
-      __close: (el, e, s) => { DB.ui.onboarded = true; save(); s.close(); renderTab(); }
+      lv: (el, e, s) => { const d = $('details.lv-more', s.el); st.cmp = !!(d && d.open); st.level = el.dataset.v; s.render(); },
+      ok: (el, e, s) => { DB.settings.wl = st.wl; DB.settings.level = st.level; DB.ui.onboarded = true; touch(); s.close(); renderTab(); if (!DB.ui.tourDone) setTimeout(startWelcome, 380); },
+      imp: (el, e, s) => { DB.settings.wl = st.wl; DB.settings.level = st.level; DB.ui.onboarded = true; DB.ui.tourDone = true; touch(); s.close(); renderTab(); openImportWizard(); },
+      __close: (el, e, s) => { DB.ui.onboarded = true; save(); s.close(); renderTab(); if (!DB.ui.tourDone) setTimeout(startWelcome, 380); }
     }
   });
 }
@@ -3499,9 +3694,6 @@ function renderTrain() {
   if (DB.active) {
     h += `<div class="card resume tap" data-a="openWo"><div class="m"><b>${ICON.play} 進行中：${esc(DB.active.name)}</b><span class="small muted">${fmtClock(DB.active.startedAt)}開始 ・ タップで再開</span></div>${ICON.chevR}</div>`;
   }
-  if (!DB.ui.welcomeDone && !DB.records.length) {
-    h += `<div class="card banner info" style="display:block"><b>はじめての方へ</b><ol class="small" style="margin:6px 0 10px;padding-left:20px;line-height:1.8"><li>下のメニューの<b>「開始」</b>を押す（メニューは例なので自由に変えてOK）</li><li>重量・回数の欄をタップして入力し<b>✓</b>で完了</li><li>記録は自動保存。<b>分析</b>で成長を確認</li></ol><div class="row"><button type="button" class="btn btn-sm btn-primary" data-a="welcomeOk">わかりました</button><button type="button" class="btn btn-sm" data-a="demoAdd">サンプル記録で試す</button></div></div>`;
-  }
   const rec = !DB.active && recommendMenu();
   if (rec && !UI.reorder) {
     const parts = [...new Set(rec.m.exerciseIds.map((id) => getEx(id).part))].filter((p) => CATEGORIES.includes(p));
@@ -3511,18 +3703,16 @@ function renderTrain() {
     const first = !UI.scanned && DB.ui.onboarded; if (first) UI.scanned = true;
     h += `<div class="card reco${first ? ' intro' : ''}"><i class="hud${first ? ' scan' : ''}" aria-hidden="true"></i><div class="reco-top"><div class="reco-body">${bodySvg(glowFills, { labels: false, glow: true })}</div><div style="flex:1;min-width:0"><div class="reco-kicker"><i class="live" aria-hidden="true"></i>今日のおすすめ</div>
       <div class="reco-name">${esc(rec.m.name)}</div><div class="reco-why">${reason}</div>
-      ${rec.mm.primary.length ? `<div class="reco-tags">${rec.mm.primary.slice(0, 4).map((k) => `<span>${esc(MUSCLES[k].replace(/（.*?）/g, ''))}</span>`).join('')}</div>` : ''}</div></div>
+      ${rec.mm.primary.length ? `<div class="reco-tags">${[...new Set(rec.mm.primary.map((k) => MUSCLES[k].replace(/（.*?）/g, '')))].slice(0, 4).map((m) => `<span>${esc(m)}</span>`).join('')}</div>` : ''}</div></div>
       <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top:12px" data-a="startMenu" data-id="${esc(rec.m.id)}">${ICON.play}このメニューで開始</button>
       <p class="reco-note">回復の目安と前回からの日数で選んでいます</p></div>`;
   }
   h += prStrip();
+  if (!UI.reorder) h += quickStart();
   const menus = UI.reorder ? DB.menus : DB.menus.filter(menuVisible);
   const hidden = DB.menus.length - menus.length;
   h += `<section class="sec"><div class="sec-h"><h2>メニュー（${menus.length}）</h2>${UI.reorder ? '<button type="button" class="link" data-a="reorder">完了</button>' : `<button type="button" class="link" data-a="menuNew">${ICON.plus}メニューを作成</button>`}</div>`;
   if (!DB.menus.length) h += `<div class="card empty"><div class="big">📋</div><p>メニューがありません</p><button type="button" class="btn btn-primary" data-a="menuNew">${ICON.plus}メニューを作成</button></div>`;
-  if (!DB.ui.menuTipDone && !UI.reorder && DB.menus.some(presetUnchanged)) {
-    h += `<div class="card tip"><div class="tip-i">${ICON.edit || ICON.more}</div><div class="m"><b>メニューは「例」です。自由に変えてください</b><p>「例」の付いたメニューは<span class="kbd">${ICON.more}</span>から<b>編集・複製・削除</b>できます。</p></div><button type="button" class="icon-btn" data-a="menuTipOk" aria-label="このヒントを閉じる">${ICON.close}</button></div>`;
-  }
   h += menus.map((m) => {
     const i = DB.menus.indexOf(m);
     const ids = m.exerciseIds.filter((id) => exMap().has(id));
@@ -3537,12 +3727,7 @@ function renderTrain() {
       ${UI.reorder ? '' : `<button type="button" class="btn-start" data-a="startMenu" data-id="${esc(m.id)}" ${ids.length ? '' : 'disabled'}>${ICON.play}開始</button>`}</div></div></article>`;
   }).join('');
   if (hidden > 0 && !UI.reorder) h += `<p class="hidden-note">ウェイトリフティングのメニュー ${hidden}件を非表示にしています。<button type="button" class="link" data-a="goWlSetting">表示する</button></p>`;
-  const lastSes = IDX().sessions.find((s) => !s.live && s.recs.length);
-  h += `</section><section class="sec other-start">
-    ${lastSes && !DB.active ? `<button type="button" class="card repeat tap" data-a="repeatLast"><span class="rp-i">${ICON.copy}</span><span class="m"><b>前回と同じ内容でもう一度</b><span class="small muted">${esc(lastSes.name)}（${fmtRelDay(lastSes.date)}）・${lastSes.recs.length}種目</span></span>${ICON.chevR}</button>` : ''}
-    <div class="row">
-    <button type="button" class="btn btn-sm" data-a="startPick">${ICON.search}種目を選ぶ</button><button type="button" class="btn btn-sm" data-a="startEmpty">${ICON.plus}空で始める</button></div>
-    ${hasRealData() ? '' : `<button type="button" class="btn btn-ghost btn-sm btn-block imp-cta" data-a="importWizard">${ICON.upload}これまでの記録を取り込む（他のアプリ・Excel・メモ）</button>`}</section>`;
+  h += `</section>`;
   return h;
 }
 
@@ -4514,6 +4699,11 @@ function renderSettings() {
   const isFile = location.protocol === 'file:';
   let h = topbar('設定');
   h += `<button type="button" class="card tap share-card" data-a="shareApp"><span class="ic">${ICON.share}</span><span class="m"><b>このアプリを人に教える</b><span>LINE・メール・QRコードで共有</span></span>${ICON.chevR}</button>`;
+  h += `${setSecHead('guide', false, `${ICON.info} 使い方ガイド`, s.tipsOff ? 'ヒントOFF' : '')}
+    <div class="stack"><button type="button" class="btn btn-block" data-a="guideWelcome">${ICON.play}はじめの案内をもう一度見る</button>
+    <button type="button" class="btn btn-block" data-a="guideReset">各画面のヒントをもう一度表示する</button>
+    <button type="button" class="btn btn-ghost btn-block" data-a="glossary">用語の説明（RPE・1RMなど）</button></div>
+    <div class="sw-row" style="margin-top:6px"><div class="t"><b>はじめて開いた画面でヒントを出す</b><span>記録画面・カレンダー・分析などの使い方を、その場で1回だけ案内します</span></div><label class="switch"><input type="checkbox" data-ch="guideTips" ${s.tipsOff ? '' : 'checked'}><span></span></label></div></details>`;
   h += `${setSecHead('backup', false, `${ICON.cloud} バックアップ`, s.lastBackupAt ? fmtRelDay(ymd(new Date(s.lastBackupAt))) : '未実施', stale || !s.lastBackupAt)}
     <div class="banner ${stale || s.drivePending ? '' : 'info'}" style="margin-bottom:12px"><div class="m"><b>${s.lastBackupAt ? `最終バックアップ：${fmtDateTime(s.lastBackupAt)}` : 'まだバックアップしていません'}</b><br><span class="small">${s.lastBackupAt ? `方法：${esc(s.lastBackupVia)}` : ''}${s.drivePending ? ' ・ ドライブへの自動保存が未完了です' : stale ? ' ・ 前回のバックアップ以降に記録が増えています' : ''}</span></div></div>
     <div class="small muted" style="margin-bottom:12px">記録した日 ${days}日 ・ 記録 ${recN}件 ・ メニュー ${DB.menus.length} ・ 自分の種目 ${DB.customExercises.length}</div>
@@ -4549,12 +4739,13 @@ function renderSettings() {
   h += pwaSettingsCard();
   h += `${setSecHead('display', false, `${ICON.moon} 表示`, s.theme === 'light' ? 'ライト' : s.theme === 'dark' ? 'ダーク' : '端末に合わせる')}<div class="seg">${[['light', 'ライト'], ['dark', 'ダーク'], ['auto', '端末に合わせる']].map(([k, l]) => `<button type="button" data-a="theme" data-v="${k}" aria-pressed="${s.theme === k}">${l}</button>`).join('')}</div></details>`;
   h += `${setSecHead('training', false, `${ICON.timer} トレーニング`, LEVELS[s.level].short + (s.wl ? '・WL' : ''))}
-    <div class="field" style="margin-bottom:8px"><span class="lbl">経験レベル（表示の詳しさ）</span><div class="seg">${Object.entries(LEVELS).map(([k, v]) => `<button type="button" data-a="setLevel" data-v="${k}" aria-pressed="${s.level === k}">${v.short}</button>`).join('')}</div><p class="hint" style="margin:6px 2px 0">${LEVELS[s.level].desc}</p></div>
+    <div class="field" style="margin-bottom:8px"><span class="lbl">経験レベル（表示の詳しさ）</span><div class="seg">${Object.entries(LEVELS).map(([k, v]) => `<button type="button" data-a="setLevel" data-v="${k}" aria-pressed="${s.level === k}">${v.short}</button>`).join('')}</div><p class="hint" style="margin:6px 2px 0">${LEVELS[s.level].desc}</p><button type="button" class="link" style="margin:4px 2px 0;font-size:13px" data-a="lvCompare">レベルで変わる表示を比べる</button></div>
     <div class="sw-row" id="wlRow"><div class="t"><b>ウェイトリフティング機能</b><span>スナッチ・クリーン＆ジャークなどのWL種目、WLメニュー、リフト比率・Sinclair分析を表示します。OFFでも記録は消えません</span></div><label class="switch"><input type="checkbox" data-ch="setWl" ${s.wl ? 'checked' : ''}><span></span></label></div>
     <div class="field" style="margin:8px 0 6px"><span class="lbl">標準の休憩時間：${fmtSec(s.restSec)}${s.wl ? '（WL種目は最低2:00）' : ''}</span><div class="chip-wrap">${REST_PRESETS.map((v) => `<button type="button" class="chip" data-a="restDef" data-v="${v}" aria-pressed="${s.restSec === v}">${fmtSec(v)}</button>`).join('')}</div></div>
     <div class="sw-row"><div class="t"><b>セット完了で休憩タイマーを自動スタート</b></div><label class="switch"><input type="checkbox" data-ch="setAutoRest" ${s.autoRest ? 'checked' : ''}><span></span></label></div>
     <div class="sw-row"><div class="t"><b>タイマー終了時に音を鳴らす</b></div><label class="switch"><input type="checkbox" data-ch="setSound" ${s.sound ? 'checked' : ''}><span></span></label></div>
-    <div class="sw-row"><div class="t"><b>振動（バイブ）</b><span>対応端末のみ</span></div><label class="switch"><input type="checkbox" data-ch="setVib" ${s.vib ? 'checked' : ''}><span></span></label></div></details>`;
+    <div class="sw-row"><div class="t"><b>振動（バイブ）</b><span>対応端末のみ</span></div><label class="switch"><input type="checkbox" data-ch="setVib" ${s.vib ? 'checked' : ''}><span></span></label></div>
+    <div class="sw-row"><div class="t"><b>トレーニング中は画面を消さない</b><span>${'wakeLock' in navigator ? 'セットの合間に画面が暗くならないようにします' : 'このブラウザは未対応です（ホーム画面に追加すると使える場合があります）'}</span></div><label class="switch"><input type="checkbox" data-ch="setWake" ${s.wake ? 'checked' : ''}><span></span></label></div></details>`;
   h += `${setSecHead('plate', false, `${ICON.plate} プレート`, `バー${s.barKg}kg ・ ${s.plates.length}種類`)}
     <div class="field" style="margin-bottom:10px"><span class="lbl">バーの重さ</span><div class="chip-wrap">${[20, 15, 10, 7].map((b) => `<button type="button" class="chip" data-a="barKg" data-v="${b}" aria-pressed="${s.barKg === b}">${b}kg</button>`).join('')}</div></div>
     <div class="field" style="margin-bottom:6px"><span class="lbl">使えるプレート（タップで切り替え）</span><div class="chip-wrap">${ALL_PLATES.map((p) => `<button type="button" class="chip" data-a="plateT" data-v="${p}" aria-pressed="${s.plates.includes(p)}"><i class="dot" style="background:${PLATE_COLORS[p]};border:1px solid var(--line-2)"></i>${p}kg</button>`).join('')}</div></div>
@@ -4854,7 +5045,7 @@ async function resetAll() {
 }
 
 Object.assign(ACT, {
-  setLevel: (el) => { DB.settings.level = el.dataset.v; if (el.dataset.v === 'beginner') DB.ui.begHide = false; touch(); toast(`経験レベル：${LEVELS[el.dataset.v].label}`); renderTab(); },
+  setLevel: (el) => { DB.settings.level = el.dataset.v; if (el.dataset.v === 'beginner') DB.ui.begHide = false; touch(); toast(`経験レベル：${LEVELS[el.dataset.v].label}`); refreshAll(); },
   driveBackup: () => driveBackup(), driveRestore: () => driveRestore(),
   exportShare: () => exportShare(),
   exportDownload: () => { downloadBlob(new Blob([JSON.stringify(buildExport(), null, 1)], { type: 'application/json' }), exportName()); markBackup('ダウンロード'); toast('ダウンロードを開始しました', 'ok'); },
@@ -4874,6 +5065,164 @@ Object.assign(CHG, {
   autoDrive: (el) => { DB.settings.autoDrive = el.checked; save(); },
   collarDef: (el) => { DB.settings.collar = el.checked; save(); },
   file: (el) => { const f = el.files && el.files[0]; el.value = ''; handleImportFile(f); }
+});
+
+/* =====================================================================
+   使い方ガイド（スポットライト式のオーバーレイ）
+   ・初回：ホームの大事な場所と下のタブを順に案内（ようこそガイド）
+   ・各画面：はじめて開いたときだけ、その場で使うボタンを1〜5個案内（その場ヒント）
+   覚えることを最小限にし、必要になったタイミングで教える。設定からもう一度見られる。
+   ===================================================================== */
+const WELCOME_TOUR = [
+  { hero: 'WELCOME', title: 'LiftCanvasの使い方（1分）', text: '筋トレの<b>記録</b>と、<b>回復・成長の分析</b>が1つでできるアプリです。大事な場所だけ順にご案内します。',
+    list: ['メニューを選んで<b>「開始」</b> → 重量と回数を入れて<b>✓</b>', '人体図の色で、鍛えた筋肉と回復の目安がわかる', '記録がたまると<b>「分析」</b>が研究にもとづいて助言'] },
+  { sel: '#view .card.reco', title: '今日のおすすめ', text: '筋肉の回復の目安と前回からの日数から、今日やるとよいメニューを1つ選びます。人体図の<b>オレンジ</b>が今回鍛える筋肉。迷ったら<b>「このメニューで開始」</b>でOKです。' },
+  { sel: '#view .quick', title: 'メニューを使わずに始める', text: '<b>種目を選ぶ</b>：やる種目だけ選んで開始。<b>空で始める</b>：始めてから種目を足していく。記録があると<b>「前回と同じ内容でもう一度」</b>もここに出ます。' },
+  { sel: '#view .menu-card', title: 'メニュー＝いつもの種目のセット', text: '<b>「例」</b>の付いたメニューは見本です。<b>⋮</b>から<b>編集・複製・削除</b>、上の<b>「メニューを作成」</b>で自分用を作れます。<b>「開始」</b>で記録画面になります。' },
+  { sel: '#tabbar [data-tab="cal"]', title: '記録（カレンダー）', text: '日付をタップすると、その日の内容を確認・修正できます。付け忘れた日も<b>あとから追加</b>できます。' },
+  { sel: '#tabbar [data-tab="review"]', title: '分析', text: '直近4週間の記録を、研究で示された目安（週のセット数・頻度・回数帯など）と比べて助言します。自己ベストや種目ごとの伸びもここで見られます。' },
+  { sel: '#tabbar [data-tab="lib"]', title: '種目', text: '全種目のやり方・鍛える筋肉・自分の記録を見られます。ない種目は<b>自分で追加</b>できます。' },
+  { sel: '#tabbar [data-tab="settings"]', title: '設定', text: '<b>経験レベル</b>の変更（表示の詳しさが変わります）、機種変更に備えた<b>バックアップ</b>、この案内をもう一度見る、はここから。各画面の使い方は、はじめて開いたときにその場でご案内します。' }
+];
+const TIPS = {
+  wo: { cond: () => UI.wo && !UI.kp && $('.overlay .set-r .cell'), steps: [
+    { sel: '.overlay .set-r .cell', title: '重量・回数を入力', text: '欄をタップすると大きなテンキーが出ます。薄い数字は<b>前回の値</b>で、そのまま✓を押せば同じ内容で記録できます。' },
+    { sel: '.overlay .done-btn', title: 'できたら ✓', text: 'セット完了です。<b>休憩タイマー</b>が自動で動き、終わると音と振動で知らせます（設定で変更可）。' },
+    { sel: '.overlay .set-no', title: 'セット番号をタップ', text: '<b>ウォームアップ／ドロップセット</b>への切り替え、<b>RPE（きつさ）</b>の記録、複製・削除ができます。' },
+    { sel: '.overlay .exc [data-a="exMore"]', title: '種目の ⋮', text: 'ウォームアップの自動作成、%計算、プレート計算、別の種目への入れ替え、順番の変更、スーパーセットはここから。' },
+    { sel: '.overlay .wo-finish', title: '終わったら「終了」', text: '記録は1セットごとに自動保存されています。左上の<b>∨</b>で画面をたためば、ほかのタブを見ながら続けられます。' }] },
+  kp: { cond: () => UI.kp && $('#keypad'), steps: [
+    { sel: '#keypad', title: 'テンキー', text: '<b>＋／−</b>で刻み幅ずつ調整、<b>次へ</b>で重量→回数→次のセットへ進みます。<b>✓</b>でそのセットを完了にします。' }] },
+  cal: { cond: () => UI.tab === 'cal' && !UI.wo && $('#view .cal'), steps: [
+    { sel: '#view .cal', title: 'トレーニングした日', text: '色の輪が付いた日がトレーニングした日です（色は鍛えた部位）。日付をタップすると、その日の記録の確認・修正・追加ができます。' }] },
+  review: { cond: () => UI.tab === 'review' && !UI.wo && $('#view .ana'), steps: [
+    { sel: '#view .ana [data-a="anaGoal"]', parent: '.seg', title: '目的を選ぶ', text: '<b>筋肉をつける／強くなる／健康・体力</b>で、セット数などの目安が変わります。' },
+    { sel: '#view .ana .ins', title: 'タップで根拠を表示', text: '各項目をタップすると、出典の研究と<b>根拠の強さ</b>（高・中・参考）が出ます。' }] },
+  lib: { cond: () => UI.tab === 'lib' && !UI.wo && $('#view .search'), steps: [
+    { sel: '#view .search', title: '種目を探す', text: '名前の一部や「胸」「ダンベル」などで絞り込めます。種目をタップすると、やり方・鍛える筋肉・自分の記録の推移が見られます。' },
+    { sel: '#fab', title: 'ない種目は追加', text: '自分の種目を作ると、メニューや記録でほかの種目と同じように使えます。' }] },
+  settings: { cond: () => UI.tab === 'settings' && !UI.wo && $('#view [data-sk="backup"]'), steps: [
+    { sel: '#view [data-sk="backup"]', title: 'バックアップを忘れずに', text: '記録はこの端末の中だけに保存されています。<b>機種変更・故障</b>に備えて、ときどきファイルかGoogleドライブに保存してください。' },
+    { sel: '#view [data-sk="guide"]', title: '使い方をもう一度', text: 'この案内は、ここからいつでも見直せます。' }] }
+};
+let TOUR = null, tipT = null;
+function tourBox() { let b = $('#tour'); if (!b) { b = document.createElement('div'); b.id = 'tour'; document.body.appendChild(b); } return b; }
+function startTour(steps, kind, key) {
+  if (!steps.length) return;
+  TOUR = { steps, i: 0, kind, key };
+  showTourStep();
+}
+function startWelcome() {
+  if (pages.length) [...pages].forEach((p) => p.close());
+  while (sheets.length) sheets[sheets.length - 1].close();
+  if (UI.tab !== 'train') setTab('train');
+  window.scrollTo(0, 0);
+  const steps = WELCOME_TOUR.filter((s) => !s.sel || $(s.sel));
+  startTour(steps, 'welcome');
+}
+function tourTarget(st) { const el = st.sel ? $(st.sel) : null; return el && st.parent ? el.closest(st.parent) || el : el; }
+function showTourStep() {
+  const st = TOUR.steps[TOUR.i];
+  const el = tourTarget(st);
+  if (el && !el.closest('#tabbar,.wo-head,#keypad,#fab')) {
+    const r = el.getBoundingClientRect(), vh = window.innerHeight;
+    if (r.top < 70 || r.bottom > vh - 260) el.scrollIntoView({ block: r.height > vh * 0.45 ? 'start' : 'center' });
+  }
+  drawTour(true);
+}
+function drawTour(anim) {
+  const box = tourBox();
+  if (!TOUR) { box.innerHTML = ''; return; }
+  const st = TOUR.steps[TOUR.i], n = TOUR.steps.length, last = TOUR.i === n - 1;
+  const el = tourTarget(st); const r = el ? el.getBoundingClientRect() : null;
+  const pad = 6, W = window.innerWidth, H = window.innerHeight, bw = Math.min(360, W - 24);
+  let hole = '', rect = null;
+  if (r && r.width) {
+    const L = Math.max(4, r.left - pad), T = Math.max(4, r.top - pad), R = Math.min(W - 4, r.right + pad), B = Math.min(H - 4, r.bottom + pad);
+    hole = `<div class="tour-hole" style="left:${L}px;top:${T}px;width:${R - L}px;height:${B - T}px"></div>`;
+    rect = { L, T, R, B };
+  } else hole = '<div class="tour-dim"></div>';
+  const welcome = TOUR.kind === 'welcome';
+  let btns;
+  if (last && welcome) {
+    const empty = !hasRealData() && !DB.records.length;
+    btns = `<div class="tour-btns col">${empty ? `<button type="button" class="btn btn-primary" data-a="tourEnd" data-demo="1">サンプル記録で試してみる</button>` : ''}<button type="button" class="btn ${empty ? '' : 'btn-primary'}" data-a="tourEnd">はじめる</button></div>`;
+  } else {
+    btns = `<div class="tour-btns">${TOUR.i > 0 ? '<button type="button" class="tour-skip" data-a="tourPrev">戻る</button>' : ''}<span class="sp"></span><button type="button" class="tour-skip" data-a="tourEnd">${welcome ? 'スキップ' : '閉じる'}</button><button type="button" class="btn btn-primary" data-a="tourNext">${last ? 'OK' : '次へ'}</button></div>`;
+  }
+  box.innerHTML = `<div class="tour-bk" data-a="tourNext"></div>${hole}
+    <div class="tour-bub${anim ? '' : ' mid'}" style="left:${(W - bw) / 2}px;width:${bw}px;top:0;visibility:hidden" role="dialog" aria-modal="true" aria-label="使い方ガイド">
+      ${n > 1 ? `<div class="tour-step"><span>${TOUR.i + 1} / ${n}</span><i><b style="width:${(TOUR.i + 1) / n * 100}%"></b></i></div>` : ''}
+      ${st.hero ? `<div class="tour-hero">${st.hero}</div>` : ''}<h4>${st.title}</h4><p>${st.text}</p>${st.list ? `<ul>${st.list.map((x) => `<li><span>${x}</span></li>`).join('')}</ul>` : ''}
+      ${btns}</div>`;
+  // 吹き出しの実際の高さを測って、対象の下→上→（入らなければ）画面下に重ねて置く
+  const bub = $('.tour-bub', box); const bh = bub.offsetHeight, gap = 14;
+  let top, arrow = '';
+  if (!rect) top = Math.max(12, (H - bh) / 2);
+  else {
+    const cx = (rect.L + rect.R) / 2, left = Math.min(Math.max(12, cx - bw / 2), W - bw - 12), ax = Math.min(Math.max(22, cx - left), bw - 22);
+    bub.style.left = left + 'px';
+    if (rect.B + gap + bh <= H - 8) { top = rect.B + gap; arrow = `<i class="tour-arr up" style="left:${ax}px"></i>`; }
+    else if (rect.T - gap - bh >= 8) { top = rect.T - gap - bh; arrow = `<i class="tour-arr down" style="left:${ax}px"></i>`; }
+    else top = H - bh - 12;
+  }
+  bub.style.top = Math.max(8, top) + 'px'; bub.style.visibility = '';
+  if (arrow) bub.insertAdjacentHTML('afterbegin', arrow);
+  const b = $('.tour-bub .btn-primary', box); if (b && anim) b.focus({ preventScroll: true });
+}
+function endTour() {
+  if (!TOUR) return;
+  if (TOUR.kind === 'welcome') DB.ui.tourDone = true;
+  else { DB.ui.tips = DB.ui.tips || {}; DB.ui.tips[TOUR.key] = true; }
+  TOUR = null; drawTour(); save();
+  maybeTip();
+}
+/* 画面を開いたときに、条件を満たす未表示のヒントがあれば出す */
+function maybeTip() {
+  clearTimeout(tipT);
+  tipT = setTimeout(() => {
+    if (TOUR || !DB || !DB.ui.onboarded || !DB.ui.tourDone || DB.settings.tipsOff || sheets.length) return;
+    if (pages.length) return;
+    for (const [key, t] of Object.entries(TIPS)) {
+      if ((DB.ui.tips || {})[key]) continue;
+      let ok = false; try { ok = !!t.cond(); } catch (e) { ok = false; }
+      if (!ok) continue;
+      const steps = t.steps.filter((s) => { const el = tourTarget(s); if (!el) return false; const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; });
+      if (steps.length) startTour(steps, 'tip', key);
+      return;
+    }
+  }, 650);
+}
+window.addEventListener('resize', () => { if (TOUR) drawTour(false); });
+document.addEventListener('keydown', (e) => { if (TOUR && e.key === 'Escape') { e.stopImmediatePropagation(); endTour(); } }, true);
+Object.assign(ACT, {
+  tourNext: () => { if (!TOUR) return; if (TOUR.i >= TOUR.steps.length - 1) { if (TOUR.kind === 'welcome') return; endTour(); return; } TOUR.i++; showTourStep(); },
+  tourPrev: () => { if (!TOUR || TOUR.i === 0) return; TOUR.i--; showTourStep(); },
+  tourEnd: (el) => { const demo = el && el.dataset && el.dataset.demo; endTour(); if (demo) ACT.demoAdd(); },
+  guideWelcome: () => { DB.settings.tipsOff = false; startWelcome(); },
+  guideReset: () => { DB.ui.tips = {}; DB.settings.tipsOff = false; touch(); toast('各画面のヒントを、次に開いたときにもう一度表示します', 'ok'); renderTab(); },
+  lvCompare: () => openSheet({ title: '経験レベルで変わる表示', render: () => levelCompareHtml(lv()) + `<div class="seg" style="margin-top:14px">${Object.entries(LEVELS).map(([k, v]) => `<button type="button" data-a="setLevel" data-v="${k}" aria-pressed="${lv() === k}">${v.short}</button>`).join('')}</div>`, live: true })
+});
+
+/* 経験レベルで何が変わるかの比較表（設定・初回の案内で共通） */
+const LEVEL_ROWS = [
+  ['前回の記録・重さを上げる目安・休憩タイマー・分析・グラフ', 'all'],
+  ['ホームの「🔰 初心者のポイント」', 'beginner'],
+  ['はじめての全身メニュー（マシン中心・5種目）', 'beginner'],
+  ['初めての種目で「重さの選び方」のヒント', 'beginner'],
+  ['分析で「RPE（きつさ）を記録しよう」の提案', 'standard,advanced'],
+  ['セット完了の直後にRPE（きつさ）の入力欄', 'advanced'],
+  ['種目ごとに推定1RM（WLは最高重量）ボタン → %で重量を入力', 'advanced']
+];
+function levelCompareHtml(cur) {
+  const ks = Object.keys(LEVELS);
+  return `<table class="lv-cmp"><thead><tr><th>表示されるもの</th>${ks.map((k) => `<th class="${k === cur ? 'on' : ''}">${LEVELS[k].short}</th>`).join('')}</tr></thead><tbody>
+    ${LEVEL_ROWS.map(([t, who]) => `<tr class="${who === 'all' ? 'all' : ''}"><td>${t}</td>${ks.map((k) => { const y = who === 'all' || who.split(',').includes(k); return `<td class="${k === cur ? 'on' : ''}"><span class="${y ? 'y' : 'n'}">${y ? '●' : '－'}</span></td>`; }).join('')}</tr>`).join('')}
+    </tbody></table><p class="lv-note">記録・集計のしくみはどのレベルでも同じで、いつでも変更できます。RPE・%計算・プレート計算は、どのレベルでも各種目の <b>⋮</b> やセット番号から使えます。</p>`;
+}
+Object.assign(CHG, {
+  guideTips: (el) => { DB.settings.tipsOff = !el.checked; touch(); },
+  setWake: (el) => { DB.settings.wake = el.checked; touch(); Wake.sync(); }
 });
 /* =====================================================================
    6. これまでの記録の取り込み（他アプリのCSV・表計算・メモの文章）
@@ -5720,6 +6069,8 @@ function pwaCard() {
       ${externalOpenHtml()}<div class="row pwa-later"><button type="button" class="btn btn-ghost btn-sm" data-a="pwaLater">このまま使う</button></div></div>`;
   }
   if (DB.ui.pwaHide || PWA.sessionHide) return '';
+  // はじめての人には出さない（1回トレーニングを記録してから案内する）
+  if (!hasRealData()) return '';
   const canPrompt = !!PWA.prompt;
   return `<div class="card pwa-card slim"><div class="pwa-top"><span class="pwa-ic">${appIconSvg()}</span><div class="m"><b>ホーム画面に追加</b><span>全画面・オフラインで使えて記録も消えにくい</span></div>
     <button type="button" class="btn btn-primary btn-sm" data-a="${canPrompt ? 'pwaInstall' : 'pwaGuide'}">${canPrompt ? '追加' : '方法'}</button>
@@ -5949,13 +6300,13 @@ document.addEventListener('keydown', (e) => {
 /* テンキー以外をタップしたら閉じる */
 document.addEventListener('pointerdown', (e) => {
   if (!UI.kp) return;
-  if (e.target.closest('#keypad') || e.target.closest('.cell') || e.target.closest('.done-btn') || e.target.closest('.sheet-bg')) return;
+  if (e.target.closest('#keypad') || e.target.closest('#tour') || e.target.closest('.cell') || e.target.closest('.done-btn') || e.target.closest('.sheet-bg')) return;
   closeKeypad();
 }, true);
 window.addEventListener('pagehide', () => flushSave());
 window.addEventListener('beforeunload', () => flushSave());
 window.addEventListener('freeze', () => flushSave());
-document.addEventListener('visibilitychange', () => { if (document.hidden) flushSave(); if (!document.hidden && DB) { if (DB.timer) Timer.tick(); tickClock(); } });
+document.addEventListener('visibilitychange', () => { if (document.hidden) flushSave(); if (!document.hidden && DB) { if (DB.timer) Timer.tick(); tickClock(); } if (DB) Wake.sync(); });
 window.addEventListener('online', () => { if (chartStatus === 'failed') { chartStatus = 'idle'; loadChartJs(); } });
 window.addEventListener('storage', (e) => {
   if (e.key !== STORAGE_KEY || !e.newValue) return;
