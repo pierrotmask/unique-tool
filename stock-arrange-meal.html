@@ -249,8 +249,10 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer;pad
 .tour-dim{position:fixed;inset:0;z-index:85;background:rgba(20,28,24,.66);pointer-events:none}
 .tour-bub{position:fixed;z-index:86;background:var(--card);border-radius:18px;padding:14px 16px 12px;box-shadow:0 14px 40px rgba(0,0,0,.3);animation:fade .2s ease}
 .tour-bub b{display:block;font-size:16.5px;color:var(--green);line-height:1.4;margin-bottom:4px}
-.tour-bub p{margin:0;font-size:14px;line-height:1.7;color:var(--sub)}
-.tour-bub p b{display:inline;font-size:inherit;color:var(--ink)}
+.tour-bub p,.tour-txt{margin:0;font-size:14px;line-height:1.7;color:var(--sub)}
+.tour-bub p b,.tour-txt b{display:inline;font-size:inherit;color:var(--ink)}
+.tour-ul{margin:8px 0 0;padding-left:1.2em}
+.tour-ul li{margin:4px 0;line-height:1.6}
 .tour-step{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.06em;margin-bottom:2px}
 .tour-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
 .tour-btns .btn{width:auto;min-width:88px}
@@ -650,7 +652,7 @@ const PARTS = [
     fry:'豚ひき肉を入れ、焼き色がつくまで触らずに焼いてから、ほぐしながら中火で2分炒める',
     simmer:'豚ひき肉を少しずつほぐし入れ、アクを取りながら3分煮る' },
   { id:'p_tebamoto', name:'下味なし手羽元', short:'手羽元', emoji:'🍗', category:'protein',
-    storageType:'freeze', shelfLifeDays:21, fridgeDays:2, unitName:'1食分[2〜3本・約150g]', grams:150, ready:false, extraMin:8,
+    storageType:'freeze', shelfLifeDays:21, fridgeDays:2, unitName:'1食分[2〜3本・約150g]', grams:150, edible:100, ready:false, extraMin:8,
     purchaseUnit:{ item:'鶏手羽元', unit:'パック', grams:500, step:1, section:'精肉' },
     prepInstruction:'水気を拭き、骨に沿って1本切り込みを入れる（火の通りと味しみがよくなる）。{n}食分ずつ保存袋に重ならないよう並べて冷凍',
     prepMin:8, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], like:'momo', notIn:'w_nimono w_misomayo w_dashiankake x_saikyo e_seiro_goma e_seiro_chuka y_tonyu',
@@ -803,17 +805,17 @@ const PARTS = [
     prepInstruction:'皮をむいて5mm厚の半月切りにし、酢少々を入れた水に5分さらす。熱湯で1分ゆでてザルに上げ、冷めたら水気を拭いて{n}食分ずつ保存袋に入れて冷凍（シャキッとした食感が残る）',
     prepMin:10, compatibleTags:['和風','洋風','中華','韓国風'], like:'gobo', addTo:'y_garibata c_amazu x_kurozu w_gomaae y_mustardmayo k_yangnyeom x_balsamico c_oyster x_shoyukoji_itame w_misomayo' },
   { id:'v_ingen', name:'下ゆで冷凍いんげん', short:'いんげん', emoji:'🫛', category:'veg', group:'green',
-    storageType:'freeze', shelfLifeDays:30, fridgeDays:3, unitName:'1食分[約40g]', grams:40, ready:true,
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:3, unitName:'1食分[約50g]', grams:50, ready:true,
     purchaseUnit:{ item:'さやいんげん', unit:'袋', grams:100, step:1, section:'青果' },
     prepInstruction:'ヘタを切り落とし、塩を入れた熱湯で1分半ゆでる。ザルに上げて冷まし、4cm長さに切って{n}食分ずつ保存袋に入れて冷凍',
     prepMin:8, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], like:'broccoli', addTo:'w_nimono w_misoshiru' },
   { id:'v_asupara', name:'カットアスパラ', short:'アスパラ', emoji:'🌱', category:'veg', group:'green',
-    storageType:'fridge', shelfLifeDays:3, freezeDays:21, unitName:'1食分[2本・約40g]', grams:40, ready:false,
+    storageType:'fridge', shelfLifeDays:3, freezeDays:21, unitName:'1食分[2〜3本・約50g]', grams:50, ready:false,
     purchaseUnit:{ item:'グリーンアスパラガス', unit:'束', grams:100, step:1, section:'青果' },
     prepInstruction:'根元のかたい部分を切り落とし、下1/3の皮をピーラーでむく。4cm長さの斜め切りにし、{n}食分ずつ保存袋に入れて冷蔵（3日以内に。冷凍する場合は生のまま）',
     prepMin:5, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], like:'broccoli', notIn:'c_umashioan' },
   { id:'v_nira', name:'3cm切り冷凍にら', short:'にら', emoji:'🌿', category:'veg', group:'nira',
-    storageType:'freeze', shelfLifeDays:30, fridgeDays:3, unitName:'1食分[約25g]', grams:25, ready:false,
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:3, unitName:'1食分[1/3束・約35g]', grams:35, ready:false,
     purchaseUnit:{ item:'にら', unit:'束', grams:100, step:1, section:'青果' },
     prepInstruction:'洗って水気をしっかり拭き、3cm長さに切る。保存袋に平らに入れて冷凍（{n}食分。凍ったまま炒め物・スープの仕上げに）',
     prepMin:4, compatibleTags:['和風','中華','韓国風','エスニック'], like:'negi', addTo:'k_namul c_chukasoup',
@@ -841,17 +843,17 @@ const PARTS = [
     prepMin:6, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], addTo:'w_negishio c_banbanji k_chorogi k_namul y_marine t_yam x_shiokonbu_ae x_shoyukoji_ae y_mustardmayo x_yuzu_mayo t_kaomangai w_gomaae' },
   // ----- 追加野菜②（冷凍・缶詰・カット野菜も） -----
   { id:'v_mixveg', name:'冷凍ミックスベジタブル', short:'ミックスベジ', emoji:'🌈', category:'veg', group:'mix',
-    storageType:'freeze', shelfLifeDays:60, unitName:'1食分[約40g]', grams:40, ready:true,
+    storageType:'freeze', shelfLifeDays:60, unitName:'1食分[約50g]', grams:50, ready:true,
     purchaseUnit:{ item:'冷凍ミックスベジタブル', unit:'袋', grams:300, step:1, section:'冷凍食品' },
     prepInstruction:'下処理不要。冷凍庫へ（{n}食分。凍ったまま使える）',
     prepMin:0, compatibleTags:['和風','洋風','中華'], addTo:'y_garibata y_curry y_consomme y_cheeseyaki y_mustardmayo y_tonyu y_tomatogarlic c_chukasoup x_shiokoji_soup e_auto_tomato c_oyster w_dashiankake c_umashioan' },
   { id:'v_corn', name:'ホールコーン', short:'コーン', emoji:'🌽', category:'veg', group:'mix',
-    storageType:'pantry', shelfLifeDays:365, fridgeDays:3, unitName:'1食分[約40g]', grams:40, ready:true,
+    storageType:'pantry', shelfLifeDays:365, fridgeDays:3, unitName:'1食分[約50g]', grams:50, ready:true,
     purchaseUnit:{ item:'ホールコーン（パウチ・缶）', unit:'袋', grams:120, step:1, section:'缶詰・乾物' },
     prepInstruction:'下処理不要。常備棚へ（{n}食分。開封後は汁気をきって冷凍すると使いやすい）',
     prepMin:0, compatibleTags:['和風','洋風','中華','韓国風'], addTo:'y_garibata y_curry y_consomme y_cheeseyaki y_mustardmayo y_tonyu c_chukasoup x_shiokoji_soup k_chijimi w_misoshiru y_marine k_chorogi x_yuzu_mayo' },
   { id:'v_edamame', name:'冷凍むき枝豆', short:'枝豆', emoji:'🟢', category:'veg', group:'bean',
-    storageType:'freeze', shelfLifeDays:60, unitName:'1食分[約30g]', grams:30, ready:true,
+    storageType:'freeze', shelfLifeDays:60, unitName:'1食分[むき身約40g]', grams:40, ready:true,
     purchaseUnit:{ item:'冷凍枝豆', unit:'袋', grams:200, step:1, section:'冷凍食品' },
     prepInstruction:'さやつきの場合は流水で解凍してさやから出し、{n}食分ずつ保存袋に入れて冷凍（むき枝豆ならそのまま）',
     prepMin:5, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], addTo:'y_mustardmayo y_marine x_shiokonbu_ae x_shoyukoji_ae c_chukasoup w_gomaae t_yam y_garibata x_yuzu_mayo w_negishio' },
@@ -861,7 +863,7 @@ const PARTS = [
     prepInstruction:'葉を1枚ずつはがして洗い、食べやすくちぎって水気をしっかりきる。ペーパーを敷いた保存容器に{n}食分入れて冷蔵（3日以内に）',
     prepMin:5, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], addTo:'k_chorogi y_marine w_negishio c_chukasoup y_consomme c_oyster t_yam t_kaomangai x_shiokonbu_ae c_banbanji' },
   { id:'v_mizuna', name:'ざく切り水菜', short:'水菜', emoji:'🌿', category:'veg', group:'salad',
-    storageType:'fridge', shelfLifeDays:3, unitName:'1食分[約40g]', grams:40, ready:true,
+    storageType:'fridge', shelfLifeDays:3, unitName:'1食分[約50g]', grams:50, ready:true,
     purchaseUnit:{ item:'水菜', unit:'袋', grams:200, step:1, section:'青果' },
     prepInstruction:'根元を落として洗い、4cm長さに切って水気をしっかりきる。ペーパーを敷いた保存容器に{n}食分入れて冷蔵（3日以内に）',
     prepMin:4, compatibleTags:['和風','中華','韓国風','エスニック'], addTo:'w_nibitashi w_negishio k_chorogi x_shiokonbu_ae t_yam w_misoshiru x_dashida_soup c_banbanji w_oroshiponzu e_seiro_goma' },
@@ -876,7 +878,7 @@ const PARTS = [
     prepInstruction:'皮をむいて1cm厚の半月切りにし、酢水にさっとつけて水気を拭く。{n}食分ずつ保存袋に入れて冷蔵（冷凍も可・凍ったまま焼ける）',
     prepMin:5, compatibleTags:['和風','洋風','中華','韓国風'], addTo:'y_garibata w_teriyaki x_shoyukoji_itame w_misoshiru x_shiokonbu_ae w_oroshiponzu w_negishio' },
   { id:'v_okra', name:'下ゆで冷凍オクラ', short:'オクラ', emoji:'⭐', category:'veg', group:'green',
-    storageType:'freeze', shelfLifeDays:30, fridgeDays:3, unitName:'1食分[3〜4本・約40g]', grams:40, ready:true,
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:3, unitName:'1食分[4〜5本・約50g]', grams:50, ready:true,
     purchaseUnit:{ item:'オクラ', unit:'袋', grams:100, step:1, section:'青果' },
     prepInstruction:'塩をふって板ずりし、熱湯で1分ゆでて冷水にとる。ガクを除いて小口切りにし、{n}食分ずつ保存袋に入れて冷凍',
     prepMin:8, compatibleTags:['和風','洋風','中華','韓国風','エスニック'], addTo:'w_gomaae x_shiokonbu_ae w_misoshiru w_nibitashi c_chukasoup k_namul y_curry t_tomyum x_shoyukoji_ae w_negishio' },
@@ -906,12 +908,12 @@ const PARTS = [
     prepInstruction:'スプーンでひと口大にちぎり、熱湯で3分ゆでてアク抜きする。水を張った保存容器に入れて冷蔵（{n}食分）',
     prepMin:6, compatibleTags:['和風','韓国風'], addTo:'w_nimono e_auto_wa w_misoshiru g_buta_daikon k_bulgogi w_teriyaki x_shoyukoji_itame' },
   { id:'v_hijiki', name:'戻しひじき', short:'ひじき', emoji:'🌑', category:'veg', group:'seaweed',
-    storageType:'freeze', shelfLifeDays:30, fridgeDays:3, unitName:'1食分[戻して約30g]', grams:30, ready:true,
+    storageType:'freeze', shelfLifeDays:30, fridgeDays:3, unitName:'1食分[戻して約40g]', grams:40, ready:true,
     purchaseUnit:{ item:'芽ひじき（乾燥）', unit:'袋', grams:120, step:1, section:'缶詰・乾物' },
     prepInstruction:'たっぷりの水で15分戻し、熱湯で1分ゆでてザルに上げる。冷めたら{n}食分ずつ保存袋に平らに入れて冷凍',
     prepMin:20, compatibleTags:['和風','洋風','韓国風'], addTo:'y_marine y_mustardmayo w_gomaae w_nimono x_yuzu_mayo x_shoyukoji_ae k_namul' },
   { id:'v_wakame', name:'乾燥カットわかめ', short:'わかめ', emoji:'🌊', category:'veg', group:'seaweed',
-    storageType:'pantry', shelfLifeDays:365, unitName:'1食分[乾燥2g]', grams:20, ready:true,
+    storageType:'pantry', shelfLifeDays:365, unitName:'1食分[乾燥3g・戻して約30g]', grams:30, ready:true,
     purchaseUnit:{ item:'乾燥カットわかめ', unit:'袋', grams:200, step:1, section:'缶詰・乾物' },
     prepInstruction:'下処理不要。常備棚へ（{n}食分。汁物は乾燥のまま、和え物は水で5分戻して水気を絞る）',
     prepMin:0, compatibleTags:['和風','中華','韓国風'], addTo:'w_misoshiru c_chukasoup x_dashida_soup k_namul k_chorogi x_shoyukoji_ae x_shiromiso_soup k_sundubu' },
@@ -2414,6 +2416,24 @@ function fmtSeason(s,n){
   if(s.cm!=null) return frac(Math.round(s.cm*n*2)/2)+'cm';
   return s.text;
 }
+// 塩分は食材の重さに比例させる（黄金比の考え方）。味付けの分量は「元の32食材での平均的な重さ」を基準に設計しているので、
+// 実際に使う食材が軽い・重いときは、塩分のもとになる調味料をその比率で増減する（汁物は水分基準なのでそのまま）
+const ORIG_PARTS = ['p_mushidori','p_butakoma','p_momo','p_hikiniku','p_sake','p_shiromi','p_tofu','p_egg','p_tuna','p_saba','p_butabara','p_sasami','p_atsuage','p_ebi','v_ninjin','v_cabbage','v_tamanegi','v_broccoli','v_kinoko','v_horenso','v_komatsuna','v_nasu','v_jagaimo','v_piman','v_moyashi','v_negi','v_kabocha','v_hakusai','v_tomato','v_daikon','v_paprika','v_gobo'];
+const REF_FOOD = {};
+function refFood(b){
+  if(REF_FOOD[b.id]) return REF_FOOD[b.id];
+  const orig=PARTS.filter(q=>ORIG_PARTS.includes(q.id)), avg=a=>a.length?a.reduce((x,q)=>x+q.grams,0)/a.length:0;
+  const ps=orig.filter(q=>compat(b,q,'protein')), vs=orig.filter(q=>compat(b,q,'veg'));
+  return (REF_FOOD[b.id]=(b.requiredCategories.protein[0]>=1?avg(ps):avg(ps)*0.3)+avg(vs)*(b.requiredCategories.veg[1]>=2?1.45:1)||0);
+}
+const dishFood = d=>dishParts(d).reduce((a,id)=>a+(PART[id].edible||PART[id].grams),0);   // 骨付きは食べられる部分の重さで
+const scalesWithFood = s=>s.k!=='oil'&&(s.tsp!=null||s.g!=null)&&(s.k!=='x'||/^(塩昆布|塩|醤油|味噌)/.test(s.n));   // 水・だし・とろみ等は増減しない（塩昆布など塩気のあるトッピングは増減する）
+function seasonFactor(d){
+  const b=d&&BASE[d.baseId]; if(!b||b.custom||b.dishType==='汁物') return 1;
+  const ref=refFood(b); if(!ref) return 1;
+  const food=dishFood(d);
+  return Math.min(1.5,Math.max(0.3,Math.round(food/ref*20)/20));
+}
 function goldenRatio(b){
   const it=b.seasonings.filter(s=>s.tsp!=null && s.k!=='x' && s.k!=='oil' && s.tsp>=0.5);
   if(it.length<2) return '';
@@ -3266,7 +3286,7 @@ function renderModal(){
         ${dishParts(d).map(id=>{ const p=PART[id], c=sm[id]||0;
           return `<div class="krow"><span>${p.emoji} ${esc(p.name)}<small>${STORAGE[p.storageType].icon} ${c>0?`在庫 ${c}食分${c<n?'（不足）':''}`:'在庫なし'}</small></span><span class="q">${n}食分<small>約${p.grams*n}g</small></span></div>`; }).join('')}</div>
       <div class="ksec"><h3>🧂 合わせ調味料（${n}人分）</h3>
-        ${b.seasonings.map(s=>`<div class="krow"><span>${esc(s.n)}</span><span class="q">${esc(fmtSeason(s,n))}</span></div>`).join('')}
+        ${(()=>{ const f=seasonFactor(d); return b.seasonings.map(s=>`<div class="krow"><span>${esc(s.n)}</span><span class="q">${esc(fmtSeason(s,n*(scalesWithFood(s)?f:1)))}</span></div>`).join('')+(Math.abs(f-1)>=0.05?`<p class="hint" style="margin:6px 0 0">⚖️ 食材の量（1人分 約${dishFood(d)}g）に合わせて、味付けの調味料を${f>1?'増やして':'減らして'}います（基準の約${Math.round(f*100)}%・塩分濃度を一定に）</p>`:''); })()}
         ${BASE_RULES[b.id]?`<div class="ratio"><span>黄金比メソッド</span>${esc(BASE_RULES[b.id])}${ratio?`<small style="display:block;font-weight:600;margin-top:4px">この分量の比率：${esc(ratio)}</small>`:''}</div>`:ratio?`<div class="ratio"><span>この味の黄金比</span>${esc(ratio)}</div>`:''}</div>
       <div class="ksec"><h3>🔥 仕上げ手順（${estMinutes(b,d,n)?`約${estMinutes(b,d,n)}分`:b.time}）</h3><ol class="ksteps">${steps.map((s,i)=>`<li class="${MODAL.checked.has(i)?'ck':''}" data-act="stepck" data-i="${i}">${esc(s)}</li>`).join('')}</ol>
         <p class="hint">手順をタップすると完了チェックできます。</p></div>
@@ -3299,8 +3319,17 @@ function closeModal(){ MODAL=null; if(wakeLock){ try{wakeLock.release();}catch(e
    覚えることを最小限にし、必要になったタイミングで教える。
    ===================================================================== */
 const WELCOME_TOUR = [
+  // はじめて開いた人向け：アプリの特徴と、ほかの献立アプリとの違い（件数は今のデータから数える）
+  { sel:'#__intro', title:'かけ算ごはんへようこそ',
+    get text(){ const man=Math.floor(BASES.reduce((a,b)=>a+combosCount(b),0)/10000);
+      return `週末に下処理した食材（ストック）と味付けを<b>かけ算</b>して、毎日の献立を自動で考えるアプリです。
+        <ul class="tour-ul"><li><b>約${man}万通り</b>の組み合わせ＋<b>定番レシピ${RECIPES.length}品</b>。毎日ちがう献立に</li>
+        <li>冷蔵庫の<b>今あるストックから</b>作れる料理を提案。期限が近いものから使い切れる</li>
+        <li>1週間の献立を作ると、<b>買い物リストと下処理の手順</b>まで自動</li>
+        <li>人数（1〜6人）に合わせて<b>分量を自動換算</b>。食べたい料理からも献立を組める</li>
+        <li><b>無料・登録不要</b>。データはこの端末の中だけに保存</li></ul>`; } },
   { sel:'#main [data-act=presetSheet]', before:()=>{ if(S.tab!=='stock'){ S.tab='stock'; render(); } },
-    title:'ようこそ！まずはここから', text:'週末に作り置きした食材を登録すると、毎日の料理を自動で提案します。<b>「週末仕込みセット」</b>なら1タップでお試しできます。' },
+    title:'まずはここから', text:'週末に作り置きした食材を登録すると、毎日の料理を自動で提案します。<b>「週末仕込みセット」</b>なら1タップでお試しできます。' },
   { sel:'#nav [data-tab=plan]', title:'料理の提案はここ', text:'今日作れる料理と1週間の献立はこのタブ。献立を確定すると、隣の<b>「買い物・仕込み」</b>にリストができます。' },
   { sel:'#hdr .help', title:'設定・使い方はこの歯車から', text:'使うジャンル・調理器具・調味料の設定、使い方の見直し、<b>バックアップ</b>、<b>ユーザー切り替え</b>、<b>家族との献立共有</b>はここから。各画面のくわしい使い方は、はじめて開いたときにその場でご案内します。', last:true },
 ];
@@ -3366,7 +3395,7 @@ function drawTour(){
   box.innerHTML=`<div class="tour-bk" data-act="tourTap"></div>${hole}
     <div class="tour-bub" style="${bubStyle}" role="dialog" aria-modal="true" aria-label="使い方ガイド">${arrow}
       ${n>1?`<div class="tour-step">${TOUR.i+1} / ${n}</div>`:''}
-      <b>${st.title}</b><p>${st.text}</p>
+      <b>${st.title}</b><div class="tour-txt">${st.text}</div>
       <div class="tour-btns ${last&&TOUR.kind==='welcome'?'col':''}">${btns}</div>
       ${last&&TOUR.kind==='welcome'?`<button class="ck-row ${TOUR.dontShow?'on':''}" data-act="tourCk"><span class="box">${TOUR.dontShow?'✓':''}</span>次回からこの案内を表示しない</button>`:''}
     </div>`;
@@ -3596,7 +3625,7 @@ function closeModalUI(){ closeModal(); popOv(); }
 /* =====================================================================
    14. PWA（ホーム画面に追加・オフライン・自動アップデート・引き継ぎ）
    ===================================================================== */
-const APP_VERSION = '2026.11.23.1';
+const APP_VERSION = '2026.11.23.3';
 const SW_FILE = 'stock-arrange-meal-sw.js', SW_SCOPE = './stock-arrange-meal';
 const PWA = { deferred:null };
 const isHttp = ()=>/^https?:$/.test(location.protocol);
@@ -3860,8 +3889,8 @@ const APP_SHARE_URL = APP_URL+'?openExternalBrowser=1';
 const APP_SHARE_TEXT = '週末に下処理した食材を登録すると、毎日の献立を自動で考えてくれるアプリ「かけ算ごはん」。無料・登録不要で使えます。';
 async function shareApp(){
   if(navigator.share){ try{ await navigator.share({ title:'かけ算ごはん', text:APP_SHARE_TEXT, url:APP_SHARE_URL }); return 'shared'; }catch(e){ if(e&&e.name==='AbortError') return 'cancel'; } }
-  try{ await navigator.clipboard.writeText(APP_SHARE_TEXT+'\n'+APP_SHARE_URL); return 'copied'; }catch(e){}
-  prompt('このリンクをコピーして送ってください', APP_SHARE_URL); return 'prompt';
+  try{ await navigator.clipboard.writeText(APP_URL); return 'copied'; }catch(e){}   // コピーはURLだけ
+  prompt('このリンクをコピーして送ってください', APP_URL); return 'prompt';
 }
 const B62 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 const e62 = (n,w)=>{ let r=''; for(let i=0;i<w;i++){ r=B62[n%62]+r; n=Math.floor(n/62); } return r; };
@@ -4492,7 +4521,7 @@ const ACTIONS={
   swapMode:ds=>{ if(swapDish(+ds.d,0,ds.m)){ render(); toast(ds.m==='gochiso'?'🍷 ごちそうに変更しました':'⚡ 時短の料理に変更しました'); } else toast(ds.m==='gochiso'?'手持ちの食材・設定で作れるごちそうがありません':'他に条件を満たす料理がありません'); },
   swap:ds=>{ if(swapDish(+ds.d,+ds.j)){ render(); toast('↻ 別のアレンジに差し替えました'); } else toast('他に条件を満たす組み合わせがありません'); },
   addOpen:ds=>{ ADD_OPEN=+ds.d; render(); },
-  shareApp:async()=>{ const r=await shareApp(); if(r==='copied') toast('📋 紹介文とリンクをコピーしました。LINEなどに貼り付けて送ってください'); },
+  shareApp:async()=>{ const r=await shareApp(); if(r==='copied') toast('📋 アプリのリンクをコピーしました。LINEなどに貼り付けて送ってください'); },
   wantSheet:()=>{ const had=!!$('#sheet').innerHTML; WANT_Q=''; WANT_CACHE={}; renderWantSheet(); if(!had) pushOv(); setTimeout(()=>{ const i=$('#want_q'); if(i&&!('ontouchstart' in window)) i.focus(); },50); },
   wantDay:ds=>{ WANT_DAY=+ds.v; renderWantSheet(); },
   wantMore:()=>{ WANT_CACHE={}; const el=$('#want_res'); if(el) el.innerHTML=wantResultsHTML(WANT_Q); },
