@@ -1157,57 +1157,13 @@ svg.qr{stroke:none;fill:#000}
 :root[data-theme="dark"] .ev-h{color:#6ee7b7}:root[data-theme="dark"] .ev-m{color:#93c5fd}
 
 /* =====================================================================
-   デザインレイヤー「カーボン×ボルト」
-   ・グラファイトの面と細い線で、ジムの器具のように硬質ですっきりと
-   ・操作の色は1色（ボルト＝蛍光ライム）。ライトでは黒いボタン＋ライムの差し色
-   ・見出しには英字の小見出し（Barlow Condensed）を添えて、スコアボードのような緊張感
-   ・色の意味（緑＝完了／黄＝自己ベスト／赤＝高負荷）は維持
+   見出し・案内・レベル比較などの部品（配色はこれまでの青系のまま）
+   ・見出しには英字の小見出しを添える
+   ・使い方ガイドの強調色は操作の色（青）に合わせる
    ===================================================================== */
-:root{
-  --volt:#c6f000; --volt-ink:#3f5c00;
-  --glow:#9cc800; --glow-2:#c6f000;
-  --bg:#f0f1ed;
-  --bg-fx:linear-gradient(180deg,#f6f7f3 0,#eeefea 520px);
-  --grid-line:rgba(20,24,16,.035);
-  --surface:#ffffff; --surface-solid:#ffffff; --surface-2:#f5f6f2; --surface-3:#eaece6; --overlay:rgba(246,247,243,.9);
-  --line:#e1e3dc; --line-2:#cdd0c6;
-  --text:#0e100c; --text-2:#454a40; --text-3:#666b61; --head:#0b0c09;
-  --accent:#3f6a00; --accent-2:#2f5000; --accent-soft:#eef6d6; --accent-soft-2:#dbecab; --on-accent:#fff;
-  --btn:#121410; --btn-2:#000000; --on-btn:#ffffff; --btn-ic:#c6f000;
-  --edge-hi:rgba(255,255,255,.9); --edge-lo:rgba(0,0,0,.06);
-  --elev-1:0 0 0 1px var(--line),0 1px 2px rgba(20,24,16,.04),0 10px 24px -18px rgba(20,24,16,.28);
-  --elev-2:0 0 0 1px var(--line),0 4px 10px rgba(20,24,16,.05),0 24px 44px -24px rgba(20,24,16,.36);
-  --well:inset 0 0 0 1px var(--line-2),inset 0 2px 3px rgba(20,24,16,.05);
-  --holo-bg:radial-gradient(120% 90% at 50% 18%,#ffffff 0%,#eef0ea 50%,#e1e4dc 100%);
-  --holo-grid:rgba(60,90,0,.16); --holo-ring:rgba(90,130,0,.4); --holo-edge:#666b61;
-  --dock:rgba(250,250,247,.86);
-  --r-xl:22px; --r-lg:18px; --r:14px; --r-sm:11px;
-}
-html[data-theme="dark"]{
-  --volt:#c8f031; --volt-ink:#c8f031;
-  --glow:#a6d11c; --glow-2:#d4ff4a;
-  --bg:#08090a;
-  --bg-fx:radial-gradient(900px 460px at 90% -8%,rgba(200,240,49,.07),transparent 62%),linear-gradient(180deg,#0c0d0c,#070808);
-  --grid-line:rgba(255,255,255,.022);
-  --surface:#121412; --surface-solid:#121412; --surface-2:#1a1c19; --surface-3:#232621; --overlay:rgba(10,11,10,.86);
-  --line:#252823; --line-2:#353932;
-  --text:#f1f3ee; --text-2:#bcc1b6; --text-3:#8e9488; --head:#fafbf7;
-  --accent:#cdf25a; --accent-2:#e0ff8c; --accent-soft:#1f270b; --accent-soft-2:#34421a; --on-accent:#0a0b09;
-  --btn:#c8f031; --btn-2:#b2d91f; --on-btn:#0a0b09; --btn-ic:#0a0b09;
-  --edge-hi:rgba(255,255,255,.05); --edge-lo:rgba(0,0,0,.6);
-  --elev-1:0 0 0 1px var(--line),0 14px 30px -18px rgba(0,0,0,.9);
-  --elev-2:0 0 0 1px var(--line-2),0 24px 50px -20px rgba(0,0,0,.95);
-  --well:inset 0 0 0 1px var(--line-2),inset 0 2px 6px rgba(0,0,0,.5);
-  --holo-bg:radial-gradient(120% 90% at 50% 15%,#1c2115 0%,#0f110e 52%,#070807 100%);
-  --holo-grid:rgba(200,240,49,.2); --holo-ring:rgba(200,240,49,.55); --holo-edge:#a9c46a;
-  --bd-skin:#1b1e1a; --bd-edge:#7d8577; --bd-idle:#2b2f29; --bd-sep:#0b0c0b;
-  --dock:rgba(14,15,14,.84);
-  --ok:#4ade80; --ok-2:#86efac;
-}
+:root{--volt:#2563eb}
+html[data-theme="dark"]{--volt:#5b8cff}
 
-/* ---- 背景：格子は消して、面と余白で見せる ---- */
-body::before{display:none}
-body{letter-spacing:.01em}
 
 /* ---- 見出し：英字の小見出し＋太い和文 ---- */
 .topbar{padding-top:calc(var(--safe-top) + 18px)}
@@ -1217,52 +1173,6 @@ body{letter-spacing:.01em}
 .sec-h h2{font-weight:900;letter-spacing:.01em}
 .sec-h h2::before{background:var(--volt);box-shadow:none;width:4px;height:15px}
 
-/* ---- 面：細い線で区切る、硬質なカード ---- */
-.card,.list,.kpi,.stat-tile,.exc{box-shadow:var(--elev-1)}
-.sheet{background:var(--surface-solid);box-shadow:0 -20px 60px -10px rgba(0,0,0,.45)}
-
-/* ---- ボタン：フラット・太字・はっきり押せる ---- */
-.btn{box-shadow:0 0 0 1px var(--line-2);background:var(--surface-solid);font-weight:800}
-.btn:active:not(:disabled){transform:translateY(1px);box-shadow:0 0 0 1px var(--line-2),inset 0 2px 6px rgba(0,0,0,.12)}
-.btn-primary,.btn-start,.fab,.kp-grid button.go,.chip[aria-pressed="true"],.seg.pill button[aria-pressed="true"],.wo-nav button.cur,.toast-undo{
-  background:var(--btn) !important;color:var(--on-btn) !important;border-color:var(--btn);
-  box-shadow:0 10px 24px -14px color-mix(in srgb,var(--btn) 85%,transparent)}
-.btn-primary svg,.btn-start svg,.fab svg{color:var(--btn-ic)}
-.btn-primary:active:not(:disabled),.btn-start:active,.fab:active{background:var(--btn-2) !important;transform:translateY(1px);box-shadow:none}
-.btn-primary{letter-spacing:.04em}
-.btn-lg{font-weight:900}
-.btn-soft{background:var(--accent-soft);color:var(--accent);box-shadow:0 0 0 1.5px var(--accent)}
-html[data-theme="dark"] .btn-primary,html[data-theme="dark"] .btn-start,html[data-theme="dark"] .fab{box-shadow:0 10px 26px -14px rgba(200,240,49,.75)}
-.input:focus{box-shadow:var(--well),0 0 0 3px color-mix(in srgb,var(--volt) 55%,transparent)}
-.cell.on{box-shadow:var(--well),0 0 0 2px var(--volt),0 0 16px -4px var(--volt)}
-.restbar .prog{background:var(--volt);box-shadow:none}
-.tip-i{background:var(--btn);color:var(--btn-ic);box-shadow:none}
-.card.tip::before{background:var(--volt);box-shadow:none}
-.reco .reco-stats::before{background:linear-gradient(90deg,var(--volt),transparent);box-shadow:none}
-
-/* ---- タブバー：選択中は黒（ダークではライム）の塊 ---- */
-.tabbar{background:var(--dock);box-shadow:0 -1px 0 var(--line)}
-.tab[aria-current="page"] .ic{background:var(--btn);color:var(--on-btn);box-shadow:none}
-.tab[aria-current="page"]::after{display:none}
-.tab[aria-current="page"]{color:var(--head)}
-
-/* ---- カレンダーの選択日 ---- */
-.cal .day.sel span{background:var(--btn);color:var(--on-btn);box-shadow:none}
-
-/* ---- 分析・取り込みの青をテーマ色に ---- */
-.ins-info .dot{background:var(--text-3)}
-.ev-m{background:var(--accent-soft);color:var(--accent)}
-.vb .bar.hi{background:var(--accent)}
-.share-card .ic{background:var(--btn);color:var(--btn-ic)}
-.imp-l.k-d .lk{background:var(--accent-soft);color:var(--accent)}
-
-/* ---- おすすめ（主役のカード）：黒い面＋ライムの照準 ---- */
-.card.reco{background:radial-gradient(130% 120% at 85% 0%,#1d2412 0%,#0d0f0c 55%,#070807 100%) !important;box-shadow:0 0 0 1px #262a22,0 24px 50px -24px rgba(0,0,0,.8)}
-.card.reco .hud{--c:rgba(200,240,49,.75)}
-.reco-kicker{color:#c8f031 !important;font-family:var(--f-num);letter-spacing:.2em;text-transform:uppercase}
-.reco-kicker .live{background:#c8f031 !important;box-shadow:0 0 10px #c8f031 !important}
-.card.reco .btn-primary{background:#c8f031 !important;color:#0a0b09 !important}
-.card.reco .btn-primary svg{color:#0a0b09}
 
 /* ---- その他の開始方法（メニューの上） ---- */
 .quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
@@ -1290,10 +1200,10 @@ details.lv-more[open]>summary svg{transform:rotate(180deg)}
    使い方ガイド（スポットライト式のオーバーレイ）
    ===================================================================== */
 .tour-bk{position:fixed;inset:0;z-index:700}
-.tour-hole{position:fixed;z-index:701;border-radius:16px;box-shadow:0 0 0 9999px rgba(6,8,5,.72);pointer-events:none;transition:left .25s ease,top .25s ease,width .25s ease,height .25s ease}
-.tour-hole::after{content:"";position:absolute;inset:-4px;border-radius:19px;border:2.5px solid #c8f031;animation:tour-pulse 1.4s ease-in-out infinite}
+.tour-hole{position:fixed;z-index:701;border-radius:16px;box-shadow:0 0 0 9999px rgba(8,14,28,.68);pointer-events:none;transition:left .25s ease,top .25s ease,width .25s ease,height .25s ease}
+.tour-hole::after{content:"";position:absolute;inset:-4px;border-radius:19px;border:2.5px solid var(--volt);animation:tour-pulse 1.4s ease-in-out infinite}
 @keyframes tour-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(1.015)}}
-.tour-dim{position:fixed;inset:0;z-index:701;background:rgba(6,8,5,.72);pointer-events:none}
+.tour-dim{position:fixed;inset:0;z-index:701;background:rgba(8,14,28,.68);pointer-events:none}
 .tour-bub{position:fixed;z-index:702;background:var(--surface-solid);color:var(--text);border-radius:20px;padding:16px 16px 12px;box-shadow:0 0 0 1px var(--line),0 24px 60px -10px rgba(0,0,0,.55);animation:tour-in .22s ease}
 @keyframes tour-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .tour-bub.mid{animation:none}
@@ -1316,7 +1226,6 @@ details.lv-more[open]>summary svg{transform:rotate(180deg)}
 .tour-skip{background:none;border:0;color:var(--text-3);font-weight:800;font-size:13px;padding:8px 4px;min-height:40px}
 .tour-hero{font-family:var(--f-num);font-weight:700;font-size:13px;letter-spacing:.24em;color:var(--accent);text-transform:uppercase;margin-bottom:2px}
 @media (prefers-reduced-motion:reduce){.tour-hole::after{animation:none}.tour-bub{animation:none}.tour-hole{transition:none}}
-.reco::before{background:linear-gradient(90deg,#c8f031,rgba(200,240,49,.15) 70%,transparent);height:3px}
 .lv-cmp th:not(:first-child),.lv-cmp td:not(:first-child){width:46px;white-space:nowrap;padding-left:2px;padding-right:2px}
 /* 記録画面ではヘッダーのボタン（終了など）を隠さない位置に通知を出す */
 body.covered .toast{top:calc(var(--safe-top) + 112px)}
@@ -1344,7 +1253,7 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.23.4';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.23.5';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
