@@ -1116,6 +1116,46 @@ html.kb .sheet-pick .chips{display:none}
 html.kb .sheet-pick .picker-top{padding-top:8px;padding-bottom:8px}
 html.kb .page{top:var(--vvt,0px);bottom:auto;height:var(--vvh,100%)}
 
+/* 分析 */
+.ins-list{display:flex;flex-direction:column;gap:6px}
+.ins{border:1px solid var(--line);border-radius:12px;padding:0 10px;background:var(--surface-2,transparent)}
+.ins>summary{list-style:none;display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:8px;align-items:start;padding:10px 0;cursor:pointer}
+.ins>summary::-webkit-details-marker{display:none}
+.ins .dot{width:9px;height:9px;border-radius:50%;margin-top:6px;background:#94a3b8}
+.ins-good .dot{background:#10b981}.ins-warn .dot{background:#f59e0b}.ins-info .dot{background:#3b82f6}
+.ins .m{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ins .m b{font-size:14px;color:var(--head);line-height:1.4}
+.ins .m span{font-size:12.5px;color:var(--text-2);line-height:1.55}
+.ev{font-style:normal;font-size:10.5px;font-weight:800;border-radius:6px;padding:2px 6px;white-space:nowrap;margin-left:4px}
+.ev-h{background:rgba(16,185,129,.16);color:#047857}.ev-m{background:rgba(59,130,246,.15);color:#1d4ed8}.ev-r{background:rgba(127,127,127,.16);color:var(--text-2)}
+.ins-refs{list-style:none;padding:0;margin:6px 0 10px;display:flex;flex-direction:column;gap:8px;font-size:12.5px;line-height:1.6}
+.ins-refs li{border-left:3px solid var(--line-2);padding-left:8px}
+.ins-refs.big li{padding:2px 0 2px 10px}
+.vbars{display:flex;flex-direction:column;gap:7px}
+.vb{display:grid;grid-template-columns:62px minmax(0,1fr) 78px;gap:8px;align-items:center;font-size:12.5px}
+.vb .n{color:var(--text-2);white-space:nowrap}
+.vb .tr{position:relative;height:12px;border-radius:6px;background:var(--line);overflow:hidden}
+.vb .band{position:absolute;top:0;bottom:0;background:rgba(16,185,129,.22)}
+.vb .bar{position:absolute;left:0;top:2px;bottom:2px;border-radius:5px;background:#10b981;min-width:2px}
+.vb .bar.lo{background:#f59e0b}.vb .bar.mid{background:#fbbf24}.vb .bar.hi{background:#3b82f6}
+.vb .v{text-align:right;font-weight:800;color:var(--head);white-space:nowrap}
+.vb .v small{font-weight:600;color:var(--text-3);font-size:10.5px}
+.rbar{display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--line);margin:4px 0 8px}
+.rbar i{display:block;min-width:2px}
+/* 設定：共有 */
+.share-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px}
+.share-card .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:rgba(59,130,246,.14);color:var(--accent);flex:none}
+.share-card .ic svg{width:20px;height:20px}
+.share-card .m{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.share-card .m b{font-size:14.5px;color:var(--head)}
+.share-card .m span{font-size:12px;color:var(--text-3)}
+.qr-wrap{text-align:center;margin-top:12px}
+.qr-wrap .qr{width:min(240px,70vw);height:min(240px,70vw);border-radius:10px;border:1px solid var(--line)}
+.set-sec>summary .ss-sub.warn{color:var(--warn,#d97706);font-weight:800}
+svg.qr{stroke:none;fill:#000}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ev-h{color:#6ee7b7}:root:not([data-theme="light"]) .ev-m{color:#93c5fd}}
+:root[data-theme="dark"] .ev-h{color:#6ee7b7}:root[data-theme="dark"] .ev-m{color:#93c5fd}
+
 </style>
 </head>
 <body>
@@ -1139,7 +1179,7 @@ html.kb .page{top:var(--vvt,0px);bottom:auto;height:var(--vvh,100%)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.23.2';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.23.3';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -1161,6 +1201,8 @@ const LEVELS = {
 };
 const BEGINNER_MENU = ['leg_02', 'chest_06', 'back_03', 'shoulder_08', 'abs_09'];
 const GLOSSARY = [
+  ['RIR（余力）', 'あと何回できたかの回数。RPE 8＝余力2回。筋肉をつけるには余力0〜3回のセットが有利な傾向があります。'],
+  ['分割カウント', '種目の主な筋肉は1セット、補助的に使う筋肉は0.5セットとして数える方法。分析の「筋肉別の量」で使っています。'],
   ['推定1RM', '重量と回数から計算した「1回だけ挙げられる最大重量」の目安です。60kgを10回できれば約80kg。実際に限界まで挙げなくても成長がわかります。'],
   ['総負荷量（ボリューム）', '重量×回数を全セット合計した値。練習量の目安で、筋肉を大きくしたいときは少しずつ増やしていくのが基本です。'],
   ['RPE（きつさ）', 'セットのきつさを10段階で表します。10＝もう1回もできない、8＝あと2回できた、7＝あと3回できた。初心者は記録しなくてもかまいません。'],
@@ -1666,7 +1708,7 @@ function defaultData() {
     settings: {
       restSec: 90, autoRest: true, sound: true, vib: true, theme: 'auto', weekGoal: 3,
       barKg: 20, collar: false, plates: [25, 20, 15, 10, 5, 2.5, 2, 1.5, 1, 0.5], sex: 'm',
-      wl: false, level: 'standard', googleClientId: '', autoDrive: true, lastBackupAt: null, lastBackupVia: '', lastDriveAt: null, drivePending: false, changedAt: 0
+      wl: false, level: 'standard', goal: 'hyp', googleClientId: '', autoDrive: true, lastBackupAt: null, lastBackupVia: '', lastDriveAt: null, drivePending: false, changedAt: 0
     },
     ui: { metric: 'e1rm', period: '3m', mapMode: 'sets', welcomeDone: false, wkChart: 'sets', pwaHide: false, pwaMoved: false, transferAsked: false, themeV2: true, onboarded: false, menuTipDone: false, wlDef2: true }
   };
@@ -1773,6 +1815,7 @@ function normalize(src) {
     // WL機能：初期値はOFF。旧データ（未設定、または以前の自動判定でONになった人）は、本人のWL記録がある場合だけONのまま
     wl: (st.wl === undefined || (st.wl && !obj(d.ui).wlDef2)) ? arr(d.records).some((r) => r && !isDemoRec(r) && typeof r.exerciseId === 'string' && r.exerciseId.startsWith('wl_') && arr(r.sets).some((x) => x && x.done)) : !!st.wl,
     level: ['beginner', 'standard', 'advanced'].includes(st.level) ? st.level : 'standard',
+    goal: ['hyp', 'str', 'health'].includes(st.goal) ? st.goal : 'hyp',
     googleClientId: typeof st.googleClientId === 'string' ? st.googleClientId.trim() : '',
     autoDrive: bool(st.autoDrive, true),
     lastBackupAt: num(st.lastBackupAt), lastBackupVia: typeof st.lastBackupVia === 'string' ? st.lastBackupVia : '',
@@ -3304,7 +3347,7 @@ Object.assign(CHG, {
 const TABS = [
   { key: 'train', label: 'トレーニング', icon: ICON.play, render: () => renderTrain() },
   { key: 'cal', label: '記録', icon: ICON.cal, render: () => renderCal() },
-  { key: 'review', label: '振り返り', icon: ICON.chart, render: () => renderReview() },
+  { key: 'review', label: '分析', icon: ICON.chart, render: () => renderReview() },
   { key: 'lib', label: '種目', icon: ICON.book, render: () => renderLib() },
   { key: 'settings', label: '設定', icon: ICON.gear, render: () => renderSettings() }
 ];
@@ -3451,13 +3494,13 @@ function renderTrain() {
   let h = topbar('トレーニング', `<button type="button" class="icon-btn ${UI.reorder ? 'solid' : ''}" data-a="reorder" aria-label="メニューの並び替え" aria-pressed="${UI.reorder}">${ICON.sort}</button>`);
   h += pwaCard();
   if (DB.settings.drivePending) h += `<div class="banner">${ICON.cloud}<div class="m"><b>Googleドライブへの自動保存が未完了です</b><br>電波の良い場所でもう一度保存してください。</div><button type="button" class="btn btn-sm" data-a="driveBackup">保存</button></div>`;
-  else if (backupStale()) h += `<div class="banner">${ICON.cloud}<div class="m"><b>しばらくバックアップしていません</b><br>機種変更や故障に備えて保存しましょう。</div><button type="button" class="btn btn-sm" data-a="tab" data-tab="settings">保存へ</button></div>`;
+  else if (backupStale()) h += `<div class="banner">${ICON.cloud}<div class="m"><b>しばらくバックアップしていません</b><br>機種変更や故障に備えて保存しましょう。</div><button type="button" class="btn btn-sm" data-a="goSetSec" data-sk="backup">保存へ</button></div>`;
   h += beginnerCard();
   if (DB.active) {
     h += `<div class="card resume tap" data-a="openWo"><div class="m"><b>${ICON.play} 進行中：${esc(DB.active.name)}</b><span class="small muted">${fmtClock(DB.active.startedAt)}開始 ・ タップで再開</span></div>${ICON.chevR}</div>`;
   }
   if (!DB.ui.welcomeDone && !DB.records.length) {
-    h += `<div class="card banner info" style="display:block"><b>はじめての方へ</b><ol class="small" style="margin:6px 0 10px;padding-left:20px;line-height:1.8"><li>下のメニューの<b>「開始」</b>を押す（メニューは例なので自由に変えてOK）</li><li>重量・回数の欄をタップして入力し<b>✓</b>で完了</li><li>記録は自動保存。<b>振り返り</b>で成長を確認</li></ol><div class="row"><button type="button" class="btn btn-sm btn-primary" data-a="welcomeOk">わかりました</button><button type="button" class="btn btn-sm" data-a="demoAdd">サンプル記録で試す</button></div></div>`;
+    h += `<div class="card banner info" style="display:block"><b>はじめての方へ</b><ol class="small" style="margin:6px 0 10px;padding-left:20px;line-height:1.8"><li>下のメニューの<b>「開始」</b>を押す（メニューは例なので自由に変えてOK）</li><li>重量・回数の欄をタップして入力し<b>✓</b>で完了</li><li>記録は自動保存。<b>分析</b>で成長を確認</li></ol><div class="row"><button type="button" class="btn btn-sm btn-primary" data-a="welcomeOk">わかりました</button><button type="button" class="btn btn-sm" data-a="demoAdd">サンプル記録で試す</button></div></div>`;
   }
   const rec = !DB.active && recommendMenu();
   if (rec && !UI.reorder) {
@@ -3550,7 +3593,8 @@ Object.assign(ACT, {
   glossary: () => openGlossary(),
   undo: () => { const f = UI.undo; UI.undo = null; $('#toast').className = 'toast'; if (f) f(); },
   menuTipOk: () => { DB.ui.menuTipDone = true; save(); renderTab(); },
-  goWlSetting: () => { setTab('settings'); setTimeout(() => { const el = $('#wlRow'); if (el) { el.scrollIntoView({ block: 'center' }); el.classList.add('flash'); } }, 60); },
+  goSetSec: (el) => openSetSec(el.dataset.sk),
+  goWlSetting: () => { openSetSec('training'); setTimeout(() => { const el = $('#wlRow'); if (el) { el.scrollIntoView({ block: 'center' }); el.classList.add('flash'); } }, 60); },
   repeatLast: () => { const s = IDX().sessions.find((x) => !x.live && x.recs.length); if (s) startWorkout(s.recs.map((r) => r.exerciseId), s.name, s.menuId && DB.menus.some((m) => m.id === s.menuId) ? s.menuId : null); },
   tab: (el) => setTab(el.dataset.tab),
   welcomeOk: () => { DB.ui.welcomeDone = true; save(); renderTab(); },
@@ -3656,7 +3700,7 @@ document.addEventListener('touchend', (e) => {
 }, { passive: true });
 
 /* =====================================================================
-   3. 振り返り
+   3. 分析
    ===================================================================== */
 function deltaHtml(cur, prev, unit = '', big = false) {
   if (!prev && !cur) return '<em class="flat">±0</em>';
@@ -3727,13 +3771,14 @@ function trendRowHtml(t) {
     <div class="d">3ヶ月前から ${deltaHtml(t.cur, t.base, t.unit)} <span class="faint">${t.key === 'e1rm' ? '推定1RM' : t.key === 'time' ? '最長' : '最多回数'}</span></div></div><div class="spark">${sparkSvg(t.recent.map((p) => p.y), { pr: t.prIdx, color: partColor(t.ex.part) })}</div></button>`;
 }
 function renderReview() {
-  let h = topbar('振り返り', `<button type="button" class="icon-btn" data-a="glossary" aria-label="用語の説明"><b style="font-size:17px">?</b></button>`);
+  let h = topbar('分析', `<button type="button" class="icon-btn" data-a="glossary" aria-label="用語の説明"><b style="font-size:17px">?</b></button>`);
   if (!IDX().sessions.length) {
     return h + `<div class="card empty"><div class="big">📈</div><p><b>まだ記録がありません</b><br>トレーニングを記録すると、ここに成長の様子が表示されます。</p>
       <button type="button" class="btn btn-primary btn-block" data-a="tab" data-tab="train">トレーニングを始める</button><div style="height:10px"></div>
       <button type="button" class="btn btn-line btn-block" data-a="demoAdd">サンプル記録で試してみる</button><p class="hint">サンプルは設定からいつでも削除できます。</p></div>`;
   }
   if (hasDemo()) h += `<div class="banner"><div class="m"><b>サンプル記録を表示中</b></div><button type="button" class="btn btn-sm" data-a="demoRemove">サンプルを削除</button></div>`;
+  h += analysisHtml();
   const wk = weeklyAgg(12); const tw = wk[wk.length - 1], lw = wk[wk.length - 2];
   h += `<section class="card wk-card"><div class="card-h"><h3>今週の状況</h3><span class="tiny faint">先週比</span></div><div class="stat4">
     <div><b>${tw.days.size}<small>日</small></b><span>日数</span>${deltaHtml(tw.days.size, lw.days.size, '日')}</div>
@@ -3936,6 +3981,195 @@ document.addEventListener('click', (e) => {
   if (!m) return;
   UI.mapSel = UI.mapSel === m.dataset.m ? null : m.dataset.m;
   if (UI.tab === 'review' && !pages.length) renderTab();
+});
+/* =====================================================================
+   3b. 分析（研究に基づく評価）
+   ・直近4週間の記録から、量（筋肉別・分割カウント）・頻度・回数帯・きつさ・伸び・休み を評価
+   ・各項目に根拠の強さ（高・中・参考）と出典を付ける。医学的な助言ではなく、一般的な目安として示す
+   ===================================================================== */
+const GOALS = {
+  hyp: { label: '筋肉をつける', short: '筋肥大' },
+  str: { label: '強くなる', short: '筋力' },
+  health: { label: '健康・体力', short: '健康' }
+};
+/* 出典（主要なメタ分析・ガイドライン） */
+const REFS = {
+  who: { lv: 'h', t: 'WHO 身体活動ガイドライン（2020）', c: 'Bull FC, et al. Br J Sports Med. 2020;54:1451-1462', s: '成人は週2日以上、主要な筋群すべてを使う筋力トレーニングを行うことが推奨される。' },
+  vol17: { lv: 'h', t: '週あたりのセット数と筋肥大（メタ分析）', c: 'Schoenfeld BJ, Ogborn D, Krieger JW. J Sports Sci. 2017;35(11):1073-1082', s: '1つの筋肉あたり週10セット以上は、5セット未満より筋肥大が大きい。量と効果には用量反応関係がある。' },
+  vol24: { lv: 'm', t: '量・頻度の用量反応（メタ回帰）', c: 'Pelland JC, et al. The Resistance Training Dose Response（SportRxiv 2024, メタ回帰）', s: '量を増やすほど筋肥大は増えるが伸び幅は次第に小さくなる。筋力は比較的少ない量で頭打ちになりやすい。協働筋を0.5セットと数える「分割カウント」が効果をよく説明した。' },
+  volStr: { lv: 'm', t: '週あたりのセット数と筋力（メタ分析）', c: 'Ralston GW, et al. Sports Med. 2017;47(12):2585-2601', s: '週あたりのセット数が多いほど筋力の伸びはやや大きいが、少ない量でも十分に伸びる。' },
+  freq16: { lv: 'h', t: '頻度と筋肥大（メタ分析）', c: 'Schoenfeld BJ, Ogborn D, Krieger JW. Sports Med. 2016;46(11):1689-1697', s: '同じ筋肉を週2回以上鍛えると、週1回より筋肥大が大きい傾向。' },
+  freq19: { lv: 'h', t: '量をそろえたときの頻度（メタ分析）', c: 'Schoenfeld BJ, Grgic J, Krieger J. J Sports Sci. 2019;37(11):1286-1295', s: '週の総量が同じなら、頻度による差はほとんどない。頻度は「量をこなしやすくする手段」と考えられる。' },
+  freqStr: { lv: 'm', t: '頻度と筋力（メタ分析）', c: 'Grgic J, et al. Sports Med. 2018;48(5):1207-1220', s: '頻度を増やすと筋力は伸びやすいが、主に総量が増えることによる。' },
+  load17: { lv: 'h', t: '軽い重量と重い重量（メタ分析）', c: 'Schoenfeld BJ, et al. J Strength Cond Res. 2017;31(12):3508-3523', s: '限界近くまで行えば、軽い重量（多い回数）でも重い重量でも筋肥大は同程度。筋力は重い重量の方が伸びる。' },
+  load21: { lv: 'h', t: '負荷の重さと効果（ネットワークメタ分析）', c: 'Lopez P, et al. Med Sci Sports Exerc. 2021;53(6):1206-1216', s: '筋肥大は負荷の重さによらず同程度。最大筋力は高負荷（おおむね1RMの80%以上）で最も伸びる。' },
+  fail23: { lv: 'm', t: '限界までの近さと筋肥大（メタ分析）', c: 'Refalo MC, et al. Sports Med. 2023;53(3):649-665', s: '限界まで追い込むことは必須ではないが、限界に近い（余力が少ない）セットほど筋肥大に有利な傾向。' },
+  fail24: { lv: 'm', t: '限界までの近さの用量反応（メタ回帰）', c: 'Robinson ZP, et al. Sports Med. 2024', s: '余力が少ないほど筋肥大は大きくなるが、筋力の伸びは余力の多少にあまり左右されない。' },
+  rpe16: { lv: 'm', t: '余力（RIR）にもとづくRPE', c: 'Zourdos MC, et al. J Strength Cond Res. 2016;30(1):267-275', s: 'RPE 10＝余力0回、9＝あと1回、8＝あと2回。経験者ほど推定が正確。' },
+  stop13: { lv: 'm', t: 'トレーニングを休んだときの筋力（メタ分析）', c: 'Bosquet L, et al. Scand J Med Sci Sports. 2013;23(3):e140-149', s: '休止が3週間程度までなら最大筋力は大きく落ちにくく、それ以上で低下が進む。' },
+  keep11: { lv: 'm', t: '維持に必要な量', c: 'Bickel CS, Cross JM, Bamman MM. Med Sci Sports Exerc. 2011;43(7):1177-1187', s: '若年者では、それまでの1/3程度の量でも筋量・筋力を維持できた。' },
+  deload23: { lv: 'r', t: 'ディロード（計画的な軽めの期間）', c: 'Bell L, et al. Sports Med Open. 2023;9:87（国際デルファイ合意）', s: '実践者の合意として、数週間ごとに量や強度を下げる期間を設けることが多い。効果の根拠は限定的。' },
+  e1rm: { lv: 'm', t: '推定1RMの計算', c: 'Epley B. 1985（推定式）', s: '重量×（1＋回数÷30）。RPEがある場合は「回数＋余力」を限界までの回数とみなして推定する。回数が多いほど誤差が大きい。' }
+};
+const EV_LABEL = { h: '根拠 高', m: '根拠 中', r: '参考' };
+/* 筋肉のまとまり（表示用）。値はまとまり内で最も多い筋肉のセット数 */
+const ANA_GROUPS = [
+  ['胸', ['chest']], ['背中', ['lats', 'upback']], ['肩', ['delt_f', 'delt_s', 'delt_r']], ['上腕二頭', ['biceps']], ['上腕三頭', ['triceps']],
+  ['もも前', ['quads']], ['もも裏', ['hams']], ['お尻', ['glutes']], ['ふくらはぎ', ['calves']], ['お腹', ['abs', 'oblique']]
+];
+const ANA_MAJOR = ['胸', '背中', '肩', 'もも前', 'もも裏', 'お尻', 'お腹'];
+const ANA_BAND = { hyp: [10, 20], str: [5, 15], health: [2, 10] };
+function goalOf() { return (DB && GOALS[DB.settings.goal]) ? DB.settings.goal : 'hyp'; }
+/* RPEがあれば余力を加えて推定（Epley） */
+function e1rmRpe(w, r, rpe) { if (!(w > 0) || !(r > 0)) return 0; const rir = rpe >= 5 && rpe <= 10 ? 10 - rpe : 0; const n = r + rir; return n <= 1 ? w : w * (1 + Math.min(n, 15) / 30); }
+function linSlope(pts) { const n = pts.length; if (n < 3) return 0; const mx = pts.reduce((a, p) => a + p.x, 0) / n, my = pts.reduce((a, p) => a + p.y, 0) / n; let num = 0, den = 0; for (const p of pts) { num += (p.x - mx) * (p.y - my); den += (p.x - mx) ** 2; } return den ? num / den : 0; }
+
+let anaCache = null;
+function anaCompute() {
+  const key = `${dataVer}|${ymd()}|${goalOf()}`;
+  if (anaCache && anaCache.key === key) return anaCache;
+  const today = ymd(); const all = IDX().sessions;
+  if (!all.length) return null;
+  const first = all[all.length - 1].date;
+  const span = Math.min(28, Math.max(7, daysBetween(first, today) + 1)); const perWk = 7 / span;
+  const from = addDays(today, -(span - 1));
+  const ms = Object.fromEntries(MUSCLE_KEYS.map((k) => [k, 0])); const mDays = Object.fromEntries(MUSCLE_KEYS.map((k) => [k, new Set()]));
+  const reps = [0, 0, 0, 0]; let lifted = 0, rpeN = 0, rpeHi = 0, rpeLo = 0, push = 0, pull = 0, heavy = 0;
+  const days = new Set();
+  for (const s of all) {
+    if (s.date < from || s.date > today) continue;
+    days.add(s.date);
+    for (const r of s.recs) {
+      const ex = getEx(r.exerciseId); const ws = work(r); const n = ws.length; if (!n) continue;
+      for (const m of ex.muscles || []) if (ms[m] != null) { ms[m] += n; mDays[m].add(s.date); }
+      for (const m of ex.sub || []) if (ms[m] != null) ms[m] += n * 0.5;
+      const mu = ex.muscles || [];
+      if (mu.some((m) => ['chest', 'delt_f', 'triceps'].includes(m))) push += n;
+      if (mu.some((m) => ['lats', 'upback', 'biceps', 'delt_r'].includes(m))) pull += n;
+      if (isTimed(ex)) continue;
+      const best = (exSummary(ex.id) || {}).bestE1 || 0;
+      for (const x of ws) {
+        lifted++;
+        reps[x.r <= 5 ? 0 : x.r <= 12 ? 1 : x.r <= 30 ? 2 : 3]++;
+        if (x.rpe) { rpeN++; if (x.rpe >= 7) rpeHi++; if (x.rpe < 6) rpeLo++; }
+        if (best > 0 && x.w > 0 && x.w >= best * 0.8) heavy++;
+      }
+    }
+  }
+  const groups = ANA_GROUPS.map(([name, keys]) => {
+    const v = Math.max(...keys.map((k) => ms[k])) * perWk; const d = new Set(); for (const k of keys) for (const x of mDays[k]) d.add(x);
+    return { name, v: Math.round(v * 10) / 10, freq: Math.round(d.size * perWk * 10) / 10 };
+  });
+  // 週2日以上の週（直近8週・今週を除く）
+  const wk = weeklyAgg(9).slice(0, 8); const firstWk = weekStart(first);
+  const wkHist = wk.filter((w) => w.week >= firstWk);
+  const wkMet = wkHist.filter((w) => w.days.size >= 2).length;
+  // 主な種目の伸び（直近12週で4日以上）
+  const lifts = [];
+  for (const [id, list] of IDX().byEx) {
+    const ex = getEx(id); if (isTimed(ex) || mainMetricOf(ex, list) !== 'e1rm') continue;
+    const byD = new Map();
+    for (const r of list) { let b = 0; for (const x of work(r)) b = Math.max(b, e1rmRpe(x.w, x.r, x.rpe)); if (b > 0) byD.set(r.date, Math.max(byD.get(r.date) || 0, b)); }
+    const pts = [...byD].map(([d, y]) => ({ d, x: dayNum(d), y })).sort((a, b) => a.x - b.x);
+    const recent = pts.filter((p) => p.d >= addDays(today, -83));
+    if (recent.length < 4) continue;
+    const mean = recent.reduce((a, p) => a + p.y, 0) / recent.length;
+    const pct = mean ? linSlope(recent) * 30 / mean * 100 : 0;
+    const cut = addDays(today, -41);
+    const before = pts.filter((p) => p.d < cut), last6 = pts.filter((p) => p.d >= cut);
+    const plateau = before.length >= 3 && last6.length >= 3 && daysBetween(pts[0].d, today) >= 70 && Math.max(...last6.map((p) => p.y)) <= Math.max(...before.map((p) => p.y)) * 1.005;
+    lifts.push({ ex, n: recent.length, pct: Math.round(pct * 10) / 10, plateau, cur: Math.round(Math.max(...recent.slice(-3).map((p) => p.y)) * 10) / 10 });
+  }
+  lifts.sort((a, b) => b.n - a.n);
+  const gap = daysBetween(all[0].date, today);
+  anaCache = { key, span, perWk, days: days.size, dpw: Math.round(days.size * perWk * 10) / 10, groups, reps, lifted, rpeN, rpeHi, rpeLo, heavy, push: push * perWk, pull: pull * perWk, wkMet, wkN: wkHist.length, lifts: lifts.slice(0, 5), gap, first };
+  return anaCache;
+}
+/* 評価（status: good / warn / info） */
+function anaInsights(a) {
+  const g = goalOf(); const band = ANA_BAND[g]; const out = [];
+  const add = (st, title, detail, refs, more = '') => out.push({ st, title, detail, refs, more });
+  const short = a.span < 14;
+  if (a.gap >= 14) add('warn', `最後のトレーニングから${a.gap}日`, a.gap <= 21 ? '3週間程度までなら筋力は大きく落ちにくいとされます。軽めの量から再開しましょう。' : '休止が3週間を超えると筋力の低下が進みやすくなります。以前の半分程度の量から再開すると安全です。', ['stop13', 'keep11']);
+  // 頻度（WHO）
+  if (a.dpw >= 2) add('good', `週${fmtNum(a.dpw)}日のペース`, `直近${a.span}日の平均です。WHOの推奨（週2日以上）を満たしています${a.wkN ? `（直近${a.wkN}週のうち${a.wkMet}週で週2日以上）` : ''}。`, ['who']);
+  else add(g === 'health' ? 'warn' : 'info', `週${fmtNum(a.dpw)}日のペース`, `WHOは週2日以上の筋力トレーニングを推奨しています。${a.wkN ? `直近${a.wkN}週で週2日以上だったのは${a.wkMet}週です。` : ''}まずは週2日を目標にしましょう。`, ['who']);
+  // 量（筋肉別）
+  const major = a.groups.filter((x) => ANA_MAJOR.includes(x.name));
+  const low = major.filter((x) => x.v < band[0]); const high = a.groups.filter((x) => x.v > band[1] + (g === 'hyp' ? 5 : 3));
+  if (g === 'health') {
+    const none = major.filter((x) => x.freq < 1);
+    if (!none.length) add('good', '主要な筋群をまんべんなく', '胸・背中・肩・脚・お腹のすべてを週1日以上使えています。週2日ずつ使えると理想的です。', ['who']);
+    else add('warn', `${none.map((x) => x.name).join('・')}が少なめ`, 'WHOは主要な筋群すべてを使うことを推奨しています。全身を使うメニューを入れると効率的です。', ['who']);
+  } else if (low.length) {
+    add('warn', `${low.slice(0, 4).map((x) => x.name).join('・')}${low.length > 4 ? 'など' : ''}の量が少なめ`, `${g === 'hyp' ? '筋肉をつけるには、1つの筋肉あたり週10セット以上が目安です。' : '筋力の伸びは少なめの量でも得られますが、主な筋肉で週5セット程度はあると安定します。'}（いずれも週平均${low.slice(0, 3).map((x) => `${x.name}${fmtNum(x.v)}`).join('・')}セット）`, g === 'hyp' ? ['vol17', 'vol24'] : ['volStr', 'vol24'], '協働筋（補助的に使う筋肉）は0.5セットとして数えています。');
+  } else add('good', '主な筋肉の量は目安内', `胸・背中・肩・脚・お腹がいずれも週${band[0]}セット以上です。`, g === 'hyp' ? ['vol17', 'vol24'] : ['volStr', 'vol24']);
+  if (high.length && g !== 'health') add('info', `${high.slice(0, 3).map((x) => x.name).join('・')}は量が多め`, `週${band[1]}セットを大きく超えると、増やした分の伸びは小さくなる傾向です。疲れが抜けて記録が伸びていれば問題ありません。`, ['vol24']);
+  // 頻度（筋肉ごと）
+  if (g === 'hyp') {
+    const once = major.filter((x) => x.v >= 8 && x.freq < 1.5);
+    if (once.length) add('info', `${once.slice(0, 3).map((x) => x.name).join('・')}は週1日に集中`, '週の量が同じなら頻度の差は小さいものの、2日に分けると1回あたりのセット数が減り、質を保ちやすくなります。', ['freq16', 'freq19']);
+  }
+  // 回数帯・重さ
+  if (a.lifted >= 15) {
+    const pc = a.reps.map((n) => Math.round(n / a.lifted * 100));
+    const heavyP = Math.round(a.heavy / a.lifted * 100);
+    if (g === 'str') {
+      if (pc[0] < 20 && heavyP < 25) add('warn', '重い重量のセットが少なめ', `5回以下のセットは${pc[0]}%です。最大筋力は1RMの80%以上（目安：1〜6回で限界近く）の重さで最も伸びます。主要種目の一部を重めの設定にしてみましょう。`, ['load21', 'load17']);
+      else add('good', '重い重量のセットを確保', `5回以下のセットが${pc[0]}%、自己ベストの8割以上の重さが${heavyP}%です。`, ['load21']);
+    } else if (pc[3] > 30) add('info', '30回を超えるセットが多め', `全体の${pc[3]}%です。6〜30回の範囲なら筋肥大の効果は同程度とされます。30回を超える場合は重さを上げると時間の効率が上がります。`, ['load17', 'load21']);
+    else add('good', `回数帯：6〜12回が${pc[1]}%`, '限界近くまで行えば、6〜30回のどの回数でも筋肥大の効果は同程度です。好みや種目に合わせて選んでかまいません。', ['load17', 'load21']);
+  }
+  // きつさ（RPE）
+  if (a.rpeN >= 10) {
+    const hi = Math.round(a.rpeHi / a.rpeN * 100), lo = Math.round(a.rpeLo / a.rpeN * 100);
+    if (g === 'hyp' && lo > 40) add('warn', '余力の多いセットが多め', `RPE6未満（あと5回以上できる）のセットが${lo}%です。筋肉をつけるには、余力0〜3回（RPE7〜10）のセットが有利な傾向です。`, ['fail23', 'fail24', 'rpe16']);
+    else add('good', `限界に近いセットが${hi}%`, g === 'str' ? '筋力の伸びは余力の多少にあまり左右されません。重い重量では余力1〜3回残すとフォームを保ちやすくなります。' : 'RPE7以上（余力3回以内）のセットの割合です。毎回限界まで追い込む必要はありません。', ['fail24', 'fail23', 'rpe16']);
+  } else if (lv() !== 'beginner' && a.lifted >= 15) add('info', 'RPE（きつさ）を記録すると評価が詳しくなります', 'セット完了後に「あと何回できたか」を記録すると、限界までの近さを分析できます。', ['rpe16']);
+  // 伸び・停滞
+  const pl = a.lifts.filter((x) => x.plateau);
+  if (pl.length) add('warn', `${pl.slice(0, 2).map((x) => x.ex.name).join('・')}が6週間ほど伸びていません`, '回数帯を変える、似た種目に入れ替える、1週間ほど量を減らす（ディロード）などの変化が選択肢です。睡眠・食事も影響します。', ['deload23', 'e1rm']);
+  const up = a.lifts.filter((x) => !x.plateau && x.pct > 0.5);
+  if (up.length) add('good', `${up.slice(0, 2).map((x) => x.ex.name).join('・')}が伸びています`, up.slice(0, 3).map((x) => `${x.ex.name} 月${x.pct > 0 ? '+' : ''}${fmtNum(x.pct)}%`).join('、') + '（推定1RM・直近12週の傾き）', ['e1rm']);
+  // バランス
+  if (a.push >= 6 && a.pull >= 1 && a.push / a.pull > 1.6) add('info', '押す種目が引く種目より多め', `押す種目 週${fmtNum(round1(a.push))}セット・引く種目 週${fmtNum(round1(a.pull))}セット。背中の種目を増やすと見た目と姿勢のバランスが整います（参考）。`, []);
+  if (short) out.unshift({ st: 'info', title: `記録が${a.span}日分のため参考値です`, detail: '4週間ほど記録がたまると、評価が安定します。', refs: [] });
+  return out;
+}
+function anaRefChips(refs) { return refs.map((k) => REFS[k]).filter(Boolean).map((r) => `<li><b>${esc(r.t)}</b><span class="ev ev-${r.lv}">${EV_LABEL[r.lv]}</span><br>${esc(r.s)}<br><span class="tiny faint">${esc(r.c)}</span></li>`).join(''); }
+function anaLevelOf(refs) { const lvls = refs.map((k) => REFS[k] && REFS[k].lv).filter(Boolean); return lvls.includes('h') ? 'h' : lvls.includes('m') ? 'm' : 'r'; }
+function analysisHtml() {
+  const a = anaCompute(); if (!a) return '';
+  const g = goalOf(); const ins = anaInsights(a); const band = ANA_BAND[g];
+  let h = `<section class="card ana"><div class="card-h"><h3>${ICON.info} 分析レポート</h3><button type="button" class="btn btn-ghost btn-sm" data-a="anaRefs">根拠と研究</button></div>
+    <div class="field" style="margin:0 0 8px"><span class="lbl">目的</span><div class="seg pill mini">${Object.entries(GOALS).map(([k, v]) => `<button type="button" data-a="anaGoal" data-v="${k}" aria-pressed="${g === k}">${v.label}</button>`).join('')}</div></div>
+    <p class="tiny faint" style="margin:0 0 8px">直近${a.span}日の記録を、研究で示された目安と比べています（一般的な目安で、医学的な助言ではありません）。タップで根拠を表示。</p>
+    <div class="ins-list">${ins.map((x) => { const lvl = anaLevelOf(x.refs); return `<details class="ins ins-${x.st}"><summary><i class="dot"></i><span class="m"><b>${esc(x.title)}</b><span>${esc(x.detail)}</span></span>${x.refs.length ? `<em class="ev ev-${lvl}">${EV_LABEL[lvl]}</em>` : ''}</summary>${x.more ? `<p class="tiny" style="margin:6px 0 0">${esc(x.more)}</p>` : ''}${x.refs.length ? `<ul class="ins-refs">${anaRefChips(x.refs)}</ul>` : '<p class="tiny faint" style="margin:6px 0 0">研究による目安ではなく、記録から計算した参考情報です。</p>'}</details>`; }).join('')}</div></section>`;
+  // 筋肉別の量
+  const mx = Math.max(band[1] + 5, ...a.groups.map((x) => x.v));
+  const pos = (v) => `${Math.min(100, v / mx * 100).toFixed(1)}%`;
+  h += `<section class="card"><div class="card-h"><h3>筋肉別の量（週平均）</h3><button type="button" class="icon-btn" data-a="anaVolHelp" aria-label="説明" style="width:36px;height:36px">${ICON.info}</button></div>
+    <p class="tiny faint" style="margin:0 0 8px">直近${a.span}日・協働筋は0.5セットで計算。帯は「${GOALS[g].label}」の目安（週${band[0]}〜${band[1]}セット）</p>
+    <div class="vbars">${a.groups.map((x) => { const cls = x.v < band[0] ? (x.v < band[0] / 2 ? 'lo' : 'mid') : x.v > band[1] ? 'hi' : 'ok'; return `<div class="vb"><span class="n">${esc(x.name)}</span><span class="tr"><i class="band" style="left:${pos(band[0])};width:calc(${pos(band[1])} - ${pos(band[0])})"></i><i class="bar ${cls}" style="width:${pos(x.v)}"></i></span><span class="v num">${fmtNum(x.v)}<small>・週${fmtNum(x.freq)}日</small></span></div>`; }).join('')}</div></section>`;
+  // 回数帯
+  if (a.lifted) {
+    const lab = ['1〜5回', '6〜12回', '13〜30回', '31回〜']; const cols = ['#7c3aed', '#2563eb', '#0ea5e9', '#94a3b8'];
+    h += `<section class="card"><div class="card-h"><h3>回数帯の内訳</h3><span class="tiny faint">${a.lifted}セット</span></div>
+      <div class="rbar">${a.reps.map((n, i) => (n ? `<i style="flex:${n};background:${cols[i]}"></i>` : '')).join('')}</div>
+      <div class="legend">${a.reps.map((n, i) => `<span><i class="pdot" style="background:${cols[i]}"></i>${lab[i]} ${Math.round(n / a.lifted * 100)}%</span>`).join('')}</div>
+      <p class="tiny faint" style="margin:6px 0 0">${g === 'str' ? '最大筋力は重い重量（1〜6回程度で限界近く）で最も伸びます。' : '限界近くまで行えば、6〜30回のどこでも筋肥大の効果は同程度です。'}</p></section>`;
+  }
+  return h;
+}
+function openAnaRefs() {
+  openSheet({ title: '根拠と研究', render: () => `<p class="small muted" style="margin:0 0 10px">分析レポートの目安は、以下の系統的レビュー・メタ分析・ガイドラインにもとづいています。<b>根拠 高</b>：複数のメタ分析やガイドラインで一貫、<b>根拠 中</b>：メタ分析はあるが条件により差がある、<b>参考</b>：実践者の合意など。</p>
+    <ul class="ins-refs big">${anaRefChips(Object.keys(REFS))}</ul>
+    <p class="tiny faint">個人差が大きく、ケガや持病がある場合は専門家に相談してください。研究は主に健康な成人を対象としています。</p>` });
+}
+Object.assign(ACT, {
+  anaGoal: (el) => { DB.settings.goal = el.dataset.v; touch(); renderTab(); },
+  anaRefs: () => openAnaRefs(),
+  anaVolHelp: () => openSheet({ title: '筋肉別の量の見方', render: () => `<div class="small" style="line-height:1.8"><p>直近4週間（記録が少ない場合はその期間）の<b>週あたりのセット数</b>です。ウォームアップは含みません。</p><p>種目の主働筋は1セット、協働筋（補助的に使う筋肉）は0.5セットとして数えます（分割カウント）。この数え方が筋肥大の効果をよく説明することが報告されています。</p><p>「背中」「肩」などのまとまりは、含まれる筋肉のうち最も多い値を表示しています。「週◯日」はその筋肉を主に使った日数です。</p><ul class="ins-refs">${anaRefChips(['vol17', 'vol24', 'freq16'])}</ul></div>` })
 });
 
 /* =====================================================================
@@ -4259,8 +4493,18 @@ Object.assign(INP, { libQ: (el) => { UI.lib.q = el.value; const l = $('#libList'
    ===================================================================== */
 /* 設定の折りたたみ（開閉はこのセッション中だけ覚える） */
 function setOpenAttr(k, def) { const o = UI.setOpen && k in UI.setOpen ? UI.setOpen[k] : def; return o ? ' open' : ''; }
-function setSecHead(k, def, title, sub = '') { return `<details class="card set-sec" data-sk="${k}"${setOpenAttr(k, def)}><summary class="card-h"><h3>${title}</h3>${sub ? `<span class="ss-sub">${sub}</span>` : ''}${ICON.chevD}</summary>`; }
-document.addEventListener('toggle', (e) => { const d = e.target; if (d && d.dataset && d.dataset.sk) { UI.setOpen = UI.setOpen || {}; UI.setOpen[d.dataset.sk] = d.open; } }, true);
+function setSecHead(k, def, title, sub = '', warn = false) { return `<details class="card set-sec" data-sk="${k}"${setOpenAttr(k, def)}><summary class="card-h"><h3>${title}</h3>${sub ? `<span class="ss-sub${warn ? ' warn' : ''}">${sub}</span>` : ''}${ICON.chevD}</summary>`; }
+document.addEventListener('toggle', (e) => {
+  const d = e.target; if (!(d && d.dataset && d.dataset.sk)) return;
+  UI.setOpen = UI.setOpen || {}; UI.setOpen[d.dataset.sk] = d.open;
+  // 1つ開いたら他は閉じる（画面が縦に長くならないように）
+  if (d.open && d.classList.contains('set-sec')) {
+    for (const o of document.querySelectorAll('details.set-sec[open]')) if (o !== d) { o.open = false; UI.setOpen[o.dataset.sk] = false; }
+    setTimeout(() => { const r = d.getBoundingClientRect(); if (r.top < 60 || r.top > window.innerHeight * 0.5) d.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 30);
+  }
+}, true);
+/* 設定の特定の項目を開いて表示する */
+function openSetSec(k) { UI.setOpen = { [k]: true }; setTab('settings'); setTimeout(() => { const d = $(`details.set-sec[data-sk="${k}"]`); if (d) { d.open = true; d.scrollIntoView({ block: 'start' }); } }, 40); }
 function renderSettings() {
   const s = DB.settings;
   const cid = Drive.clientId();
@@ -4269,7 +4513,8 @@ function renderSettings() {
   const stale = backupStale();
   const isFile = location.protocol === 'file:';
   let h = topbar('設定');
-  h += `${setSecHead('backup', true, `${ICON.cloud} バックアップ`, s.lastBackupAt ? fmtRelDay(ymd(new Date(s.lastBackupAt))) : '未実施')}
+  h += `<button type="button" class="card tap share-card" data-a="shareApp"><span class="ic">${ICON.share}</span><span class="m"><b>このアプリを人に教える</b><span>LINE・メール・QRコードで共有</span></span>${ICON.chevR}</button>`;
+  h += `${setSecHead('backup', false, `${ICON.cloud} バックアップ`, s.lastBackupAt ? fmtRelDay(ymd(new Date(s.lastBackupAt))) : '未実施', stale || !s.lastBackupAt)}
     <div class="banner ${stale || s.drivePending ? '' : 'info'}" style="margin-bottom:12px"><div class="m"><b>${s.lastBackupAt ? `最終バックアップ：${fmtDateTime(s.lastBackupAt)}` : 'まだバックアップしていません'}</b><br><span class="small">${s.lastBackupAt ? `方法：${esc(s.lastBackupVia)}` : ''}${s.drivePending ? ' ・ ドライブへの自動保存が未完了です' : stale ? ' ・ 前回のバックアップ以降に記録が増えています' : ''}</span></div></div>
     <div class="small muted" style="margin-bottom:12px">記録した日 ${days}日 ・ 記録 ${recN}件 ・ メニュー ${DB.menus.length} ・ 自分の種目 ${DB.customExercises.length}</div>
 `;
@@ -4302,8 +4547,8 @@ function renderSettings() {
       <li><b>新しいスマホ</b>：同じURLでこのアプリを開き、「Googleドライブから復元」または「ファイルから復元」</li><li>「上書き復元」を選べば完了です（新しいスマホで記録済みなら「統合」）</li></ol></details></details>`;
   h += importSettingsHtml();
   h += pwaSettingsCard();
-  h += `${setSecHead('display', true, `${ICON.moon} 表示`)}<div class="seg">${[['light', 'ライト'], ['dark', 'ダーク'], ['auto', '端末に合わせる']].map(([k, l]) => `<button type="button" data-a="theme" data-v="${k}" aria-pressed="${s.theme === k}">${l}</button>`).join('')}</div></details>`;
-  h += `${setSecHead('training', true, `${ICON.timer} トレーニング`, LEVELS[s.level].short + (s.wl ? '・WL' : ''))}
+  h += `${setSecHead('display', false, `${ICON.moon} 表示`, s.theme === 'light' ? 'ライト' : s.theme === 'dark' ? 'ダーク' : '端末に合わせる')}<div class="seg">${[['light', 'ライト'], ['dark', 'ダーク'], ['auto', '端末に合わせる']].map(([k, l]) => `<button type="button" data-a="theme" data-v="${k}" aria-pressed="${s.theme === k}">${l}</button>`).join('')}</div></details>`;
+  h += `${setSecHead('training', false, `${ICON.timer} トレーニング`, LEVELS[s.level].short + (s.wl ? '・WL' : ''))}
     <div class="field" style="margin-bottom:8px"><span class="lbl">経験レベル（表示の詳しさ）</span><div class="seg">${Object.entries(LEVELS).map(([k, v]) => `<button type="button" data-a="setLevel" data-v="${k}" aria-pressed="${s.level === k}">${v.short}</button>`).join('')}</div><p class="hint" style="margin:6px 2px 0">${LEVELS[s.level].desc}</p></div>
     <div class="sw-row" id="wlRow"><div class="t"><b>ウェイトリフティング機能</b><span>スナッチ・クリーン＆ジャークなどのWL種目、WLメニュー、リフト比率・Sinclair分析を表示します。OFFでも記録は消えません</span></div><label class="switch"><input type="checkbox" data-ch="setWl" ${s.wl ? 'checked' : ''}><span></span></label></div>
     <div class="field" style="margin:8px 0 6px"><span class="lbl">標準の休憩時間：${fmtSec(s.restSec)}${s.wl ? '（WL種目は最低2:00）' : ''}</span><div class="chip-wrap">${REST_PRESETS.map((v) => `<button type="button" class="chip" data-a="restDef" data-v="${v}" aria-pressed="${s.restSec === v}">${fmtSec(v)}</button>`).join('')}</div></div>
@@ -4324,6 +4569,43 @@ function renderSettings() {
     <p class="center tiny faint" style="margin:18px 0 8px">LiftCanvas v${APP_VERSION} ・ 種目 ${allEx().length} ・ 保存キー ${STORAGE_KEY}<br>データはこの端末の中だけに保存され、外部に送信されません（Googleドライブ保存を除く）。</p>`;
   return h;
 }
+
+/* ---------- アプリを人に教える ---------- */
+const APP_URL = 'https://pierrotmask.github.io/unique-tool/lift-canvas.html';
+const QR_SOURCES = ['https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js', 'https://unpkg.com/qrcode-generator@1.4.4/qrcode.js'];
+function appShareUrl() { return location.protocol === 'https:' && !/^(localhost|127\.)/.test(location.hostname) ? location.origin + location.pathname : APP_URL; }
+const SHARE_TEXT = '筋トレの記録アプリ「LiftCanvas」。無料・登録なしで、記録はスマホの中だけに保存されます。';
+function loadQr() {
+  if (window.qrcode) return Promise.resolve(window.qrcode);
+  return new Promise((resolve, reject) => { let i = 0; const next = () => { if (i >= QR_SOURCES.length) { reject(new Error('QRコードを作れませんでした（電波を確認してください）')); return; } const sc = document.createElement('script'); sc.src = QR_SOURCES[i++]; sc.onload = () => (window.qrcode ? resolve(window.qrcode) : next()); sc.onerror = () => { sc.remove(); next(); }; document.head.appendChild(sc); }; next(); });
+}
+function qrSvg(qr) {
+  const n = qr.getModuleCount(); const m = 3; let d = '';
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (qr.isDark(y, x)) d += `M${x + m} ${y + m}h1v1h-1z`;
+  return `<svg viewBox="0 0 ${n + m * 2} ${n + m * 2}" class="qr" role="img" aria-label="アプリのQRコード" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
+}
+function openShareApp() {
+  const url = appShareUrl(); const st = { qr: '', qrErr: '' };
+  openSheet({
+    title: 'このアプリを人に教える', state: st,
+    render: () => `<div class="share-app"><p class="small muted" style="margin:0 0 12px">${esc(SHARE_TEXT)}<br>送った相手が開くと、すぐに使い始められます（相手にあなたの記録は送られません）。</p>
+      <div class="stack">${navigator.share ? `<button type="button" class="btn btn-primary btn-block btn-lg" data-a="native">${ICON.share}LINE・メールなどで送る</button>` : ''}
+      <button type="button" class="btn btn-block" data-a="copy">${ICON.copy}リンクをコピー</button>
+      <button type="button" class="btn btn-block" data-a="showQr" ${st.qr ? 'hidden' : ''}>QRコードを表示（目の前の人に）</button></div>
+      ${st.qr ? `<div class="qr-wrap">${st.qr}<p class="tiny faint">相手のスマホのカメラで読み取ってもらってください</p></div>` : ''}${st.qrErr ? `<p class="small" style="color:var(--warn)">${esc(st.qrErr)}</p>` : ''}
+      <p class="tiny faint" style="margin:12px 0 0;overflow-wrap:anywhere">${esc(url)}</p></div>`,
+    actions: {
+      native: async () => { try { await navigator.share({ title: 'LiftCanvas', text: SHARE_TEXT, url }); } catch (e) { if (e && e.name !== 'AbortError') toast('共有できませんでした。リンクをコピーしてください'); } },
+      copy: async () => { try { await navigator.clipboard.writeText(`${SHARE_TEXT}\n${url}`); toast('リンクをコピーしました', 'ok'); } catch (e) { promptSheet({ title: 'リンク', label: '長押しでコピーしてください', value: url, ok: '閉じる', maxlength: 300 }); } },
+      showQr: async (el, e, s) => {
+        try { el.disabled = true; const q = await loadQr(); const qr = q(0, 'M'); qr.addData(url); qr.make(); st.qr = qrSvg(qr); st.qrErr = ''; }
+        catch (err) { st.qrErr = err.message || 'QRコードを作れませんでした'; }
+        s.render();
+      }
+    }
+  });
+}
+Object.assign(ACT, { shareApp: () => openShareApp() });
 
 /* ---------- エクスポート／インポート ---------- */
 /* バックアップにはサンプル記録を含めない（復元で紛れ込まないように） */
