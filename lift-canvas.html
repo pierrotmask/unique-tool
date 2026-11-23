@@ -1253,7 +1253,7 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.23.5';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.23.6';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -3756,15 +3756,23 @@ Object.assign(ACT, {
   calMove: (el) => { const [y, m] = UI.calMonth.split('-').map(Number); const d = new Date(y, m - 1 + Number(el.dataset.d), 1); UI.calMonth = ymd(d).slice(0, 7); renderTab(); },
   calToday: () => { UI.calMonth = ymd().slice(0, 7); UI.calSel = ymd(); renderTab(); },
   calSel: (el) => { UI.calSel = el.dataset.d; renderTab(); },
-  calAdd: () => {
+  calAdd: async () => {
     const date = UI.calSel;
-    if (date === ymd() && !DB.active) { ACT.startPick(); return; }
-    pickExercises({ title: `${fmtDateLong(date)}の記録を追加`, multi: true, onDone: (ids) => {
-      if (!ids.length) return;
+    const live = date === ymd() && !DB.active;   // 今日（進行中なし）は通常の記録として開始
+    // メニューから選ぶ or 種目を選ぶ
+    const menus = DB.menus.filter(menuVisible).map((m) => ({ m, ids: m.exerciseIds.filter((id) => exMap().has(id)) })).filter((x) => x.ids.length);
+    const c = menus.length ? await choiceSheet({ title: `${fmtDateLong(date)}の記録を追加`, message: '<p class="small muted" style="margin:0">メニューを選ぶと、その種目とセット数で記録画面が開きます。</p>', cancel: '閉じる',
+      choices: [...menus.map(({ m, ids }) => ({ key: 'm:' + m.id, label: m.name, desc: `${ids.length}種目：${ids.slice(0, 3).map((id) => getEx(id).name).join('、')}${ids.length > 3 ? ' ほか' : ''}` })),
+        { key: 'pick', label: '種目を選んで追加', desc: 'メニューを使わずに、やった種目だけ選ぶ' }] }) : 'pick';
+    if (!c) return;
+    const open = (ids, name, menuId) => {
+      if (live) { startWorkout(ids, name, menuId); return; }
       const sid = uid('ses');
-      UI.wo = { id: sid, live: false, edit: { id: sid, name: ids.length === 1 ? getEx(ids[0]).name : 'トレーニング', menuId: null, date, exerciseIds: ids, startedAt: 0, endedAt: 0, supersets: {}, note: '' } };
+      UI.wo = { id: sid, live: false, edit: { id: sid, name, menuId, date, exerciseIds: [...new Set(ids)], startedAt: 0, endedAt: 0, supersets: {}, note: '' } };
       showWorkout();
-    } });
+    };
+    if (c.startsWith('m:')) { const x = menus.find((y) => 'm:' + y.m.id === c); if (x) open(x.ids, x.m.name, x.m.id); return; }
+    pickExercises({ title: `${fmtDateLong(date)}の記録を追加`, multi: true, onDone: (ids) => { if (ids.length) open(ids, ids.length === 1 ? getEx(ids[0]).name : live ? 'フリートレーニング' : 'トレーニング', null); } });
   },
   sesEdit: (el) => openSessionEdit(el.dataset.id),
   sesAgain: (el) => { const s = IDX().sessions.find((x) => x.id === el.dataset.id); if (s) startWorkout(s.recs.map((r) => r.exerciseId), s.name, s.menuId); },
