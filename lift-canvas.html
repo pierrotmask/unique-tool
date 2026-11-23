@@ -1109,7 +1109,7 @@ html[data-theme="dark"] .pr-chip b{text-shadow:0 0 14px rgba(255,209,102,.35)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.22.4';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.23.1';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -4673,7 +4673,7 @@ IMP.validMD = (m, d) => m >= 1 && m <= 12 && d >= 1 && d <= 31;
 IMP.readDate = (raw, pref = 'md') => {
   const s = IMP.nfkc(raw).trim().replace(/^[■□●○◆◇★☆▼▽▶▷◎・*#>\-\s]+/, '').replace(/^[\[【(（<＜]\s*/, '');
   let m;
-  const tail = (str) => { const t = str.match(/^\s*(?:\(.\)|（.）|\([月火水木金土日]\)|[月火水木金土日]曜日?)?\s*(?:,?\s*(\d{1,2}):(\d{2})(?::\d{2})?(?:\s*(am|pm))?)?/i); return { time: t && t[1] ? `${pad2(Number(t[1]) + (t[3] && /pm/i.test(t[3]) && Number(t[1]) < 12 ? 12 : 0))}:${t[2]}` : '', rest: str.slice(t ? t[0].length : 0).replace(/^[\]】)）>＞\s:：\-、,]+/, '') }; };
+  const tail = (str) => { const t = str.match(/^\s*(?:\(.\)|（.）|\([月火水木金土日]\)|[月火水木金土日]曜日?)?\s*(?:,?\s*(\d{1,2}):(\d{2})(?::\d{2})?(?:\s*(am|pm))?)?/i); return { time: t && t[1] ? `${pad2(Number(t[1]) % (t[3] ? 12 : 24) + (t[3] && /pm/i.test(t[3]) ? 12 : 0))}:${t[2]}` : '', rest: str.slice(t ? t[0].length : 0).replace(/^[\]】)）>＞\s:：\-、,]+/, '') }; };
   if ((m = s.match(/^(\d{4})\s*[-/.年]\s*(\d{1,2})\s*[-/.月]\s*(\d{1,2})\s*日?(?:T(\d{2}):(\d{2})\S*)?/))) {
     const t = tail(s.slice(m[0].length)); if (m[4]) t.time = `${m[4]}:${m[5]}`;
     if (IMP.validMD(+m[2], +m[3])) return { y: +m[1], m: +m[2], d: +m[3], ...t };
@@ -4749,6 +4749,7 @@ IMP.parseSets = (str) => {
     while (i < s.length) {
       if (/\s/.test(s[i])) { i++; continue; }
       let m;
+      if ((m = R(new RegExp(`(\\d{1,2})\\s*回?\\s*x\\s*(${IMP_NUM})\\s*(kg|lb)(?!\\s*x)`, 'y')))) { const w = Number(m[2].replace('+', '')); lastW = w; lastGroup = []; push(w, Number(m[1])); continue; }
       if ((m = R(new RegExp(`(${IMP_NUM})\\s*(kg|lb)?\\s*x\\s*(\\d+(?:\\+\\d+)*)\\s*回?(?:\\s*x\\s*(\\d+)\\s*(?:set)?)?`, 'y')))) {
         const w = Number(m[1].replace('+', '')); lastW = w; lastGroup = []; const n = m[4] ? Math.min(Number(m[4]), 20) : 1;
         for (let k = 0; k < n; k++) push(w, IMP.reps(m[3])); continue;
@@ -4909,7 +4910,7 @@ const IMP_ALIAS = {
 const IMP_EQT = { barbell: 'バーベル', dumbbell: 'ダンベル', cable: 'ケーブル', machine: 'マシン', smith: 'マシン', bodyweight: '自重', weighted: '', assisted: '', band: 'その他', kettlebell: 'その他', ez: 'バーベル', bar: '', straight: '', rope: '' };
 const IMP_ALIAS_WEAK = new Set(['ショルダープレス', 'カール', 'アームカール', 'フライ', 'インクライン', 'フロント', 'クリーン', 'ナロー', 'ジャーク', 'curl', 'bench', 'ディップ', 'ディップス']);
 IMP.kata = (s) => s.replace(/[ぁ-ゖ]/g, (c) => String.fromCharCode(c.charCodeAt(0) + 0x60));
-IMP.normName = (s) => IMP.kata(IMP.nfkc(s).toLowerCase()).replace(/[\s・･\-‐_.,，、。'"’`/／()（）[\]［］{}「」『』【】:：~〜]/g, '').replace(/＆/g, '&').replace(/and/g, '&').replace(/ぷ/g, 'プ');
+IMP.normName = (s) => IMP.kata(IMP.nfkc(s).toLowerCase().replace(/\band\b/g, '&')).replace(/[\s・･\-‐_.,，、。'"’`/／()（）[\]［］{}「」『』【】:：~〜]/g, '').replace(/＆/g, '&');
 IMP.tokens = (s) => IMP.nfkc(s).toLowerCase().replace(/[()（）\[\]]/g, ' ').replace(/-/g, '').split(/[^a-z0-9&]+/).filter(Boolean).map((w) => (w.length > 3 && w.endsWith('s') && !w.endsWith('ss') ? w.slice(0, -1) : w)).map((w) => ({ bicep: '', biceps: '', db: 'dumbbell', bb: 'barbell', flat: '', standing: '', seated: w === 'seated' ? 'seated' : '' }[w] ?? w)).filter(Boolean);
 IMP.bigrams = (s) => { const out = new Map(); for (let i = 0; i < s.length - 1; i++) { const b = s.slice(i, i + 2); out.set(b, (out.get(b) || 0) + 1); } return out; };
 IMP.dice = (a, b) => { if (a === b) return 1; if (a.length < 2 || b.length < 2) return 0; const A = IMP.bigrams(a), B = IMP.bigrams(b); let n = 0; for (const [k, v] of A) n += Math.min(v, B.get(k) || 0); return 2 * n / (a.length - 1 + b.length - 1); };
@@ -4992,7 +4993,8 @@ IMP.build = (an, opt = {}) => {
     const e = { id, name: src.slice(0, 40), en: '', part, equipment: eq, stepKg: 2.5, defaultTargetReps: timed ? 30 : 10, muscles: [...(PART_DEFAULT_MUSCLES[part] || [])], sub: [], timed, relatedIds: [], createdAt: now, updatedAt: now, custom: true };
     newEx.set(src, e); customs.push(e); return e;
   };
-  const existing = new Set(DB.records.filter((r) => !isDemoRec(r) && !r.id.startsWith(pre) && r.sets.some((s) => s.done)).map((r) => r.date));
+  const ign = (opt.ignore || []).map((id) => `imp_${id}_`);
+  const existing = new Set(DB.records.filter((r) => !isDemoRec(r) && !r.id.startsWith(pre) && !ign.some((x) => r.id.startsWith(x)) && r.sets.some((s) => s.done)).map((r) => r.date));
   const sessions = new Map(); const records = new Map(); let sets = 0; const skipDays = new Set(); const overlapDays = new Set();
   for (const it of an.items) {
     const d = it.day.dt.ymd; if (!isYmd(d)) continue;
@@ -5011,7 +5013,7 @@ IMP.build = (an, opt = {}) => {
     const sk = `${d}|${it.day.dt.time}|${it.day.title}|${it.day.line}`;
     let ses = sessions.get(sk);
     if (!ses) {
-      const [hh, mm] = (it.day.dt.time || '12:00').split(':').map(Number); const t0 = new Date(Number(d.slice(0, 4)), Number(d.slice(5, 7)) - 1, Number(d.slice(8, 10)), hh || 12, mm || 0).getTime();
+      const [hh, mm] = (it.day.dt.time || '12:00').split(':').map(Number); const t0 = new Date(Number(d.slice(0, 4)), Number(d.slice(5, 7)) - 1, Number(d.slice(8, 10)), hh >= 0 && hh < 24 ? hh : 12, mm >= 0 && mm < 60 ? mm : 0).getTime();
       ses = { id: pre + IMP.hash(sk), name: it.day.title || (an.format === 'メモ・文章' || an.format === '表形式' ? '取り込んだ記録' : `${an.format}から取り込み`), menuId: null, date: d, startedAt: t0, endedAt: t0, note: '', rating: 0, exerciseIds: [], updatedAt: now };
       sessions.set(sk, ses);
     }
@@ -5063,14 +5065,15 @@ const IMP_EXAMPLE = `2025/4/1 胸の日
 
 /* ---------- 画面 ---------- */
 function openImportWizard() {
-  const st = { step: 'src', text: '', label: '', an: null, input: null, unit: '', skipOverlap: true, busy: false, showSkip: false, showCols: false };
+  const st = { step: 'src', text: '', label: '', isFile: false, an: null, input: null, unit: '', skipOverlap: true, busy: false, showSkip: false, showCols: false };
   const reAnalyze = () => {
     const opt = { names: st.an ? st.an.names : null, unit: st.unit || null, map: st.an && st.an.table && st.mapEdited ? st.an.table.map : null };
     st.an = IMP.analyze(st.input, opt);
   };
-  const preview = () => IMP.build(st.an, { skipOverlap: st.skipOverlap, unit: st.unit || null });
-  const start = async (input, label) => {
-    st.input = input; st.label = label; st.an = null; st.mapEdited = false; st.unit = '';
+  const sameFile = () => (st.isFile ? (DB.imports || []).filter((x) => x.label === st.label.slice(0, 60)) : []);
+  const preview = () => IMP.build(st.an, { skipOverlap: st.skipOverlap, unit: st.unit || null, ignore: sameFile().map((x) => x.id) });
+  const start = async (input, label, isFile = false) => {
+    st.input = input; st.label = label; st.isFile = isFile; st.an = null; st.mapEdited = false; st.unit = '';
     try { reAnalyze(); } catch (e) { console.error(e); toast('読み取りに失敗しました', 'error'); return false; }
     if (!st.an.items.length) { toast(st.an.kind === 'table' ? '記録の行が見つかりませんでした。列の対応を確認してください' : '記録を読み取れませんでした。下の書き方の例を参考にしてください', 'error'); if (st.an.kind !== 'table') return false; }
     st.step = 'check'; return true;
@@ -5157,13 +5160,13 @@ function openImportWizard() {
           if (/\.(xlsx|xlsm|xls)$/i.test(f.name) || (new Uint8Array(buf)[0] === 0x50 && new Uint8Array(buf)[1] === 0x4b)) {
             const sheets2 = await IMP.xlsxRows(buf);
             const rows = []; for (const sh of sheets2) { if (rows.length && sh.rows.length && IMP.detectTable(sh.rows) && IMP.detectTable(rows)) rows.push(...sh.rows.slice(IMP.detectTable(sh.rows).headRow + 1)); else rows.push(...sh.rows, ['']); }
-            setBusy(false); if (await start({ rows: rows.filter((r) => r.some((v) => String(v).trim())) }, f.name)) { s.render(); s.renderFoot(); s.body.scrollTop = 0; }
+            setBusy(false); if (await start({ rows: rows.filter((r) => r.some((v) => String(v).trim())) }, f.name, true)) { s.render(); s.renderFoot(); s.body.scrollTop = 0; }
             return;
           }
           const text = IMP.decode(buf); setBusy(false);
           const tt = text.trim();
           if (tt.startsWith(TRANSFER_PREFIX) || tt.startsWith('{')) { s.close(); await handleImportFile(new File([text], f.name, { type: 'application/json' })); return; }
-          if (await start({ text }, f.name)) { s.render(); s.renderFoot(); s.body.scrollTop = 0; }
+          if (await start({ text }, f.name, true)) { s.render(); s.renderFoot(); s.body.scrollTop = 0; }
         } catch (err) { console.error(err); setBusy(false); toast(err.message || '読み込みに失敗しました', 'error'); }
       },
       col: (el, e, s) => { const f = el.dataset.f; const v = Number(el.value); st.an.table.map[f] = v >= 0 ? v : undefined; if (v < 0) delete st.an.table.map[f]; st.mapEdited = true; st.showCols = true; reAnalyze(); s.render(); s.renderFoot(); },
@@ -5200,7 +5203,10 @@ function openImportWizard() {
       commit: async (el, e, s) => {
         const b = preview(); if (!b.sets) return;
         const again = (DB.imports || []).find((x) => x.id === b.batch);
+        const older = sameFile().filter((x) => x.id !== b.batch);
         if (again) { const ok = await confirmSheet({ title: '同じ内容を以前に取り込んでいます', message: `<p>${esc(fmtDateTime(again.at))}の取り込みを、今回の内容で置き換えます（取り込み後に編集した内容は元に戻ります）。</p>`, ok: '置き換える' }); if (!ok) return; }
+        else if (older.length) { const ok = await confirmSheet({ title: '同じファイルを以前に取り込んでいます', message: `<p>${esc(fmtDateTime(older[older.length - 1].at))}に取り込んだ「${esc(st.label)}」を、今回の内容で置き換えます（前回の取り込みは取り消されます）。</p>`, ok: '置き換える' }); if (!ok) return; }
+        for (const x of older) IMP.removeBatch(x.id);
         IMP.commit(b, st.label);
         st.result = b; st.step = 'done'; refreshAll(); s.render(); s.renderFoot(); s.body.scrollTop = 0;
       },
