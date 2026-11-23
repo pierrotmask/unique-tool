@@ -251,6 +251,21 @@ button{font:inherit;color:inherit;border:none;background:none;cursor:pointer;pad
 .tour-bub b{display:block;font-size:16.5px;color:var(--green);line-height:1.4;margin-bottom:4px}
 .tour-bub p,.tour-txt{margin:0;font-size:14px;line-height:1.7;color:var(--sub)}
 .tour-bub p b,.tour-txt b{display:inline;font-size:inherit;color:var(--ink)}
+.iz-formula{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:4px;margin:8px 0 10px}
+.iz-box{background:var(--green-ll);border:1px solid var(--line);border-radius:12px;padding:8px 4px;text-align:center;line-height:1.25;min-width:0}
+.iz-box.iz-out{background:var(--orange-l);border-color:transparent}
+.iz-box b,.iz-tile b{display:block;font-size:13px;white-space:nowrap;color:var(--ink);margin:2px 0 1px}
+.iz-box small,.iz-tile small{display:block;font-size:10.5px;color:var(--muted);line-height:1.35}
+.iz-e{display:block;font-size:20px;line-height:1.2}
+.iz-op{font-size:18px;font-weight:800;color:var(--orange)}
+.iz-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.iz-tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px;text-align:center;line-height:1.25}
+.iz-tile b{font-size:13.5px;color:var(--green)}
+.iz-flow{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:10px;font-size:11.5px;font-weight:700;color:var(--green);flex-wrap:wrap}
+.iz-flow span{background:var(--green-ll);border-radius:99px;padding:3px 8px;white-space:nowrap}
+.iz-flow i{font-style:normal;color:var(--muted)}
+.tour-bub .iz-foot{margin:8px 0 0;font-size:11.5px;color:var(--muted);text-align:center}
+.tour-bub{max-height:calc(100vh - 24px);overflow-y:auto}
 .tour-ul{margin:8px 0 0;padding-left:1.2em}
 .tour-ul li{margin:4px 0;line-height:1.6}
 .tour-step{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.06em;margin-bottom:2px}
@@ -3320,14 +3335,21 @@ function closeModal(){ MODAL=null; if(wakeLock){ try{wakeLock.release();}catch(e
    ===================================================================== */
 const WELCOME_TOUR = [
   // はじめて開いた人向け：アプリの特徴と、ほかの献立アプリとの違い（件数は今のデータから数える）
-  { sel:'#__intro', title:'かけ算ごはんへようこそ',
+  { sel:'#__intro', title:'かけ算ごはんへようこそ', wide:true,
     get text(){ const man=Math.floor(BASES.reduce((a,b)=>a+combosCount(b),0)/10000);
-      return `週末に下処理した食材（ストック）と味付けを<b>かけ算</b>して、毎日の献立を自動で考えるアプリです。
-        <ul class="tour-ul"><li><b>約${man}万通り</b>の組み合わせ＋<b>定番レシピ${RECIPES.length}品</b>。毎日ちがう献立に</li>
-        <li>冷蔵庫の<b>今あるストックから</b>作れる料理を提案。期限が近いものから使い切れる</li>
-        <li>1週間の献立を作ると、<b>買い物リストと下処理の手順</b>まで自動</li>
-        <li>人数（1〜6人）に合わせて<b>分量を自動換算</b>。食べたい料理からも献立を組める</li>
-        <li><b>無料・登録不要</b>。データはこの端末の中だけに保存</li></ul>`; } },
+      return `<div class="iz-formula">
+          <div class="iz-box"><span class="iz-e">🥩🥬</span><b>ストック</b><small>下処理した<br>食材</small></div>
+          <span class="iz-op">×</span>
+          <div class="iz-box"><span class="iz-e">🧂</span><b>味付け</b><small>和・洋・中<br>など</small></div>
+          <span class="iz-op">＝</span>
+          <div class="iz-box iz-out"><span class="iz-e">🍽️</span><b>献立</b><small>毎日<br>自動で提案</small></div></div>
+        <div class="iz-grid">
+          <div class="iz-tile"><span class="iz-e">🔢</span><b>約${man}万通り</b><small>＋定番レシピ${RECIPES.length}品<br>毎日ちがう献立</small></div>
+          <div class="iz-tile"><span class="iz-e">📦</span><b>今あるもので</b><small>冷蔵庫のストックから<br>期限が近い順に</small></div>
+          <div class="iz-tile"><span class="iz-e">🛒</span><b>買い物も自動</b><small>1週間の献立から<br>リストと下処理手順</small></div>
+          <div class="iz-tile"><span class="iz-e">👨‍👩‍👧</span><b>1〜6人分</b><small>分量を自動換算<br>食べたい料理からも</small></div></div>
+        <div class="iz-flow"><span>① 食材を登録</span><i>›</i><span>② 献立を作る</span><i>›</i><span>③ 買い物・仕込み</span></div>
+        <p class="iz-foot">無料・登録不要。データはこの端末の中だけに保存されます。</p>`; } },
   { sel:'#main [data-act=presetSheet]', before:()=>{ if(S.tab!=='stock'){ S.tab='stock'; render(); } },
     title:'まずはここから', text:'週末に作り置きした食材を登録すると、毎日の料理を自動で提案します。<b>「週末仕込みセット」</b>なら1タップでお試しできます。' },
   { sel:'#nav [data-tab=plan]', title:'料理の提案はここ', text:'今日作れる料理と1週間の献立はこのタブ。献立を確定すると、隣の<b>「買い物・仕込み」</b>にリストができます。' },
@@ -3372,7 +3394,7 @@ function drawTour(){
   if(!TOUR){ box.innerHTML=''; return; }
   const st=TOUR.steps[TOUR.i], n=TOUR.steps.length, last=TOUR.i===n-1;
   const el=document.querySelector(st.sel); const r=el?el.getBoundingClientRect():null;
-  const pad=6, W=innerWidth, H=innerHeight, bw=Math.min(340,W-24);
+  const pad=6, W=innerWidth, H=innerHeight, bw=Math.min(st.wide?380:340,W-24);
   let hole='', bubStyle='', arrow='';
   if(r&&r.width){
     const L=Math.max(4,r.left-pad), T=Math.max(4,r.top-pad), R=Math.min(W-4,r.right+pad), B=Math.min(H-4,r.bottom+pad);
@@ -3625,7 +3647,7 @@ function closeModalUI(){ closeModal(); popOv(); }
 /* =====================================================================
    14. PWA（ホーム画面に追加・オフライン・自動アップデート・引き継ぎ）
    ===================================================================== */
-const APP_VERSION = '2026.11.23.3';
+const APP_VERSION = '2026.11.23.4';
 const SW_FILE = 'stock-arrange-meal-sw.js', SW_SCOPE = './stock-arrange-meal';
 const PWA = { deferred:null };
 const isHttp = ()=>/^https?:$/.test(location.protocol);
