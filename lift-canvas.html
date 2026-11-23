@@ -1085,6 +1085,36 @@ html[data-theme="dark"] .pr-chip b{text-shadow:0 0 14px rgba(255,209,102,.35)}
 .rpe-q span{font-size:11.5px;font-weight:800;color:var(--text-3);margin-right:2px}
 .rpe-q button{flex:1 1 0;min-width:0;min-height:34px;padding:0 6px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface);color:var(--text-2);font:inherit;font-size:13px;font-weight:750;cursor:pointer}
 @media (max-width:360px){.imp-n{grid-template-columns:1fr;gap:4px}.imp-n .arr{display:none}.imp-cols{grid-template-columns:1fr}}
+.imp-lines{display:flex;flex-direction:column}
+.imp-l{display:grid;grid-template-columns:22px 52px minmax(0,1fr);gap:6px;align-items:start;text-align:left;width:100%;padding:7px 2px;border:0;border-bottom:1px solid var(--line);background:none;color:inherit;font:inherit;cursor:pointer}
+.imp-l .no{font-size:11px;color:var(--text-3);text-align:right;padding-top:2px;font-variant-numeric:tabular-nums}
+.imp-l .lk{font-size:11px;font-weight:700;border-radius:6px;padding:2px 0;text-align:center;background:var(--bg-2,rgba(127,127,127,.12));color:var(--text-2)}
+.imp-l .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.imp-l code{font-size:12.5px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text)}
+.imp-l .iv{font-size:12px;color:var(--text-2);overflow-wrap:anywhere}
+.imp-l .iv i{font-style:normal;color:var(--text-3)}
+.imp-l.k-d .lk{background:rgba(59,130,246,.16);color:#2563eb}
+.imp-l.k-e .lk,.imp-l.k-s .lk{background:rgba(16,185,129,.16);color:#059669}
+.imp-l.k-b .lk{background:rgba(168,85,247,.16);color:#9333ea}
+.imp-l.k-t .lk{background:rgba(127,127,127,.14)}
+.imp-l.k-m code{color:var(--text-3)}
+.imp-l.k-x .lk{background:rgba(217,119,6,.18);color:#b45309}
+.imp-l.k-x .iv{color:var(--warn,#d97706);font-weight:700}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .imp-l.k-d .lk{color:#93c5fd}:root:not([data-theme="light"]) .imp-l.k-e .lk,:root:not([data-theme="light"]) .imp-l.k-s .lk{color:#6ee7b7}:root:not([data-theme="light"]) .imp-l.k-b .lk{color:#d8b4fe}:root:not([data-theme="light"]) .imp-l.k-x .lk{color:#fcd34d}}
+:root[data-theme="dark"] .imp-l.k-d .lk{color:#93c5fd}:root[data-theme="dark"] .imp-l.k-e .lk,:root[data-theme="dark"] .imp-l.k-s .lk{color:#6ee7b7}:root[data-theme="dark"] .imp-l.k-b .lk{color:#d8b4fe}:root[data-theme="dark"] .imp-l.k-x .lk{color:#fcd34d}
+
+/* 画面キーボードが出ている間：シートは見えている範囲（キーボードの上）に収める */
+.sheet-bg{bottom:auto;top:var(--vvt,0px);height:var(--vvh,100%)}
+html.kb .sheet{max-height:100%;border-radius:14px 14px 0 0}
+html.kb .sheet-grip{display:none}
+html.kb .sheet-h{min-height:44px;padding-top:2px;padding-bottom:2px}
+html.kb .sheet-h h2{font-size:15.5px}
+html.kb .sheet-f{padding:8px 12px}
+html.kb .sheet-f .btn{min-height:42px}
+html.kb .sheet-pick{height:100%}
+html.kb .sheet-pick .chips{display:none}
+html.kb .sheet-pick .picker-top{padding-top:8px;padding-bottom:8px}
+html.kb .page{top:var(--vvt,0px);bottom:auto;height:var(--vvh,100%)}
 
 </style>
 </head>
@@ -1109,7 +1139,7 @@ html[data-theme="dark"] .pr-chip b{text-shadow:0 0 14px rgba(255,209,102,.35)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.23.1';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.23.2';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -1725,9 +1755,9 @@ function normalize(src) {
     exerciseIds: arr(s.exerciseIds).map(String),
     updatedAt: num(s.updatedAt) || num(s.endedAt) || 0
   }));
-  out.imports = arr(d.imports).filter((x) => x && x.id).map((x) => ({ id: String(x.id).slice(0, 20), label: String(x.label || '').slice(0, 60), at: num(x.at) || 0, days: num(x.days) || 0, sets: num(x.sets) || 0, from: isYmd(x.from) ? x.from : '', to: isYmd(x.to) ? x.to : '', updatedAt: num(x.updatedAt) || 0 }));
+  out.imports = arr(d.imports).filter((x) => x && x.id).map((x) => ({ id: String(x.id).slice(0, 20), label: String(x.label || '').slice(0, 60), at: num(x.at) || 0, days: num(x.days) || 0, sets: num(x.sets) || 0, body: num(x.body) || 0, from: isYmd(x.from) ? x.from : '', to: isYmd(x.to) ? x.to : '', updatedAt: num(x.updatedAt) || 0 }));
   out.bodylog = arr(d.bodylog).filter((b) => b && isYmd(b.date) && num(b.kg) > 0).map((b) => ({
-    date: b.date, kg: num(b.kg), fat: num(b.fat) > 0 ? num(b.fat) : null, updatedAt: num(b.updatedAt) || 0
+    date: b.date, kg: num(b.kg), fat: num(b.fat) > 0 ? num(b.fat) : null, updatedAt: num(b.updatedAt) || 0, ...(b.imp ? { imp: String(b.imp).slice(0, 20) } : {})
   })).sort((a, b) => (a.date < b.date ? -1 : 1));
   const st = obj(d.settings);
   const plates = arr(st.plates).map(Number).filter((p) => ALL_PLATES.includes(p));
@@ -2025,11 +2055,31 @@ function cssVar(n) { return getComputedStyle(document.documentElement).getProper
 
 /* ---------- シート（下から出るパネル） ---------- */
 const sheets = [];
+/* ---------- 画面キーボード：入力中は見えている範囲（キーボードの上）にシートを収める ---------- */
+const KB = { maxH: 0, on: false, w: window.innerWidth };
+function isTypingEl(el) { return !!el && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && !/^(checkbox|radio|button|submit|range|file|color|reset|hidden)$/i.test(el.type)) || el.isContentEditable); }
+function kbUpdate() {
+  const vv = window.visualViewport; const root = document.documentElement;
+  const h = vv ? vv.height : window.innerHeight; const t = vv ? vv.offsetTop : 0;
+  if (!isTypingEl(document.activeElement) || h > KB.maxH) KB.maxH = Math.max(h, window.innerHeight);
+  const on = isTypingEl(document.activeElement) && h < KB.maxH * 0.82;
+  root.style.setProperty('--vvh', `${Math.round(h)}px`); root.style.setProperty('--vvt', `${Math.round(t)}px`);
+  if (on !== KB.on) {
+    KB.on = on; root.classList.toggle('kb', on);
+    if (on) setTimeout(() => { const a = document.activeElement; if (isTypingEl(a) && a.closest('.sheet,.page')) a.scrollIntoView({ block: 'nearest' }); }, 60);
+  }
+}
+if (window.visualViewport) { visualViewport.addEventListener('resize', kbUpdate); visualViewport.addEventListener('scroll', kbUpdate); }
+window.addEventListener('resize', () => { if (window.innerWidth !== KB.w) { KB.w = window.innerWidth; KB.maxH = 0; } kbUpdate(); });
+window.addEventListener('orientationchange', () => { KB.maxH = 0; setTimeout(kbUpdate, 300); });
+document.addEventListener('focusin', () => setTimeout(kbUpdate, 50));
+document.addEventListener('focusout', () => setTimeout(kbUpdate, 50));
+kbUpdate();
 function openSheet(opt) {
   const bg = document.createElement('div');
   bg.className = 'sheet-bg';
   bg.style.zIndex = String(200 + sheets.length * 2);
-  bg.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(opt.title || '')}" tabindex="-1" data-scope>
+  bg.innerHTML = `<div class="sheet${opt.cls ? ' ' + opt.cls : ''}" role="dialog" aria-modal="true" aria-label="${esc(opt.title || '')}" tabindex="-1" data-scope>
     <div class="sheet-grip"></div><div class="sheet-h"><h2>${esc(opt.title || '')}</h2><button type="button" class="icon-btn" data-a="__close" aria-label="閉じる">${ICON.close}</button></div>
     <div class="sheet-b"></div>${opt.foot ? '<div class="sheet-f"></div>' : ''}</div>`;
   const sh = bg.firstElementChild;
@@ -3965,7 +4015,7 @@ function pickExercises({ title = '種目を選ぶ', multi = false, exclude = [],
     return accordionHtml(list, row, st.open, { act: 'acc', allOpen: !!st.q.trim() || CATEGORIES.includes(st.cat), recent: st.q.trim() || st.cat !== 'すべて' ? [] : recentEx((e) => ids.has(e.id)) });
   };
   openSheet({
-    title, state: st,
+    title, state: st, cls: 'sheet-pick',
     render: () => `<div class="picker-top"><div class="search">${ICON.search}<input type="search" class="input" data-in="q" placeholder="種目名・英名で検索" value="${esc(st.q)}"></div>
       <div class="chips" style="margin-top:8px">${cats.map((c) => `<button type="button" class="chip" data-a="cat" data-v="${esc(c)}" aria-pressed="${st.cat === c}">${esc(c)}</button>`).join('')}</div></div>
       <div class="pk-list">${listHtml()}</div><div style="height:12px"></div><button type="button" class="btn btn-line btn-block" data-a="create">${ICON.plus}リストにない種目を新しく作る</button>`,
@@ -4671,9 +4721,13 @@ const IMP_MON = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8
 IMP.validMD = (m, d) => m >= 1 && m <= 12 && d >= 1 && d <= 31;
 /* 文字列の先頭から日付を読む → { y|null, m, d, time, rest } */
 IMP.readDate = (raw, pref = 'md') => {
-  const s = IMP.nfkc(raw).trim().replace(/^[■□●○◆◇★☆▼▽▶▷◎・*#>\-\s]+/, '').replace(/^[\[【(（<＜]\s*/, '');
+  const s = IMP.nfkc(raw).trim().replace(/^[■□●○◆◇★☆▼▽▶▷◎・*#>=~〜\-\s]+/, '').replace(/^[\[【(（<＜]\s*/, '');
   let m;
-  const tail = (str) => { const t = str.match(/^\s*(?:\(.\)|（.）|\([月火水木金土日]\)|[月火水木金土日]曜日?)?\s*(?:,?\s*(\d{1,2}):(\d{2})(?::\d{2})?(?:\s*(am|pm))?)?/i); return { time: t && t[1] ? `${pad2(Number(t[1]) % (t[3] ? 12 : 24) + (t[3] && /pm/i.test(t[3]) ? 12 : 0))}:${t[2]}` : '', rest: str.slice(t ? t[0].length : 0).replace(/^[\]】)）>＞\s:：\-、,]+/, '') }; };
+  const tail = (str) => { const t = str.match(/^\s*(?:\(.\)|（.）|\([月火水木金土日]\)|[月火水木金土日]曜日?)?\s*(?:,?\s*(\d{1,2}):(\d{2})(?::\d{2})?(?:\s*(am|pm))?(?:\s*[〜~\-–]\s*\d{1,2}:\d{2}(?::\d{2})?)?)?/i); return { time: t && t[1] ? `${pad2(Number(t[1]) % (t[3] ? 12 : 24) + (t[3] && /pm/i.test(t[3]) ? 12 : 0))}:${t[2]}` : '', rest: str.slice(t ? t[0].length : 0).replace(/^[\]】)）>＞\s:：\-、,=]+/, '').replace(/[\s=〜~\-]+$/, '') }; };
+  if ((m = s.match(/^(r|令和|h|平成)\s*(\d{1,2}|元)\s*[-/.年]\s*(\d{1,2})\s*[-/.月]\s*(\d{1,2})\s*日?/i))) {
+    const n = m[2] === '元' ? 1 : +m[2]; const y = (/^(r|令和)$/i.test(m[1]) ? 2018 : 1988) + n;
+    if (IMP.validMD(+m[3], +m[4])) return { y, m: +m[3], d: +m[4], ...tail(s.slice(m[0].length)) };
+  }
   if ((m = s.match(/^(\d{4})\s*[-/.年]\s*(\d{1,2})\s*[-/.月]\s*(\d{1,2})\s*日?(?:T(\d{2}):(\d{2})\S*)?/))) {
     const t = tail(s.slice(m[0].length)); if (m[4]) t.time = `${m[4]}:${m[5]}`;
     if (IMP.validMD(+m[2], +m[3])) return { y: +m[1], m: +m[2], d: +m[3], ...t };
@@ -4689,6 +4743,13 @@ IMP.readDate = (raw, pref = 'md') => {
   }
   if ((m = s.match(/^([a-z]{3,9})\.?\s+(\d{1,2}),?\s+(\d{4})/i)) && IMP_MON[m[1].toLowerCase().slice(0, 3)]) {
     const mo = IMP_MON[m[1].toLowerCase().slice(0, 3)]; if (IMP.validMD(mo, +m[2])) return { y: +m[3], m: mo, d: +m[2], ...tail(s.slice(m[0].length)) };
+  }
+  if ((m = s.match(/^([a-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?(?![\d:.])/i)) && IMP_MON[m[1].toLowerCase().slice(0, 3)] && /^[a-z]+$/i.test(m[1]) && (m[1].length <= 4 || Object.keys(IMP_MON).some((k) => 'january february march april may june july august september october november december'.includes(m[1].toLowerCase())))) {
+    const mo = IMP_MON[m[1].toLowerCase().slice(0, 3)]; const t = tail(s.slice(m[0].length)); if (IMP.validMD(mo, +m[2]) && !/^[\d+]/.test(t.rest)) return { y: null, m: mo, d: +m[2], ...t };
+  }
+  if ((m = s.match(/^(\d{1,2})\.(\d{1,2})(?=$|\s|[(（【\[])/))) {
+    const t = tail(s.slice(m[0].length));
+    if (IMP.validMD(+m[1], +m[2]) && !/^(?:kg|キロ|㎏|lb|x|×|回|\*|[\d+])/i.test(t.rest)) return { y: null, m: +m[1], d: +m[2], ...t };
   }
   if ((m = s.match(/^(\d{1,2})\s*(?:\/|月)\s*(\d{1,2})\s*日?(?![\d./]|\s*(?:kg|キロ|回|x|×|lb|セット|set))/i))) {
     const t = tail(s.slice(m[0].length));
@@ -4735,9 +4796,20 @@ IMP.parseSets = (str) => {
   const uw = [...t0.matchAll(new RegExp(`(${IMP_NUM})\\s*(kg|lb)(?!\\s*x)`, 'g'))];
   const sx = t0.match(/(?:^|[^\d.kgb])(\d{1,2})x(\d{1,3})(?![\d.]|\s*(?:kg|lb|x))/);
   if (uw.length === 1 && sx && !new RegExp(`(${IMP_NUM})\\s*(kg|lb)\\s*x`).test(t0) && !/回/.test(t0)) {
-    const w = Number(uw[0][1].replace('+', '')); const n = Math.min(Number(sx[1]), 20); const rpe = t0.match(/@(\d+(?:\.\d)?)/);
-    for (let i = 0; i < n; i++) out.sets.push({ w, r: Number(sx[2]), t: typ, rpe: rpe ? Number(rpe[1]) : null });
+    const w = Number(uw[0][1].replace('+', '')); const a = Number(sx[1]), b = Number(sx[2]); const n = Math.min(a, b, 20); const rpe = t0.match(/@(\d+(?:\.\d)?)/);
+    for (let i = 0; i < n; i++) out.sets.push({ w, r: Math.max(a, b), t: typ, rpe: rpe ? Number(rpe[1]) : null });
     return out;
+  }
+  // 単位なしの「3x5 225」「225 3x5」：大きい数＝重量、セット数×回数は小さい方をセット数に
+  const nu = !/kg|lb|回|秒|分/.test(t0) && (t0.trim().match(/^(\d{1,2})x(\d{1,2})\s+(\d{2,4}(?:\.\d+)?)\s*(@\s*\d+(?:\.\d)?)?$/) || t0.trim().match(/^(\d{2,4}(?:\.\d+)?)\s+(\d{1,2})x(\d{1,2})\s*(@\s*\d+(?:\.\d)?)?$/));
+  if (nu) {
+    const big = nu[3] && Number(nu[3]) > Math.max(Number(nu[1]), Number(nu[2])) ? [Number(nu[3]), Number(nu[1]), Number(nu[2])] : [Number(nu[1]), Number(nu[2]), Number(nu[3])];
+    const [w, a, b] = big;
+    if (w >= 20 && a <= 20 && b <= 20) {
+      const rpe = nu[4] ? Number(nu[4].replace(/[@\s]/g, '')) : null; const n = Math.min(a, b);
+      for (let i = 0; i < n; i++) out.sets.push({ w, r: Math.max(a, b), t: typ, rpe: rpe >= 5 && rpe <= 10 ? rpe : null });
+      return out;
+    }
   }
   let lastW = null; let lastGroup = [];
   const push = (w, r, sec = false) => { const s = { w, r, t: typ, rpe: null, sec }; out.sets.push(s); lastGroup.push(s); return s; };
@@ -4755,8 +4827,8 @@ IMP.parseSets = (str) => {
         for (let k = 0; k < n; k++) push(w, IMP.reps(m[3])); continue;
       }
       if ((m = R(new RegExp(`(${IMP_NUM})\\s*(kg|lb)\\s*(\\d+(?:\\+\\d+)*)\\s*回(?:\\s*x\\s*(\\d+)\\s*(?:set)?)?`, 'y')))) { const w = Number(m[1].replace('+', '')); lastW = w; lastGroup = []; const n = m[4] ? Math.min(Number(m[4]), 20) : 1; for (let k = 0; k < n; k++) push(w, IMP.reps(m[3])); continue; }
-      if ((m = R(new RegExp(`(${IMP_NUM})\\s*(kg|lb)`, 'y')))) { lastW = Number(m[1].replace('+', '')); lastGroup = []; continue; }
-      if ((m = R(/(\d+(?:\+\d+)*)\s*回(?:\s*x\s*(\d+)\s*(?:set)?)?/y))) { lastGroup = []; const n = m[2] ? Math.min(Number(m[2]), 20) : 1; for (let k = 0; k < n; k++) push(lastW == null ? 0 : lastW, IMP.reps(m[1])); continue; }
+      if ((m = R(new RegExp(`(${IMP_NUM})\\s*(kg|lb)`, 'y')))) { lastW = Number(m[1].replace('+', '')); if (lastGroup.length && lastGroup.every((x) => x.nw)) { for (const x of lastGroup) { x.w = lastW; delete x.nw; } } lastGroup = []; continue; }
+      if ((m = R(/(\d+(?:\+\d+)*)\s*回(?:\s*x\s*(\d+)\s*(?:set)?)?/y))) { lastGroup = []; const n = m[2] ? Math.min(Number(m[2]), 20) : 1; for (let k = 0; k < n; k++) { const x = push(lastW == null ? 0 : lastW, IMP.reps(m[1])); if (lastW == null) x.nw = true; } continue; }
       if ((m = R(/(\d+)\s*set/y))) { const n = Math.min(Number(m[1]), 20); const last = out.sets[out.sets.length - 1]; if (last) for (let k = 1; k < n; k++) push(last.w, last.r, last.sec); continue; }
       if ((m = R(/(?:(\d+)分(?:\s*(\d+)秒)?|(\d+)秒|(\d{1,2}):(\d{2})(?!\d))(?:\s*x\s*(\d+)\s*(?:set)?)?/y))) {
         const sec = m[3] ? Number(m[3]) : m[4] ? Number(m[4]) * 60 + Number(m[5]) : Number(m[1]) * 60 + (Number(m[2]) || 0);
@@ -4764,6 +4836,7 @@ IMP.parseSets = (str) => {
       }
       if ((m = R(/@\s*(\d+(?:\.\d+)?)/y))) { const v = Number(m[1]); for (const x of lastGroup.length ? lastGroup : out.sets.slice(-1)) if (v >= 5 && v <= 10) x.rpe = v; continue; }
       if ((m = R(/自重|bw/y))) { lastW = 0; lastGroup = []; continue; }
+      if ((m = R(/(\d+(?:\.\d+)?)(?=\s+\d+(?:\+\d+)*\s*回)/y))) { lastW = Number(m[1]); lastGroup = []; continue; }
       if ((m = R(/(\d+(?:\.\d+)?)/y))) { bareHere.push(Number(m[1])); continue; }
       out.unknown += s[i]; i++;
     }
@@ -4772,6 +4845,7 @@ IMP.parseSets = (str) => {
       else out.bare.push(...bareHere);
     }
   }
+  for (const x of out.sets) delete x.nw;
   return out;
 };
 /* 数字だけのセット（「懸垂 10 10 8」「ベンチ 60 10 3」）は種目が決まってから解釈する */
@@ -4786,7 +4860,7 @@ IMP.resolveBare = (bare, ex) => {
 };
 
 /* ---------- 名前とセットの境目 ---------- */
-IMP.SET_HEAD = /^(?:\+?\d+(?:\.\d+)?\s*(?:kg|㎏|キロ|lbs?|ポンド|[xX×✕＊*]|回|reps?|レップ|秒|分|sec|min|セット|sets?|@)|自重|bw\b|\d+(?:\.\d+)?(?:[\s,、/]+\d+(?:\.\d+)?)*\s*(?:$|[(（]))/i;
+IMP.SET_HEAD = /^(?:\+?\d+(?:\.\d+)?\s*(?:kg|㎏|キロ|lbs?|ポンド|[xX×✕＊*]|回|reps?|レップ|秒|分|sec|min|セット|sets?|@)|自重|bw\b|\d+(?:\.\d+)?\s+\d+\s*(?:回|reps?|レップ)|\d+(?:\.\d+)?(?:[\s,、/]+\d+(?:\.\d+)?)*\s*(?:$|[(（]))/i;
 IMP.splitLine = (line) => {
   const s = IMP.nfkc(line).trim();
   for (let i = 0; i < s.length; i++) {
@@ -4798,39 +4872,75 @@ IMP.splitLine = (line) => {
 };
 
 /* ---------- 文章（メモ帳など）の読み取り ---------- */
+/* 「60/10」「100-5」（重量/回数）、「10.10.8」「10-8-6」（回数の並び）をふつうの書き方にそろえる */
+IMP.normPairs = (s) => s
+  .replace(/(\d{1,2})\s*[-~〜]\s*\d{1,2}(?=\s*(?:回|reps?|レップ))/gi, '$1')
+  .replace(/(?<![\d.])\d{1,3}(?:\.\d{1,3}){2,}(?![\d.])/g, (m) => (m.split('.').every((x) => Number(x) <= 50) ? m.replace(/\./g, ',') : m))
+  .replace(/(?<![\d\-])\d{1,3}(?:-\d{1,3}){2,}(?![\d\-])/g, (m) => m.replace(/-/g, ','))
+  .replace(/(?<![\d./\-])(\d+(?:\.\d+)?)\s*(kg|キロ)?\s*[/\-]\s*(\d{1,2})(?![\d./\-]|\s*(?:kg|キロ|回|秒|分))/gi, (m, w, u, r) => (u || Number(w) >= 20 || /\./.test(w) ? `${w}${u || ''}x${r}` : m));
+/* 種目の行から、番号・休憩時間・テンポ・「今日は」などを取り除く */
+IMP.cleanLine = (raw) => {
+  let s = String(raw).replace(/^[\s・]*[①-⑳❶-❿]\s*/, '');
+  s = IMP.nfkc(s).trim()
+    .replace(/^(?:\d{1,2}[.)）](?=\s*[^\d\s.])|[(（]\d{1,2}[)）])\s*/, '')
+    .replace(/[(（]?\s*(?:インターバル|インタバル|休憩|レスト|rest|間隔)\s*[:：]?\s*\d+(?:\.\d+)?\s*(?:分|秒|min|sec|s|m)?(?:\s*\d+\s*秒)?\s*[)）]?/gi, ' ')
+    .replace(/[(（]?\s*テンポ\s*[:：]?\s*[\dx\-]+\s*[)）]?/gi, ' ')
+    .replace(/^(?:今日は|今日の|本日は?|きょうは|今日)\s*/, '');
+  return IMP.normPairs(s).trim();
+};
+IMP.CARDIO = /ランニング|ジョギング|ジョグ|ウォーキング|散歩|エアロバイク|バイク|サイクリング|トレッドミル|ルームランナー|有酸素|水泳|スイミング|スイム|クロストレーナー|ステッパー|running|jogging|\bjog\b|walking|cycling|treadmill|elliptical|\bswim|cardio|\d+(?:\.\d+)?\s*km(?![a-z])/i;
+IMP.MEMO_STRONG = /合計|総負荷|総重量|総ボリューム|トータル|ボリューム|\btotal\b|\bvolume\b|kcal|カロリー|睡眠|プロテイン|食事/i;
+IMP.MEMO_WEAK = /max|1rm|自己ベスト|ベスト|目標|\bpr\b|感想|反省|次回|次は|メモ|[。！!？?]|(?:かった|でした|ました|です|ない|たい)$/i;
+IMP.BODY = /(体重|体脂肪率?)\s*[:：は]?\s*(\d{1,3}(?:\.\d+)?)\s*(kg|キロ|㎏|%|％)?/g;
 IMP.parseText = (text) => {
   const lines = String(text).split(/\r?\n/);
-  const items = []; const dates = []; const skipped = [];
-  let cur = null; let curEx = null; let pend = null; let lineNo = 0;
+  const items = []; const dates = []; const skipped = []; const body = []; const info = [];
+  let cur = null; let curEx = null; let pend = null; let pendInfo = null; let lineNo = 0;
+  const looksNote = (nm) => IMP.MEMO_WEAK.test(nm) && IMP.matchEx(nm).score < 0.5;
   for (const raw of lines) {
     lineNo++;
-    const line = IMP.nfkc(raw).trim(); if (!line) { pend = null; continue; }
-    if (/^(#|\/\/)/.test(line) && !IMP.readDate(line.replace(/^#+\s*/, ''))) continue;
+    const line = IMP.nfkc(raw).trim();
+    const li = { n: lineNo, raw, k: 'blank' }; info.push(li);
+    if (!line) { pend = null; continue; }
+    if (/^(#|\/\/)/.test(line) && !IMP.readDate(line.replace(/^#+\s*/, ''))) { li.k = 'memo'; continue; }
     const dt = IMP.readDate(line.replace(/^#+\s*/, ''));
     if (dt) {
-      dates.push(dt); cur = { dt, title: '', line: lineNo }; curEx = null; pend = null;
-      const rest = dt.rest.trim();
-      if (rest) { const sp = IMP.splitLine(rest); if (sp.sets && sp.name) { const p = IMP.parseSets(sp.sets); if (p.sets.length || p.bare.length) { curEx = { name: sp.name, line: lineNo }; items.push({ day: cur, name: sp.name, p, line: lineNo, raw }); continue; } } cur.title = rest.slice(0, 40); }
+      dates.push(dt); cur = { dt, title: '', line: lineNo }; curEx = null; pend = null; li.k = 'date'; li.day = cur;
+      const rest = IMP.cleanLine(dt.rest.trim());
+      if (rest) { const sp = IMP.splitLine(rest); if (sp.sets && sp.name) { const p = IMP.parseSets(sp.sets); if (p.sets.length || p.bare.length) { curEx = { name: sp.name, line: lineNo }; items.push({ day: cur, name: sp.name, p, line: lineNo, raw }); li.k = 'date+ex'; continue; } } cur.title = rest.replace(/^[\[【(（]|[\]】)）]$/g, '').slice(0, 40); }
       continue;
     }
-    const sp = IMP.splitLine(line);
+    if (!cur) { li.k = 'skip'; li.why = '日付より前の行'; skipped.push({ line: lineNo, raw, why: '日付より前の行' }); continue; }
+    // 体重・体脂肪
+    const bm = [...line.matchAll(IMP.BODY)];
+    if (bm.length) {
+      const b = { day: cur, kg: null, fat: null, line: lineNo };
+      for (const m of bm) { const v = Number(m[2]); if (/脂肪/.test(m[1]) || /%|％/.test(m[3] || '')) { if (v > 2 && v < 70) b.fat = v; } else if (v >= 25 && v <= 250) b.kg = v; }
+      if (b.kg || b.fat) { body.push(b); li.k = 'body'; li.body = b; continue; }
+    }
+    if (IMP.CARDIO.test(line)) { li.k = 'cardio'; skipped.push({ line: lineNo, raw, why: '有酸素は対象外' }); continue; }
+    if (IMP.MEMO_STRONG.test(line)) { li.k = 'memo'; continue; }
+    const cl = IMP.cleanLine(line);
+    const sp = IMP.splitLine(cl);
     if (/^(?:ウォーミングアップ|ウォームアップ|アップ|w-?up|warm-?up|wu|w)$/i.test(sp.name) && sp.sets) { sp.name = ''; sp.sets = 'アップ ' + sp.sets; }
     const p = sp.sets ? IMP.parseSets(sp.sets) : null;
     const has = p && (p.sets.length || p.bare.length);
-    if (!cur) { if (has || sp.name) skipped.push({ line: lineNo, raw, why: '日付より前の行' }); continue; }
-    if (has && sp.name) { if (pend && !cur.title && !items.some((x) => x.day === cur)) cur.title = pend.slice(0, 40); curEx = { name: sp.name }; items.push({ day: cur, name: sp.name, p, line: lineNo, raw }); pend = null; continue; }
-    if (has && !sp.name) {
-      const nm = pend || (curEx && curEx.name);
-      if (nm) { curEx = { name: nm }; items.push({ day: cur, name: nm, p, line: lineNo, raw }); pend = null; }
-      else skipped.push({ line: lineNo, raw, why: '種目名がない' });
+    if (has && !p.sets.length && p.bare.every((x) => x > 100)) { li.k = 'skip'; li.why = '数字の意味がわからない'; skipped.push({ line: lineNo, raw, why: li.why }); continue; }
+    if (has && sp.name && !looksNote(sp.name)) { if (pend && !cur.title && !items.some((x) => x.day === cur)) { cur.title = pend.slice(0, 40); pendInfo.k = 'title'; } curEx = { name: sp.name }; items.push({ day: cur, name: sp.name, p, line: lineNo, raw }); li.k = 'ex'; pend = null; continue; }
+    if (has) {
+      const nm = (pend && !looksNote(pend) ? pend : null) || (curEx && curEx.name);
+      if (nm) { if (nm === pend) pendInfo.k = 'name'; curEx = { name: nm }; items.push({ day: cur, name: nm, p, line: lineNo, raw }); li.k = 'set'; pend = null; }
+      else { li.k = 'skip'; li.why = '種目名がない'; skipped.push({ line: lineNo, raw, why: '種目名がない' }); }
       continue;
     }
     // 名前だけの行：次の行がセットなら種目名。それ以外は見出し・メモとして扱う
-    if (pend && !cur.title && !items.some((x) => x.day === cur)) cur.title = pend.slice(0, 40);
-    pend = sp.name.slice(0, 60);
+    if (pend && !cur.title && !items.some((x) => x.day === cur) && pendInfo.k === 'memo') { cur.title = pend.slice(0, 40); pendInfo.k = 'title'; }
+    li.k = 'memo';
+    if (looksNote(cl)) { continue; }
+    pend = sp.name.slice(0, 60); pendInfo = li;
   }
   IMP.resolveYears(dates);
-  return { items, skipped };
+  return { items, skipped, body, lines: info };
 };
 
 /* ---------- 表 → 取り込み単位 ---------- */
@@ -4914,7 +5024,8 @@ IMP.normName = (s) => IMP.kata(IMP.nfkc(s).toLowerCase().replace(/\band\b/g, '&'
 IMP.tokens = (s) => IMP.nfkc(s).toLowerCase().replace(/[()（）\[\]]/g, ' ').replace(/-/g, '').split(/[^a-z0-9&]+/).filter(Boolean).map((w) => (w.length > 3 && w.endsWith('s') && !w.endsWith('ss') ? w.slice(0, -1) : w)).map((w) => ({ bicep: '', biceps: '', db: 'dumbbell', bb: 'barbell', flat: '', standing: '', seated: w === 'seated' ? 'seated' : '' }[w] ?? w)).filter(Boolean);
 IMP.bigrams = (s) => { const out = new Map(); for (let i = 0; i < s.length - 1; i++) { const b = s.slice(i, i + 2); out.set(b, (out.get(b) || 0) + 1); } return out; };
 IMP.dice = (a, b) => { if (a === b) return 1; if (a.length < 2 || b.length < 2) return 0; const A = IMP.bigrams(a), B = IMP.bigrams(b); let n = 0; for (const [k, v] of A) n += Math.min(v, B.get(k) || 0); return 2 * n / (a.length - 1 + b.length - 1); };
-IMP.matchEx = (src) => {
+IMP.matchEx = (src0) => {
+  const src = /[぀-ヿ一-鿿]/.test(src0) ? IMP.nfkc(src0).replace(/(?<![a-z])db(?![a-z])/gi, 'ダンベル').replace(/(?<![a-z])bb(?![a-z])/gi, 'バーベル').replace(/(?<![a-z])kb(?![a-z])/gi, 'ケトルベル') : src0;
   const key = IMP.normName(src).replace(/片手|両手|片側|左右|各|片脚|片足/g, '') || IMP.normName(src); const list = allEx();
   if (!key) return { id: null, score: 0, cands: [] };
   const alias = IMP_ALIAS[key] || IMP_ALIAS[IMP.normName(src.replace(/[(（].*?[)）]/g, ''))];
@@ -4975,7 +5086,7 @@ IMP.analyze = (input, opt = {}) => {
     return { src, count, id: m.score >= 0.5 ? m.id : null, score: m.score, cands: m.cands, act: m.score >= 0.5 ? 'map' : 'new', part: m.id && m.score >= 0.35 ? getEx(m.id).part : IMP.guessPart(src) };
   }).sort((a, b) => b.count - a.count);
   const lb = kind === 'text' ? res.items.some((x) => x.p.lb) : null;
-  return { kind, table, format: table ? table.format : 'メモ・文章', items: res.items, skipped: res.skipped, names, lb };
+  return { kind, table, format: table ? table.format : 'メモ・文章', items: res.items, skipped: res.skipped, names, lb, body: res.body || [], lines: res.lines || null };
 };
 
 /* 取り込む記録を組み立てる（DBはまだ変えない） */
@@ -5004,7 +5115,7 @@ IMP.build = (an, opt = {}) => {
     let list = it.p.sets.map((s) => ({ ...s }));
     if (it.p.bare.length) list = list.concat(IMP.resolveBare(it.p.bare, ex));
     const lb = an.kind === 'text' ? (opt.unit ? opt.unit === 'lb' : it.p.lb) : it.p.lb;
-    list = list.filter((s) => s.r > 0).map((s) => {
+    list = list.filter((s) => s.r > 0 && (s.sec || isTimed(ex) || s.r <= 100)).map((s) => {
       const w0 = s.w == null || !(s.w > 0) ? 0 : s.w;
       const o = { w: lb ? Math.round(w0 * LB * 10) / 10 : Math.round(w0 * 100) / 100, r: Math.min(Math.round(s.r), isTimed(ex) || s.sec ? 3600 : 999), done: true, t: s.t || 'n' };
       if (s.rpe >= 5 && s.rpe <= 10) o.rpe = s.rpe; return o;
@@ -5022,24 +5133,29 @@ IMP.build = (an, opt = {}) => {
     for (const s of list) { if (rec.sets.length < 60) { rec.sets.push(s); sets++; } }
     if (it.note && !rec.memo.includes(it.note)) rec.memo = (rec.memo ? rec.memo + ' / ' : '') + String(it.note).slice(0, 200);
   }
+  const haveBody = new Set(DB.bodylog.filter((x) => x.imp !== batch && !(opt.ignore || []).includes(x.imp)).map((x) => x.date)); const bodyMap = new Map();
+  for (const x of an.body || []) { const d = x.day.dt.ymd; if (!isYmd(d) || d > ymd() || haveBody.has(d) || skipDays.has(d)) continue; const o = bodyMap.get(d) || { date: d, kg: null, fat: null, updatedAt: now, imp: batch }; if (x.kg) o.kg = Math.round(x.kg * 100) / 100; if (x.fat) o.fat = Math.round(x.fat * 10) / 10; bodyMap.set(d, o); }
+  const body = [...bodyMap.values()].filter((x) => x.kg > 0);
   const usedEx = new Set([...records.values()].map((r) => r.exerciseId));
   const recs = [...records.values()]; const sess = [...sessions.values()].filter((s) => s.exerciseIds.length);
   const days = [...new Set(recs.map((r) => r.date))].sort();
-  return { batch, pre, sessions: sess, records: recs, customs: customs.filter((e) => usedEx.has(e.id)), sets, days, skipDays: [...skipDays], overlapDays: [...overlapDays], wl: recs.some((r) => ((customs.find((c) => c.id === r.exerciseId) || (exMap().get(r.exerciseId)) || {}).part) === '全身・WL') };
+  return { batch, pre, sessions: sess, records: recs, body, customs: customs.filter((e) => usedEx.has(e.id)), sets, days, skipDays: [...skipDays], overlapDays: [...overlapDays], wl: recs.some((r) => ((customs.find((c) => c.id === r.exerciseId) || (exMap().get(r.exerciseId)) || {}).part) === '全身・WL') };
 };
 /* DBへ反映（同じ取り込みを再度行ったら置き換え） */
 IMP.commit = (b, label) => {
   IMP.removeBatch(b.batch, true);
   for (const e of b.customs) { const { custom, ...x } = e; DB.customExercises.push(x); }
   DB.sessions.push(...b.sessions); DB.records.push(...b.records);
+  if (b.body && b.body.length) { DB.bodylog.push(...b.body); DB.bodylog.sort((x, y) => (x.date < y.date ? -1 : 1)); }
   DB.imports = (DB.imports || []).filter((x) => x.id !== b.batch);
-  DB.imports.push({ id: b.batch, label: String(label || '').slice(0, 60), at: Date.now(), days: b.days.length, sets: b.sets, from: b.days[0] || '', to: b.days[b.days.length - 1] || '', updatedAt: Date.now() });
+  DB.imports.push({ id: b.batch, label: String(label || '').slice(0, 60), at: Date.now(), days: b.days.length, sets: b.sets, body: (b.body || []).length, from: b.days[0] || '', to: b.days[b.days.length - 1] || '', updatedAt: Date.now() });
   invalidateEx(); touch();
 };
 IMP.removeBatch = (batch, quiet) => {
   const pre = `imp_${batch}_`;
   DB.records = DB.records.filter((r) => !r.id.startsWith(pre) && !r.sessionId.startsWith(pre));
   DB.sessions = DB.sessions.filter((s) => !s.id.startsWith(pre));
+  DB.bodylog = DB.bodylog.filter((x) => x.imp !== batch);
   DB.customExercises = DB.customExercises.filter((e) => !e.id.startsWith(pre) || DB.records.some((r) => r.exerciseId === e.id));
   DB.menus.forEach((m) => { m.exerciseIds = m.exerciseIds.filter((id) => !id.startsWith(pre) || exMap().has(id)); });
   if (!quiet) DB.imports = (DB.imports || []).filter((x) => x.id !== batch);
@@ -5065,7 +5181,7 @@ const IMP_EXAMPLE = `2025/4/1 胸の日
 
 /* ---------- 画面 ---------- */
 function openImportWizard() {
-  const st = { step: 'src', text: '', label: '', isFile: false, an: null, input: null, unit: '', skipOverlap: true, busy: false, showSkip: false, showCols: false };
+  const st = { step: 'src', text: '', label: '', isFile: false, lf: 'all', an: null, input: null, unit: '', skipOverlap: true, busy: false, showSkip: false, showCols: false };
   const reAnalyze = () => {
     const opt = { names: st.an ? st.an.names : null, unit: st.unit || null, map: st.an && st.an.table && st.mapEdited ? st.an.table.map : null };
     st.an = IMP.analyze(st.input, opt);
@@ -5082,6 +5198,34 @@ function openImportWizard() {
     const ex = n.act === 'map' && n.id ? getEx(n.id) : null;
     const tag = n.act === 'skip' ? '<span class="imp-tag skip">取り込まない</span>' : n.act === 'new' ? `<span class="imp-tag new">新しい種目（${esc(n.part)}）</span>` : n.score >= 0.85 || n.confirmed ? '<span class="imp-tag ok">一致</span>' : '<span class="imp-tag warn">要確認</span>';
     return `<button type="button" class="imp-n" data-a="nm" data-i="${i}"><span class="src"><b>${esc(n.src)}</b><small>${n.count}セット</small></span><span class="arr">→</span><span class="dst">${ex ? esc(ex.name) : n.act === 'new' ? `「${esc(n.src.slice(0, 40))}」を追加` : '—'}${tag}</span></button>`;
+  };
+  const setTxt = (it, ex) => { const sets = it.p.sets.concat(IMP.resolveBare(it.p.bare, ex)); const lbU = (it.p.lb && st.unit !== 'kg') || st.unit === 'lb'; return sets.map((x) => `${x.w ? fmtNum(x.w) + (lbU ? 'lb' : 'kg') + '×' : ''}${x.r}${x.sec ? '秒' : ''}${x.rpe ? '@' + x.rpe : ''}${x.t === 'w' ? '(アップ)' : ''}`).join(', '); };
+  const LK = { date: ['日付', 'd'], 'date+ex': ['日付', 'd'], title: ['見出し', 't'], ex: ['種目', 'e'], name: ['種目名', 'e'], set: ['セット', 's'], body: ['体重', 'b'], memo: ['メモ', 'm'], cardio: ['有酸素', 'm'], skip: ['読めない', 'x'] };
+  const OFF = new Set(['memo', 'cardio', 'skip']);
+  const linesHtml = () => {
+    const an = st.an; const byLine = new Map(); for (const it of an.items) byLine.set(it.line, it);
+    const all = an.lines.filter((l) => l.k !== 'blank');
+    const cnt = {}; for (const l of all) cnt[l.k] = (cnt[l.k] || 0) + 1;
+    const offN = all.filter((l) => OFF.has(l.k)).length;
+    const shown = st.lf === 'off' ? all.filter((l) => OFF.has(l.k)) : all;
+    const row = (l) => {
+      const [lab, cls] = LK[l.k] || ['?', 'm']; let v = '';
+      const it = byLine.get(l.n);
+      if (it) { const nm = an.names.find((n) => n.src === it.name.trim()); const ex = nm && nm.act === 'map' && nm.id ? getEx(nm.id) : null; v = nm && nm.act === 'skip' ? `<i>取り込まない種目</i>` : `<b>${esc(ex ? ex.name : it.name)}</b> ${esc(setTxt(it, ex))}`; if (l.k === 'date+ex') v = `${esc(fmtDate(l.day.dt.ymd, true))} ・ ` + v; }
+      else if (l.k === 'date') v = `${esc(l.day.dt.ymd ? fmtDate(l.day.dt.ymd, true) : '?')}${l.day.title ? ` ・ ${esc(l.day.title)}` : ''}`;
+      else if (l.k === 'body') v = [l.body.kg ? `体重 ${fmtNum(l.body.kg)}kg` : '', l.body.fat ? `体脂肪 ${fmtNum(l.body.fat)}%` : ''].filter(Boolean).join(' ・ ');
+      else if (l.k === 'name') v = '次の行のセットの種目名';
+      else if (l.k === 'title') v = 'トレーニング名';
+      else if (l.k === 'memo') v = '取り込まない（メモ）';
+      else if (l.k === 'cardio') v = '取り込まない（有酸素）';
+      else if (l.k === 'skip') v = esc(l.why || '');
+      return `<button type="button" class="imp-l k-${cls}" data-a="editLine" data-n="${l.n}"><span class="no">${l.n}</span><span class="lk">${lab}</span><span class="tx"><code>${esc(String(l.raw).trim().slice(0, 120))}</code><span class="iv">${v}</span></span></button>`;
+    };
+    const MAX = 400;
+    return `<div class="grp" style="margin-top:12px">行ごとの仕分け（${all.length}行）</div>
+      <p class="tiny faint" style="margin:0 0 6px">メモの各行をどう読んだかの一覧です。違っている行はタップして直せます。${cnt.body ? `体重の記録（${cnt.body}行）も取り込みます。` : ''}</p>
+      <div class="seg pill mini" style="margin-bottom:6px"><button type="button" data-a="lf" data-v="all" aria-pressed="${st.lf !== 'off'}">すべて</button><button type="button" data-a="lf" data-v="off" aria-pressed="${st.lf === 'off'}">取り込まない行（${offN}）</button></div>
+      <div class="imp-lines">${shown.slice(0, MAX).map(row).join('') || '<p class="tiny faint">ありません</p>'}${shown.length > MAX ? `<p class="tiny faint">ほか${shown.length - MAX}行（「取り込まない行」で絞り込めます）</p>` : ''}</div>`;
   };
   const colsHtml = () => {
     const t = st.an.table; const heads = (t.headers || []).map((h, i) => [i, String(h).trim() || `列${i + 1}`]);
@@ -5107,7 +5251,9 @@ function openImportWizard() {
             <li>重量×回数×セット数：<code>60×10×3</code>　<code>60kg 10回 3セット</code>　<code>100kg 5x5</code></li>
             <li>重量を変えたセット：<code>80×8, 85×6, 85×6</code>　同じ重量で回数違い：<code>60kg 10,10,8</code></li>
             <li>自重・時間：<code>懸垂 10回×3</code>　<code>プランク 60秒</code>　加重は <code>+10kg×8</code></li>
-            <li>RPE：<code>@8</code>　ウォームアップ：行に「アップ」　ポンド：<code>135lb</code></li></ul>
+            <li>RPE：<code>@8</code>　ウォームアップ：行に「アップ」　ポンド：<code>135lb</code></li>
+            <li>ほかの書き方：<code>60/10 65/8</code>　<code>100-5</code>　<code>10.10.8</code>　<code>10回 12kg</code>　<code>R6.11.3</code>　番号つきの箇条書きもOK</li>
+            <li>体重（<code>体重 62.3kg</code>）は体重の記録に入り、感想・有酸素・合計などの行は自動で除きます。読み取った後に<b>行ごとの仕分け</b>を確認して、違う行はタップで直せます</li></ul>
           <p style="margin:6px 0"><b>アプリから</b>：Strong（設定→データを書き出す）、Hevy（設定→データを書き出す→ワークアウト）、FitNotes（バックアップ→CSV書き出し）のCSVをそのまま選べます。</p>
           <p style="margin:6px 0"><b>表計算</b>：「日付・種目・重量・回数（・セット数）」の列があれば読めます。日付が最初の行にしかない書き方や、セルに「60×10」と書く書き方も読めます。</p>
           <p style="margin:6px 0"><b>紙のノート</b>：テンプレートに入力するか、上の書き方でメモに打ち込んで貼り付けてください。</p>
@@ -5115,7 +5261,7 @@ function openImportWizard() {
       if (st.step === 'done') {
         const r = st.result;
         return `<div class="imp center"><div class="imp-done">${ICON.check}</div><h3 style="margin:6px 0">取り込みました</h3>
-          <p class="muted">${r.days.length}日分 ・ ${r.records.length}種目 ・ ${r.sets}セット<br>${fmtDate(r.days[0], true)} 〜 ${fmtDate(r.days[r.days.length - 1], true)}</p>
+          <p class="muted">${r.days.length}日分 ・ ${r.records.length}種目 ・ ${r.sets}セット${r.body && r.body.length ? ` ・ 体重${r.body.length}日` : ''}<br>${fmtDate(r.days[0], true)} 〜 ${fmtDate(r.days[r.days.length - 1], true)}</p>
           ${r.customs.length ? `<p class="small muted">新しい種目を${r.customs.length}個追加しました（ライブラリの「自分の種目」で部位・筋肉を直せます）</p>` : ''}
           ${r.wl && !DB.settings.wl ? `<div class="banner info" style="text-align:left"><div class="m"><b>ウェイトリフティング種目が含まれています</b><br><span class="small">WLのメニューや分析も使うならONにしてください。</span></div><button type="button" class="btn btn-sm" data-a="wlOn">ONにする</button></div>` : ''}
           <p class="tiny faint">設定 →「記録の取り込み」から、この取り込みをまとめて取り消せます。</p></div>`;
@@ -5128,10 +5274,12 @@ function openImportWizard() {
       const autoLb = an.kind === 'text' ? an.lb : !!(an.table && an.table.unit === 'lb');
       h += `<div class="field" style="margin:8px 0"><span class="lbl">重量の単位</span><div class="seg pill mini"><button type="button" data-a="unit" data-v="" aria-pressed="${!st.unit}">自動</button><button type="button" data-a="unit" data-v="kg" aria-pressed="${st.unit === 'kg'}">kg</button><button type="button" data-a="unit" data-v="lb" aria-pressed="${st.unit === 'lb'}">lb</button></div>
         <p class="tiny faint" style="margin:4px 2px 0">${st.unit === 'lb' ? 'すべてポンドとして読み、kgに換算します' : st.unit === 'kg' ? 'すべてkgとして読みます' : autoLb ? 'ポンド（lb）の記録を見つけました。kgに換算して取り込みます' : 'kgとして読みます（ポンドの記録なら「lb」を選択）'}</p></div>`;
+      if (b.body && b.body.length) h += `<p class="tiny faint center" style="margin:-6px 0 8px">体重の記録 ${b.body.length}日分も取り込みます（すでに体重を記録している日は除く）</p>`;
       if (b.overlapDays.length) h += `<label class="sw-row" style="border:0"><div class="t"><b>すでに記録がある日（${b.overlapDays.length}日）は取り込まない</b><span>このアプリで記録済みの日と重なっています。二重に数えないようにします</span></div><span class="switch"><input type="checkbox" data-ch="ovl" ${st.skipOverlap ? 'checked' : ''}><span></span></span></label>`;
       h += `<div class="grp" style="margin-top:6px">種目の対応（${an.names.length}）${needs ? ` ・ <span style="color:var(--warn,#d97706)">要確認 ${needs}</span>` : ''}</div>
         <p class="tiny faint" style="margin:0 0 6px">タップで変更できます。見つからない種目は「自分の種目」として追加されます。</p>
         <div class="imp-names">${an.names.map((n, i) => ({ n, i })).sort((a, c) => (rank(a.n) - rank(c.n))).map(({ n, i }) => nameRow(n, i)).join('')}</div>`;
+      if (an.kind === 'text' && an.lines) { h += linesHtml(); return h + '</div>'; }
       if (an.skipped.length) {
         h += `<details class="sub-acc"><summary>読み取れなかった行（${an.skipped.length}）</summary><div class="imp-skip">${an.skipped.slice(0, 80).map((x) => `<div><span>${x.line}行目</span><code>${esc(String(x.raw).slice(0, 80))}</code><em>${esc(x.why)}</em></div>`).join('')}</div>
           ${an.kind === 'text' ? '<button type="button" class="btn btn-sm" data-a="back">文章を直す</button>' : ''}</details>`;
@@ -5147,7 +5295,7 @@ function openImportWizard() {
       if (st.step === 'src') return `<button type="button" class="btn" data-a="__close">閉じる</button>`;
       if (st.step === 'done') return `<button type="button" class="btn" data-a="doneClose">閉じる</button><button type="button" class="btn btn-primary" data-a="goReview">記録を見る</button>`;
       const b = preview();
-      return `<button type="button" class="btn" data-a="back">戻る</button><button type="button" class="btn btn-primary" data-a="commit" ${b.sets ? '' : 'disabled'}>${b.sets ? `${b.days.length}日分を取り込む` : '取り込める記録がありません'}</button>`;
+      return `<button type="button" class="btn" data-a="back">戻る</button><button type="button" class="btn btn-primary" data-a="commit" ${b.sets || b.body.length ? '' : 'disabled'}>${b.sets ? `${b.days.length}日分を取り込む` : b.body.length ? `体重${b.body.length}日分を取り込む` : '取り込める記録がありません'}</button>`;
     },
     inputs: { text: (el, e, s) => { st.text = el.value; const btn = $('[data-a="paste"]', s.body); if (btn) btn.disabled = !st.text.trim(); } },
     changes: {
@@ -5166,7 +5314,7 @@ function openImportWizard() {
           const text = IMP.decode(buf); setBusy(false);
           const tt = text.trim();
           if (tt.startsWith(TRANSFER_PREFIX) || tt.startsWith('{')) { s.close(); await handleImportFile(new File([text], f.name, { type: 'application/json' })); return; }
-          if (await start({ text }, f.name, true)) { s.render(); s.renderFoot(); s.body.scrollTop = 0; }
+          st.text = text; if (await start({ text }, f.name, true)) { s.render(); s.renderFoot(); s.body.scrollTop = 0; }
         } catch (err) { console.error(err); setBusy(false); toast(err.message || '読み込みに失敗しました', 'error'); }
       },
       col: (el, e, s) => { const f = el.dataset.f; const v = Number(el.value); st.an.table.map[f] = v >= 0 ? v : undefined; if (v < 0) delete st.an.table.map[f]; st.mapEdited = true; st.showCols = true; reAnalyze(); s.render(); s.renderFoot(); },
@@ -5180,6 +5328,15 @@ function openImportWizard() {
         const t = st.text.trim(); if (!t) return;
         if (t.startsWith(TRANSFER_PREFIX) || (t.startsWith('{') && t.includes('"records"'))) { s.close(); await handleImportFile(new File([t], '貼り付け', { type: 'application/json' })); return; }
         if (await start({ text: st.text }, '貼り付けた文章')) { s.render(); s.renderFoot(); s.body.scrollTop = 0; }
+      },
+      lf: (el, e, s) => { st.lf = el.dataset.v; s.render(); },
+      editLine: async (el, e, s) => {
+        const n = Number(el.dataset.n); const arr = st.text.split(/\r?\n/); if (!(n >= 1 && n <= arr.length)) return;
+        const v = await promptSheet({ title: `${n}行目を直す`, label: '空にすると、この行を取り込みません', value: arr[n - 1].trim(), ok: '読み直す', maxlength: 300 });
+        if (v == null) return;
+        arr[n - 1] = v; st.text = arr.join('\n'); st.input = { text: st.text };
+        try { reAnalyze(); } catch (err) { console.error(err); toast('読み取りに失敗しました', 'error'); return; }
+        s.render(); s.renderFoot();
       },
       back: (el, e, s) => { st.step = 'src'; s.render(); s.renderFoot(); s.body.scrollTop = 0; },
       unit: (el, e, s) => { st.unit = el.dataset.v; reAnalyze(); s.render(); s.renderFoot(); },
@@ -5201,7 +5358,7 @@ function openImportWizard() {
         s.render(); s.renderFoot();
       },
       commit: async (el, e, s) => {
-        const b = preview(); if (!b.sets) return;
+        const b = preview(); if (!b.sets && !b.body.length) return;
         const again = (DB.imports || []).find((x) => x.id === b.batch);
         const older = sameFile().filter((x) => x.id !== b.batch);
         if (again) { const ok = await confirmSheet({ title: '同じ内容を以前に取り込んでいます', message: `<p>${esc(fmtDateTime(again.at))}の取り込みを、今回の内容で置き換えます（取り込み後に編集した内容は元に戻ります）。</p>`, ok: '置き換える' }); if (!ok) return; }
@@ -5223,7 +5380,7 @@ function importSettingsHtml() {
   return `${setSecHead('import', false, `${ICON.download} 記録の取り込み`, list.length ? `${list.length}件` : 'ほかのアプリ・メモから')}
     <p class="small muted" style="margin:0 0 10px">Strong・Hevy・FitNotes などのアプリ、Excel・スプレッドシート、メモ帳の文章から、これまでの記録を取り込めます。</p>
     <button type="button" class="btn btn-primary btn-block" data-a="importWizard">${ICON.upload}これまでの記録を取り込む</button>
-    ${list.length ? `<div class="imp-list">${list.map((x) => `<div class="imp-li"><div class="m"><b>${esc(x.label || '取り込み')}</b><span>${x.days}日分・${x.sets}セット${x.from ? ` ・ ${fmtDate(x.from, true)}〜${fmtDate(x.to, true)}` : ''}<br>${esc(fmtDateTime(x.at))}に取り込み</span></div><button type="button" class="btn btn-sm btn-danger-line" data-a="importUndo" data-id="${esc(x.id)}">取り消す</button></div>`).join('')}</div>` : ''}</details>`;
+    ${list.length ? `<div class="imp-list">${list.map((x) => `<div class="imp-li"><div class="m"><b>${esc(x.label || '取り込み')}</b><span>${x.days}日分・${x.sets}セット${x.body ? `・体重${x.body}日` : ''}${x.from ? ` ・ ${fmtDate(x.from, true)}〜${fmtDate(x.to, true)}` : ''}<br>${esc(fmtDateTime(x.at))}に取り込み</span></div><button type="button" class="btn btn-sm btn-danger-line" data-a="importUndo" data-id="${esc(x.id)}">取り消す</button></div>`).join('')}</div>` : ''}</details>`;
 }
 Object.assign(ACT, {
   importWizard: () => openImportWizard(),
