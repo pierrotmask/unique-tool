@@ -1261,6 +1261,21 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
 .imp-n .imp-hint{flex-basis:100%;font-size:11.5px;color:var(--text-3);line-height:1.5;margin-top:2px;text-align:left}
 .imp-n .imp-hint{grid-column:1/-1}
 
+/* 分析：まとまりの開閉 */
+.fold-h{cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none;-webkit-user-select:none}
+.fold-h .fold-i{display:inline-grid;place-items:center;width:22px;height:22px;color:var(--text-3);transition:transform .2s}
+.fold-h .fold-i svg{width:18px;height:18px}
+.card.folded .fold-h .fold-i{transform:rotate(-90deg)}
+.card.folded>:not(.card-h){display:none !important}
+.card.folded>.card-h{margin-bottom:0}
+.card.folded>.card-h>:not(h3){display:none}
+.fold-bar{display:flex;justify-content:flex-end;gap:4px;margin:-4px 0 6px}
+.fold-bar .link{font-size:12.5px;min-height:32px}
+/* 分析：目的の説明と比較 */
+.goal-desc{font-size:13px;line-height:1.7;color:var(--text-2);margin:8px 2px 2px}
+.goal-tbl td{font-size:12px;line-height:1.5}
+.goal-tbl th:not(:first-child),.goal-tbl td:not(:first-child){width:auto;white-space:normal;text-align:left}
+
 </style>
 </head>
 <body>
@@ -1284,7 +1299,7 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.24.6';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.24.7';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -1951,6 +1966,7 @@ function normalize(src) {
     tourDone: ui.tourDone === undefined ? (ui.onboarded === undefined ? (arr(d.records).length > 0 || !!ui.welcomeDone) : !!ui.onboarded) : !!ui.tourDone,
     tips: ui.tips === undefined && ui.onboarded ? { wo: true, kp: true, cal: true, review: true, lib: true, settings: true } : Object.fromEntries(Object.entries(obj(ui.tips)).filter(([, v]) => v === true)),
     wkChart: ['sets', 'vol'].includes(ui.wkChart) ? ui.wkChart : 'sets',
+    anaFold: Object.fromEntries(Object.entries(obj(ui.anaFold)).filter(([k, v]) => typeof v === 'boolean' && k.length < 20).slice(0, 30)),
     pwaHide: !!ui.pwaHide, pwaMoved: !!ui.pwaMoved, transferAsked: !!ui.transferAsked, themeV2: true, wlDef2: true
   };
   const a = obj(d.active);
@@ -3933,6 +3949,14 @@ function trendRowHtml(t) {
   return `<button type="button" class="trend" data-a="exDetail" data-id="${esc(t.ex.id)}"><div class="m"><b>${esc(t.ex.name)}</b><div class="v">${fmtNum(t.cur)}<small>${t.unit}</small></div>
     <div class="d">3ヶ月前から ${deltaHtml(t.cur, t.base, t.unit)} <span class="faint">${t.key === 'e1rm' ? '推定1RM' : t.key === 'time' ? '最長' : '最多回数'}</span></div></div><div class="spark">${sparkSvg(t.recent.map((p) => p.y), { pr: t.prIdx, color: partColor(t.ex.part) })}</div></button>`;
 }
+/* 分析画面のまとまりを開閉できるようにする（開閉はこの端末に覚える） */
+function foldOpen(k, def) { const f = (DB.ui && DB.ui.anaFold) || {}; return k in f ? !!f[k] : def; }
+function foldSec(k, cls, title, def) {
+  const o = foldOpen(k, def);
+  return `<section class="card ${cls} fold${o ? '' : ' folded'}" data-fold="${k}"><div class="card-h"><h3 class="fold-h" data-a="fold" data-k="${k}" role="button" tabindex="0" aria-expanded="${o}">${title}<span class="fold-i">${ICON.chevD}</span></h3>`;
+}
+ACT.fold = (el) => { const k = el.dataset.k; DB.ui.anaFold = DB.ui.anaFold || {}; const sec = el.closest('[data-fold]'); DB.ui.anaFold[k] = sec ? sec.classList.contains('folded') : true; save(); renderTab(true); };
+ACT.foldAll = (el) => { const open = el.dataset.v === '1'; DB.ui.anaFold = {}; for (const x of document.querySelectorAll('#view [data-fold]')) DB.ui.anaFold[x.dataset.fold] = open; save(); renderTab(true); };
 function renderReview() {
   let h = topbar('分析', `<button type="button" class="icon-btn" data-a="glossary" aria-label="用語の説明"><b style="font-size:17px">?</b></button>`);
   if (!IDX().sessions.length) {
@@ -3941,16 +3965,17 @@ function renderReview() {
       <button type="button" class="btn btn-line btn-block" data-a="demoAdd">サンプル記録で試してみる</button><p class="hint">サンプルは設定からいつでも削除できます。</p></div>`;
   }
   if (hasDemo()) h += `<div class="banner"><div class="m"><b>サンプル記録を表示中</b></div><button type="button" class="btn btn-sm" data-a="demoRemove">サンプルを削除</button></div>`;
+  h += `<div class="fold-bar"><button type="button" class="link" data-a="foldAll" data-v="1">すべて開く</button><button type="button" class="link" data-a="foldAll" data-v="0">すべて閉じる</button></div>`;
   h += analysisHtml();
   const wk = weeklyAgg(12); const tw = wk[wk.length - 1], lw = wk[wk.length - 2];
-  h += `<section class="card wk-card"><div class="card-h"><h3>今週の状況</h3><span class="tiny faint">先週比</span></div><div class="stat4">
+  h += `${foldSec('week', 'wk-card', '今週の状況', true)}<span class="tiny faint">先週比</span></div><div class="stat4">
     <div><b>${tw.days.size}<small>日</small></b><span>日数</span>${deltaHtml(tw.days.size, lw.days.size, '日')}</div>
     <div><b>${tw.sets}</b><span>セット</span>${deltaHtml(tw.sets, lw.sets)}</div>
     <div><b>${fmtBig(tw.vol)}<small>kg</small></b><span>総負荷量</span>${deltaHtml(tw.vol, lw.vol, 'kg', true)}</div>
     <div><b>${tw.dur ? durHtml(tw.dur) : '-'}</b><span>時間</span>${tw.dur || lw.dur ? deltaHtml(Math.round(tw.dur / 60000), Math.round(lw.dur / 60000), '分') : ''}</div></div></section>`;
   // 筋肉マップ
   const mode = DB.ui.mapMode; const mf = mapFills(mode);
-  h += `<section class="card sec"><div class="card-h"><h3>筋肉別</h3><button type="button" class="icon-btn" data-a="mapHelp" aria-label="説明" style="width:36px;height:36px">${ICON.info}</button></div>
+  h += `${foldSec('map', 'sec', '筋肉マップ', false)}<button type="button" class="icon-btn" data-a="mapHelp" aria-label="説明" style="width:36px;height:36px">${ICON.info}</button></div>
     <div class="seg pill">${[['sets', 'セット数'], ['last', '最後に鍛えた日'], ['rec', '回復状態']].map(([k, l]) => `<button type="button" data-a="mapMode" data-v="${k}" aria-pressed="${mode === k}">${l}</button>`).join('')}</div>
     <div class="mmap stage" style="margin-top:10px">${bodySvg(mf.fills, { tap: true, glow: true, sel: UI.mapSel, aria: '筋肉マップ（タップで詳細）' })}</div>
     <div class="heat-legend">${mf.legend}</div>${muscleInfo(UI.mapSel, mf.agg)}</section>`;
@@ -3958,7 +3983,7 @@ function renderReview() {
   const isVol = DB.ui.wkChart === 'vol';
   const vals = wk.map((w) => (isVol ? w.vol : w.sets));
   const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
-  h += `<section class="card"><div class="card-h"><h3>週ごと（12週）</h3><div class="seg pill mini"><button type="button" data-a="wkChart" data-v="sets" aria-pressed="${!isVol}">セット</button><button type="button" data-a="wkChart" data-v="vol" aria-pressed="${isVol}">負荷量</button></div></div>
+  h += `${foldSec('wk', '', '週ごと（12週）', false)}<div class="seg pill mini"><button type="button" data-a="wkChart" data-v="sets" aria-pressed="${!isVol}">セット</button><button type="button" data-a="wkChart" data-v="vol" aria-pressed="${isVol}">負荷量</button></div></div>
     <div class="small muted">平均 <b style="font-size:20px;color:var(--head)">${isVol ? fmtBig(avg) : fmtNum(round1(avg))}</b> ${isVol ? 'kg' : 'セット'}／週</div>
     ${chartHtml(isVol
       ? { type: 'bar', labels: wk.map((w) => { const d = parseYmd(w.week); return `${d.getMonth() + 1}/${d.getDate()}`; }), datasets: [{ label: '総負荷量', data: wk.map((w) => Math.round(w.vol)), color: cssVar('--accent') || '#2563eb' }], kind: 'volume', avg: Math.round(avg), aria: '週ごとの総負荷量' }
@@ -3967,14 +3992,14 @@ function renderReview() {
   // 1RM推移
   const tr = trendRows(4);
   const trV = UI.trMode === 'vol';
-  h += `<section class="card trends"><div class="card-h"><h3>種目ごとの推移</h3><div class="seg pill mini"><button type="button" data-a="trMode" data-v="e1rm" aria-pressed="${!trV}">1RM</button><button type="button" data-a="trMode" data-v="vol" aria-pressed="${trV}">負荷量</button></div></div>${trV ? tr.map((t) => {
+  h += `${foldSec('trends', 'trends', '種目ごとの推移', false)}<div class="seg pill mini"><button type="button" data-a="trMode" data-v="e1rm" aria-pressed="${!trV}">1RM</button><button type="button" data-a="trMode" data-v="vol" aria-pressed="${trV}">負荷量</button></div></div>${trV ? tr.map((t) => {
     const ws = weeklyExVol(t.ex.id, 12); const cur = ws[ws.length - 1], prev = ws[ws.length - 2];
     return `<button type="button" class="trend" data-a="exDetail" data-id="${esc(t.ex.id)}"><div class="m"><b>${esc(t.ex.name)}</b><div class="v">${fmtBig(cur)}<small>kg</small><span class="d">今週 ・ 先週 ${fmtBig(prev)}kg</span></div></div><div class="spark">${sparkSvg(ws, { bars: true, color: partColor(t.ex.part) })}</div></button>`;
   }).join('') : tr.map(trendRowHtml).join('')}
     <button type="button" class="btn btn-ghost btn-block btn-sm" data-a="openTrends">すべての種目（${IDX().byEx.size}）${ICON.chevR}</button></section>`;
   // 自己ベスト
   const prAll = prEvents().slice(0, 10); const prs = UI.prMore ? prAll : prAll.slice(0, 3);
-  h += `<section class="card"><div class="card-h"><h3>${ICON.trophy} 自己ベスト更新</h3></div>${prs.length ? prs.map((p) => `<button type="button" class="pr-row" data-a="exDetail" data-id="${esc(p.ex.id)}"><span class="pr-m"><b>${esc(p.ex.name)}</b><span>${fmtDate(p.date)} ・ ${p.key === 'e1rm' ? '推定1RM' : p.key === 'time' ? '最長' : '最多回数'}</span></span><span class="pr-v"><b class="num">${fmtNum(p.v)}<small>${p.key === 'e1rm' ? 'kg' : p.key === 'time' ? '秒' : '回'}</small></b>${deltaHtml(p.v, p.prev)}</span></button>`).join('') : '<p class="empty-mini">記録を重ねると、自己ベストの更新がここに並びます。</p>'}
+  h += `${foldSec('pr', '', `${ICON.trophy} 自己ベスト更新`, false)}</div>${prs.length ? prs.map((p) => `<button type="button" class="pr-row" data-a="exDetail" data-id="${esc(p.ex.id)}"><span class="pr-m"><b>${esc(p.ex.name)}</b><span>${fmtDate(p.date)} ・ ${p.key === 'e1rm' ? '推定1RM' : p.key === 'time' ? '最長' : '最多回数'}</span></span><span class="pr-v"><b class="num">${fmtNum(p.v)}<small>${p.key === 'e1rm' ? 'kg' : p.key === 'time' ? '秒' : '回'}</small></b>${deltaHtml(p.v, p.prev)}</span></button>`).join('') : '<p class="empty-mini">記録を重ねると、自己ベストの更新がここに並びます。</p>'}
     ${prAll.length > 3 ? `<button type="button" class="btn btn-ghost btn-block btn-sm" data-a="prMore">${UI.prMore ? '閉じる' : `もっと見る（${prAll.length - 3}）`}</button>` : ''}</section>`;
   // WL分析
   const bl = DB.bodylog;
@@ -4151,9 +4176,9 @@ document.addEventListener('click', (e) => {
    ・各項目に根拠の強さ（高・中・参考）と出典を付ける。医学的な助言ではなく、一般的な目安として示す
    ===================================================================== */
 const GOALS = {
-  hyp: { label: '筋肉をつける', short: '筋肥大' },
-  str: { label: '強くなる', short: '筋力' },
-  health: { label: '健康・体力', short: '健康' }
+  hyp: { label: '筋肉をつける', short: '筋肥大', desc: '筋肉を大きくしたい（見た目・筋肉量）。1つの筋肉あたり週10〜20セットを、限界近くまで行うのが目安です。回数は6〜30回のどれでも効果は同程度です。' },
+  str: { label: '強くなる', short: '筋力', desc: '挙げられる重さ（ベンチプレスなどの最大重量）を伸ばしたい。1〜6回で限界近くになる重い重量のセットを入れることが一番大事で、量は少なめ（週5〜15セット）でも伸びます。' },
+  health: { label: '健康・体力', short: '健康', desc: '健康と体力を保ちたい。週2日以上、胸・背中・脚など全身の主な筋肉をまんべんなく使うのが目安です（WHO）。' }
 };
 /* 出典（主要なメタ分析・ガイドライン） */
 const REFS = {
@@ -4301,26 +4326,42 @@ function anaInsights(a) {
 }
 function anaRefChips(refs) { return refs.map((k) => REFS[k]).filter(Boolean).map((r) => `<li><b>${esc(r.t)}</b><span class="ev ev-${r.lv}">${EV_LABEL[r.lv]}</span><br>${esc(r.s)}<br><span class="tiny faint">${esc(r.c)}</span></li>`).join(''); }
 function anaLevelOf(refs) { const lvls = refs.map((k) => REFS[k] && REFS[k].lv).filter(Boolean); return lvls.includes('h') ? 'h' : lvls.includes('m') ? 'm' : 'r'; }
+/* 目的による違い（どれを選んでも記録は同じ。目安と助言だけが変わる） */
+const GOAL_ROWS = [
+  ['目指すこと', '筋肉を大きくする', '挙げられる重さを伸ばす', '健康・体力を保つ'],
+  ['週のセット数（1つの筋肉）', '10〜20', '5〜15', '2〜10'],
+  ['回数・重さ', '6〜30回（どれでも同程度）', '1〜6回の重いセットを入れる', '続けやすい重さで'],
+  ['限界までの近さ', 'あと0〜3回で止める', 'あと1〜3回（フォーム優先）', '余裕を残してよい'],
+  ['分析で重く見ること', '筋肉ごとの量・追い込み具合', '重いセットの割合・1RMの伸び', '週2日以上・全身を使う']
+];
+function goalCompareHtml(cur) {
+  const ks = Object.keys(GOALS);
+  return `<table class="lv-cmp goal-tbl"><thead><tr><th></th>${ks.map((k) => `<th class="${k === cur ? 'on' : ''}">${GOALS[k].label}</th>`).join('')}</tr></thead><tbody>
+    ${GOAL_ROWS.map(([t, ...v]) => `<tr><td>${t}</td>${v.map((x, i) => `<td class="${ks[i] === cur ? 'on' : ''}">${x}</td>`).join('')}</tr>`).join('')}</tbody></table>
+    <p class="lv-note">どれを選んでも記録は同じで、変わるのは比べる目安と助言だけです。迷ったら、見た目を変えたいなら「筋肉をつける」、ベンチプレスなどの重さを伸ばしたいなら「強くなる」を選んでください。実際はどちらでも筋肉も筋力も伸びますが、重点の置き方が違います。</p>`;
+}
 function analysisHtml() {
   const a = anaCompute(); if (!a) return '';
   const g = goalOf(); const ins = anaInsights(a); const band = ANA_BAND[g];
-  let h = `<section class="card ana"><div class="card-h"><h3>${ICON.info} 分析レポート</h3><button type="button" class="btn btn-ghost btn-sm" data-a="anaRefs">根拠と研究</button></div>
-    <div class="field" style="margin:0 0 8px"><span class="lbl">目的</span><div class="seg pill mini">${Object.entries(GOALS).map(([k, v]) => `<button type="button" data-a="anaGoal" data-v="${k}" aria-pressed="${g === k}">${v.label}</button>`).join('')}</div></div>
+  let h = `${foldSec('ana', 'ana', `${ICON.info} 分析レポート`, true)}<button type="button" class="btn btn-ghost btn-sm" data-a="anaRefs">根拠と研究</button></div>
+    <div class="field" style="margin:0 0 8px"><span class="lbl">目的</span><div class="seg pill mini">${Object.entries(GOALS).map(([k, v]) => `<button type="button" data-a="anaGoal" data-v="${k}" aria-pressed="${g === k}">${v.label}</button>`).join('')}</div>
+      <p class="goal-desc">${GOALS[g].desc}</p>
+      <details class="lv-more goal-cmp"><summary>目的で何が変わる？${ICON.chevD}</summary>${goalCompareHtml(g)}</details></div>
     <p class="tiny faint" style="margin:0 0 8px">直近${a.span}日の記録を、研究で示された目安と比べています（一般的な目安で、医学的な助言ではありません）。タップで根拠を表示。</p>
     <div class="ins-list">${ins.map((x) => { const lvl = anaLevelOf(x.refs); return `<details class="ins ins-${x.st}"><summary><i class="dot"></i><span class="m"><b>${esc(x.title)}</b><span>${esc(x.detail)}</span></span>${x.refs.length ? `<em class="ev ev-${lvl}">${EV_LABEL[lvl]}</em>` : ''}</summary>${x.more ? `<p class="tiny" style="margin:6px 0 0">${esc(x.more)}</p>` : ''}${x.refs.length ? `<ul class="ins-refs">${anaRefChips(x.refs)}</ul>` : '<p class="tiny faint" style="margin:6px 0 0">研究による目安ではなく、記録から計算した参考情報です。</p>'}</details>`; }).join('')}</div></section>`;
   // 筋肉別の量
   const mx = Math.max(band[1] + 5, ...a.groups.map((x) => x.v));
   const pos = (v) => `${Math.min(100, v / mx * 100).toFixed(1)}%`;
-  h += `<section class="card"><div class="card-h"><h3>筋肉別の量（週平均）</h3><button type="button" class="icon-btn" data-a="anaVolHelp" aria-label="説明" style="width:36px;height:36px">${ICON.info}</button></div>
+  h += `${foldSec('anaVol', '', '筋肉別の量（週平均）', true)}<button type="button" class="icon-btn" data-a="anaVolHelp" aria-label="説明" style="width:36px;height:36px">${ICON.info}</button></div>
     <p class="tiny faint" style="margin:0 0 8px">直近${a.span}日・協働筋は0.5セットで計算。帯は「${GOALS[g].label}」の目安（週${band[0]}〜${band[1]}セット）</p>
     <div class="vbars">${a.groups.map((x) => { const cls = x.v < band[0] ? (x.v < band[0] / 2 ? 'lo' : 'mid') : x.v > band[1] ? 'hi' : 'ok'; return `<div class="vb"><span class="n">${esc(x.name)}</span><span class="tr"><i class="band" style="left:${pos(band[0])};width:calc(${pos(band[1])} - ${pos(band[0])})"></i><i class="bar ${cls}" style="width:${pos(x.v)}"></i></span><span class="v num">${fmtNum(x.v)}<small>・週${fmtNum(x.freq)}日</small></span></div>`; }).join('')}</div></section>`;
   // 回数帯
   if (a.lifted) {
     const lab = ['1〜5回', '6〜12回', '13〜30回', '31回〜']; const cols = ['#7c3aed', '#2563eb', '#0ea5e9', '#94a3b8'];
-    h += `<section class="card"><div class="card-h"><h3>回数帯の内訳</h3><span class="tiny faint">${a.lifted}セット</span></div>
+    h += `${foldSec('anaRep', '', '回数帯の内訳', false)}<span class="tiny faint">${a.lifted}セット</span></div>
       <div class="rbar">${a.reps.map((n, i) => (n ? `<i style="flex:${n};background:${cols[i]}"></i>` : '')).join('')}</div>
       <div class="legend">${a.reps.map((n, i) => `<span><i class="pdot" style="background:${cols[i]}"></i>${lab[i]} ${Math.round(n / a.lifted * 100)}%</span>`).join('')}</div>
-      <p class="tiny faint" style="margin:6px 0 0">${g === 'str' ? '最大筋力は重い重量（1〜6回程度で限界近く）で最も伸びます。' : '限界近くまで行えば、6〜30回のどこでも筋肥大の効果は同程度です。'}</p></section>`;
+      <p class="tiny faint" style="margin:6px 0 0">${g === 'str' ? '最大筋力は重い重量（1〜6回程度で限界近く）で最も伸びます。' : g === 'health' ? '健康目的なら回数の決まりはありません。続けやすい重さで行いましょう。' : '限界近くまで行えば、6〜30回のどこでも筋肥大の効果は同程度です。'}</p></section>`;
   }
   return h;
 }
