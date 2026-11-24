@@ -1263,7 +1263,7 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.24.1';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.24.2';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -5342,6 +5342,51 @@ IMP.rtfText = (src) => {
   flushB();
   return out.split('\n').map((l) => l.replace(/[ \t]+$/, '')).join('\n').replace(/\n{3,}/g, '\n\n').trim();
 };
+/* PDF（Googleドキュメントを共有・印刷したものなど）：文字の位置から行を組み立てる */
+const PDF_SOURCES = [
+  ['https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js', 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js'],
+  ['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'],
+  ['https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js', 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js']
+];
+IMP.loadPdf = () => {
+  if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  return new Promise((resolve, reject) => {
+    let i = 0;
+    const next = () => {
+      if (i >= PDF_SOURCES.length) { reject(new Error('PDFの読み込み部品を取得できませんでした。電波の良い場所で試すか、文章をコピーして下に貼り付けてください')); return; }
+      const [src, worker] = PDF_SOURCES[i++];
+      const sc = document.createElement('script'); sc.src = src; sc.async = true;
+      sc.onload = () => { if (window.pdfjsLib) { window.pdfjsLib.GlobalWorkerOptions.workerSrc = worker; resolve(window.pdfjsLib); } else next(); };
+      sc.onerror = () => { sc.remove(); next(); };
+      document.head.appendChild(sc);
+    };
+    next();
+  });
+};
+IMP.pdfLines = async (buf) => {
+  const lib = await IMP.loadPdf();
+  const doc = await lib.getDocument({ data: new Uint8Array(buf), isEvalSupported: false }).promise;
+  const out = [];
+  for (let pn = 1; pn <= Math.min(doc.numPages, 300); pn++) {
+    const tc = await (await doc.getPage(pn)).getTextContent();
+    const rows = [];
+    for (const it of tc.items) {
+      if (!it.str || !it.str.trim()) continue;
+      const x = it.transform[4], y = it.transform[5], h = Math.abs(it.transform[3]) || 10;
+      let r = rows.find((q) => Math.abs(q.y - y) <= Math.max(2, h * 0.35));
+      if (!r) { r = { y, h, items: [] }; rows.push(r); }
+      r.items.push({ x, w: it.width || 0, s: it.str });
+    }
+    rows.sort((a, b) => b.y - a.y);
+    for (const r of rows) {
+      r.items.sort((a, b) => a.x - b.x);
+      let line = '', end = null;
+      for (const it of r.items) { if (end != null && it.x - end > r.h * 0.6) line += '  '; else if (end != null && it.x - end > r.h * 0.15) line += ' '; line += it.s; end = it.x + it.w; }
+      line = line.trim(); if (line) out.push(line);
+    }
+  }
+  return out;
+};
 /* 文書ファイルを読み、取り込み用の入力（{text} か {rows}）にする。文書でなければ null */
 IMP.readDocument = async (buf, name) => {
   const u8 = new Uint8Array(buf); const ext = (/\.([a-z0-9]+)$/i.exec(name || '') || [])[1] || '';
@@ -5373,7 +5418,12 @@ IMP.readDocument = async (buf, name) => {
     return null;   // Excel など
   }
   if (u8[0] === 0xd0 && u8[1] === 0xcf && /^(doc|dot|wps)$/i.test(ext)) throw new Error('古いWord形式（.doc）は読めません。Wordで「.docx」として保存し直すか、文章をコピーして下に貼り付けてください');
-  if (u8[0] === 0x25 && u8[1] === 0x50 && u8[2] === 0x44 && u8[3] === 0x46) throw new Error('PDFは読めません。PDFの文章をコピーして下に貼り付けるか、元の文書を .docx や .txt で保存して選んでください');
+  if (u8[0] === 0x25 && u8[1] === 0x50 && u8[2] === 0x44 && u8[3] === 0x46) {
+    const lines = await IMP.pdfLines(buf);
+    if (!lines.join('').trim()) throw new Error('このPDFには文字の情報がありません（写真やスキャンのPDFは読めません）。文章をコピーして下に貼り付けてください');
+    return fin({ lines, tables: [] }, 'PDF');
+  }
+  if ((u8[0] === 0x89 && u8[1] === 0x50) || (u8[0] === 0xff && u8[1] === 0xd8) || /^(heic|heif|png|jpe?g|gif|webp)$/i.test(ext)) throw new Error('画像は読めません。記録が書かれた文書（Word・Googleドキュメント・メモ・Excel・PDF）を選ぶか、文章を貼り付けてください');
   const head = IMP.decode(u8.subarray(0, 4000)).trimStart();
   if (head.startsWith('{\\rtf')) return fin({ lines: IMP.rtfText(IMP.decode(buf)).split('\n').map((l) => l.trim()).filter(Boolean), tables: [] }, 'リッチテキスト（.rtf）');
   if (/^(html?|xhtml|mht)$/i.test(ext) || /^<(!doctype html|html|meta|body)/i.test(head)) {
@@ -5980,9 +6030,9 @@ function openImportWizard() {
     render: () => {
       if (st.step === 'src') return `<div class="imp">
         <p class="small muted" style="margin:0 0 10px">ほかのアプリ・表計算・メモに残してきた記録を、このアプリの記録として取り込みます。取り込んだ記録はグラフや自己ベストにそのまま反映され、あとから<b>取り込みごとに取り消せます</b>。</p>
-        <input type="file" id="impFile" data-ch="file" accept=".csv,.tsv,.txt,.md,.json,.xlsx,.xls,.xlsm,.docx,.odt,.rtf,.html,.htm,.zip,text/csv,text/plain,text/markdown,text/html,application/rtf,application/json,application/zip,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.oasis.opendocument.text" hidden>
+        <input type="file" id="impFile" data-ch="file" hidden>
         <button type="button" class="btn btn-primary btn-block btn-lg" data-a="pick">${ICON.upload}ファイルを選ぶ</button>
-        <div class="imp-fmts"><span>Strong</span><span>Hevy</span><span>FitNotes</span><span>Excel（.xlsx）</span><span>Word（.docx）</span><span>Googleドキュメント</span><span>CSV・TSV</span><span>テキスト（.txt）</span><span>.odt・.rtf・.html</span><span>LiftCanvasのバックアップ</span></div>
+        <div class="imp-fmts"><span>Strong</span><span>Hevy</span><span>FitNotes</span><span>Excel（.xlsx）</span><span>Word（.docx）</span><span>Googleドキュメント</span><span>CSV・TSV</span><span>テキスト（.txt）</span><span>PDF</span><span>.odt・.rtf・.html</span><span>LiftCanvasのバックアップ</span></div>
         <div class="grp" style="margin-top:16px">または、文章・表をそのまま貼り付け</div>
         <textarea class="input imp-ta" data-in="text" rows="7" placeholder="メモ帳やスプレッドシートからコピーして貼り付け&#10;&#10;${esc(IMP_EXAMPLE).replace(/\n/g, '&#10;')}">${esc(st.text)}</textarea>
         <div class="row" style="margin-top:8px"><button type="button" class="btn btn-primary" data-a="paste" ${st.text.trim() ? '' : 'disabled'}>読み取る</button><button type="button" class="btn" data-a="example">例を入れてみる</button></div>
@@ -5998,7 +6048,7 @@ function openImportWizard() {
             <li>体重（<code>体重 62.3kg</code>）は体重の記録に入り、感想・有酸素・合計などの行は自動で除きます。読み取った後に<b>行ごとの仕分け</b>を確認して、違う行はタップで直せます</li></ul>
           <p style="margin:6px 0"><b>アプリから</b>：Strong（設定→データを書き出す）、Hevy（設定→データを書き出す→ワークアウト）、FitNotes（バックアップ→CSV書き出し）のCSVをそのまま選べます。</p>
           <p style="margin:6px 0"><b>表計算</b>：「日付・種目・重量・回数（・セット数）」の列があれば読めます。日付が最初の行にしかない書き方や、セルに「60×10」と書く書き方も読めます。</p>
-          <p style="margin:6px 0"><b>Word・Googleドキュメント</b>：メモと同じ書き方の文書を、そのまま選べます（表で書いた記録も読めます）。Googleドキュメントは「ファイル → ダウンロード → Microsoft Word（.docx）」で保存したファイルを選んでください。文章をコピーして下に貼り付けてもOKです。PDFと古い .doc 形式は読めません。</p>
+          <p style="margin:6px 0"><b>Word・Googleドキュメント</b>：メモと同じ書き方の文書を、そのまま選べます（表で書いた記録も読めます）。Googleドキュメントは「ファイル → ダウンロード → Microsoft Word（.docx）」で保存したファイルを選んでください。文章をコピーして下に貼り付けてもOKです。PDFも読めます（写真・スキャンのPDFと古い .doc 形式は読めません）。</p>
           <p style="margin:6px 0"><b>紙のノート</b>：テンプレートに入力するか、上の書き方でメモに打ち込んで貼り付けてください。</p>
           <button type="button" class="btn btn-sm" data-a="tpl">${ICON.download}記入用テンプレート（CSV）</button></div></details></div>`;
       if (st.step === 'done') {
