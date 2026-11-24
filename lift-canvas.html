@@ -1284,7 +1284,7 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.24.5';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.24.6';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -2292,7 +2292,7 @@ function openSheet(opt) {
     }
     s.close();
   };
-  s.actions.__close = () => s.tryClose();
+  if (!s.actions.__close) s.actions.__close = () => s.tryClose();   // 画面ごとの閉じ方（初回の質問など）があればそれを使う
   bg.addEventListener('click', (e) => { if (e.target === bg && opt.dismissible !== false) s.tryClose(); });
   document.body.appendChild(bg);
   sheets.push(s);
@@ -6690,6 +6690,46 @@ if (window.matchMedia) { try { matchMedia('(prefers-color-scheme: dark)').addEve
 let resizeT = null;
 window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { $$('.svgc').forEach((s) => { const cv = s.parentElement.querySelector('canvas'); if (cv && cv._spec) svgChartInto(cv, cv._spec); }); }, 250); });
 
+/* =====================================================================
+   Androidの戻るボタン（iPhoneのスワイプで戻るも同じ）
+   ・履歴に「見張り」を1つ置き、戻る操作が来たら手前の画面から順に閉じる
+     ガイド → テンキー → 下から出る画面 → 全画面ページ → 記録画面（最小化）→ ホーム以外のタブ → ホーム
+   ・ホームで何も開いていなければ「もう一度押すと終了」。続けて押すと閉じる
+   ===================================================================== */
+const BackNav = {
+  armed: false, t: null,
+  init() {
+    window.addEventListener('popstate', () => this.onPop());
+    // Chromeは「画面に触れる前に足した履歴」を戻るボタンで飛ばすため、最初に触れたときに見張りを置く
+    // （「もう一度押すと終了」のあと別の操作をしたときも、見張りを戻す）
+    const arm = () => { if (this.armed || !history.state || history.state.lc !== 1) this.rearm(); };
+    document.addEventListener('pointerdown', arm, true); document.addEventListener('keydown', arm, true);
+  },
+  rearm() { clearTimeout(this.t); this.armed = false; try { if (!history.state || history.state.lc == null) history.replaceState({ lc: 0 }, ''); if (history.state.lc !== 1) history.pushState({ lc: 1 }, ''); } catch (e) { /* noop */ } },
+  onPop() {
+    if (this.armed || !history.state || history.state.lc !== 0) return;   // 見張りの手前に戻ったときだけ扱う   // 2回目：そのまま終了（前のページへ）
+    let handled = false;
+    try { handled = this.handle(); } catch (e) { console.error(e); handled = true; }
+    if (handled) { try { history.pushState({ lc: 1 }, ''); } catch (e) { /* noop */ } return; }
+    this.armed = true; toast('もう一度押すと終了します');
+    clearTimeout(this.t); this.t = setTimeout(() => this.rearm(), 2200);
+  },
+  handle() {
+    if ($('#busy') && !$('#busy').hidden) return true;
+    if (typeof TOUR !== 'undefined' && TOUR) { endTour(); return true; }
+    if (UI.kp) { closeKeypad(); return true; }
+    if (sheets.length) {
+      const s = sheets[sheets.length - 1];
+      if (s.opt.dismissible === false) { if (s.actions.__close) s.actions.__close(null, null, s); return true; }
+      s.tryClose(); return true;
+    }
+    if (pages.length) { const p = pages[pages.length - 1]; p.actions.__back(null, null, p); return true; }
+    if (UI.wo && !$('#workout').hidden) { if (UI.wo.live) minimizeWorkout(); else finishEdit(); return true; }
+    if (UI.tab !== 'train') { setTab('train'); return true; }
+    return false;
+  }
+};
+
 function init() {
   DB = load();
   document.body.insertAdjacentHTML('afterbegin', bodyDefs());
@@ -6703,6 +6743,7 @@ function init() {
   Timer.resume();
   if (DB.active && !DB.active.minimized) openWorkout();
   renderMinibar();
+  BackNav.init();
   loadChartJs();
   pwaInit();
   setTimeout(() => { if (!DB.ui.onboarded && !DB.active && !sheets.length) { if (DB.ui.introDone) openOnboarding(); else startIntro(); } }, 450);
