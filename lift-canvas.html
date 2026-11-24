@@ -1263,7 +1263,7 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.23.7';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.24.1';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -5186,6 +5186,7 @@ const INTRO_ICONS = {
 /* =====================================================================
    6. これまでの記録の取り込み（他アプリのCSV・表計算・メモの文章）
    ・Strong / Hevy / FitNotes / LiftCanvas CSV / Excel・Googleスプレッドシート / メモ帳の文章
+   ・Word・Googleドキュメント（.docx）／OpenDocument（.odt）／RTF／HTML の文書
    ・取り込んだ記録は id が 'imp_<取り込みID>_' で始まり、取り込みごとにまとめて取り消せる
    ===================================================================== */
 const IMP = {};
@@ -5229,6 +5230,157 @@ IMP.xlsxRows = async (buf) => {
     if (rows.length) out.push({ name, rows: rows.map((r) => r.map((v) => String(v == null ? '' : v))) });
   }
   return out;
+};
+
+/* ---------- 文書ファイル（Word・Googleドキュメント・OpenDocument・RTF・HTML） ----------
+   Googleドキュメントは「ファイル → ダウンロード」で .docx / .odt / .rtf / .txt / .html(zip) を選べる。
+   どれも「段落＝1行、表の行＝セルを空白でつないだ1行」の文章にして、メモと同じ読み取りにかける。
+   日付の列を持つ表だけのファイルは、表計算と同じ「表」として読む。 */
+IMP.unzip = async (buf) => {
+  const u8 = new Uint8Array(buf), dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+  let eocd = -1;
+  for (let i = u8.length - 22; i >= Math.max(0, u8.length - 65557); i--) if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  if (eocd < 0) throw new Error('ファイルが壊れているか、対応していない形式です');
+  const n = dv.getUint16(eocd + 10, true); let p = dv.getUint32(eocd + 16, true);
+  const ents = new Map(); const td = new TextDecoder();
+  for (let k = 0; k < n && p + 46 <= u8.length; k++) {
+    if (dv.getUint32(p, true) !== 0x02014b50) break;
+    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), nl = dv.getUint16(p + 28, true), xl = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+    ents.set(td.decode(u8.subarray(p + 46, p + 46 + nl)), { method, csize, off });
+    p += 46 + nl + xl + cl;
+  }
+  const get = async (name) => {
+    const e = ents.get(name); if (!e) return null;
+    const lh = e.off, start = lh + 30 + dv.getUint16(lh + 26, true) + dv.getUint16(lh + 28, true);
+    const data = u8.subarray(start, start + e.csize);
+    if (e.method === 0) return data;
+    if (e.method !== 8) throw new Error('対応していない圧縮形式です');
+    if (typeof DecompressionStream === 'function') {
+      const ds = new DecompressionStream('deflate-raw');
+      return new Uint8Array(await new Response(new Blob([data]).stream().pipeThrough(ds)).arrayBuffer());
+    }
+    const X = await IMP.loadXlsx();   // 古いブラウザ：表計算の部品に含まれる解凍機能を使う
+    const f = X.CFB.find(X.CFB.read(u8, { type: 'array' }), '/' + name); return f ? new Uint8Array(f.content) : null;
+  };
+  return { names: [...ents.keys()], get, text: async (name) => { const b = await get(name); return b ? IMP.decode(b) : null; } };
+};
+/* XML/HTMLの要素を「行」の配列にする。tables には表の行（セルの配列）も入れる */
+IMP.docLines = (root, kind) => {
+  const lines = [], tables = []; let cur = '';
+  const flush = () => { const t = cur.replace(/[ \t　]+/g, (m) => (m.includes('\t') ? '\t' : ' ')).trim(); if (t) lines.push(t); cur = ''; };
+  const ln = (el) => (el.localName || el.nodeName || '').toLowerCase();
+  const cellText = (el) => { const sub = IMP.docLines(el, kind); return sub.lines.join(' '); };
+  const walk = (el) => {
+    for (const c of el.childNodes) {
+      if (c.nodeType === 3) { if (kind === 'html') cur += c.nodeValue.replace(/\s+/g, ' '); else if (kind === 'odt') cur += c.nodeValue; continue; }
+      if (c.nodeType !== 1) continue;
+      const n = ln(c);
+      if (kind === 'docx') {
+        if (n === 't') { cur += c.textContent; continue; }
+        if (n === 'tab') { cur += '\t'; continue; }
+        if (n === 'br' || n === 'cr') { flush(); continue; }
+        if (n === 'p') { flush(); walk(c); flush(); continue; }
+        if (n === 'tbl') { flush(); const rows = []; for (const tr of c.children) if (ln(tr) === 'tr') rows.push([...tr.children].filter((tc) => ln(tc) === 'tc').map(cellText)); tables.push(rows); rows.forEach((r) => { const t = r.filter((x) => x.trim()).join('  '); if (t) lines.push(t); }); continue; }
+        if (['instrtext', 'del', 'deltext', 'fldsimple'].includes(n) && n !== 'fldsimple') continue;
+        walk(c); continue;
+      }
+      if (kind === 'odt') {
+        if (n === 's') { cur += ' '.repeat(Number(c.getAttribute('text:c')) || 1); continue; }
+        if (n === 'tab') { cur += '\t'; continue; }
+        if (n === 'line-break') { flush(); continue; }
+        if (n === 'p' || n === 'h') { flush(); walk(c); flush(); continue; }
+        if (n === 'table') { flush(); const rows = []; for (const tr of c.getElementsByTagName('table:table-row')) rows.push([...tr.children].filter((tc) => ln(tc) === 'table-cell').map(cellText)); tables.push(rows); rows.forEach((r) => { const t = r.filter((x) => x.trim()).join('  '); if (t) lines.push(t); }); continue; }
+        if (n === 'tracked-changes' || n === 'annotation') continue;
+        walk(c); continue;
+      }
+      // html
+      if (['script', 'style', 'head', 'title', 'noscript'].includes(n)) continue;
+      if (n === 'br') { flush(); continue; }
+      if (n === 'table') { flush(); const rows = [...c.querySelectorAll('tr')].filter((tr) => tr.closest('table') === c).map((tr) => [...tr.children].filter((x) => /^t[dh]$/i.test(x.tagName)).map(cellText)); tables.push(rows); rows.forEach((r) => { const t = r.filter((x) => x.trim()).join('  '); if (t) lines.push(t); }); continue; }
+      const block = /^(p|div|li|h[1-6]|tr|section|article|blockquote|pre|dt|dd|ul|ol|header|footer)$/.test(n);
+      if (block) flush(); walk(c); if (block) flush();
+    }
+  };
+  walk(root); flush();
+  return { lines, tables };
+};
+/* RTF（Word・Googleドキュメントの「リッチテキスト」）から文章を取り出す */
+IMP.rtfText = (src) => {
+  const cp = /\\ansicpg(\d+)/.exec(src); const enc = cp && cp[1] === '932' ? 'shift_jis' : cp && cp[1] === '936' ? 'gbk' : cp && cp[1] === '65001' ? 'utf-8' : /\\'[89a-f][0-9a-f]\\'[4-9a-f][0-9a-f]/i.test(src) ? 'shift_jis' : 'windows-1252';
+  let dec; try { dec = new TextDecoder(enc); } catch (e) { dec = new TextDecoder('windows-1252'); }
+  const SKIP = /^(fonttbl|colortbl|stylesheet|info|pict|object|header|footer|headerl|headerr|footerl|footerr|listtable|listoverridetable|revtbl|rsidtbl|generator|xmlnstbl|themedata|colorschememapping|latentstyles|datastore|fldinst|filetbl|pgdsctbl|mmathPr|pntext|listtext|pnseclvl|pn)$/;
+  let out = '', bytes = [], uc = 1, skipN = 0;
+  const flushB = () => { if (bytes.length) { out += dec.decode(new Uint8Array(bytes)); bytes = []; } };
+  const stack = []; let skip = false, i = 0;
+  while (i < src.length) {
+    const c = src[i];
+    if (c === '{') { stack.push({ skip, uc }); i++; if (src.startsWith('\\*', i)) { skip = true; } continue; }
+    if (c === '}') { flushB(); const s = stack.pop() || { skip: false, uc: 1 }; skip = s.skip; uc = s.uc; i++; continue; }
+    if (c === '\\') {
+      const nx = src[i + 1];
+      if (nx === "'") { const h = parseInt(src.substr(i + 2, 2), 16); i += 4; if (skipN > 0) { skipN--; continue; } if (!skip && !isNaN(h)) bytes.push(h); continue; }
+      if (nx === '\\' || nx === '{' || nx === '}') { if (!skip) { flushB(); out += nx; } i += 2; continue; }
+      if (nx === '~') { if (!skip) { flushB(); out += ' '; } i += 2; continue; }
+      if (nx === '\n' || nx === '\r') { if (!skip) { flushB(); out += '\n'; } i += 2; continue; }
+      const m = /^\\([a-zA-Z]+)(-?\d+)? ?/.exec(src.slice(i, i + 40));
+      if (!m) { i += 2; continue; }
+      i += m[0].length; const w = m[1], arg = m[2] != null ? Number(m[2]) : null;
+      if (SKIP.test(w)) { skip = true; continue; }
+      if (skip) continue;
+      if (w === 'uc') { uc = arg == null ? 1 : arg; continue; }
+      if (w === 'u') { flushB(); out += String.fromCharCode(arg < 0 ? arg + 65536 : arg); skipN = uc; continue; }
+      if (w === 'par' || w === 'line' || w === 'row' || w === 'sect' || w === 'page') { flushB(); out += '\n'; continue; }
+      if (w === 'tab' || w === 'cell') { flushB(); out += '  '; continue; }
+      if (w === 'emdash') { flushB(); out += '—'; continue; } if (w === 'endash') { flushB(); out += '–'; continue; }
+      continue;
+    }
+    if (c === '\r' || c === '\n') { i++; continue; }
+    if (skipN > 0) { skipN--; i++; continue; }
+    if (!skip) { flushB(); out += c; }
+    i++;
+  }
+  flushB();
+  return out.split('\n').map((l) => l.replace(/[ \t]+$/, '')).join('\n').replace(/\n{3,}/g, '\n\n').trim();
+};
+/* 文書ファイルを読み、取り込み用の入力（{text} か {rows}）にする。文書でなければ null */
+IMP.readDocument = async (buf, name) => {
+  const u8 = new Uint8Array(buf); const ext = (/\.([a-z0-9]+)$/i.exec(name || '') || [])[1] || '';
+  const fin = (r, fmt) => {
+    // 日付の列を持つ表だけでできた文書は「表」として読む。それ以外は段落と表を合わせた文章として読む
+    const all = r.tables.flat(); const t = all.length ? IMP.detectTable(all) : null;
+    const textLines = r.lines.length - all.length;
+    if (t && t.map && t.map.date != null && textLines <= 3) return { input: { rows: all.filter((x) => x.some((v) => String(v).trim())) }, fmt };
+    const text = r.lines.join('\n');
+    if (!text.trim()) throw new Error('文書の中に文字が見つかりませんでした');
+    return { input: { text }, fmt };
+  };
+  const xml = (t) => new DOMParser().parseFromString(t, 'application/xml');
+  if (u8[0] === 0x50 && u8[1] === 0x4b) {
+    const z = await IMP.unzip(buf);
+    if (z.names.includes('word/document.xml')) {
+      const d = xml(await z.text('word/document.xml')); const body = d.getElementsByTagName('w:body')[0] || d.documentElement;
+      return fin(IMP.docLines(body, 'docx'), 'Word文書（.docx）');
+    }
+    if (z.names.includes('content.xml') && !z.names.some((x) => x.startsWith('xl/'))) {
+      const d = xml(await z.text('content.xml')); const body = d.getElementsByTagName('office:text')[0] || d.getElementsByTagName('office:body')[0] || d.documentElement;
+      return fin(IMP.docLines(body, 'odt'), 'OpenDocument（.odt）');
+    }
+    const h = z.names.find((x) => /\.html?$/i.test(x));
+    if (h && !z.names.some((x) => x.startsWith('xl/'))) {
+      const d = new DOMParser().parseFromString(await z.text(h), 'text/html');
+      return fin(IMP.docLines(d.body, 'html'), 'ウェブページ（Googleドキュメント）');
+    }
+    return null;   // Excel など
+  }
+  if (u8[0] === 0xd0 && u8[1] === 0xcf && /^(doc|dot|wps)$/i.test(ext)) throw new Error('古いWord形式（.doc）は読めません。Wordで「.docx」として保存し直すか、文章をコピーして下に貼り付けてください');
+  if (u8[0] === 0x25 && u8[1] === 0x50 && u8[2] === 0x44 && u8[3] === 0x46) throw new Error('PDFは読めません。PDFの文章をコピーして下に貼り付けるか、元の文書を .docx や .txt で保存して選んでください');
+  const head = IMP.decode(u8.subarray(0, 4000)).trimStart();
+  if (head.startsWith('{\\rtf')) return fin({ lines: IMP.rtfText(IMP.decode(buf)).split('\n').map((l) => l.trim()).filter(Boolean), tables: [] }, 'リッチテキスト（.rtf）');
+  if (/^(html?|xhtml|mht)$/i.test(ext) || /^<(!doctype html|html|meta|body)/i.test(head)) {
+    const d = new DOMParser().parseFromString(IMP.decode(buf), 'text/html');
+    return fin(IMP.docLines(d.body, 'html'), 'ウェブページ（.html）');
+  }
+  return null;
 };
 
 /* ---------- 表（CSV/TSV）の読み取り ---------- */
@@ -5828,9 +5980,9 @@ function openImportWizard() {
     render: () => {
       if (st.step === 'src') return `<div class="imp">
         <p class="small muted" style="margin:0 0 10px">ほかのアプリ・表計算・メモに残してきた記録を、このアプリの記録として取り込みます。取り込んだ記録はグラフや自己ベストにそのまま反映され、あとから<b>取り込みごとに取り消せます</b>。</p>
-        <input type="file" id="impFile" data-ch="file" accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.xlsm,text/csv,text/plain,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+        <input type="file" id="impFile" data-ch="file" accept=".csv,.tsv,.txt,.md,.json,.xlsx,.xls,.xlsm,.docx,.odt,.rtf,.html,.htm,.zip,text/csv,text/plain,text/markdown,text/html,application/rtf,application/json,application/zip,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.oasis.opendocument.text" hidden>
         <button type="button" class="btn btn-primary btn-block btn-lg" data-a="pick">${ICON.upload}ファイルを選ぶ</button>
-        <div class="imp-fmts"><span>Strong</span><span>Hevy</span><span>FitNotes</span><span>Excel（.xlsx）</span><span>CSV・TSV</span><span>テキスト（.txt）</span><span>LiftCanvasのバックアップ</span></div>
+        <div class="imp-fmts"><span>Strong</span><span>Hevy</span><span>FitNotes</span><span>Excel（.xlsx）</span><span>Word（.docx）</span><span>Googleドキュメント</span><span>CSV・TSV</span><span>テキスト（.txt）</span><span>.odt・.rtf・.html</span><span>LiftCanvasのバックアップ</span></div>
         <div class="grp" style="margin-top:16px">または、文章・表をそのまま貼り付け</div>
         <textarea class="input imp-ta" data-in="text" rows="7" placeholder="メモ帳やスプレッドシートからコピーして貼り付け&#10;&#10;${esc(IMP_EXAMPLE).replace(/\n/g, '&#10;')}">${esc(st.text)}</textarea>
         <div class="row" style="margin-top:8px"><button type="button" class="btn btn-primary" data-a="paste" ${st.text.trim() ? '' : 'disabled'}>読み取る</button><button type="button" class="btn" data-a="example">例を入れてみる</button></div>
@@ -5846,6 +5998,7 @@ function openImportWizard() {
             <li>体重（<code>体重 62.3kg</code>）は体重の記録に入り、感想・有酸素・合計などの行は自動で除きます。読み取った後に<b>行ごとの仕分け</b>を確認して、違う行はタップで直せます</li></ul>
           <p style="margin:6px 0"><b>アプリから</b>：Strong（設定→データを書き出す）、Hevy（設定→データを書き出す→ワークアウト）、FitNotes（バックアップ→CSV書き出し）のCSVをそのまま選べます。</p>
           <p style="margin:6px 0"><b>表計算</b>：「日付・種目・重量・回数（・セット数）」の列があれば読めます。日付が最初の行にしかない書き方や、セルに「60×10」と書く書き方も読めます。</p>
+          <p style="margin:6px 0"><b>Word・Googleドキュメント</b>：メモと同じ書き方の文書を、そのまま選べます（表で書いた記録も読めます）。Googleドキュメントは「ファイル → ダウンロード → Microsoft Word（.docx）」で保存したファイルを選んでください。文章をコピーして下に貼り付けてもOKです。PDFと古い .doc 形式は読めません。</p>
           <p style="margin:6px 0"><b>紙のノート</b>：テンプレートに入力するか、上の書き方でメモに打ち込んで貼り付けてください。</p>
           <button type="button" class="btn btn-sm" data-a="tpl">${ICON.download}記入用テンプレート（CSV）</button></div></details></div>`;
       if (st.step === 'done') {
@@ -5895,6 +6048,14 @@ function openImportWizard() {
         try {
           setBusy(true, '読み込み中…');
           const buf = await f.arrayBuffer();
+          // Word・Googleドキュメントなどの文書
+          const doc = /\.(xlsx|xlsm|xls|csv|tsv|json)$/i.test(f.name) ? null : await IMP.readDocument(buf, f.name);
+          if (doc) {
+            setBusy(false);
+            if (doc.input.text != null) st.text = doc.input.text;
+            if (await start(doc.input, `${f.name}（${doc.fmt}）`, true)) { s.render(); s.renderFoot(); s.body.scrollTop = 0; }
+            return;
+          }
           if (/\.(xlsx|xlsm|xls)$/i.test(f.name) || (new Uint8Array(buf)[0] === 0x50 && new Uint8Array(buf)[1] === 0x4b)) {
             const sheets2 = await IMP.xlsxRows(buf);
             const rows = []; for (const sh of sheets2) { if (rows.length && sh.rows.length && IMP.detectTable(sh.rows) && IMP.detectTable(rows)) rows.push(...sh.rows.slice(IMP.detectTable(sh.rows).headRow + 1)); else rows.push(...sh.rows, ['']); }
