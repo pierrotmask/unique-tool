@@ -1239,6 +1239,15 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
 .tour-feats span b{display:inline;font-size:inherit}
 .tour-bub.center{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain}
 .tour-bub{text-align:left}.tour-feats .tf>div{flex:1;min-width:0}
+/* 取り込み：Googleドキュメントの案内 */
+.imp-gdoc{margin-top:12px;border-radius:14px;background:var(--accent-soft);padding:0 14px}
+.imp-gdoc>summary{min-height:46px;display:flex;align-items:center;cursor:pointer;font-size:13.5px;color:var(--accent);list-style:none}
+.imp-gdoc>summary::-webkit-details-marker{display:none}
+.imp-gdoc>summary::after{content:"＋";margin-left:auto;font-weight:900}
+.imp-gdoc[open]>summary::after{content:"－"}
+.imp-gdoc p,.imp-gdoc ol{font-size:13px;line-height:1.7;color:var(--text-2);margin:0 0 8px}
+.imp-gdoc ol{padding-left:20px;padding-bottom:6px}
+.imp-gdoc li{margin-bottom:6px}
 
 </style>
 </head>
@@ -1263,7 +1272,7 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.24.2';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.24.3';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -5571,7 +5580,10 @@ IMP.resolveYears = (ds, today = ymd()) => {
 };
 
 /* ---------- セットの書き方（60kg×10×3 / 60kg 10回 3セット / 80x8,8,6 / 10回×3 / 30秒 / @8 …） ---------- */
-IMP.prepSets = (s) => IMP.nfkc(s).toLowerCase()
+/* ドロップの書き方「8-5-4-3kg各5回」「6・5・4・3kg各5回」→「8kg×5 5kg×5 4kg×5 3kg×5」 */
+IMP.EACH_RE = /(\d+(?:\.\d+)?(?:\s*[-・、/]\s*\d+(?:\.\d+)?)+)\s*(kg|㎏|キロ|lbs?)\s*各\s*(\d+)\s*(?:回|reps?)?/gi;
+IMP.eachRep = (m, ws, u, r) => ws.split(/\s*[-・、/]\s*/).map((w) => `${w.trim()}${/lb/i.test(u) ? 'lb' : 'kg'}x${r}`).join(' ');
+IMP.prepSets = (s) => IMP.nfkc(s).replace(IMP.EACH_RE, IMP.eachRep).toLowerCase()
   .replace(/[×✕✖＊*]/g, 'x').replace(/(\d)\s*[xX]\s*(?=\d)/g, '$1x')
   .replace(/㎏|kgs|キロ/g, 'kg').replace(/(\d)\s*k(?![a-z])/g, '$1kg').replace(/ポンド|lbs|lb/g, 'lb')
   .replace(/レップ|reps|rep/g, '回').replace(/セット|sets|set/g, 'set')
@@ -5652,7 +5664,7 @@ IMP.resolveBare = (bare, ex) => {
 };
 
 /* ---------- 名前とセットの境目 ---------- */
-IMP.SET_HEAD = /^(?:\+?\d+(?:\.\d+)?\s*(?:kg|㎏|キロ|lbs?|ポンド|[xX×✕＊*]|回|reps?|レップ|秒|分|sec|min|セット|sets?|@)|自重|bw\b|\d+(?:\.\d+)?\s+\d+\s*(?:回|reps?|レップ)|\d+(?:\.\d+)?(?:[\s,、/]+\d+(?:\.\d+)?)*\s*(?:$|[(（]))/i;
+IMP.SET_HEAD = /^(?:\+?\d+(?:\.\d+)?\s*(?:kg|㎏|キロ|lbs?|ポンド|[xX×✕＊*]|回|reps?|レップ|秒|分|sec|min|セット|sets?|@)|自重(?=[\s\d,、:：]|$)|bw\b|\d+(?:\.\d+)?\s+\d+\s*(?:回|reps?|レップ)|\d+(?:\.\d+)?(?:[\s,、/]+\d+(?:\.\d+)?)*\s*(?:$|[(（]))/i;
 IMP.splitLine = (line) => {
   const s = IMP.nfkc(line).trim();
   for (let i = 0; i < s.length; i++) {
@@ -5674,6 +5686,7 @@ IMP.normPairs = (s) => s
 IMP.cleanLine = (raw) => {
   let s = String(raw).replace(/^[\s・]*[①-⑳❶-❿]\s*/, '');
   s = IMP.nfkc(s).trim()
+    .replace(IMP.EACH_RE, IMP.eachRep)
     .replace(/^(?:\d{1,2}[.)）](?=\s*[^\d\s.])|[(（]\d{1,2}[)）])\s*/, '')
     .replace(/[(（]?\s*(?:インターバル|インタバル|休憩|レスト|rest|間隔)\s*[:：]?\s*\d+(?:\.\d+)?\s*(?:分|秒|min|sec|s|m)?(?:\s*\d+\s*秒)?\s*[)）]?/gi, ' ')
     .replace(/[(（]?\s*テンポ\s*[:：]?\s*[\dx\-]+\s*[)）]?/gi, ' ')
@@ -5684,8 +5697,25 @@ IMP.CARDIO = /ランニング|ジョギング|ジョグ|ウォーキング|散�
 IMP.MEMO_STRONG = /合計|総負荷|総重量|総ボリューム|トータル|ボリューム|\btotal\b|\bvolume\b|kcal|カロリー|睡眠|プロテイン|食事/i;
 IMP.MEMO_WEAK = /max|1rm|自己ベスト|ベスト|目標|\bpr\b|感想|反省|次回|次は|メモ|[。！!？?]|(?:かった|でした|ました|です|ない|たい)$/i;
 IMP.BODY = /(体重|体脂肪率?)\s*[:：は]?\s*(\d{1,3}(?:\.\d+)?)\s*(kg|キロ|㎏|%|％)?/g;
+/* 「日付,種目,重量(回数),感想」のカンマ区切りメモ：感想の欄はセットとして読まず、記録のメモにする */
+IMP.csvMemo = (lines) => {
+  const D = /^\s*(\d{4}[\/.\-年]\d{1,2}[\/.\-月]\d{1,2}日?|\d{1,2}[\/.]\d{1,2})\s*[,，、\t]/;
+  const ne = lines.filter((l) => l.trim());
+  if (ne.length < 2 || ne.filter((l) => D.test(IMP.nfkc(l)) && (IMP.nfkc(l).match(/[,，\t]/g) || []).length >= 2).length < ne.length * 0.6) return null;
+  const notes = {};
+  const out = lines.map((raw, i) => {
+    const l = IMP.nfkc(raw); if (!D.test(l)) return raw;
+    const f = l.split(/\s*[,，\t]\s*/); if (f.length < 3) return raw;
+    const sets = [], memo = []; let k = 2;
+    for (; k < f.length; k++) { const v = f[k].trim(); if (!v) continue; if (!memo.length && (IMP.SET_HEAD.test(v) || /^\+?\d/.test(v))) sets.push(v); else memo.push(v); }
+    if (memo.length) notes[i + 1] = memo.join(' / ');
+    return `${f[0]} ${f[1]} ${sets.join(' ')}`;
+  });
+  return { lines: out, notes };
+};
 IMP.parseText = (text) => {
-  const lines = String(text).split(/\r?\n/);
+  let lines = String(text).split(/\r?\n/);
+  const cm = IMP.csvMemo(lines); if (cm) lines = cm.lines;
   const items = []; const dates = []; const skipped = []; const body = []; const info = [];
   let cur = null; let curEx = null; let pend = null; let pendInfo = null; let lineNo = 0;
   const looksNote = (nm) => IMP.MEMO_WEAK.test(nm) && IMP.matchEx(nm).score < 0.5;
@@ -5732,12 +5762,14 @@ IMP.parseText = (text) => {
     pend = sp.name.slice(0, 60); pendInfo = li;
   }
   IMP.resolveYears(dates);
+  if (cm) for (const it of items) if (cm.notes[it.line] && !it.note) it.note = cm.notes[it.line];
   return { items, skipped, body, lines: info };
 };
 
 /* ---------- 表 → 取り込み単位 ---------- */
 IMP.num = (v) => { const s = IMP.nfkc(v).trim().replace(/\s/g, ''); if (!s) return null; const t = /^\d+,\d{1,3}$/.test(s) && !/^\d{1,3},\d{3}$/.test(s) ? s.replace(',', '.') : s.replace(/,/g, ''); const m = t.match(/-?\d+(?:\.\d+)?/); return m ? Number(m[0]) : null; };
 IMP.parseTable = (rows, info) => {
+  info.headSig = rows[info.headRow] ? rows[info.headRow].map((v) => IMP.normName(v)).join('|') : '';
   const mp = info.map; const items = []; const skipped = []; const dates = [];
   const get = (r, f) => (mp[f] != null && mp[f] >= 0 ? String(r[mp[f]] == null ? '' : r[mp[f]]).trim() : '');
   let pref = 'md';
@@ -5746,6 +5778,13 @@ IMP.parseTable = (rows, info) => {
   const used = new Set(Object.values(mp));
   for (let i = info.headRow + 1; i < rows.length; i++) {
     const r = rows[i]; const lineNo = i + 1; const raw = r.join(' | ');
+    // ページごとに繰り返される見出し行は読み飛ばす
+    if (info.headSig && r.map((v) => IMP.normName(v)).join('|') === info.headSig) continue;
+    // PDFなどで折り返された「メモの続き」（1つのセルだけで、日付でも記録でもない）は直前のメモにつなげる
+    const filled = r.filter((v) => String(v).trim());
+    if (filled.length === 1 && items.length && !IMP.readDate(String(filled[0])) && !/^\s*[+\d]/.test(IMP.nfkc(filled[0])) && !IMP.SET_HEAD.test(IMP.nfkc(filled[0]).trim())) {
+      const last = items[items.length - 1]; last.note = ((last.note || '') + String(filled[0]).trim()).slice(0, 300); continue;
+    }
     const dv = get(r, 'date');
     if (dv) {
       const dt = IMP.readDate(dv, pref) || IMP.serialDate(dv);
@@ -5789,6 +5828,10 @@ IMP.parseTable = (rows, info) => {
 
 /* ---------- 種目名の照合 ---------- */
 const IMP_ALIAS = {
+  // 英語の略し書き（CamelCase・DB/Incl/Ext など）
+  'sideraise': 'shoulder_03', 'seateddbpress': 'shoulder_02', 'seateddumbbellpress': 'shoulder_02', 'dbshoulderpress': 'shoulder_02', 'dbpress': 'chest_03', 'incldbpress': 'chest_04', 'incdbpress': 'chest_04', 'inclinedbpress': 'chest_04',
+  'dbfly': 'chest_05', 'dbflye': 'chest_05', 'inccurl': 'arm_10', 'inclcurl': 'arm_10', 'inclinecurl': 'arm_10', 'incdbcurl': 'arm_10', 'armcurl': 'arm_02', 'dbcurl': 'arm_02', 'weightedpullup': 'back_02', 'weightedpullups': 'back_02',
+  'legext': 'leg_05', 'バーベルスクワット': 'leg_01', 'ダンベルスクワット': 'leg_12', 'ダンベルオーバーヘッドプレス': 'shoulder_02', 'ダンベルショルダー': 'shoulder_02', 'ワンアームダンベルロウ': 'back_05', 'ワンアームロウ': 'back_05', 'ケトルスクワット': 'leg_12', 'ケトルベルスクワット': 'leg_12', 'ケトルベルゴブレットスクワット': 'leg_12', 'リアラテラルレイズ': 'shoulder_05', 'ケーブルローイング': 'back_06', 'シーテッドローイング': 'back_06', 'ダンベルベントオーバーロウ': 'back_05', 'プッシュダウン': 'arm_05', 'ケーブルプッシュダウン': 'arm_05', 'トライセプスプッシュダウン': 'arm_05', 'hanglegraise': 'abs_04', 'hanginglegraise': 'abs_04', 'onehandcablerow': 'back_06', 'onearmcablerow': 'back_06', '自重懸垂': 'back_02', '加重懸垂': 'back_02', 'dbrow': 'back_05', 'onehanddbrow': 'back_05',
   'flatbarbellbenchpress': 'chest_01', 'flatdumbbellbenchpress': 'chest_03', 'inclinedumbbellbenchpress': 'chest_04', 'ベンチ': 'chest_01', 'ベンチプレス': 'chest_01', 'bp': 'chest_01', 'bench': 'chest_01', 'benchpressbarbell': 'chest_01',
   'スクワット': 'leg_01', 'sq': 'leg_01', 'squat': 'leg_01', 'squatbarbell': 'leg_01', 'barbellsquat': 'leg_01', 'ハイバー': 'leg_01', 'ハイバースクワット': 'leg_01', 'ローバー': 'leg_15', 'フルスクワット': 'leg_01',
   'デッド': 'back_01', 'デッドリフト': 'back_01', 'dl': 'back_01', 'deadliftbarbell': 'back_01', 'deadlift': 'back_01', 'トラップバーデッド': 'back_23',
@@ -5810,15 +5853,21 @@ const IMP_ALIAS = {
   'パワクリ': 'wl_03', 'パワークリーン': 'wl_03', 'powerclean': 'wl_03', 'パワスナ': 'wl_09', 'クリーン': 'wl_13', 'clean': 'wl_13', 'フロントスクワット': 'wl_05', 'フロント': 'wl_05', 'frontsquat': 'wl_05', 'frontsquatbarbell': 'wl_05', 'ohs': 'wl_06', 'オーバーヘッドスクワット': 'wl_06', 'プッシュプレス': 'wl_07', 'スナッチプル': 'wl_10', 'クリーンプル': 'wl_08', 'ケトルベルスイング': 'wl_43', 'kettlebellswing': 'wl_43'
 };
 const IMP_EQT = { barbell: 'バーベル', dumbbell: 'ダンベル', cable: 'ケーブル', machine: 'マシン', smith: 'マシン', bodyweight: '自重', weighted: '', assisted: '', band: 'その他', kettlebell: 'その他', ez: 'バーベル', bar: '', straight: '', rope: '' };
-const IMP_ALIAS_WEAK = new Set(['ショルダープレス', 'カール', 'アームカール', 'フライ', 'インクライン', 'フロント', 'クリーン', 'ナロー', 'ジャーク', 'curl', 'bench', 'ディップ', 'ディップス']);
+const IMP_ALIAS_WEAK = new Set(['ダンベルスクワット', 'ショルダープレス', 'カール', 'アームカール', 'フライ', 'インクライン', 'フロント', 'クリーン', 'ナロー', 'ジャーク', 'curl', 'bench', 'ディップ', 'ディップス']);
 IMP.kata = (s) => s.replace(/[ぁ-ゖ]/g, (c) => String.fromCharCode(c.charCodeAt(0) + 0x60));
 IMP.normName = (s) => IMP.kata(IMP.nfkc(s).toLowerCase().replace(/\band\b/g, '&')).replace(/[\s・･\-‐_.,，、。'"’`/／()（）[\]［］{}「」『』【】:：~〜]/g, '').replace(/＆/g, '&');
 IMP.tokens = (s) => IMP.nfkc(s).toLowerCase().replace(/[()（）\[\]]/g, ' ').replace(/-/g, '').split(/[^a-z0-9&]+/).filter(Boolean).map((w) => (w.length > 3 && w.endsWith('s') && !w.endsWith('ss') ? w.slice(0, -1) : w)).map((w) => ({ bicep: '', biceps: '', db: 'dumbbell', bb: 'barbell', flat: '', standing: '', seated: w === 'seated' ? 'seated' : '' }[w] ?? w)).filter(Boolean);
 IMP.bigrams = (s) => { const out = new Map(); for (let i = 0; i < s.length - 1; i++) { const b = s.slice(i, i + 2); out.set(b, (out.get(b) || 0) + 1); } return out; };
 IMP.dice = (a, b) => { if (a === b) return 1; if (a.length < 2 || b.length < 2) return 0; const A = IMP.bigrams(a), B = IMP.bigrams(b); let n = 0; for (const [k, v] of A) n += Math.min(v, B.get(k) || 0); return 2 * n / (a.length - 1 + b.length - 1); };
 IMP.matchEx = (src0) => {
+  if (!/[぀-ヿ一-鿿]/.test(src0) && /[a-z][A-Z]|^[A-Z]{2,}[a-z]/.test(String(src0))) {
+    // 「SeatedDBPress」「InclDBPress」→ 単語に分けて略語を戻す（辞書で一致すればそれを優先）
+    const k0 = IMP.normName(src0);
+    if (!IMP_ALIAS[k0]) src0 = String(src0).replace(/([a-z])([A-Z])/g, '$1 $2').replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+      .replace(/\bDB\b/g, 'Dumbbell').replace(/\bBB\b/g, 'Barbell').replace(/\bKB\b/g, 'Kettlebell').replace(/\bIncl?\b/gi, 'Incline').replace(/\bDecl?\b/gi, 'Decline').replace(/\bExt\b/gi, 'Extension').replace(/\bSide Raise\b/i, 'Lateral Raise').replace(/\bPull Up\b/i, 'Pull-up').replace(/\bChin Up\b/i, 'Chin-up').replace(/\bPush Down\b/i, 'Pushdown').replace(/\bWeighted\s+/i, '');
+  }
   const src = /[぀-ヿ一-鿿]/.test(src0) ? IMP.nfkc(src0).replace(/(?<![a-z])db(?![a-z])/gi, 'ダンベル').replace(/(?<![a-z])bb(?![a-z])/gi, 'バーベル').replace(/(?<![a-z])kb(?![a-z])/gi, 'ケトルベル') : src0;
-  const key = IMP.normName(src).replace(/片手|両手|片側|左右|各|片脚|片足/g, '') || IMP.normName(src); const list = allEx();
+  const key = IMP.normName(src.replace(/ローイング/g, 'ロウ').replace(/ロー$/, 'ロウ')).replace(/片手|両手|片側|左右|各|片脚|片足/g, '') || IMP.normName(src); const list = allEx();
   if (!key) return { id: null, score: 0, cands: [] };
   const alias = IMP_ALIAS[key] || IMP_ALIAS[IMP.normName(src.replace(/[(（].*?[)）]/g, ''))];
   const scored = [];
@@ -6033,9 +6082,13 @@ function openImportWizard() {
         <input type="file" id="impFile" data-ch="file" hidden>
         <button type="button" class="btn btn-primary btn-block btn-lg" data-a="pick">${ICON.upload}ファイルを選ぶ</button>
         <div class="imp-fmts"><span>Strong</span><span>Hevy</span><span>FitNotes</span><span>Excel（.xlsx）</span><span>Word（.docx）</span><span>Googleドキュメント</span><span>CSV・TSV</span><span>テキスト（.txt）</span><span>PDF</span><span>.odt・.rtf・.html</span><span>LiftCanvasのバックアップ</span></div>
+        <details class="imp-gdoc"><summary><b>Googleドキュメントが灰色で選べないとき</b></summary>
+          <p>Googleドライブの中のGoogleドキュメント（青いアイコン）は、スマホの仕組み上ファイルとして選べません。次のどちらかで取り込めます。</p>
+          <ol><li><b>コピーして貼り付け（かんたん）</b>：ドキュメントを開く →（編集モードで）文章を長押し →「すべて選択」→「コピー」→ 下の<b>「コピーした文章を貼り付けて読み取る」</b></li>
+          <li><b>Word形式で保存</b>：ドキュメントの「︙」→「共有とエクスポート」→「名前を付けて保存」→「Word（.docx）」→ できたファイルを上の「ファイルを選ぶ」で選ぶ</li></ol></details>
         <div class="grp" style="margin-top:16px">または、文章・表をそのまま貼り付け</div>
         <textarea class="input imp-ta" data-in="text" rows="7" placeholder="メモ帳やスプレッドシートからコピーして貼り付け&#10;&#10;${esc(IMP_EXAMPLE).replace(/\n/g, '&#10;')}">${esc(st.text)}</textarea>
-        <div class="row" style="margin-top:8px"><button type="button" class="btn btn-primary" data-a="paste" ${st.text.trim() ? '' : 'disabled'}>読み取る</button><button type="button" class="btn" data-a="example">例を入れてみる</button></div>
+        ${navigator.clipboard && navigator.clipboard.readText ? `<button type="button" class="btn btn-line btn-block" style="margin-top:8px" data-a="clip">${ICON.copy}コピーした文章を貼り付けて読み取る</button>` : ''}<div class="row" style="margin-top:8px"><button type="button" class="btn btn-primary" data-a="paste" ${st.text.trim() ? '' : 'disabled'}>読み取る</button><button type="button" class="btn" data-a="example">例を入れてみる</button></div>
         <details class="sub-acc"><summary>書き方の例・対応している形式</summary><div class="small" style="line-height:1.8">
           <p style="margin:0 0 6px"><b>メモの書き方</b>（日付の行のあとに種目を書く。年は省略可）</p>
           <pre class="imp-ex">${esc(IMP_EXAMPLE)}</pre>
@@ -6124,6 +6177,13 @@ function openImportWizard() {
     actions: {
       pick: (el, e, s) => { const f = $('#impFile', s.body); if (f) f.click(); },
       example: (el, e, s) => { st.text = IMP_EXAMPLE; s.render(); },
+      clip: async (el, e, s) => {
+        let t = '';
+        try { t = await navigator.clipboard.readText(); } catch (err) { toast('貼り付けを許可してください。うまくいかないときは下の欄を長押しして「貼り付け」を選んでください'); const ta = $('.imp-ta', s.body); if (ta) ta.focus(); return; }
+        if (!t || !t.trim()) { toast('コピーされた文章がありません'); return; }
+        st.text = t; s.render();
+        if (await start({ text: t }, 'コピーした文章')) { s.render(); s.renderFoot(); s.body.scrollTop = 0; }
+      },
       tpl: () => { downloadBlob(new Blob([IMP.templateCsv()], { type: 'text/csv' }), 'liftcanvas_import_template.csv'); toast('テンプレートを保存しました。Excelやスプレッドシートで開いて記入できます'); },
       paste: async (el, e, s) => {
         const t = st.text.trim(); if (!t) return;
