@@ -1248,6 +1248,18 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
 .imp-gdoc p,.imp-gdoc ol{font-size:13px;line-height:1.7;color:var(--text-2);margin:0 0 8px}
 .imp-gdoc ol{padding-left:20px;padding-bottom:6px}
 .imp-gdoc li{margin-bottom:6px}
+/* 取り込み：種目の対応のまとまり */
+.imp-grp{border-radius:14px;margin:8px 0;padding:0 2px}
+.imp-grp>summary{list-style:none;display:flex;align-items:center;gap:8px;min-height:44px;cursor:pointer;font-size:14px}
+.imp-grp>summary::-webkit-details-marker{display:none}
+.imp-grp>summary .n{min-width:24px;height:22px;padding:0 7px;border-radius:999px;display:grid;place-items:center;font-size:12px;font-weight:800;background:var(--surface-3);color:var(--text-2)}
+.imp-grp>summary::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid var(--text-3);border-bottom:2px solid var(--text-3);transform:rotate(45deg);transition:transform .2s}
+.imp-grp[open]>summary::after{transform:rotate(-135deg)}
+.imp-grp.g-ask>summary b{color:var(--warn)}
+.imp-grp.g-ask>summary .n{background:var(--warn-soft);color:var(--warn)}
+.imp-n .dst small{display:block;font-size:11px;color:var(--text-3);font-weight:600}
+.imp-n .imp-hint{flex-basis:100%;font-size:11.5px;color:var(--text-3);line-height:1.5;margin-top:2px;text-align:left}
+.imp-n .imp-hint{grid-column:1/-1}
 
 </style>
 </head>
@@ -1272,7 +1284,7 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.24.3';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.24.4';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -1796,7 +1808,7 @@ function defaultData() {
     schema: SCHEMA, createdAt: now, updatedAt: now,
     customExercises: [], overrides: {}, favorites: [], exNotes: {},
     menus: DEFAULT_MENUS.map((m) => ({ id: m.id, name: m.name, exerciseIds: [...m.exerciseIds], sets: { ...m.sets }, updatedAt: 0 })),
-    records: [], sessions: [], bodylog: [], imports: [],
+    records: [], sessions: [], bodylog: [], imports: [], impDict: {},
     active: null, timer: null,
     settings: {
       restSec: 90, autoRest: true, sound: true, vib: true, theme: 'auto', weekGoal: 3,
@@ -1891,6 +1903,9 @@ function normalize(src) {
     updatedAt: num(s.updatedAt) || num(s.endedAt) || 0
   }));
   out.imports = arr(d.imports).filter((x) => x && x.id).map((x) => ({ id: String(x.id).slice(0, 20), label: String(x.label || '').slice(0, 60), at: num(x.at) || 0, days: num(x.days) || 0, sets: num(x.sets) || 0, body: num(x.body) || 0, from: isYmd(x.from) ? x.from : '', to: isYmd(x.to) ? x.to : '', updatedAt: num(x.updatedAt) || 0 }));
+  // 取り込みで確認した種目名の対応（次回から自動で同じ判断をする）
+  out.impDict = {};
+  for (const [k, v] of Object.entries(obj(d.impDict)).slice(0, 2000)) { if (!k || !v || typeof v !== 'object') continue; const act = ['map', 'new', 'split', 'skip'].includes(v.act) ? v.act : null; if (!act) continue; out.impDict[String(k).slice(0, 80)] = { act, id: typeof v.id === 'string' ? v.id.slice(0, 60) : '', name: String(v.name || '').slice(0, 40), part: String(v.part || '').slice(0, 10) }; }
   out.bodylog = arr(d.bodylog).filter((b) => b && isYmd(b.date) && num(b.kg) > 0).map((b) => ({
     date: b.date, kg: num(b.kg), fat: num(b.fat) > 0 ? num(b.fat) : null, updatedAt: num(b.updatedAt) || 0, ...(b.imp ? { imp: String(b.imp).slice(0, 20) } : {})
   })).sort((a, b) => (a.date < b.date ? -1 : 1));
@@ -5581,8 +5596,8 @@ IMP.resolveYears = (ds, today = ymd()) => {
 
 /* ---------- セットの書き方（60kg×10×3 / 60kg 10回 3セット / 80x8,8,6 / 10回×3 / 30秒 / @8 …） ---------- */
 /* ドロップの書き方「8-5-4-3kg各5回」「6・5・4・3kg各5回」→「8kg×5 5kg×5 4kg×5 3kg×5」 */
-IMP.EACH_RE = /(\d+(?:\.\d+)?(?:\s*[-・、/]\s*\d+(?:\.\d+)?)+)\s*(kg|㎏|キロ|lbs?)\s*各\s*(\d+)\s*(?:回|reps?)?/gi;
-IMP.eachRep = (m, ws, u, r) => ws.split(/\s*[-・、/]\s*/).map((w) => `${w.trim()}${/lb/i.test(u) ? 'lb' : 'kg'}x${r}`).join(' ');
+IMP.EACH_RE = /(\d+(?:\.\d+)?\s*(?:kg|㎏|キロ|lbs?)?(?:\s*[-・、,，/]\s*\d+(?:\.\d+)?\s*(?:kg|㎏|キロ|lbs?)?)+)\s*各\s*(\d+)\s*(?:回|reps?)?/gi;
+IMP.eachRep = (m, ws, r) => { if (!/kg|㎏|キロ|lb/i.test(ws)) return m; const u = /lb/i.test(ws) ? 'lb' : 'kg'; return ws.split(/\s*[-・、,，/]\s*/).map((w) => `${parseFloat(w)}${u}x${r}`).join(' '); };
 IMP.prepSets = (s) => IMP.nfkc(s).replace(IMP.EACH_RE, IMP.eachRep).toLowerCase()
   .replace(/[×✕✖＊*]/g, 'x').replace(/(\d)\s*[xX]\s*(?=\d)/g, '$1x')
   .replace(/㎏|kgs|キロ/g, 'kg').replace(/(\d)\s*k(?![a-z])/g, '$1kg').replace(/ポンド|lbs|lb/g, 'lb')
@@ -5705,7 +5720,7 @@ IMP.csvMemo = (lines) => {
   const notes = {};
   const out = lines.map((raw, i) => {
     const l = IMP.nfkc(raw); if (!D.test(l)) return raw;
-    const f = l.split(/\s*[,，\t]\s*/); if (f.length < 3) return raw;
+    const f = (l.includes('"') ? IMP.splitDelim(l.replace(/，/g, ','), ',')[0] || [] : l.split(/\s*[,，\t]\s*/)).map((x) => String(x).trim()); if (f.length < 3) return raw;
     const sets = [], memo = []; let k = 2;
     for (; k < f.length; k++) { const v = f[k].trim(); if (!v) continue; if (!memo.length && (IMP.SET_HEAD.test(v) || /^\+?\d/.test(v))) sets.push(v); else memo.push(v); }
     if (memo.length) notes[i + 1] = memo.join(' / ');
@@ -5831,7 +5846,7 @@ const IMP_ALIAS = {
   // 英語の略し書き（CamelCase・DB/Incl/Ext など）
   'sideraise': 'shoulder_03', 'seateddbpress': 'shoulder_02', 'seateddumbbellpress': 'shoulder_02', 'dbshoulderpress': 'shoulder_02', 'dbpress': 'chest_03', 'incldbpress': 'chest_04', 'incdbpress': 'chest_04', 'inclinedbpress': 'chest_04',
   'dbfly': 'chest_05', 'dbflye': 'chest_05', 'inccurl': 'arm_10', 'inclcurl': 'arm_10', 'inclinecurl': 'arm_10', 'incdbcurl': 'arm_10', 'armcurl': 'arm_02', 'dbcurl': 'arm_02', 'weightedpullup': 'back_02', 'weightedpullups': 'back_02',
-  'legext': 'leg_05', 'バーベルスクワット': 'leg_01', 'ダンベルスクワット': 'leg_12', 'ダンベルオーバーヘッドプレス': 'shoulder_02', 'ダンベルショルダー': 'shoulder_02', 'ワンアームダンベルロウ': 'back_05', 'ワンアームロウ': 'back_05', 'ケトルスクワット': 'leg_12', 'ケトルベルスクワット': 'leg_12', 'ケトルベルゴブレットスクワット': 'leg_12', 'リアラテラルレイズ': 'shoulder_05', 'ケーブルローイング': 'back_06', 'シーテッドローイング': 'back_06', 'ダンベルベントオーバーロウ': 'back_05', 'プッシュダウン': 'arm_05', 'ケーブルプッシュダウン': 'arm_05', 'トライセプスプッシュダウン': 'arm_05', 'hanglegraise': 'abs_04', 'hanginglegraise': 'abs_04', 'onehandcablerow': 'back_06', 'onearmcablerow': 'back_06', '自重懸垂': 'back_02', '加重懸垂': 'back_02', 'dbrow': 'back_05', 'onehanddbrow': 'back_05',
+  'bench': 'chest_01', 'benchpress': 'chest_01', 'dead': 'back_01', 'deads': 'back_01', 'chins': 'back_02', 'pullups': 'back_02', 'legext': 'leg_05', 'バーベルスクワット': 'leg_01',  'ダンベルオーバーヘッドプレス': 'shoulder_02', 'ダンベルショルダー': 'shoulder_02', 'ワンアームダンベルロウ': 'back_05', 'ワンアームロウ': 'back_05', 'ケトルスクワット': 'leg_12', 'ケトルベルスクワット': 'leg_12', 'ケトルベルゴブレットスクワット': 'leg_12', 'リアラテラルレイズ': 'shoulder_05', 'ケーブルローイング': 'back_06', 'シーテッドローイング': 'back_06', 'ダンベルベントオーバーロウ': 'back_28', 'ダンベルベントオーバーロー': 'back_28', 'ダンベルカーフレイズ': 'leg_36', 'リアデルトフライ': 'shoulder_05', 'リアデルトレイズ': 'shoulder_05', 'ケーブルトライセプス': 'arm_20', 'ケーブルトライセプスエクステンション': 'arm_20', 'ワイドスクワット': 'leg_16', 'ワイドディープスクワット': 'leg_16', 'ライイングレッグレイズ': 'abs_03', 'プッシュダウン': 'arm_05', 'ケーブルプッシュダウン': 'arm_05', 'トライセプスプッシュダウン': 'arm_05', 'hanglegraise': 'abs_04', 'hanginglegraise': 'abs_04', 'onehandcablerow': 'back_26', 'onearmcablerow': 'back_26', 'ワンハンドケーブルロウ': 'back_26', 'ワンアームケーブルロウ': 'back_26', '自重懸垂': 'back_02', '加重懸垂': 'back_02', 'dbrow': 'back_05', 'onehanddbrow': 'back_05',
   'flatbarbellbenchpress': 'chest_01', 'flatdumbbellbenchpress': 'chest_03', 'inclinedumbbellbenchpress': 'chest_04', 'ベンチ': 'chest_01', 'ベンチプレス': 'chest_01', 'bp': 'chest_01', 'bench': 'chest_01', 'benchpressbarbell': 'chest_01',
   'スクワット': 'leg_01', 'sq': 'leg_01', 'squat': 'leg_01', 'squatbarbell': 'leg_01', 'barbellsquat': 'leg_01', 'ハイバー': 'leg_01', 'ハイバースクワット': 'leg_01', 'ローバー': 'leg_15', 'フルスクワット': 'leg_01',
   'デッド': 'back_01', 'デッドリフト': 'back_01', 'dl': 'back_01', 'deadliftbarbell': 'back_01', 'deadlift': 'back_01', 'トラップバーデッド': 'back_23',
@@ -5853,7 +5868,7 @@ const IMP_ALIAS = {
   'パワクリ': 'wl_03', 'パワークリーン': 'wl_03', 'powerclean': 'wl_03', 'パワスナ': 'wl_09', 'クリーン': 'wl_13', 'clean': 'wl_13', 'フロントスクワット': 'wl_05', 'フロント': 'wl_05', 'frontsquat': 'wl_05', 'frontsquatbarbell': 'wl_05', 'ohs': 'wl_06', 'オーバーヘッドスクワット': 'wl_06', 'プッシュプレス': 'wl_07', 'スナッチプル': 'wl_10', 'クリーンプル': 'wl_08', 'ケトルベルスイング': 'wl_43', 'kettlebellswing': 'wl_43'
 };
 const IMP_EQT = { barbell: 'バーベル', dumbbell: 'ダンベル', cable: 'ケーブル', machine: 'マシン', smith: 'マシン', bodyweight: '自重', weighted: '', assisted: '', band: 'その他', kettlebell: 'その他', ez: 'バーベル', bar: '', straight: '', rope: '' };
-const IMP_ALIAS_WEAK = new Set(['ダンベルスクワット', 'ショルダープレス', 'カール', 'アームカール', 'フライ', 'インクライン', 'フロント', 'クリーン', 'ナロー', 'ジャーク', 'curl', 'bench', 'ディップ', 'ディップス']);
+const IMP_ALIAS_WEAK = new Set(['ショルダープレス', 'カール', 'アームカール', 'フライ', 'インクライン', 'フロント', 'クリーン', 'ナロー', 'ジャーク', 'curl', 'bench', 'ディップ', 'ディップス']);
 IMP.kata = (s) => s.replace(/[ぁ-ゖ]/g, (c) => String.fromCharCode(c.charCodeAt(0) + 0x60));
 IMP.normName = (s) => IMP.kata(IMP.nfkc(s).toLowerCase().replace(/\band\b/g, '&')).replace(/[\s・･\-‐_.,，、。'"’`/／()（）[\]［］{}「」『』【】:：~〜]/g, '').replace(/＆/g, '&');
 IMP.tokens = (s) => IMP.nfkc(s).toLowerCase().replace(/[()（）\[\]]/g, ' ').replace(/-/g, '').split(/[^a-z0-9&]+/).filter(Boolean).map((w) => (w.length > 3 && w.endsWith('s') && !w.endsWith('ss') ? w.slice(0, -1) : w)).map((w) => ({ bicep: '', biceps: '', db: 'dumbbell', bb: 'barbell', flat: '', standing: '', seated: w === 'seated' ? 'seated' : '' }[w] ?? w)).filter(Boolean);
@@ -5889,7 +5904,22 @@ IMP.matchEx = (src0) => {
     if (e.custom) sc += 0.02;
     if (sc > 0.3) scored.push({ id: e.id, score: Math.min(1, sc) });
   }
+  // 書き方の違いだけで同じ種目：前置きの「ノーマル・フラット」、種目と同じ器具名（ダンベルサイドレイズ）、フォームの意識（ケーブルクランチ(ひねり意識)）
+  if (!scored.some((x) => x.score >= 0.95)) {
+    const base = IMP.nfkc(src).replace(/[(（][^)）]*(?:意識|重視|狙い|メイン|軽め|重め|丁寧|ゆっくり)[^)）]*[)）]/g, '').replace(/^(?:ノーマル|フラット|スタンダード|通常の?|ベーシック|普通の?)\s*/, '');
+    const eqm = /^(ダンベル|バーベル|ケーブル|マシン|ケトルベル|スミス)\s*/.exec(base);
+    const vars = [[base, null]]; if (eqm) vars.push([base.slice(eqm[0].length), eqm[1] === 'スミス' ? 'マシン' : eqm[1] === 'ケトルベル' ? null : eqm[1]]);
+    for (const [v, eq] of vars) {
+      const k = IMP.normName(v); if (!k || k === key) continue;
+      let hit = null;
+      for (const e of list) { if ([e.name, e.name.replace(/[（(].*?[)）]/g, '')].some((n) => IMP.normName(n) === k) && (!eq || e.equipment === eq)) { hit = e.id; break; } }
+      if (!hit && IMP_ALIAS[k] && exMap().has(IMP_ALIAS[k]) && (!IMP_ALIAS_WEAK.has(k) || eq) && (!eq || getEx(IMP_ALIAS[k]).equipment === eq)) hit = IMP_ALIAS[k];
+      if (hit) { const a = scored.find((x) => x.id === hit); if (a) a.score = Math.max(a.score, 0.96); else scored.push({ id: hit, score: 0.96 }); break; }
+    }
+  }
   if (alias && exMap().has(alias)) { const v = IMP_ALIAS_WEAK.has(key) ? 0.8 : 0.97; const a = scored.find((x) => x.id === alias); if (a) a.score = Math.max(a.score, v); else scored.push({ id: alias, score: v }); }
+  // 辞書に登録した名前（かっこを外した一致より優先）
+  if (alias && exMap().has(alias) && !IMP_ALIAS_WEAK.has(key)) for (const x of scored) if (x.id !== alias && x.score >= 0.97) x.score = 0.96;
   scored.sort((a, b) => b.score - a.score || (getEx(a.id).name.length - getEx(b.id).name.length));
   const top = scored[0];
   return { id: top ? top.id : null, score: top ? top.score : 0, cands: scored.slice(0, 4).map((x) => x.id) };
@@ -5904,6 +5934,20 @@ IMP.guessEquip = (name) => { const s = IMP.nfkc(name).toLowerCase(); return /ダ
 
 /* ---------- 解析のまとめ ---------- */
 /* text/rows → { kind:'table'|'text', items, skipped, names:[{src,count,id,score,cands,act}] } */
+/* 新しい種目の名前：「SideLegRaise」→「Side Leg Raise」 */
+IMP.prettyName = (src) => { const t = String(src).trim(); return (/^[A-Za-z]+$/.test(t) && /[a-z][A-Z]/.test(t) ? t.replace(/([a-z])([A-Z])/g, '$1 $2') : t).slice(0, 40); };
+/* 同じ種目の別の書き方を見分けるための鍵：かっこの中を前に出し、器具名を外す */
+IMP.mergeKey = (src) => { let t = IMP.nfkc(src).replace(/^(.*?)[(（]([^)）]+)[)）]\s*$/, '$2$1'); t = t.replace(/ダンベル|バーベル|ケーブル|マシン|ノーマル|フラット/g, ''); return IMP.normName(t); };
+/* 「ケーブルプレスダウン＆カール」→［ケーブルプレスダウン, ケーブルカール］（後ろが短いときは前の種目の頭を補う） */
+IMP.splitParts = (src) => {
+  const t = IMP.nfkc(src); if (!/[&＆+]/.test(t)) return null;
+  const ps = t.split(/\s*[&＆+]\s*/).map((x) => x.trim()).filter(Boolean); if (ps.length < 2 || ps.length > 3) return null;
+  return ps.map((p, i) => {
+    let best = IMP.matchEx(p), name = p;
+    if (best.score < 0.95 && i > 0) for (let k = ps[0].length - 1; k >= 2 && best.score < 0.97; k--) { const c = ps[0].slice(0, k) + p; const m = IMP.matchEx(c); if (m.score > best.score) { best = m; name = c; } }
+    return { name, id: best.id, score: best.score };
+  });
+};
 IMP.analyze = (input, opt = {}) => {
   let res, kind, table = null;
   if (input.rows) {
@@ -5921,11 +5965,39 @@ IMP.analyze = (input, opt = {}) => {
   const counts = new Map();
   for (const it of res.items) { const k = it.name.trim(); counts.set(k, (counts.get(k) || 0) + Math.max(1, it.p.sets.length + it.p.bare.length)); }
   const prev = opt.names ? new Map(opt.names.map((n) => [n.src, n])) : new Map();
+  // 種目名の振り分け（方針）：
+  //   同じ種目（名前・書き方の違いだけ）→ 変換 ／ 似ているが別の種目 → 新しい種目として追加（確認が必要に表示）／ 該当なし → 新しい種目
+  //   一度確認した名前は辞書（DB.impDict）に覚え、次回から同じ判断をする
+  const dict = (DB && DB.impDict) || {};
   const names = [...counts].map(([src, count]) => {
     const old = prev.get(src); if (old) return { ...old, count };
     const m = IMP.matchEx(src);
-    return { src, count, id: m.score >= 0.5 ? m.id : null, score: m.score, cands: m.cands, act: m.score >= 0.5 ? 'map' : 'new', part: m.id && m.score >= 0.35 ? getEx(m.id).part : IMP.guessPart(src) };
+    const n = { src, count, id: m.id, score: m.score, cands: m.cands, act: 'map', ask: false, part: m.id && m.score >= 0.35 ? getEx(m.id).part : IMP.guessPart(src), newName: IMP.prettyName(src) };
+    const parts = IMP.splitParts(src);
+    if (parts && parts.every((x) => x.id && x.score >= 0.95)) n.parts = parts;
+    const dct = dict[IMP.normName(src)];
+    if (dct && (dct.act !== 'map' || exMap().has(dct.id)) && (dct.act !== 'split' || n.parts)) {
+      Object.assign(n, { act: dct.act, part: dct.part || n.part, newName: dct.name || n.newName, dict: true, confirmed: true });
+      // 前回「新しい種目」として追加済みなら、その種目に変換する
+      if (dct.act === 'new' && dct.name) { const ex0 = allEx().find((e) => IMP.normName(e.name) === IMP.normName(dct.name)); if (ex0) { n.act = 'map'; dct.id = ex0.id; } }
+      if (n.act === 'map') { n.id = dct.id; if (!n.cands.includes(dct.id)) n.cands.unshift(dct.id); }
+      return n;
+    }
+    if (n.parts) {
+      // 「A＆B」：重さが種目の数だけ書いてあれば2つに分ける（スーパーセット）、それ以外は組み合わせ種目として追加
+      const ws = new Set(); for (const it of res.items) if (it.name.trim() === src) for (const x of it.p.sets) ws.add(x.w);
+      n.act = ws.size === n.parts.length ? 'split' : 'new'; n.ask = true; return n;
+    }
+    if (m.score >= 0.95) return n;
+    // 略し書き（「ベンチ」「カール」など、どの器具か決まらないもの）は変換を初期値にして、確認が必要に表示
+    const wk = IMP.normName(src); if (IMP_ALIAS_WEAK.has(wk) && IMP_ALIAS[wk] === m.id) { n.ask = true; return n; }
+    n.act = 'new'; n.ask = m.score >= 0.5; n.sugg = n.ask ? m.id : null;
+    return n;
   }).sort((a, b) => b.count - a.count);
+  // 同じ新しい種目の別の書き方（「合戸式ベンチプレス」と「バーベルベンチプレス(合戸式)」）は1つにまとめる
+  const groups = new Map();
+  for (const n of names) { if (n.act !== 'new' || n.dict || prev.has(n.src)) continue; const k = IMP.mergeKey(n.src); if (!k) continue; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(n); }
+  for (const g of groups.values()) if (g.length > 1) { const main = g[0]; for (const n of g.slice(1)) { n.mergeTo = main.src; n.ask = true; } main.ask = true; }
   const lb = kind === 'text' ? res.items.some((x) => x.p.lb) : null;
   return { kind, table, format: table ? table.format : 'メモ・文章', items: res.items, skipped: res.skipped, names, lb, body: res.body || [], lines: res.lines || null };
 };
@@ -5939,10 +6011,12 @@ IMP.build = (an, opt = {}) => {
   const exFor = (src) => {
     const n = nameMap.get(src.trim()); if (!n || n.act === 'skip') return null;
     if (n.act === 'map' && n.id && exMap().has(n.id)) return getEx(n.id);
+    if (n.mergeTo && n.act === 'new' && nameMap.has(n.mergeTo) && nameMap.get(n.mergeTo).act === 'new') return exFor(n.mergeTo);
     if (newEx.has(src)) return newEx.get(src);
+    { const same = allEx().find((e) => IMP.normName(e.name) === IMP.normName(n.newName || src)); if (same) return same; }   // 同じ名前の種目がもうあれば作らない
     const part = n.part || IMP.guessPart(src); const eq = IMP.guessEquip(src); const timed = /プランク|plank|ホールド|hold|秒/.test(src);
     const id = `${pre}ex_${IMP.hash(src)}`;
-    const e = { id, name: src.slice(0, 40), en: '', part, equipment: eq, stepKg: 2.5, defaultTargetReps: timed ? 30 : 10, muscles: [...(PART_DEFAULT_MUSCLES[part] || [])], sub: [], timed, relatedIds: [], createdAt: now, updatedAt: now, custom: true };
+    const e = { id, name: (n.newName || src).slice(0, 40), en: '', part, equipment: eq, stepKg: 2.5, defaultTargetReps: timed ? 30 : 10, muscles: [...(PART_DEFAULT_MUSCLES[part] || [])], sub: [], timed, relatedIds: [], createdAt: now, updatedAt: now, custom: true };
     newEx.set(src, e); customs.push(e); return e;
   };
   const ign = (opt.ignore || []).map((id) => `imp_${id}_`);
@@ -5952,8 +6026,13 @@ IMP.build = (an, opt = {}) => {
     const d = it.day.dt.ymd; if (!isYmd(d)) continue;
     if (d > addDays(ymd(), 1)) continue;
     if (existing.has(d)) { overlapDays.add(d); if (opt.skipOverlap) { skipDays.add(d); continue; } }
-    const ex = exFor(it.name); if (!ex) continue;
+    const nn = nameMap.get(it.name.trim());
+    const targets = nn && nn.act === 'split' && nn.parts ? nn.parts.filter((x) => x.id && exMap().has(x.id)).map((x) => getEx(x.id)) : [exFor(it.name)].filter(Boolean);
+    for (let ti = 0; ti < targets.length; ti++) {
+    const ex = targets[ti];
     let list = it.p.sets.map((s) => ({ ...s }));
+    // 2つに分けるとき：セットが種目の数と同じなら1つずつ、それ以外は同じ内容をそれぞれに
+    if (targets.length > 1 && list.length === targets.length) list = [list[ti]];
     if (it.p.bare.length) list = list.concat(IMP.resolveBare(it.p.bare, ex));
     const lb = an.kind === 'text' ? (opt.unit ? opt.unit === 'lb' : it.p.lb) : it.p.lb;
     list = list.filter((s) => s.r > 0 && (s.sec || isTimed(ex) || s.r <= 100)).map((s) => {
@@ -5973,6 +6052,7 @@ IMP.build = (an, opt = {}) => {
     if (!rec) { rec = { id: pre + IMP.hash(rk), sessionId: ses.id, date: d, exerciseId: ex.id, sets: [], memo: '', order: ses.exerciseIds.length, updatedAt: now }; records.set(rk, rec); ses.exerciseIds.push(ex.id); }
     for (const s of list) { if (rec.sets.length < 60) { rec.sets.push(s); sets++; } }
     if (it.note && !rec.memo.includes(it.note)) rec.memo = (rec.memo ? rec.memo + ' / ' : '') + String(it.note).slice(0, 200);
+    }
   }
   const haveBody = new Set(DB.bodylog.filter((x) => x.imp !== batch && !(opt.ignore || []).includes(x.imp)).map((x) => x.date)); const bodyMap = new Map();
   for (const x of an.body || []) { const d = x.day.dt.ymd; if (!isYmd(d) || d > ymd() || haveBody.has(d) || skipDays.has(d)) continue; const o = bodyMap.get(d) || { date: d, kg: null, fat: null, updatedAt: now, imp: batch }; if (x.kg) o.kg = Math.round(x.kg * 100) / 100; if (x.fat) o.fat = Math.round(x.fat * 10) / 10; bodyMap.set(d, o); }
@@ -6035,11 +6115,31 @@ function openImportWizard() {
     if (!st.an.items.length) { toast(st.an.kind === 'table' ? '記録の行が見つかりませんでした。列の対応を確認してください' : '記録を読み取れませんでした。下の書き方の例を参考にしてください', 'error'); if (st.an.kind !== 'table') return false; }
     st.step = 'check'; return true;
   };
-  const nameRow = (n, i) => {
-    const ex = n.act === 'map' && n.id ? getEx(n.id) : null;
-    const tag = n.act === 'skip' ? '<span class="imp-tag skip">取り込まない</span>' : n.act === 'new' ? `<span class="imp-tag new">新しい種目（${esc(n.part)}）</span>` : n.score >= 0.85 || n.confirmed ? '<span class="imp-tag ok">一致</span>' : '<span class="imp-tag warn">要確認</span>';
-    return `<button type="button" class="imp-n" data-a="nm" data-i="${i}"><span class="src"><b>${esc(n.src)}</b><small>${n.count}セット</small></span><span class="arr">→</span><span class="dst">${ex ? esc(ex.name) : n.act === 'new' ? `「${esc(n.src.slice(0, 40))}」を追加` : '—'}${tag}</span></button>`;
+  const nameDst = (n) => {
+    if (n.act === 'skip') return '取り込まない';
+    if (n.act === 'split' && n.parts) return n.parts.map((x) => esc(getEx(x.id).name)).join(' ＋ ') + '<small>2つに分けて記録</small>';
+    if (n.act === 'map' && n.id && exMap().has(n.id)) return esc(getEx(n.id).name);
+    const main = n.mergeTo && st.an.names.find((x) => x.src === n.mergeTo && x.act === 'new');
+    return main ? `「${esc(main.newName)}」にまとめる<small>新しい種目</small>` : `「${esc(n.newName || n.src)}」を追加<small>新しい種目・${esc(n.part)}</small>`;
   };
+  const nameRow = (n, i) => {
+    const tag = n.ask ? (n.confirmed ? '<span class="imp-tag ok">確認済み</span>' : '<span class="imp-tag warn">要確認</span>') : '';
+    const hint = n.ask && !n.confirmed ? (n.parts ? '<span class="imp-hint">2つの種目に分けるか、組み合わせ種目として追加するか</span>' : n.mergeTo ? `<span class="imp-hint">「${esc(n.mergeTo)}」と同じ種目の別の書き方として、まとめて追加します</span>` : n.act === 'map' ? '<span class="imp-hint">略した書き方です。この種目で合っていますか</span>' : n.sugg && exMap().has(n.sugg) ? `<span class="imp-hint">近い種目：${esc(getEx(n.sugg).name)}（同じならタップして変換）</span>` : '') : '';
+    return `<button type="button" class="imp-n" data-a="nm" data-i="${i}"><span class="src"><b>${esc(n.src)}</b><small>${n.count}セット</small></span><span class="arr">→</span><span class="dst">${nameDst(n)}${tag}</span>${hint}</button>`;
+  };
+  /* 種目の対応：確認が必要／新しく追加／変換する／取り込まない に分けて表示 */
+  const namesHtml = () => {
+    const L = st.an.names.map((n, i) => ({ n, i }));
+    const G = [
+      ['ask', '確認が必要', '似ているけれど同じとは言い切れない種目です。方針どおり、基本は<b>新しい種目として追加</b>する形にしてあります。同じ種目ならタップして変換してください。', L.filter(({ n }) => n.ask && n.act !== 'skip'), true],
+      ['new', '新しい種目として追加', 'アプリにない種目です。「種目」の「自分の種目」に追加され、メニューにも使えます。', L.filter(({ n }) => !n.ask && n.act === 'new'), true],
+      ['same', '変換する（アプリの種目と同じ）', '名前や書き方が違うだけで、アプリにある種目と同じものです。', L.filter(({ n }) => !n.ask && (n.act === 'map' || n.act === 'split')), null],
+      ['skip', '取り込まない', '', L.filter(({ n }) => n.act === 'skip'), false]
+    ];
+    return `<div class="grp" style="margin-top:6px">種目の対応（${st.an.names.length}）${needs() ? ` ・ <span style="color:var(--warn,#d97706)">要確認 ${needs()}</span>` : ''}</div><p class="tiny faint" style="margin:0 0 6px">タップで変更できます。確認した内容は覚えて、次の取り込みから自動で同じようにします。</p>`
+      + G.filter((g) => g[3].length).map(([k, t, d, rows, open0]) => { const open = open0 == null ? rows.length <= 12 : open0; return  `<details class="imp-grp g-${k}" ${open || st.openGrp === k ? 'open' : ''} data-g="${k}"><summary><b>${t}</b><span class="n">${rows.length}</span></summary>${d ? `<p class="tiny faint" style="margin:0 0 6px">${d}</p>` : ''}<div class="imp-names">${rows.map(({ n, i }) => nameRow(n, i)).join('')}</div></details>`; }).join('');
+  };
+  const needs = () => st.an.names.filter((n) => n.ask && !n.confirmed && n.act !== 'skip').length;
   const setTxt = (it, ex) => { const sets = it.p.sets.concat(IMP.resolveBare(it.p.bare, ex)); const lbU = (it.p.lb && st.unit !== 'kg') || st.unit === 'lb'; return sets.map((x) => `${x.w ? fmtNum(x.w) + (lbU ? 'lb' : 'kg') + '×' : ''}${x.r}${x.sec ? '秒' : ''}${x.rpe ? '@' + x.rpe : ''}${x.t === 'w' ? '(アップ)' : ''}`).join(', '); };
   const LK = { date: ['日付', 'd'], 'date+ex': ['日付', 'd'], title: ['見出し', 't'], ex: ['種目', 'e'], name: ['種目名', 'e'], set: ['セット', 's'], body: ['体重', 'b'], memo: ['メモ', 'm'], cardio: ['有酸素', 'm'], skip: ['読めない', 'x'] };
   const OFF = new Set(['memo', 'cardio', 'skip']);
@@ -6113,7 +6213,6 @@ function openImportWizard() {
           <p class="tiny faint">設定 →「記録の取り込み」から、この取り込みをまとめて取り消せます。</p></div>`;
       }
       const an = st.an; const b = preview();
-      const needs = an.names.filter((n) => n.act === 'map' && n.score < 0.85 && !n.confirmed).length;
       let h = `<div class="imp"><div class="imp-sum"><div><b class="num">${b.days.length}</b><span>日</span></div><div><b class="num">${b.records.length}</b><span>種目（のべ）</span></div><div><b class="num">${b.sets}</b><span>セット</span></div></div>
         <p class="small muted center" style="margin:4px 0 10px">${esc(st.label)} ・ ${esc(an.format)}${b.days.length ? ` ・ ${fmtDate(b.days[0], true)}〜${fmtDate(b.days[b.days.length - 1], true)}` : ''}</p>`;
       if (an.kind === 'table') h += colsHtml();
@@ -6122,9 +6221,7 @@ function openImportWizard() {
         <p class="tiny faint" style="margin:4px 2px 0">${st.unit === 'lb' ? 'すべてポンドとして読み、kgに換算します' : st.unit === 'kg' ? 'すべてkgとして読みます' : autoLb ? 'ポンド（lb）の記録を見つけました。kgに換算して取り込みます' : 'kgとして読みます（ポンドの記録なら「lb」を選択）'}</p></div>`;
       if (b.body && b.body.length) h += `<p class="tiny faint center" style="margin:-6px 0 8px">体重の記録 ${b.body.length}日分も取り込みます（すでに体重を記録している日は除く）</p>`;
       if (b.overlapDays.length) h += `<label class="sw-row" style="border:0"><div class="t"><b>すでに記録がある日（${b.overlapDays.length}日）は取り込まない</b><span>このアプリで記録済みの日と重なっています。二重に数えないようにします</span></div><span class="switch"><input type="checkbox" data-ch="ovl" ${st.skipOverlap ? 'checked' : ''}><span></span></span></label>`;
-      h += `<div class="grp" style="margin-top:6px">種目の対応（${an.names.length}）${needs ? ` ・ <span style="color:var(--warn,#d97706)">要確認 ${needs}</span>` : ''}</div>
-        <p class="tiny faint" style="margin:0 0 6px">タップで変更できます。見つからない種目は「自分の種目」として追加されます。</p>
-        <div class="imp-names">${an.names.map((n, i) => ({ n, i })).sort((a, c) => (rank(a.n) - rank(c.n))).map(({ n, i }) => nameRow(n, i)).join('')}</div>`;
+      h += namesHtml();
       if (an.kind === 'text' && an.lines) { h += linesHtml(); return h + '</div>'; }
       if (an.skipped.length) {
         h += `<details class="sub-acc"><summary>読み取れなかった行（${an.skipped.length}）</summary><div class="imp-skip">${an.skipped.slice(0, 80).map((x) => `<div><span>${x.line}行目</span><code>${esc(String(x.raw).slice(0, 80))}</code><em>${esc(x.why)}</em></div>`).join('')}</div>
@@ -6203,19 +6300,30 @@ function openImportWizard() {
       unit: (el, e, s) => { st.unit = el.dataset.v; reAnalyze(); s.render(); s.renderFoot(); },
       nm: async (el, e, s) => {
         const n = st.an.names[Number(el.dataset.i)];
-        const choices = n.cands.filter((id) => exMap().has(id)).map((id) => ({ key: 'id:' + id, label: getEx(id).name + (n.act === 'map' && n.id === id ? ' ✓' : ''), desc: `${getEx(id).part} ・ ${getEx(id).equipment}` }));
-        choices.push({ key: 'pick', label: 'ほかの種目から選ぶ…' }, { key: 'new', label: `新しい種目として追加${n.act === 'new' ? ' ✓' : ''}`, desc: `「${n.src.slice(0, 40)}」を自分の種目に追加します` }, { key: 'skip', label: `取り込まない${n.act === 'skip' ? ' ✓' : ''}` });
-        const k = await choiceSheet({ title: `「${n.src.slice(0, 30)}」をどの種目として取り込みますか？`, choices });
+        const g = el.closest('details[data-g]'); st.openGrp = g ? g.dataset.g : null;
+        const others = st.an.names.filter((o) => o !== n && o.act === 'new' && !o.mergeTo && IMP.dice(IMP.mergeKey(o.src), IMP.mergeKey(n.src)) >= 0.5).slice(0, 4);
+        const choices = n.cands.filter((id) => exMap().has(id)).map((id) => ({ key: 'id:' + id, label: getEx(id).name + (n.act === 'map' && n.id === id ? ' ✓' : ''), desc: `同じ種目として変換 ・ ${getEx(id).part}・${getEx(id).equipment}` }));
+        choices.push({ key: 'pick', label: 'ほかの種目から選ぶ…' });
+        if (n.parts) choices.push({ key: 'split', label: `2つに分ける${n.act === 'split' ? ' ✓' : ''}`, desc: n.parts.map((x) => getEx(x.id).name).join(' と ') + '（それぞれ別に行った）' });
+        choices.push({ key: 'new', label: `新しい種目として追加${n.act === 'new' && !n.mergeTo ? ' ✓' : ''}`, desc: `「${(n.newName || n.src).slice(0, 40)}」を自分の種目に追加します` });
+        for (const o of others) choices.push({ key: 'merge:' + o.src, label: `「${o.newName.slice(0, 24)}」と同じ種目${n.mergeTo === o.src ? ' ✓' : ''}`, desc: 'この取り込みで追加する種目にまとめます' });
+        if (n.act === 'new') choices.push({ key: 'rename', label: '追加する名前を変える…', desc: `いま：${(n.newName || n.src).slice(0, 40)}` });
+        choices.push({ key: 'skip', label: `取り込まない${n.act === 'skip' ? ' ✓' : ''}` });
+        const k = await choiceSheet({ title: `「${n.src.slice(0, 30)}」をどう取り込みますか？`, choices });
         if (!k) return;
-        if (k.startsWith('id:')) { n.act = 'map'; n.id = k.slice(3); n.confirmed = true; }
+        if (k.startsWith('id:')) { n.act = 'map'; n.id = k.slice(3); n.mergeTo = null; }
         else if (k === 'skip') n.act = 'skip';
+        else if (k === 'split') { n.act = 'split'; n.mergeTo = null; }
+        else if (k.startsWith('merge:')) { n.act = 'new'; n.mergeTo = k.slice(6); }
+        else if (k === 'rename') { const v = await promptSheet({ title: '追加する種目の名前', label: '名前', value: n.newName || n.src, maxlength: 40 }); if (!v || !v.trim()) return; n.newName = v.trim(); }
         else if (k === 'new') {
           const p = await choiceSheet({ title: '部位を選んでください', choices: CATEGORIES.map((c) => ({ key: c, label: c + (c === n.part ? ' ✓' : '') })) });
-          if (!p) return; n.act = 'new'; n.part = p;
+          if (!p) return; n.act = 'new'; n.part = p; n.mergeTo = null;
         } else if (k === 'pick') {
-          pickExercises({ title: `「${n.src.slice(0, 20)}」に対応する種目`, onDone: (ids) => { if (ids && ids[0]) { n.act = 'map'; n.id = ids[0]; n.confirmed = true; if (!n.cands.includes(ids[0])) n.cands.unshift(ids[0]); } s.render(); s.renderFoot(); } });
+          pickExercises({ title: `「${n.src.slice(0, 20)}」に対応する種目`, onDone: (ids) => { if (ids && ids[0]) { n.act = 'map'; n.id = ids[0]; n.confirmed = true; n.userSet = true; n.mergeTo = null; if (!n.cands.includes(ids[0])) n.cands.unshift(ids[0]); } s.render(); s.renderFoot(); } });
           return;
         }
+        n.confirmed = true; n.userSet = true;
         s.render(); s.renderFoot();
       },
       commit: async (el, e, s) => {
@@ -6226,6 +6334,14 @@ function openImportWizard() {
         else if (older.length) { const ok = await confirmSheet({ title: '同じファイルを以前に取り込んでいます', message: `<p>${esc(fmtDateTime(older[older.length - 1].at))}に取り込んだ「${esc(st.label)}」を、今回の内容で置き換えます（前回の取り込みは取り消されます）。</p>`, ok: '置き換える' }); if (!ok) return; }
         for (const x of older) IMP.removeBatch(x.id);
         IMP.commit(b, st.label);
+        // 確認した種目名の対応を覚える（次回から同じ判断）
+        DB.impDict = DB.impDict || {};
+        for (const n of st.an.names) {
+          if (!(n.ask || n.userSet) || n.act === 'skip') continue;   // 「取り込まない」はその回だけの判断なので覚えない
+          const main = n.mergeTo && st.an.names.find((x) => x.src === n.mergeTo);
+          DB.impDict[IMP.normName(n.src)] = { act: n.act, id: n.act === 'map' ? n.id : '', name: n.act === 'new' ? (main ? main.newName : n.newName || n.src) : '', part: n.part || '' };
+        }
+        touch();
         st.result = b; st.step = 'done'; refreshAll(); s.render(); s.renderFoot(); s.body.scrollTop = 0;
       },
       wlOn: (el, e, s) => { DB.settings.wl = true; touch(); refreshAll(); s.render(); toast('ウェイトリフティング機能をONにしました'); },
