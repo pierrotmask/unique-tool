@@ -1350,6 +1350,28 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
 .rm-grid tr>th:first-child{box-shadow:1px 0 0 var(--line);padding-right:8px}
 .rm-grid tr.on>th:first-child{background:var(--accent-soft)}
 
+/* RPE：種目ごとのオン・オフと入力欄 */
+.exc-tags .rpe-tg[aria-pressed="false"]{opacity:.65}
+.exc-tags .rpe-tg[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.sets.rpe-on .set-h,.sets.rpe-on .set-r{grid-template-columns:36px minmax(0,1fr) 68px 50px 44px 44px;gap:5px}
+@media (max-width:370px){.sets.rpe-on .set-h,.sets.rpe-on .set-r{grid-template-columns:30px minmax(0,1fr) 60px 44px 40px 40px;gap:3px}}
+.rpe-h{display:inline-flex;align-items:center;justify-content:center;gap:2px}
+.rpe-h .q{width:16px;height:16px;border-radius:50%;border:1px solid var(--text-3);background:none;color:var(--text-3);font:inherit;font-size:10px;font-weight:800;line-height:1;padding:0;cursor:pointer}
+.cell.rpe-cell{font-size:16px}
+.cell.rpe-cell.dim{opacity:.5}
+.rpe-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rpe-pick .chip{flex-direction:column;min-height:56px;gap:0}
+.rpe-pick .chip b{font-size:18px}
+.rpe-pick .chip small{font-size:11px;opacity:.8}
+.e1-line{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;margin:4px 12px 2px;padding:6px 10px;border-radius:10px;background:var(--accent-soft);font-size:12px;color:var(--text-2)}
+.e1-line>span{font-weight:800;color:var(--accent)}
+.e1-line b{font-family:var(--f-num);font-size:20px;color:var(--head)}
+.e1-line b small{font-size:12px}
+.e1-line i{font-style:normal;margin-left:auto;font-weight:800}
+.e1-line i.up{color:var(--ok-2)} .e1-line i.dn{color:var(--danger)}
+.sets.rpe-on .done-btn{width:100%;max-width:44px;justify-self:center}
+@media (max-width:370px){.sets.rpe-on .done-btn{max-width:40px;height:44px}}
+
 </style>
 </head>
 <body>
@@ -1373,7 +1395,7 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.25.5';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.25.6';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -1391,7 +1413,7 @@ const CHART_JS_SOURCES = [
 const LEVELS = {
   beginner: { label: 'はじめて・初心者', short: '初心者', desc: '基本の表示に加えて、ホームに「初心者のポイント」とはじめての全身メニュー、初めての種目では重さの選び方のヒントを出します' },
   standard: { label: '経験あり', short: '経験者', desc: '基本の表示（前回の記録・重さを上げる目安・休憩タイマー・分析）だけ。初心者向けのヒントは出しません' },
-  advanced: { label: '上級・競技', short: '上級', desc: '基本の表示に加えて、セット完了の直後にRPE（きつさ）の入力欄と、種目ごとに推定1RM・%計算ボタンを出します' }
+  advanced: { label: '上級・競技', short: '上級', desc: '基本の表示に加えて、RPE（きつさ）の入力欄を最初からオンにし、種目ごとに推定1RM・%計算ボタンを出します' }
 };
 const BEGINNER_MENU = ['leg_02', 'chest_06', 'back_03', 'shoulder_08', 'abs_09'];
 const GLOSSARY = [
@@ -2216,6 +2238,7 @@ function normalize(src) {
     tourDone: ui.tourDone === undefined ? (ui.onboarded === undefined ? (arr(d.records).length > 0 || !!ui.welcomeDone) : !!ui.onboarded) : !!ui.tourDone,
     tips: ui.tips === undefined && ui.onboarded ? { wo: true, kp: true, cal: true, review: true, lib: true, settings: true } : Object.fromEntries(Object.entries(obj(ui.tips)).filter(([, v]) => v === true)),
     wkChart: ['sets', 'vol'].includes(ui.wkChart) ? ui.wkChart : 'sets',
+    rpeEx: Object.fromEntries(Object.entries(obj(ui.rpeEx)).filter(([k, v]) => typeof v === 'boolean' && k.length < 80).slice(0, 2000)),
     anaFold: Object.fromEntries(Object.entries(obj(ui.anaFold)).filter(([k, v]) => typeof v === 'boolean' && k.length < 20).slice(0, 30)),
     pwaHide: !!ui.pwaHide, pwaMoved: !!ui.pwaMoved, transferAsked: !!ui.transferAsked, themeV2: true, wlDef2: true
   };
@@ -3088,7 +3111,7 @@ function exCard(ses, i, rec, groups) {
   let h = `<section class="exc ${g ? 'ss' : ''}" id="exc-${i}" aria-label="${esc(ex.name)}">`;
   if (g) h += `<div class="ss-tag" style="padding-top:10px">${ICON.link} スーパーセット ${groups[g]}</div>`;
   h += `<div class="exc-h">${exIcon(ex)}<div class="nm"><button type="button" data-a="exDetail" data-id="${esc(exId)}">${esc(ex.name)}${ICON.chevR}</button>
-    <div class="exc-tags"><button type="button" data-a="exTarget" data-i="${i}">目標 ${target}${unit}</button><button type="button" data-a="exRest" data-i="${i}">休憩 ${fmtSec(restOf(ex))}</button>${lv() === 'advanced' && !bw && exSummary(exId) && exSummary(exId).bestE1 ? `<button type="button" data-a="exPct" data-i="${i}">${ICON.percent}${ex.part === '全身・WL' ? `最高 ${fmtNum(exSummary(exId).maxW)}` : `1RM ${fmtNum(round1(exSummary(exId).bestE1))}`}kg</button>` : ''}${ex.equipment === 'バーベル' ? `<button type="button" data-a="exPlate" data-i="${i}">${ICON.plate}プレート</button>` : ''}</div></div>
+    <div class="exc-tags"><button type="button" data-a="exTarget" data-i="${i}">目標 ${target}${unit}</button><button type="button" data-a="exRest" data-i="${i}">休憩 ${fmtSec(restOf(ex))}</button>${timed ? '' : `<button type="button" class="rpe-tg" data-a="exRpe" data-i="${i}" aria-pressed="${rpeOnFor(exId)}">RPE ${rpeOnFor(exId) ? 'ON' : 'OFF'}</button>`}${lv() === 'advanced' && !bw && exSummary(exId) && exSummary(exId).bestE1 ? `<button type="button" data-a="exPct" data-i="${i}">${ICON.percent}${ex.part === '全身・WL' ? `最高 ${fmtNum(exSummary(exId).maxW)}` : `1RM ${fmtNum(round1(exSummary(exId).bestE1))}`}kg</button>` : ''}${ex.equipment === 'バーベル' ? `<button type="button" data-a="exPlate" data-i="${i}">${ICON.plate}プレート</button>` : ''}</div></div>
     <button type="button" class="icon-btn" data-a="exMore" data-i="${i}" aria-label="${esc(ex.name)}の操作">${ICON.more}</button></div>`;
   // 参考目安（前回の通常セットが全て目標回数に到達した時のみ）
   if (prevWork.length && prevWork.every((s) => s.r >= target)) {
@@ -3106,9 +3129,9 @@ function exCard(ses, i, rec, groups) {
       : `<p class="empty-mini" style="margin:4px 12px 10px">この種目は初めての記録です。がんばりましょう！</p>`;
   }
   // セット表
-  h += `<div class="sets"><div class="set-h"><span>セット</span><span>前回</span><span>${bw ? '+kg' : 'kg'}</span><span>${unit}</span><span>完了</span></div>`;
+  const rpeOn = !timed && rpeOnFor(exId);
+  h += `<div class="sets${rpeOn ? ' rpe-on' : ''}"><div class="set-h"><span>セット</span><span>前回</span><span>${bw ? '+kg' : 'kg'}</span><span>${unit}</span>${rpeOn ? '<span class="rpe-h">RPE<button type="button" class="q" data-a="rpeHelp" aria-label="RPEとは">?</button></span>' : ''}<span>完了</span></div>`;
   let wi = 0, pwi = 0;
-  const rpeAt = lv() === 'advanced' && !timed ? (() => { let k = -1; rec.sets.forEach((s, j) => { if (s.done && s.t !== 'w') k = j; }); return k >= 0 && !rec.sets[k].rpe && !rec.sets.slice(k + 1).some((s) => s.done) ? k : -1; })() : -1;
   rec.sets.forEach((s, j) => {
     if (s.t !== 'w') wi++;
     let earlier = null;
@@ -3128,15 +3151,26 @@ function exCard(ses, i, rec, groups) {
     const label = s.t === 'n' ? String(wi) : SET_TYPES[s.t].short;
     const on = (f) => UI.kp && UI.kp.i === i && UI.kp.s === j && UI.kp.f === f ? ' on' : '';
     h += `<div class="set-r ${s.done ? 'done' : ''}">
-      <button type="button" class="set-no t-${s.t}" data-a="setMenu" data-i="${i}" data-s="${j}" aria-label="セット${j + 1}の種類・削除">${label}${s.rpe ? `<small>@${fmtNum(s.rpe)}</small>` : ''}</button>
+      <button type="button" class="set-no t-${s.t}" data-a="setMenu" data-i="${i}" data-s="${j}" aria-label="セット${j + 1}の種類・削除">${label}${s.rpe && !rpeOn ? `<small>@${fmtNum(s.rpe)}</small>` : ''}</button>
       <button type="button" class="set-prev" data-a="usePrev" data-i="${i}" data-s="${j}" ${pv ? '' : 'disabled'} aria-label="前回の値を使う">${prevTxt || '—'}</button>
       <button type="button" class="cell${on('w')}" data-a="kp" data-i="${i}" data-s="${j}" data-f="w" aria-label="セット${j + 1}の重量">${s.w != null ? fmtNum(s.w) : `<span class="ph">${phW || '–'}</span>`}</button>
       <button type="button" class="cell${on('r')}" data-a="kp" data-i="${i}" data-s="${j}" data-f="r" aria-label="セット${j + 1}の${timed ? '秒数' : '回数'}">${s.r != null ? s.r : `<span class="ph">${phR}</span>`}</button>
+      ${rpeOn ? `<button type="button" class="cell rpe-cell${s.t === 'w' ? ' dim' : ''}" data-a="rpePick" data-i="${i}" data-s="${j}" aria-label="セット${j + 1}のRPE（空欄でもよい）">${s.rpe ? fmtNum(s.rpe) : '<span class="ph">–</span>'}</button>` : ''}
       <button type="button" class="done-btn" data-a="setDone" data-i="${i}" data-s="${j}" aria-pressed="${s.done}" aria-label="セット${j + 1}を完了">${ICON.check}</button>
       <input type="hidden" data-ph="${i}-${j}" data-w="${phW}" data-r="${phR}">
-    </div>${badges ? `<div class="set-b">${badges}</div>` : ''}${j === rpeAt ? `<div class="rpe-q" role="group" aria-label="セット${j + 1}のRPE"><span>RPE</span>${[6, 7, 7.5, 8, 8.5, 9, 9.5, 10].map((v) => `<button type="button" data-a="rpeQ" data-i="${i}" data-s="${j}" data-v="${v}">${v}</button>`).join('')}</div>` : ''}`;
+    </div>${badges ? `<div class="set-b">${badges}</div>` : ''}`;
   });
-  h += `</div><div class="add-set"><button type="button" class="btn btn-soft" data-a="addSet" data-i="${i}">${ICON.plus}セットを追加</button><button type="button" class="btn" data-a="warmup" data-i="${i}">W ウォームアップ</button></div>`;
+  h += `</div>`;
+  if (rpeOn) {
+    let best = null;
+    for (const s of rec.sets) if (s.done && s.t !== 'w' && s.rpe && s.w > 0 && s.r > 0) { const e = rmEstimate(s.w, s.r, s.rpe); if (e.one && (!best || e.one > best.one)) best = { ...e, s }; }
+    if (best) {
+      let pb = 0; for (const r of prevs.slice(0, 1)) for (const s of work(r)) if (s.rpe && s.w > 0) pb = Math.max(pb, rmEstimate(s.w, s.r, s.rpe).one);
+      const d = pb ? round1(best.one - pb) : null;
+      h += `<div class="e1-line"><span>推定1RM</span><b class="num">${fmtNum(round1(best.one))}<small>kg</small></b><em>${fmtNum(best.s.w)}kg×${best.s.r}回@${fmtNum(best.s.rpe)}${best.how === 'rts' ? '・RPE表' : ''}</em>${d != null ? `<i class="${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">前回比 ${d > 0 ? '+' : ''}${fmtNum(d)}</i>` : ''}</div>`;
+    }
+  }
+  h += `<div class="add-set"><button type="button" class="btn btn-soft" data-a="addSet" data-i="${i}">${ICON.plus}セットを追加</button><button type="button" class="btn" data-a="warmup" data-i="${i}">W ウォームアップ</button></div>`;
   h += `<div class="exc-memo"><textarea class="input" data-in="recMemo" data-i="${i}" rows="1" maxlength="500" placeholder="メモ（フォーム・体調など）">${esc(rec.memo)}</textarea></div>`;
   const rel = relatedOf(ex);
   if (rel.length) {
@@ -3696,6 +3730,19 @@ Object.assign(ACT, {
   } }),
   kp: (el) => openKeypad(Number(el.dataset.i), Number(el.dataset.s), el.dataset.f),
   setDone: (el) => toggleDone(Number(el.dataset.i), Number(el.dataset.s)),
+  exRpe: (el) => { const ex = getEx(recAt(Number(el.dataset.i)).exerciseId); DB.ui.rpeEx = DB.ui.rpeEx || {}; DB.ui.rpeEx[ex.id] = !rpeOnFor(ex.id); save(); renderWorkout(); toast(DB.ui.rpeEx[ex.id] ? `${ex.name}：RPEを記録します（空欄でもOK）` : `${ex.name}：RPEの欄をしまいました`); },
+  rpePick: async (el) => {
+    const i = Number(el.dataset.i), j = Number(el.dataset.s); const rec = recAt(i); const s = rec && rec.sets[j]; if (!s) return;
+    closeKeypad();
+    const v = await new Promise((res) => { let r; openSheet({ title: `セット${j + 1}のRPE`, cls: 'sheet-rpe',
+      render: () => `<div class="rpe-pick">${RTS_RPES.slice().reverse().map((p) => `<button type="button" class="chip" data-a="v" data-v="${p}" aria-pressed="${s.rpe === p}"><b>${fmtNum(p)}</b><small>${p === 10 ? '限界' : `あと${fmtNum(10 - p)}回`}</small></button>`).join('')}</div>
+        <div class="row" style="margin-top:10px"><button type="button" class="btn" data-a="v" data-v="0">空欄にする</button><button type="button" class="btn btn-ghost" data-a="help">RPEとは？</button></div>`,
+      actions: { v: (b, e, sh) => { r = Number(b.dataset.v); sh.close(); }, help: () => openRpeHelp() }, onClose: () => res(r) }); });
+    if (v == null) return;
+    if (v) s.rpe = v; else delete s.rpe;
+    rec.updatedAt = Date.now(); touch(); renderWorkout();
+  },
+  rpeHelp: () => openRpeHelp(),
   rpeQ: (el) => { const rec = recAt(Number(el.dataset.i)); const s = rec && rec.sets[Number(el.dataset.s)]; if (!s) return; s.rpe = Number(el.dataset.v); rec.updatedAt = Date.now(); touch(); renderWorkout(); },
   exPct: (el) => openPercent(Number(el.dataset.i)),
   usePrev: (el) => {
@@ -3823,6 +3870,14 @@ Object.assign(CHG, {
 
 /* 過去の記録の開閉は、このトレーニング中だけ覚える（描き直しても閉じない） */
 document.addEventListener('toggle', (e) => { const d = e.target; if (d && d.classList && d.classList.contains('recent2')) { UI.recOpen = UI.recOpen || {}; UI.recOpen[d.dataset.ex] = d.open; } }, true);
+
+/* RPE：種目ごとのオン・オフ（未設定なら上級だけオン） */
+function rpeOnFor(exId) { const m = DB.ui.rpeEx || {}; return exId in m ? !!m[exId] : lv() === 'advanced'; }
+function openRpeHelp() {
+  openSheet({ title: 'RPE（きつさ）とは', render: () => `<p class="small" style="margin:0 0 8px;line-height:1.7">セットを終えたとき、<b>あと何回できたか</b>を10段階で表したものです。入れておくと、限界まで追い込まなかったセットからでも推定1RMを正確に出せます。<b>空欄のセットがあってもかまいません。</b></p>
+    <table class="tbl rm-tbl"><tr><th>RPE</th><th>あと何回（RIR）</th><th>感じ方</th></tr>${RIR_ROWS.map(([p, r, t]) => `<tr><td><b>${fmtNum(p)}</b></td><td>${r}</td><td>${t}</td></tr>`).join('')}</table>
+    <p class="tiny faint" style="margin:8px 0 0">9.5・8.5などは、はっきり分からないときの「その間」。RPE6〜9.5の範囲が最も当てになります。種目ごとに、見出しの「RPE ON／OFF」で入力欄を出したりしまったりできます。推定1RMは、RPEを入れたセットのうち一番高いものを、RPE表（Tuchscherer）で計算しています。</p>` });
+}
 
 /* =====================================================================
    タブ共通
@@ -5802,7 +5857,7 @@ const LEVEL_ROWS = [
   ['はじめての全身メニュー（マシン中心・5種目）', 'beginner'],
   ['初めての種目で「重さの選び方」のヒント', 'beginner'],
   ['分析で「RPE（きつさ）を記録しよう」の提案', 'standard,advanced'],
-  ['セット完了の直後にRPE（きつさ）の入力欄', 'advanced'],
+  ['RPE（きつさ）の入力欄が最初からオン（どのレベルでも種目ごとにオン・オフ可）', 'advanced'],
   ['種目ごとに推定1RM（WLは最高重量）ボタン → %で重量を入力', 'advanced']
 ];
 function levelCompareHtml(cur) {
