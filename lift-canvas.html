@@ -1419,6 +1419,20 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
 .wo-dock .wo-nav button.add span{display:block;font-size:11px}
 .wo-body{padding-bottom:216px}
 @media (max-width:420px){.wo-body{padding-bottom:216px}}
+/* MAX→RPEの重さ表 */
+.rp-tbl tbody tr{cursor:pointer}
+.rp-tbl td:nth-child(2){font-size:12px;color:var(--text-3)}
+.rp-pick{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--accent-soft);color:var(--accent);font-size:14px;text-align:center}
+.plan-btn{white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;margin-top:6px;min-height:34px;padding:0 10px;border-radius:10px;border:1px dashed var(--line-2);background:transparent;color:var(--text-2);font:inherit;font-size:12.5px;font-weight:750;display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.plan-btn.on{border-style:solid;border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.plan-line{white-space:nowrap;display:flex;align-items:center;gap:6px;margin:4px 12px 6px;padding:6px 10px;border-radius:9px;background:var(--accent-soft);color:var(--accent);font-size:12.5px;font-weight:750}
+.plan-line>span:first-of-type{flex:none}
+.plan-line .why{min-width:0;overflow:hidden;text-overflow:ellipsis;margin-left:auto;font-size:11px;color:var(--text-3);font-weight:600;white-space:nowrap}
+.plan-line svg,.plan-btn svg{width:14px;height:14px;flex:none}
+.mli{flex-wrap:wrap}
+.mli>.plan-btn{flex-basis:100%;justify-content:center;margin:2px 0 2px}
+@media (max-width:400px){.mli{gap:6px!important}.mli>.icon-btn,.mli>div>.icon-btn{width:34px;min-width:34px}.mli .stepper button{width:34px!important}.mli .stepper .val{min-width:50px!important;font-size:15px!important}.mli .exi,.mli>svg:first-child{flex:none}}
+@media (max-width:400px){.mli .stepper .val{white-space:nowrap;min-width:56px!important}.mli .stepper .u{font-size:11px}.mli .stepper button{width:32px!important}.mli .stepper{gap:3px!important}}
 
 </style>
 </head>
@@ -1443,7 +1457,7 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.25.11';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.25.12';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -2218,7 +2232,15 @@ function normalize(src) {
     out.menus = d.menus.filter((m) => m && m.id).map((m) => {
       const sets = {}; const ms = obj(m.sets);
       for (const k of Object.keys(ms)) if (num(ms[k]) > 0) sets[k] = clamp(Math.round(num(ms[k])), 1, 20);
-      return { id: String(m.id), name: String(m.name || '種目セット').slice(0, 40), exerciseIds: arr(m.exerciseIds).map(String), sets, updatedAt: num(m.updatedAt) || 0 };
+      const ids = arr(m.exerciseIds).map(String); const plan = {}; const mp = obj(m.plan);
+      for (const k of Object.keys(mp)) {
+        const p = obj(mp[k]); const r = num(p.r), rpe = num(p.rpe), mx = num(p.max);
+        if (!ids.includes(k) || !(r >= 1 && r <= 12) || !(rpe >= 6 && rpe <= 10) || Math.round(rpe * 2) !== rpe * 2) continue;
+        plan[k] = { r: Math.round(r), rpe }; if (mx > 0 && mx < 1000) plan[k].max = mx;
+      }
+      const o = { id: String(m.id), name: String(m.name || '種目セット').slice(0, 40), exerciseIds: ids, sets, updatedAt: num(m.updatedAt) || 0 };
+      if (Object.keys(plan).length) o.plan = plan;
+      return o;
     });
   }
   out.records = arr(d.records).filter((r) => r && r.id && r.exerciseId && isYmd(r.date)).map((r) => {
@@ -3058,9 +3080,19 @@ function startWorkout(ids, name, menuId) {
   DB.active = { id: uid('ses'), name: name || 'トレーニング', menuId: menuId || null, date: ymd(), exerciseIds: ids, startedAt: Date.now(), supersets: {}, note: '', minimized: false };
   DB.ui.welcomeDone = true;
   ids.forEach((id) => ensureRec(DB.active, id));
+  const menu = menuId ? DB.menus.find((m) => m.id === menuId) : null;
+  let planned = 0;
+  if (menu && menu.plan) for (const id of ids) {
+    const pl = menu.plan[id]; if (!pl) continue;
+    const ex = getEx(id); const w = planWeight(ex, planMax(id, pl), pl.r, pl.rpe);
+    const rec = ensureRec(DB.active, id);
+    rec.sets.forEach((s) => { if (s.t !== 'w') { s.r = pl.r; if (w) s.w = w; } });
+    if (!DB.ui.rpeEx) DB.ui.rpeEx = {};
+    DB.ui.rpeEx[id] = true; planned++;
+  }
   touch();
   openWorkout();
-  toast(`「${DB.active.name}」を開始しました`);
+  toast(planned ? `「${DB.active.name}」を開始しました（RPEの計画から${planned}種目の重さを入れました）` : `「${DB.active.name}」を開始しました`);
 }
 function openWorkout() {
   if (!DB.active) return;
@@ -3193,6 +3225,9 @@ function exCard(ses, i, rec, groups) {
       ${rec1 ? `<button type="button" class="rec" data-a="sugApply" data-i="${i}" data-m="rec" data-w="${rec1.w}" aria-label="今日の推奨 ${fmtNum(rec1.w)}kg×${target}回（RPE${REC_RPE}）を入力">今日 ${fmtNum(rec1.w)}kg<small>×${target}@${REC_RPE}</small></button>` : ''}
       ${reach ? (timed ? `<button type="button" data-a="sugApply" data-i="${i}" data-m="r">+5秒</button>` : `<button type="button" data-a="sugApply" data-i="${i}" data-m="w">${bw ? '加重' : ''}${stepTxt}</button><button type="button" data-a="sugApply" data-i="${i}" data-m="r">+1回</button>`) : ''}<span class="why">${rec1 ? `1RM ${fmtNum(round1(rec1.one))}から` : '前回 全セット目標達成'}</span></div>`;
   }
+  const mPlan = ses.menuId && (DB.menus.find((m) => m.id === ses.menuId) || {}).plan;
+  const pl = mPlan && mPlan[exId];
+  if (pl && !timed && !bw) { const mx = planMax(exId, pl); h += `<div class="plan-line" role="note">${ICON.calc || ''}<span>計画 <b class="num">${fmtNum(planWeight(ex, mx, pl.r, pl.rpe))}kg×${pl.r}</b> @${fmtNum(pl.rpe)}</span><span class="why">MAX ${fmtNum(mx)}${pl.max ? '' : '推定'}</span></div>`; }
   if (prevs.length) {
     const ro = !!(UI.recOpen && UI.recOpen[exId]);
     h += `<details class="recent2" data-ex="${esc(exId)}"${ro ? ' open' : ''}><summary><span class="d">前回 ${fmtDate(prevs[0].date)}</span><span class="v">${esc(fmtSets(doneSets(prevs[0]), ex))}</span>${prevs[0].memo ? '<span class="mi" aria-label="メモあり">📝</span>' : ''}<span class="ch">${ICON.chevD}</span></summary>
@@ -3864,7 +3899,7 @@ Object.assign(ACT, {
     const c = await choiceSheet({ title: ex.name, choices: [
       { key: 'detail', label: '種目の詳細・成長グラフ' },
       { key: 'warm', label: 'ウォームアップを自動作成' },
-      ...(ex.equipment !== '自重' && !isTimed(ex) ? [{ key: 'pct', label: '1RMの%で重量を入力' }, { key: 'rm', label: 'RM計算（重量と回数から推定1RM）' }] : []),
+      ...(ex.equipment !== '自重' && !isTimed(ex) ? [{ key: 'rpew', label: 'MAXからRPEで重量を入力' }, { key: 'pct', label: '1RMの%で重量を入力' }, { key: 'rm', label: 'RM計算（重量と回数から推定1RM）' }] : []),
       ...(g ? [{ key: 'unss', label: 'スーパーセットを解除' }] : nextId ? [{ key: 'ss', label: `次の種目（${getEx(nextId).name}）とスーパーセットにする` }] : []),
       { key: 'replace', label: '別の種目に入れ替え' },
       ...(i > 0 ? [{ key: 'upm', label: '順番を上へ' }] : []), ...(i < ses.exerciseIds.length - 1 ? [{ key: 'downm', label: '順番を下へ' }] : []),
@@ -3874,6 +3909,15 @@ Object.assign(ACT, {
     if (c === 'detail') openExerciseDetail(exId);
     else if (c === 'warm') warmupFor(i);
     else if (c === 'pct') openPercent(i);
+    else if (c === 'rpew') {
+      const mp = ses.menuId && (DB.menus.find((m) => m.id === ses.menuId) || {}).plan;
+      openRpePlan({ exId, plan: mp && mp[exId], okLabel: '入力する', onSave: (pl) => {
+        if (!pl) return; const rec = recAt(i); const w = planWeight(ex, planMax(exId, pl), pl.r, pl.rpe);
+        rec.sets.forEach((x) => { if (!x.done && x.t !== 'w') { x.w = w; x.r = pl.r; } });
+        if (!DB.ui.rpeEx) DB.ui.rpeEx = {}; DB.ui.rpeEx[exId] = true;
+        rec.updatedAt = Date.now(); touch(); renderWorkout(); toast(`${pl.r}回 @RPE${fmtNum(pl.rpe)}（${fmtNum(w)}kg）を未完了のセットに入れました`);
+      } });
+    }
     else if (c === 'rm') ACT.rmCalc({ dataset: { id: exId } });
     else if (c === 'ss') { const gid = uid('ss'); ses.supersets = ses.supersets || {}; ses.supersets[exId] = ses.supersets[nextId] || gid; ses.supersets[nextId] = ses.supersets[exId]; touch(); renderWorkout(); toast('スーパーセットにしました。セット完了で次の種目へ自動で移動します'); }
     else if (c === 'unss') { for (const k of Object.keys(ses.supersets)) if (ses.supersets[k] === g) delete ses.supersets[k]; touch(); renderWorkout(); }
@@ -4148,15 +4192,15 @@ function renderTrain() {
 /* メニュー編集（全画面） */
 function openMenuEditor(menuId, initialIds) {
   const m = menuId ? DB.menus.find((x) => x.id === menuId) : null;
-  const st = { name: m ? m.name : '', ids: m ? m.exerciseIds.filter((id) => exMap().has(id)) : (initialIds || []), sets: m ? { ...m.sets } : {}, dirty: false };
+  const st = { name: m ? m.name : '', ids: m ? m.exerciseIds.filter((id) => exMap().has(id)) : (initialIds || []), sets: m ? { ...m.sets } : {}, plan: m && m.plan ? JSON.parse(JSON.stringify(m.plan)) : {}, dirty: false };
   const p = openPage({
     title: m ? 'メニューを編集' : '新しいメニュー', state: st,
     render: () => `<label class="field"><span class="lbl">メニュー名<em>必須</em></span><input class="input" data-in="name" maxlength="30" value="${esc(st.name)}" placeholder="例：WL・スクワットの日" autocomplete="off"></label>
       <div class="field"><span class="lbl">種目とセット数（上から順に行います）</span>
-      ${st.ids.length ? `<div class="list">${st.ids.map((id, i) => { const e = getEx(id); const n = st.sets[id] || 3; return `<div class="li" style="gap:8px">${exIcon(e)}<div class="m"><div class="t">${esc(e.name)}</div><div class="s">${esc(e.part)}・${esc(e.equipment)}</div>
+      ${st.ids.length ? `<div class="list">${st.ids.map((id, i) => { const e = getEx(id); const n = st.sets[id] || 3; return `<div class="li mli" style="gap:8px">${exIcon(e)}<div class="m"><div class="t">${esc(e.name)}</div><div class="s">${esc(e.part)}・${esc(e.equipment)}</div>
         <div class="stepper" style="margin-top:6px;gap:4px"><button type="button" data-a="sets" data-i="${i}" data-d="-1" style="width:40px;height:38px;font-size:18px">−</button><span class="val" style="min-width:60px;font-size:16px">${n}<span class="u">セット</span></span><button type="button" data-a="sets" data-i="${i}" data-d="1" style="width:40px;height:38px;font-size:18px">＋</button></div></div>
         <div style="display:flex;flex-direction:column"><button type="button" class="icon-btn" data-a="mv" data-i="${i}" data-d="-1" ${i === 0 ? 'disabled' : ''} aria-label="上へ">${ICON.up}</button><button type="button" class="icon-btn" data-a="mv" data-i="${i}" data-d="1" ${i === st.ids.length - 1 ? 'disabled' : ''} aria-label="下へ">${ICON.down}</button></div>
-        <button type="button" class="icon-btn" data-a="rm" data-i="${i}" aria-label="外す">${ICON.close}</button></div>`; }).join('')}</div>` : '<p class="empty-mini">まだ種目がありません。下のボタンから追加してください。</p>'}
+        <button type="button" class="icon-btn" data-a="rm" data-i="${i}" aria-label="外す">${ICON.close}</button>${e.equipment !== '自重' && !isTimed(e) ? `<button type="button" class="plan-btn${st.plan[id] ? ' on' : ''}" data-a="plan" data-i="${i}">${ICON.calc || ''}${st.plan[id] ? `計画 ${esc(planLabel(e, st.plan[id]))}（MAX ${fmtNum(planMax(id, st.plan[id]))}kg${st.plan[id].max ? '' : '・推定'}）` : 'MAXからRPEで重さを計画する'}</button>` : ''}</div>`; }).join('')}</div>` : '<p class="empty-mini">まだ種目がありません。下のボタンから追加してください。</p>'}
       <div style="height:10px"></div><button type="button" class="btn btn-line btn-block" data-a="add">${ICON.plus}種目を追加</button></div>
       <button type="button" class="btn btn-primary btn-block btn-lg" data-a="save">${ICON.check}保存する</button>
       ${m ? `<button type="button" class="btn btn-danger-line btn-block" style="margin-top:10px" data-a="del">${ICON.trash}このメニューを削除</button>` : ''}`,
@@ -4165,15 +4209,17 @@ function openMenuEditor(menuId, initialIds) {
       __back: async () => { if (st.dirty) { const ok = await confirmSheet({ title: '編集内容を破棄しますか？', ok: '破棄する', danger: true }); if (!ok) return; } p.close(); },
       sets: (el) => { const id = st.ids[Number(el.dataset.i)]; st.sets[id] = clamp((st.sets[id] || 3) + Number(el.dataset.d), 1, 20); st.dirty = true; p.render(); },
       mv: (el) => { const i = Number(el.dataset.i), j = i + Number(el.dataset.d); [st.ids[i], st.ids[j]] = [st.ids[j], st.ids[i]]; st.dirty = true; p.render(); },
-      rm: (el) => { st.ids.splice(Number(el.dataset.i), 1); st.dirty = true; p.render(); },
+      rm: (el) => { const id = st.ids.splice(Number(el.dataset.i), 1)[0]; delete st.plan[id]; st.dirty = true; p.render(); },
+      plan: (el) => { const id = st.ids[Number(el.dataset.i)]; openRpePlan({ exId: id, plan: st.plan[id], okLabel: 'この計画にする', allowClear: !!st.plan[id], onSave: (pl) => { if (pl) st.plan[id] = pl; else delete st.plan[id]; st.dirty = true; p.render(); } }); },
       add: () => pickExercises({ title: 'メニューに追加', multi: true, exclude: st.ids, onDone: (ids) => { st.ids.push(...ids); st.dirty = true; p.render(); } }),
       save: () => {
         const name = st.name.trim();
         if (!name) { toast('メニュー名を入力してください'); $('[data-in="name"]', p.el).focus(); return; }
         if (!st.ids.length) { toast('種目を1つ以上追加してください'); return; }
         const sets = {}; st.ids.forEach((id) => { if (st.sets[id] && st.sets[id] !== 3) sets[id] = st.sets[id]; });
-        if (m) Object.assign(m, { name, exerciseIds: [...st.ids], sets, updatedAt: Date.now() });
-        else DB.menus.push({ id: uid('menu'), name, exerciseIds: [...st.ids], sets, updatedAt: Date.now() });
+        const plan = {}; st.ids.forEach((id) => { if (st.plan[id]) plan[id] = st.plan[id]; });
+        if (m) { Object.assign(m, { name, exerciseIds: [...st.ids], sets, updatedAt: Date.now() }); if (Object.keys(plan).length) m.plan = plan; else delete m.plan; }
+        else DB.menus.push({ id: uid('menu'), name, exerciseIds: [...st.ids], sets, ...(Object.keys(plan).length ? { plan } : {}), updatedAt: Date.now() });
         touch(); p.close(); toast('メニューを保存しました', 'ok'); refreshAll();
       },
       del: () => { p.close(); deleteMenu(m); }
@@ -5357,6 +5403,60 @@ ACT.rmCalc = (el) => {
   for (const r of exRecords(id)) for (const s of work(r)) { const rp = s.rpe >= 6 && s.rpe <= 10 ? Math.round(s.rpe * 2) / 2 : 0; const v = rmEstimate(s.w, s.r, rp).one; if (v > 0 && (!best || v > best.v)) best = { v, w: s.w, r: Math.min(s.r, 20), rpe: rp }; }
   openRmCalc(best ? { exId: id, w: best.w, r: best.r, rpe: best.rpe } : { exId: id });
 };
+
+/* =====================================================================
+   MAX重量から、回数×RPEごとの重さを出して計画する（メニュー・記録中の両方で使う）
+   ・MAX：手で入れた値（メニューに保存）か、記録からの推定1RM
+   ・重さ＝MAX × RPE表の% を、その種目の刻みで丸める
+   ===================================================================== */
+const PLAN_RPES = [10, 9.5, 9, 8.5, 8, 7.5, 7, 6.5, 6];
+function estMax(exId) { const b = typeof bestOneRm === 'function' ? bestOneRm(exId) : null; return b && b.e1 > 0 ? b.e1 : 0; }
+function planWeight(ex, max, r, rpe) { const p = rtsPct(r, rpe); if (!(max > 0) || !p) return 0; const st = ex.stepKg || 2.5; return round2(Math.round(max * p / 100 / st) * st); }
+function planMax(exId, plan) { return plan && plan.max > 0 ? plan.max : estMax(exId); }
+function planLabel(ex, plan) {
+  if (!plan) return '';
+  const max = planMax(ex.id, plan); const w = planWeight(ex, max, plan.r, plan.rpe);
+  return `${plan.r}回@${fmtNum(plan.rpe)}${w ? ` ${fmtNum(w)}kg` : ''}`;
+}
+/* opt: { exId, plan, title, okLabel, onSave(plan|null), allowClear } */
+function openRpePlan(opt) {
+  const ex = getEx(opt.exId); const est = estMax(ex.id);
+  const p0 = opt.plan || {};
+  const st = { max: p0.max > 0 ? String(p0.max) : (est ? String(est) : ''), r: p0.r || clamp(ex.defaultTargetReps || 5, 1, 12), rpe: p0.rpe || 8 };
+  const maxV = () => Number(st.max) || 0;
+  const table = () => {
+    const m = maxV();
+    if (!m) return '<p class="empty-mini" style="margin:10px 0">MAX重量を入れると、RPEごとの重さを計算します。</p>';
+    return `<table class="tbl rm-tbl rp-tbl"><thead><tr><th>RPE</th><th>余力</th><th>MAXの%</th><th>${st.r}回の重さ</th></tr></thead><tbody>${PLAN_RPES.map((v) => {
+      const pct = rtsPct(st.r, v); const w = planWeight(ex, m, st.r, v);
+      return `<tr class="${st.rpe === v ? 'on' : ''}" data-a="pickRpe" data-v="${v}" role="button" tabindex="0"><td><b>${fmtNum(v)}</b></td><td>あと${fmtNum(10 - v)}回</td><td>${pct ? fmtNum(pct) + '%' : '-'}</td><td class="num"><b>${w ? fmtNum(w) + 'kg' : '-'}</b></td></tr>`;
+    }).join('')}</tbody></table>
+    <div class="rp-pick">選んだ計画：<b>${st.r}回 @RPE${fmtNum(st.rpe)}</b> ＝ <b class="num">${fmtNum(planWeight(ex, m, st.r, st.rpe))}kg</b></div>`;
+  };
+  const refresh = (s) => { const o = $('.rp-out', s.body); if (o) o.innerHTML = table(); if (s.footEl) s.renderFoot(); };
+  openSheet({
+    title: opt.title || `${ex.name}：RPEで重量`, state: st, cls: 'rp-sheet',
+    render: () => `<div class="rm-in"><label class="field"><span class="lbl">MAX重量（1RM・kg）</span><input class="input num" type="number" inputmode="decimal" step="0.5" min="0" data-in="max" value="${esc(st.max)}" placeholder="例：100"></label>
+      ${est ? `<button type="button" class="btn btn-sm" data-a="useEst" style="margin-bottom:12px">推定 ${fmtNum(est)}kg</button>` : ''}</div>
+      <p class="tiny faint" style="margin:-4px 2px 10px">${est ? `記録からの推定1RMは ${fmtNum(est)}kg です。試合や測定で分かっているMAXがあれば、その値を入れてください。` : 'この種目の記録がまだないので、分かっているMAX（1回挙げられる重さ）を入れてください。'}</p>
+      <div class="field"><span class="lbl">1セットの回数</span><div class="stepper"><button type="button" data-a="rep" data-d="-1">−</button><span class="val num">${st.r}<span class="u">回</span></span><button type="button" data-a="rep" data-d="1">＋</button></div></div>
+      <div class="field"><span class="lbl">RPEごとの重さ（行をタップして選ぶ）</span><div class="rp-out">${table()}</div></div>
+      <p class="tiny faint">RPE10＝限界、9＝あと1回、8＝あと2回できる重さ。RPE表（Tuchscherer）で計算し、${fmtNum(ex.stepKg)}kg刻みで丸めています。</p>`,
+    foot: () => `${opt.allowClear ? '<button type="button" class="btn" data-a="clear">計画を外す</button>' : '<button type="button" class="btn" data-a="__close">閉じる</button>'}<button type="button" class="btn btn-primary" data-a="ok" ${maxV() > 0 ? '' : 'disabled'}>${esc(opt.okLabel || '決定')}</button>`,
+    inputs: { max: (el, e, s) => { st.max = el.value; refresh(s); } },
+    actions: {
+      useEst: (el, e, s) => { st.max = String(est); s.render(); },
+      rep: (el, e, s) => { st.r = clamp(st.r + Number(el.dataset.d), 1, 12); s.render(); },
+      pickRpe: (el, e, s) => { st.rpe = Number(el.dataset.v); refresh(s); },
+      clear: (el, e, s) => { s.close(); opt.onSave(null); },
+      ok: (el, e, s) => {
+        const m = maxV(); if (!(m > 0)) return;
+        s.close();
+        opt.onSave({ r: st.r, rpe: st.rpe, ...(Math.abs(m - est) > 0.05 ? { max: round2(m) } : {}) });
+      }
+    }
+  });
+}
 
 /* =====================================================================
    5. 設定（バックアップ・表示・トレーニング・バーの重さ・データ）
