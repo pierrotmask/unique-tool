@@ -1348,13 +1348,13 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
 'use strict';
 /* =====================================================================
    LiftCanvas（リフトキャンバス） v2
-   ・単一HTMLで完結。記録は localStorage（キー: liftcanvas_v1_data）に即時保存
+   ・単一HTMLで完結。記録は IndexedDB（liftcanvas / kv / db）に保存し、2MBまでは localStorage（キー: liftcanvas_v1_data）にも写す
    ・グラフは CDN の Chart.js（読み込めない時は内蔵の簡易描画）
    ・バックアップ：Googleドライブ（各自のドライブ）／JSONファイル／CSV
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.25.2';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.25.3';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -2234,18 +2234,67 @@ function normalize(src) {
 }
 const PART_DEFAULT_MUSCLES = { '全身・WL': ['quads', 'glutes', 'hams', 'traps'], '胸': ['chest'], '背中': ['lats', 'upback'], '肩': ['delt_f', 'delt_s'], '脚': ['quads', 'glutes'], '腕': ['biceps', 'triceps'], '腹筋': ['abs'] };
 
+/* ---------- 保存場所：IndexedDB（容量の上限が大きい）＋ 小さいうちは localStorage にも写す ----------
+   ・30年分（約15MB）でも入るよう、本体は IndexedDB に保存する
+   ・2MBまでは localStorage にも同じものを写す（IndexedDBが使えない時の予備・別タブへの即時反映）
+   ・起動時は両方を読み、新しい方（updatedAt が大きい方）を使う。localStorage だけにある古い版のデータは自動で引っ越す */
+const IDB_NAME = 'liftcanvas', IDB_STORE = 'kv', IDB_KEY = 'db';
+const MIRROR_MAX = 2000000;
+let idb = null; let storeKind = 'localStorage';
+let bc = null; try { bc = 'BroadcastChannel' in window ? new BroadcastChannel('liftcanvas') : null; } catch (e) { bc = null; }
+function idbOpen() {
+  return new Promise((res) => {
+    let done = false; const fin = (v) => { if (!done) { done = true; res(v); } };
+    try {
+      const rq = indexedDB.open(IDB_NAME, 1);
+      rq.onupgradeneeded = () => { try { rq.result.createObjectStore(IDB_STORE); } catch (e) { /* 既にある */ } };
+      rq.onsuccess = () => { const d = rq.result; d.onversionchange = () => { d.close(); if (idb === d) idb = null; }; fin(d); };
+      rq.onerror = () => fin(null); rq.onblocked = () => fin(null);
+    } catch (e) { fin(null); }
+    setTimeout(() => fin(null), 4000);
+  });
+}
+function idbGet(d) { return new Promise((res) => { try { const rq = d.transaction(IDB_STORE, 'readonly').objectStore(IDB_STORE).get(IDB_KEY); rq.onsuccess = () => res(rq.result || null); rq.onerror = () => res(null); } catch (e) { res(null); } }); }
+function idbPut(d, val) { return new Promise((res) => { try { const tx = d.transaction(IDB_STORE, 'readwrite'); tx.objectStore(IDB_STORE).put(val, IDB_KEY); tx.oncomplete = () => res(true); tx.onerror = () => res(false); tx.onabort = () => res(false); } catch (e) { res(false); } }); }
+function parseSaved(raw, from) {
+  try { return normalize(JSON.parse(raw)); }
+  catch (e) {
+    console.error('保存データの読み込みに失敗しました', from, e);
+    try { localStorage.setItem(STORAGE_KEY + '_broken', String(raw).slice(0, 4000000)); } catch (e2) { /* 容量不足 */ }
+    return null;
+  }
+}
+/* 同期で読む（localStorage だけ。予備・テスト用） */
 function load() {
   let raw = null;
   try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) { storageOK = false; }
   if (!raw) return defaultData();
-  try {
-    return normalize(JSON.parse(raw));
-  } catch (e) {
-    console.error('保存データの読み込みに失敗しました', e);
-    try { localStorage.setItem(STORAGE_KEY + '_broken', raw); } catch (e2) { /* 容量不足 */ }
-    setTimeout(() => toast('保存データが読み込めなかったため初期状態で起動しました', 'error'), 600);
-    return defaultData();
+  const d = parseSaved(raw, 'localStorage');
+  if (d) return d;
+  setTimeout(() => toast('保存データが読み込めなかったため初期状態で起動しました', 'error'), 600);
+  return defaultData();
+}
+/* 起動時に読む：IndexedDB と localStorage の新しい方。localStorage にしかなければ IndexedDB へ引っ越す */
+async function loadAsync() {
+  idb = await idbOpen();
+  const fromIdb = idb ? await idbGet(idb) : null;
+  let fromLs = null; try { fromLs = localStorage.getItem(STORAGE_KEY); } catch (e) { storageOK = false; }
+  const at = (raw) => { if (!raw) return -1; const m = /"updatedAt":(\d+)/.exec(raw.slice(0, 400)); if (m) return Number(m[1]); try { return Number(JSON.parse(raw).updatedAt) || 0; } catch (e) { return 0; } };
+  let raw = fromIdb, src = 'idb';
+  if (!fromIdb || (fromLs && at(fromLs) > at(fromIdb))) { raw = fromLs; src = 'ls'; }
+  storeKind = idb ? 'IndexedDB' : 'localStorage';
+  if (!raw) return defaultData();
+  let d = parseSaved(raw, src);
+  if (!d && src === 'idb' && fromLs) { d = parseSaved(fromLs, 'ls'); src = 'ls'; }
+  if (!d) { setTimeout(() => toast('保存データが読み込めなかったため初期状態で起動しました', 'error'), 600); return defaultData(); }
+  // 引っ越し：localStorage の方が新しい（または IndexedDB が空）なら、すぐ IndexedDB に書き、読み戻して確かめる
+  if (idb && src === 'ls') {
+    const json = JSON.stringify(d); const ok = await idbPut(idb, json);
+    const back = ok ? await idbGet(idb) : null;
+    if (!back || back.length !== json.length) { console.warn('IndexedDBへの引っ越しを確認できませんでした。localStorageで続けます'); idb = null; storeKind = 'localStorage'; }
   }
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persisted().then((p) => { if (!p) navigator.storage.persist().catch(() => {}); }).catch(() => {}); } catch (e) { /* 非対応 */ }
+  return d;
 }
 let saveErrShown = false;
 /* 保存はまとめて行う（連続操作でも端末が重くならないよう0.25秒以内に1回）。
@@ -2256,11 +2305,19 @@ function flushSave() { if (saveT) saveNow(); }   // 未保存の変更がある�
 function saveNow() {
   clearTimeout(saveT); saveT = null;
   if (!DB) return;
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); storageOK = true; }
-  catch (e) {
-    storageOK = false;
-    if (!saveErrShown) { saveErrShown = true; toast('端末への保存に失敗しました。空き容量やプライベートモードをご確認ください', 'error'); }
+  const json = JSON.stringify(DB);
+  let lsOk = false;
+  if (json.length <= MIRROR_MAX || !idb) {
+    try { localStorage.setItem(STORAGE_KEY, json); lsOk = true; } catch (e) { lsOk = false; }
+  } else {
+    // 大きくなったら本体は IndexedDB だけ（localStorage の古い写しは消して、取り違えを防ぐ）
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* noop */ }
   }
+  const fail = () => { storageOK = false; if (!saveErrShown) { saveErrShown = true; toast('端末への保存に失敗しました。空き容量やプライベートモードをご確認ください', 'error'); } };
+  if (idb) {
+    idbPut(idb, json).then((ok) => { if (ok) { storageOK = true; if (!lsOk && bc) { try { bc.postMessage({ t: 'saved', at: DB.updatedAt }); } catch (e) { /* noop */ } } } else if (!lsOk) fail(); });
+    if (lsOk) storageOK = true;
+  } else if (lsOk) storageOK = true; else fail();
 }
 /* 記録データが変わった時に呼ぶ（集計キャッシュ破棄＋保存） */
 function touch() { dataVer++; DB.settings.changedAt = Date.now(); save(); }
@@ -5189,7 +5246,7 @@ function renderSettings() {
   h += `${setSecHead('data', false, `${ICON.trash} データ`, `約${fmtNum(Math.round(JSON.stringify(DB).length / 1024))}KB`)}<div class="stack">
     ${hasDemo() ? '<button type="button" class="btn btn-block" data-a="demoRemove">サンプル記録を削除</button>' : '<button type="button" class="btn btn-block" data-a="demoAdd">サンプル記録を追加（グラフのお試し）</button>'}
     <button type="button" class="btn btn-danger-line btn-block" data-a="resetAll">${ICON.trash}すべてのデータを削除して初期化</button></div>
-    <p class="hint">保存容量の目安：約${fmtNum(round1(JSON.stringify(DB).length / 1024))}KB（ブラウザ内の記憶領域）。ブラウザの「サイトデータ削除」を行うと記録も消えるのでご注意ください。</p></details>
+    <p class="hint">保存容量の目安：約${fmtNum(round1(JSON.stringify(DB).length / 1024))}KB（保存先：${storeKind === 'IndexedDB' ? 'ブラウザのIndexedDB。30年分でも入る大きさです' : 'ブラウザのlocalStorage（約5MBまで）'}）。ブラウザの「サイトデータ削除」を行うと記録も消えるのでご注意ください。</p></details>
     <p class="center tiny faint" style="margin:18px 0 8px">LiftCanvas v${APP_VERSION} ・ 種目 ${allEx().length} ・ 保存キー ${STORAGE_KEY}<br>データはこの端末の中だけに保存され、外部に送信されません（Googleドライブ保存を除く）。</p>`;
   return h;
 }
@@ -7185,8 +7242,14 @@ const BackNav = {
   }
 };
 
-function init() {
-  DB = load();
+/* 別タブで保存されたとき（データが大きく localStorage に写さない場合）は IndexedDB から読み直す */
+if (bc) bc.onmessage = async (e) => {
+  if (!e.data || e.data.t !== 'saved' || !idb || (DB && e.data.at <= DB.updatedAt)) return;
+  const raw = await idbGet(idb); const d = raw && parseSaved(raw, 'idb');
+  if (d) { clearTimeout(saveT); saveT = null; DB = d; invalidateEx(); refreshAll(); }
+};
+async function init() {
+  DB = await loadAsync();
   document.body.insertAdjacentHTML('afterbegin', bodyDefs());
   applyTheme();
   invalidateEx();
