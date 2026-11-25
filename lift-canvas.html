@@ -1408,6 +1408,17 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
 @media (max-width:370px){.exc-tags.n4 .lb{display:none}.exc-tags.n4 .ic{display:inline-flex}}
 .exc-tags button span{padding:0;background:none;min-height:0;border-radius:0;font:inherit;color:inherit}
 .set-h>span:first-child{white-space:nowrap;letter-spacing:-.04em}
+/* 下の種目一覧：上に小さくセット数、種目名は2行まで。幅を短く・高さを出して押しやすく（2026.11.25.11） */
+.wo-dock .wo-nav{gap:6px;padding:8px 10px}
+.wo-dock .wo-nav button{min-height:54px;max-width:none;width:96px;border-radius:13px;padding:4px 7px 5px;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;align-content:center;column-gap:3px;row-gap:1px;text-align:left;line-height:1.22}
+.wo-dock .wo-nav button>svg{grid-row:1;grid-column:1;width:11px;height:11px;align-self:center}
+.wo-dock .wo-nav button small{grid-row:1;grid-column:2;font-size:10px;opacity:.85}
+.wo-dock .wo-nav button span{grid-row:2;grid-column:1 / -1;min-width:0;white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:12px;word-break:break-all}
+.wo-dock .wo-nav button.add{width:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:4px}
+.wo-dock .wo-nav button.add svg{width:16px;height:16px}
+.wo-dock .wo-nav button.add span{display:block;font-size:11px}
+.wo-body{padding-bottom:216px}
+@media (max-width:420px){.wo-body{padding-bottom:216px}}
 
 </style>
 </head>
@@ -1432,7 +1443,7 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.25.10';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.25.11';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -3130,7 +3141,7 @@ function renderWorkout() {
 <nav class="wo-nav" id="woNav" aria-label="種目へ移動">${ses.exerciseIds.map((id, i) => {
     const r = recs[i]; const total = r.sets.length, done = r.sets.filter((s) => s.done).length;
     const cls = total && done === total ? 'done' : i === curIdx ? 'cur' : '';
-    return `<button type="button" class="${cls}" data-a="woJump" data-i="${i}">${cls === 'done' ? ICON.check : ''}<span>${esc(getEx(id).name)}</span><small class="num">${done}/${total}</small></button>`;
+    return `<button type="button" class="${cls}" data-a="woJump" data-i="${i}">${cls === 'done' ? ICON.check : ''}<small class="num">${done}/${total}${cls === 'done' ? '' : 'セット'}</small><span>${esc(getEx(id).name)}</span></button>`;
   }).join('')}<button type="button" class="add" data-a="woAddEx" aria-label="種目を追加">${ICON.plus}<span>種目</span></button></nav>
   <div class="restbar" id="restbar" hidden></div></div>`;
   const navX = $('#woNav') ? $('#woNav').scrollLeft : null;
