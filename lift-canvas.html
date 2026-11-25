@@ -1443,6 +1443,33 @@ button.plan-line{width:calc(100% - 24px);border:0;font:inherit;font-size:12.5px;
 button.plan-line>svg:last-child{width:13px;height:13px;flex:none;opacity:.7}
 .plan-add{display:flex;align-items:center;justify-content:center;gap:6px;width:calc(100% - 24px);margin:4px 12px 6px;min-height:36px;border-radius:9px;border:1.5px dashed var(--accent);background:transparent;color:var(--accent);font:inherit;font-size:12.5px;font-weight:750;cursor:pointer;white-space:nowrap}
 .plan-add svg{width:14px;height:14px}
+.tour-off{display:block;margin:10px auto 0;padding:6px 8px;border:0;background:transparent;color:var(--text-3);font:inherit;font-size:11.5px;text-decoration:underline;cursor:pointer}
+/* 320px の崩れ・小さいボタン（2026.11.25.15） */
+.w-sm{display:none}
+@media (max-width:370px){.w-lg{display:none}.w-sm{display:inline}}
+.wo-title span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheet-f .btn{white-space:nowrap}
+.toast.low{top:auto;bottom:calc(var(--safe-bottom) + 96px);transform:translate(-50%,20px)}
+.toast.low.show{transform:translate(-50%,0)}
+@media (max-width:370px){.stat4 b{font-size:15px}.stat4 b small{font-size:9.5px}.stat4>div{padding:0 3px;min-width:0}}
+.seg.pill.mini button{white-space:nowrap}
+@media (max-width:370px){.seg.pill.mini button{font-size:12px;padding-left:4px;padding-right:4px}}
+.card-h h3.fold-h{white-space:nowrap;min-width:0}
+@media (max-width:370px){.card-h h3.fold-h{font-size:16px}}
+/* 小さいボタンは、見た目はそのままで押せる範囲だけ広げる（片手で押しやすく） */
+.exc-tags.exc-row{padding:8px 0;margin-top:-8px;margin-bottom:0}
+.exc-tags.exc-row>button{position:relative}
+.exc-tags.exc-row>button::after{content:"";position:absolute;left:-2px;right:-2px;top:-8px;bottom:-8px}
+.sugg1 button{position:relative}
+.sugg1 button::after{content:"";position:absolute;left:-2px;right:-2px;top:-7px;bottom:-7px}
+.mli .stepper button{position:relative}
+.mli .stepper button::after{content:"";position:absolute;inset:-4px -2px}
+.tour-skip,.pwa-card .icon-btn,.beg-act .btn{position:relative}
+.tour-skip::after,.pwa-card .icon-btn::after,.beg-act .btn::after{content:"";position:absolute;inset:-6px -4px}
+.seg.pill.mini button{min-height:40px}
+.toast.low,body.covered .toast.low{top:auto}
+.wo-title b .w-lg{display:inline}.wo-title b .w-sm{display:none}
+@media (max-width:370px){.wo-title b .w-lg{display:none}.wo-title b .w-sm{display:inline}#woClock{font-size:11px;letter-spacing:-.02em}}
 
 </style>
 </head>
@@ -1467,7 +1494,7 @@ button.plan-line>svg:last-child{width:13px;height:13px;flex:none;opacity:.7}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.25.14';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.25.15';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -1475,6 +1502,27 @@ const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 const DRIVE_FILE_NAME = 'liftcanvas_backup.json';
 // 保存先：各利用者のマイドライブ /Unique Tool/LiftCanvas/（同じ Google プロジェクトの他アプリと共通の親フォルダ）
 const DRIVE_FOLDERS = ['Unique Tool', 'LiftCanvas'];
+/* 外部の部品の改ざん検知（SRI）：npm の配布ファイルと同じ中身のときだけ使う。中身が違えば次の配信元へ */
+const SRI = {
+  chart: 'sha384-dug+JxfBvklEQdJ4AYuBBAIScUz0bVN73xpy273gcAwHjb3qI0fXmuYNaNfdyYJG',
+  xlsx: 'sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw',
+  pdf: 'sha384-/1qUCSGwTur9vjf/z9lmu/eCUYbpOTgSjmpbMQZ1/CtX2v/WcAIKqRv+U1DUCG6e',
+  pdfWorker: 'sha384-SnzOobpRMLXZ52iJvZm/C0fYw0OQemTXzTjIsdsfMcrCtCEe9qgzxTd3RSklO5x2',
+  qr: 'sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k'
+};
+/* SRI 付きで <script> を足す（読み込めない・中身が違う → onerror） */
+function sriScript(src, sri, onload, onerror) {
+  const s = document.createElement('script'); s.src = src; s.async = true; s.integrity = sri; s.crossOrigin = 'anonymous';
+  s.onload = onload; s.onerror = () => { s.remove(); onerror(); }; document.head.appendChild(s); return s;
+}
+/* 取ってきた中身のハッシュを確かめてから使う（Worker 用。<script> の SRI が使えない所） */
+async function fetchVerified(src, sri) {
+  const res = await fetch(src, { mode: 'cors', credentials: 'omit' }); if (!res.ok) throw new Error('取得できません');
+  const buf = await res.arrayBuffer();
+  const h = 'sha384-' + btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.digest('SHA-384', buf))));
+  if (h !== sri) throw new Error('中身が一致しません');
+  return new TextDecoder().decode(buf);
+}
 const CHART_JS_SOURCES = [
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js',
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js',
@@ -2149,19 +2197,20 @@ function parseNum(str) {
   const n = Number(t);
   return isFinite(n) && n >= 0 ? n : null;
 }
+const toastLow = () => !!(typeof UI !== 'undefined' && UI.wo && $('#workout') && !$('#workout').hidden);
 function toast(msg, type = '') {
   const el = $('#toast');
   UI.undo = null;
   el.textContent = msg;
-  el.className = 'toast show ' + type;
+  el.className = 'toast show ' + type + (toastLow() ? ' low' : '');
   clearTimeout(toast._t);
-  toast._t = setTimeout(() => { el.className = 'toast ' + type; }, type === 'error' ? 4500 : 2600);
+  toast._t = setTimeout(() => { el.className = 'toast ' + type + (toastLow() ? ' low' : ''); }, type === 'error' ? 4500 : 2600);
 }
 /* 取り消しできる操作の通知（確認ダイアログの代わり） */
 function undoToast(msg, undo) {
   const el = $('#toast');
   el.innerHTML = `<span>${esc(msg)}</span><button type="button" class="toast-undo" data-a="undo">元に戻す</button>`;
-  el.className = 'toast show has-undo';
+  el.className = 'toast show has-undo' + (toastLow() ? ' low' : '');
   UI.undo = undo;
   clearTimeout(toast._t);
   toast._t = setTimeout(() => { el.className = 'toast'; UI.undo = null; }, 6000);
@@ -2945,11 +2994,7 @@ function loadChartJs() {
   const next = () => {
     if (window.Chart) { chartStatus = 'ready'; return; }
     if (i >= CHART_JS_SOURCES.length) { chartStatus = 'failed'; chartFailedAt = Date.now(); return; }
-    const s = document.createElement('script');
-    s.src = CHART_JS_SOURCES[i++]; s.async = true;
-    s.onload = () => { if (window.Chart) { chartStatus = 'ready'; upgradeCharts(); } else next(); };
-    s.onerror = () => { s.remove(); next(); };
-    document.head.appendChild(s);
+    sriScript(CHART_JS_SOURCES[i++], SRI.chart, () => { if (window.Chart) { chartStatus = 'ready'; upgradeCharts(); } else next(); }, next);
   };
   next();
 }
@@ -3225,7 +3270,7 @@ function startClock() { clearInterval(clockT); clockT = setInterval(tickClock, 1
 function tickClock() {
   const a = DB.active;
   const t = a ? fmtElapsed(Date.now() - a.startedAt) : '';
-  const c = $('#woClock'); if (c && UI.wo && UI.wo.live) c.textContent = `${fmtClock(a.startedAt)}開始 ・ ${t}`;
+  const c = $('#woClock'); if (c && UI.wo && UI.wo.live) c.textContent = innerWidth <= 370 ? `経過 ${t}` : `${fmtClock(a.startedAt)}開始 ・ ${t}`;
   const m = $('#miniClock'); if (m) m.textContent = t;
   if (!a && !(UI.wo)) clearInterval(clockT);
 }
@@ -3241,7 +3286,7 @@ function renderWorkout() {
   const groups = ssGroups(ses);
   let h = `<header class="wo-head"><div class="wo-head-in">
     ${live ? `<button type="button" class="icon-btn" data-a="woMin" aria-label="最小化して他の画面を見る">${ICON.chevD}</button>` : `<button type="button" class="icon-btn" data-a="woEditDone" aria-label="戻る">${ICON.back}</button>`}
-    <div class="wo-title"><b>${live ? '進行中のトレーニング' : '記録を編集'}</b><span id="woClock">${live ? `${fmtClock(ses.startedAt)}開始 ・ ${fmtElapsed(Date.now() - ses.startedAt)}` : fmtDate(ses.date, true)}</span></div>
+    <div class="wo-title"><b>${live ? '<span class="w-lg">進行中のトレーニング</span><span class="w-sm">記録中</span>' : '記録を編集'}</b><span id="woClock">${live ? (innerWidth <= 370 ? `経過 ${fmtElapsed(Date.now() - ses.startedAt)}` : `${fmtClock(ses.startedAt)}開始 ・ ${fmtElapsed(Date.now() - ses.startedAt)}`) : fmtDate(ses.date, true)}</span></div>
     ${live ? `<button type="button" class="icon-btn" data-a="restMenu" aria-label="休憩タイマー">${ICON.timer}</button>` : ''}
     <button type="button" class="icon-btn" data-a="woMore" aria-label="その他の操作">${ICON.more}</button>
     <button type="button" class="wo-finish" data-a="${live ? 'woFinish' : 'woEditDone'}">${live ? '終了' : '完了'}</button>
@@ -3746,7 +3791,7 @@ function showSummary(sm) {
       <div class="field"><span class="lbl">今日の調子</span><div class="seg">${['😫', '😕', '🙂', '😀', '🔥'].map((e, k) => `<button type="button" data-a="rate" data-v="${k + 1}" aria-pressed="${st.rating === k + 1}" style="font-size:22px">${e}</button>`).join('')}</div></div>
       <label class="field"><span class="lbl">ひとことメモ</span><textarea class="input" data-in="note" rows="2" placeholder="例：スナッチのスピードが良かった">${esc(st.note)}</textarea></label>
       ${sm.items.map((it) => `<div class="ses-ex"><span class="bar" style="background:${partColor(it.ex.part)}"></span><div class="m"><b>${esc(it.ex.name)} ${it.beats ? `<span class="badge beat">前回超え×${it.beats}</span>` : ''}${it.pr ? '<span class="badge pr">自己ベスト</span>' : ''}</b><span>${esc(fmtSets(it.ds, it.ex))}</span></div></div>`).join('')}`,
-    foot: () => `<button type="button" class="btn" data-a="share">${ICON.share}画像で共有</button>${!sm.menuId ? `<button type="button" class="btn" data-a="saveMenu">メニュー化</button>` : ''}<button type="button" class="btn btn-primary" data-a="done">閉じる</button>`,
+    foot: () => `<button type="button" class="btn" data-a="share">${ICON.share}<span class="w-lg">画像で</span>共有</button>${!sm.menuId ? `<button type="button" class="btn" data-a="saveMenu">メニュー化</button>` : ''}<button type="button" class="btn btn-primary" data-a="done">閉じる</button>`,
     inputs: { note: (el) => { st.note = el.value; } },
     actions: {
       rate: (el, e, s) => { st.rating = Number(el.dataset.v); s.render(); },
@@ -4531,8 +4576,12 @@ function trendRows(limit) {
     const ex = getEx(id); const key = mainMetricOf(ex, recs);
     const series = dailySeries(id).map((p) => ({ ...p, y: key === 'e1rm' ? round1(p.stats.e1rm) : p.stats.maxR }));
     const recent = series.slice(-16);
-    const cur = series[series.length - 1].y;
-    const base3 = series.filter((p) => p.date <= addDays(ymd(), -90)).pop() || series[0];
+    // 比べるのは「4週間の中の最高」どうし：軽い日を1回入れただけで大きく下がったように見えないように
+    const best4 = (from, to) => { const v = series.filter((p) => p.date >= from && p.date <= to).map((p) => p.y); return v.length ? Math.max(...v) : null; };
+    const today = ymd();
+    const cur = best4(addDays(today, -27), today) ?? series[series.length - 1].y;
+    const old = series.filter((p) => p.date <= addDays(today, -90)).pop();
+    const base3 = { y: old ? best4(addDays(old.date, -27), old.date) : best4(series[0].date, addDays(series[0].date, 27)) };
     let best = -Infinity; const prIdx = [];
     series.forEach((p, i) => { if (p.y > best) { if (i > 0) prIdx.push(i); best = p.y; } });
     const offset = series.length - recent.length;
@@ -4541,7 +4590,7 @@ function trendRows(limit) {
 }
 function trendRowHtml(t) {
   return `<button type="button" class="trend" data-a="exDetail" data-id="${esc(t.ex.id)}"><div class="m"><b>${esc(t.ex.name)}</b><div class="v">${fmtNum(t.cur)}<small>${t.unit}</small></div>
-    <div class="d">3ヶ月前から ${deltaHtml(t.cur, t.base, t.unit)} <span class="faint">${t.key === 'e1rm' ? '推定1RM' : t.key === 'time' ? '最長' : '最多回数'}</span></div></div><div class="spark">${sparkSvg(t.recent.map((p) => p.y), { pr: t.prIdx, color: partColor(t.ex.part) })}</div></button>`;
+    <div class="d">3ヶ月前から ${deltaHtml(t.cur, t.base, t.unit)} <span class="faint">${t.key === 'e1rm' ? '推定1RM' : t.key === 'time' ? '最長' : '最多回数'}・4週の最高どうし</span></div></div><div class="spark">${sparkSvg(t.recent.map((p) => p.y), { pr: t.prIdx, color: partColor(t.ex.part) })}</div></button>`;
 }
 /* 分析画面のまとまりを開閉できるようにする（開閉はこの端末に覚える） */
 function foldOpen(k, def) { const f = (DB.ui && DB.ui.anaFold) || {}; return k in f ? !!f[k] : def; }
@@ -5188,8 +5237,11 @@ function exDetailHtml(exId, st) {
     ${metrics.length > 1 ? `<div class="seg" style="margin-bottom:8px">${metrics.map(([k, l]) => `<button type="button" data-a="metric" data-v="${k}" aria-pressed="${mk === k}">${l}</button>`).join('')}</div>` : ''}
     <div class="seg pill">${PERIODS.map((pp) => `<button type="button" data-a="period" data-v="${pp.key}" aria-pressed="${st.period === pp.key}">${pp.label}${pp.sub ? `<small>${pp.sub}</small>` : ''}</button>`).join('')}</div>`;
   if (pts.length >= 2) {
-    const d = pts[pts.length - 1].y - pts[0].y; const pct = pts[0].y > 0 ? d / pts[0].y * 100 : null;
-    h += `<div class="delta">${plabel}から <b class="${d > 0 ? 'up' : d < 0 ? 'down' : 'flat'}">${d > 0 ? '+' : d < 0 ? '−' : '±'}${fmtV(Math.abs(round1(d)))}${unit}</b>${pct != null ? ` <span class="${d > 0 ? 'up' : d < 0 ? 'down' : 'flat'}">（${d >= 0 ? '+' : '−'}${Math.abs(pct).toFixed(1)}%）</span>` : ''} <span class="small faint">${fmtV(pts[0].y)} → ${fmtV(pts[pts.length - 1].y)}${unit}</span></div>`;
+    // 4週間の中の最高どうしで比べる（期間の始めの4週 → 直近4週）
+    const first4 = Math.max(...pts.filter((p) => p.date <= addDays(pts[0].date, 27)).map((p) => p.y));
+    const last4 = Math.max(...pts.filter((p) => p.date >= addDays(pts[pts.length - 1].date, -27)).map((p) => p.y));
+    const d = last4 - first4; const pct = first4 > 0 ? d / first4 * 100 : null;
+    h += `<div class="delta">${plabel}から <b class="${d > 0 ? 'up' : d < 0 ? 'down' : 'flat'}">${d > 0 ? '+' : d < 0 ? '−' : '±'}${fmtV(Math.abs(round1(d)))}${unit}</b>${pct != null ? ` <span class="${d > 0 ? 'up' : d < 0 ? 'down' : 'flat'}">（${d >= 0 ? '+' : '−'}${Math.abs(pct).toFixed(1)}%）</span>` : ''} <span class="small faint">4週の最高どうし ${fmtV(first4)} → ${fmtV(last4)}${unit}</span></div>`;
   } else if (pts.length === 1) h += `<div class="delta small">記録が2回以上になると、伸びを表示します</div>`;
   if (pts.length) {
     h += chartHtml({ type: 'line', points: pts, kind: mk === 'reps' ? 'reps' : mk === 'volume' ? 'volume' : 'kg', unit, sel, color: partColor(ex.part), tipLabel: (pt) => `${fmtV(pt.y)}${unit}${pt.pr ? ' 🏆' : ''}`, onPoint: (i) => { const pg = pages.find((x) => x.state === st); if (pg && pg.selectPoint) pg.selectPoint(i); }, aria: `${ex.name}の推移` });
@@ -5674,7 +5726,7 @@ function appShareUrl() { return location.protocol === 'https:' && !/^(localhost|
 const SHARE_TEXT = '筋トレの記録アプリ「LiftCanvas」。無料・登録なしで、記録はスマホの中だけに保存されます。';
 function loadQr() {
   if (window.qrcode) return Promise.resolve(window.qrcode);
-  return new Promise((resolve, reject) => { let i = 0; const next = () => { if (i >= QR_SOURCES.length) { reject(new Error('QRコードを作れませんでした（電波を確認してください）')); return; } const sc = document.createElement('script'); sc.src = QR_SOURCES[i++]; sc.onload = () => (window.qrcode ? resolve(window.qrcode) : next()); sc.onerror = () => { sc.remove(); next(); }; document.head.appendChild(sc); }; next(); });
+  return new Promise((resolve, reject) => { let i = 0; const next = () => { if (i >= QR_SOURCES.length) { reject(new Error('QRコードを作れませんでした（電波を確認してください）')); return; } sriScript(QR_SOURCES[i++], SRI.qr, () => (window.qrcode ? resolve(window.qrcode) : next()), next); }; next(); });
 }
 function qrSvg(qr) {
   const n = qr.getModuleCount(); const m = 3; let d = '';
@@ -6009,29 +6061,20 @@ const INTRO_TOUR = [
       ['ic-cloud', 'バックアップは自分のGoogleドライブかファイルへ', '保存先はあなた自身のもので、提供者を含むほかの人からは見えません'],
       ['ic-off', '電波がなくても使える', 'ホーム画面に追加すれば、アプリと同じように全画面で起動します']] }
 ];
+/* ホームの案内は3段だけ（最初の記録までに閉じる回数を減らす）。各画面の使い方は、開いたときに短いヒントで出す */
 const WELCOME_TOUR = [
-  { sel: '#view .card.reco', title: '今日のおすすめ', text: '筋肉の回復の目安と前回からの日数から、今日やるとよいメニューを1つ選びます。人体図の<b>オレンジ</b>が今回鍛える筋肉。迷ったら<b>「このメニューで開始」</b>でOKです。' },
-  { sel: '#view .quick', title: 'メニューを使わずに始める', text: '<b>種目を選ぶ</b>：やる種目だけ選んで開始。<b>空で始める</b>：始めてから種目を足していく。記録があると<b>「前回と同じ内容でもう一度」</b>もここに出ます。' },
-  { sel: '#view .menu-card', title: 'メニュー＝いつもの種目のセット', text: '<b>「例」</b>の付いたメニューは見本です。<b>⋮</b>から<b>編集・複製・削除</b>、上の<b>「メニューを作成」</b>で自分用を作れます。<b>「開始」</b>で記録画面になります。' },
-  { sel: '#tabbar [data-tab="cal"]', title: '記録（カレンダー）', text: '日付をタップすると、その日の内容を確認・修正できます。付け忘れた日も<b>あとから追加</b>できます。' },
-  { sel: '#tabbar [data-tab="review"]', title: '分析', text: '直近4週間の記録を、研究で示された目安（週のセット数・頻度・回数帯など）と比べて助言します。自己ベストや種目ごとの伸びもここで見られます。' },
-  { sel: '#tabbar [data-tab="lib"]', title: '種目', text: '全種目のやり方・鍛える筋肉・自分の記録を見られます。ない種目は<b>自分で追加</b>できます。' },
-  { sel: '#tabbar [data-tab="settings"]', title: '設定', text: '<b>経験レベル</b>の変更（表示の詳しさが変わります）、機種変更に備えた<b>バックアップ</b>、この案内をもう一度見る、はここから。各画面の使い方は、はじめて開いたときにその場でご案内します。' }
+  { sel: '#view .card.reco', title: '今日のおすすめ', text: '回復の目安と前回からの日数で、今日やるとよいメニューを1つ選びます。迷ったら<b>「このメニューで開始」</b>でOKです。' },
+  { sel: '#view .quick', title: 'メニューを使わずに始める', text: '<b>種目を選ぶ</b>か<b>空で始める</b>。下の<b>メニュー</b>は「いつもの種目のセット」で、<b>⋮</b>から編集・複製・削除できます。' },
+  { sel: '#tabbar', title: '下のタブ', text: '<b>記録</b>＝カレンダー（あとから追加も可）、<b>分析</b>＝研究の目安との比較と伸び、<b>種目</b>＝やり方と自分の記録、<b>設定</b>＝経験レベル・バックアップ・この案内の見直し。' }
 ];
 const TIPS = {
   wo: { cond: () => UI.wo && !UI.kp && $('.overlay .set-r .cell'), steps: [
-    { sel: '.overlay .set-r .cell', title: '重量・回数を入力', text: '欄をタップすると大きなテンキーが出ます。薄い数字は<b>前回の値</b>で、そのまま✓を押せば同じ内容で記録できます。' },
-    { sel: '.overlay .done-btn', title: 'できたら ✓', text: 'セット完了です。<b>休憩タイマー</b>が自動で動き、終わると音と振動で知らせます（設定で変更可）。' },
-    { sel: '.overlay .set-no', title: 'セット番号をタップ', text: '<b>ウォームアップ／ドロップセット</b>への切り替え、<b>RPE（きつさ）</b>の記録、複製・削除ができます。' },
-    { sel: '.overlay .exc [data-a="exMore"]', title: '種目の ⋮', text: 'ウォームアップの自動作成、%計算、別の種目への入れ替え、順番の変更、スーパーセットはここから。' },
-    { sel: '.overlay .wo-finish', title: '終わったら「終了」', text: '記録は1セットごとに自動保存されています。左上の<b>∨</b>で画面をたためば、ほかのタブを見ながら続けられます。' }] },
-  kp: { cond: () => UI.kp && $('#keypad'), steps: [
-    { sel: '#keypad', title: 'テンキー', text: '<b>＋／−</b>で刻み幅ずつ調整、<b>次へ</b>で重量→回数→次のセットへ進みます。<b>✓</b>でそのセットを完了にします。' }] },
+    { sel: '.overlay .set-r', title: '入力して ✓', text: '欄をタップすると大きなテンキー（<b>＋／−</b>で刻み、<b>次へ</b>で重量→回数→次のセット）。薄い数字は<b>前回の値</b>で、そのまま<b>✓</b>でも記録できます。✓で<b>休憩タイマー</b>が始まります。' },
+    { sel: '.overlay .wo-finish', title: '終わったら「終了」', text: '1セットごとに自動保存されます。<b>⋮</b>からウォームアップ・入れ替え・スーパーセット、<b>∨</b>で画面をたたんでほかのタブも見られます。' }] },
   cal: { cond: () => UI.tab === 'cal' && !UI.wo && $('#view .cal'), steps: [
     { sel: '#view .cal', title: 'トレーニングした日', text: '色の輪が付いた日がトレーニングした日です（色は鍛えた部位）。日付をタップすると、その日の記録の確認・修正・追加ができます。' }] },
   review: { cond: () => UI.tab === 'review' && !UI.wo && $('#view .ana'), steps: [
-    { sel: '#view .ana [data-a="anaGoal"]', parent: '.seg', title: '目的を選ぶ', text: '<b>筋肉をつける／強くなる／健康・体力</b>で、セット数などの目安が変わります。' },
-    { sel: '#view .ana .ins', title: 'タップで根拠を表示', text: '各項目をタップすると、出典の研究と<b>根拠の強さ</b>（高・中・参考）が出ます。' }] },
+    { sel: '#view .ana [data-a="anaGoal"]', parent: '.seg', title: '目的を選ぶ', text: '<b>筋肉をつける／強くなる／健康・体力</b>で目安が変わります。各項目をタップすると、出典の研究と<b>根拠の強さ</b>が出ます。' }] },
   lib: { cond: () => UI.tab === 'lib' && !UI.wo && $('#view .search'), steps: [
     { sel: '#view .search', title: '種目を探す', text: '名前の一部や「胸」「ダンベル」などで絞り込めます。種目をタップすると、やり方・鍛える筋肉・自分の記録の推移が見られます。' },
     { sel: '#fab', title: 'ない種目は追加', text: '自分の種目を作ると、メニューや記録でほかの種目と同じように使えます。' }] },
@@ -6091,7 +6134,7 @@ function drawTour(anim) {
     <div class="tour-bub${anim ? '' : ' mid'}" style="left:${(W - bw) / 2}px;width:${bw}px;top:0;visibility:hidden" role="dialog" aria-modal="true" aria-label="使い方ガイド">
       ${n > 1 ? `<div class="tour-step"><span>${TOUR.i + 1} / ${n}</span><i><b style="width:${(TOUR.i + 1) / n * 100}%"></b></i></div>` : ''}
       ${st.hero ? `<div class="tour-hero">${st.hero}</div>` : ''}<h4>${st.title}</h4><p>${st.text}</p>${st.list ? `<ul>${st.list.map((x) => `<li><span>${x}</span></li>`).join('')}</ul>` : ''}${st.items ? `<div class="tour-feats">${[...st.items, ...(st.more || [])].map(([ic, t, d]) => `<div class="tf"><i class="tf-i ${ic}">${INTRO_ICONS[ic] || ''}</i><div><b>${t}</b><span>${d}</span></div></div>`).join('')}</div>` : ''}
-      ${btns}</div>`;
+      ${btns}${TOUR.kind !== 'intro' ? '<button type="button" class="tour-off" data-a="tourOff">このあとのヒントをすべてオフ（設定で戻せます）</button>' : ''}</div>`;
   // 吹き出しの実際の高さを測って、対象の下→上→（入らなければ）画面下に重ねて置く
   const bub = $('.tour-bub', box); const bh = bub.offsetHeight, gap = 14;
   let top, arrow = '';
@@ -6101,7 +6144,12 @@ function drawTour(anim) {
     bub.style.left = left + 'px';
     if (rect.B + gap + bh <= H - 8) { top = rect.B + gap; arrow = `<i class="tour-arr up" style="left:${ax}px"></i>`; }
     else if (rect.T - gap - bh >= 8) { top = rect.T - gap - bh; arrow = `<i class="tour-arr down" style="left:${ax}px"></i>`; }
-    else top = H - bh - 12;
+    else {
+      // 上下どちらにも入らない：対象を上へずらして、吹き出しが入力欄に重ならないようにする（1回だけ）
+      const sc = el && el.closest('.overlay');
+      if (sc && !TOUR.moved && rect.T > 130) { TOUR.moved = true; sc.scrollTop += rect.T - 120; requestAnimationFrame(() => drawTour(false)); }
+      top = H - bh - 12;
+    }
   }
   bub.style.top = Math.max(8, top) + 'px'; bub.style.visibility = '';
   if (arrow) bub.insertAdjacentHTML('afterbegin', arrow);
@@ -6135,7 +6183,8 @@ function maybeTip() {
 window.addEventListener('resize', () => { if (TOUR) drawTour(false); });
 document.addEventListener('keydown', (e) => { if (TOUR && e.key === 'Escape') { e.stopImmediatePropagation(); endTour(); } }, true);
 Object.assign(ACT, {
-  tourNext: () => { if (!TOUR) return; if (TOUR.i >= TOUR.steps.length - 1) { if (TOUR.kind !== 'tip') return; endTour(); return; } TOUR.i++; showTourStep(); },
+  tourNext: () => { if (!TOUR) return; if (TOUR.i >= TOUR.steps.length - 1) { if (TOUR.kind !== 'tip') return; endTour(); return; } TOUR.i++; TOUR.moved = false; showTourStep(); },
+  tourOff: () => { DB.settings.tipsOff = true; if (TOUR && TOUR.kind === 'welcome') DB.ui.tourDone = true; endTour(); save(); toast('ヒントをオフにしました。「設定 → 使い方ガイド」から戻せます'); },
   tourPrev: () => { if (!TOUR || TOUR.i === 0) return; TOUR.i--; showTourStep(); },
   tourEnd: (el) => { const demo = el && el.dataset && el.dataset.demo; endTour(); if (demo) ACT.demoAdd(); },
   guideIntro: () => startIntro(true),
@@ -6206,23 +6255,33 @@ IMP.loadXlsx = () => {
     let i = 0;
     const next = () => {
       if (i >= XLSX_SOURCES.length) { reject(new Error('Excelファイルの読み込み部品を取得できませんでした。電波の良い場所で試すか、CSV形式で保存してから読み込んでください')); return; }
-      const sc = document.createElement('script'); sc.src = XLSX_SOURCES[i++]; sc.async = true;
-      sc.onload = () => (window.XLSX ? resolve(window.XLSX) : next()); sc.onerror = () => { sc.remove(); next(); };
-      document.head.appendChild(sc);
+      sriScript(XLSX_SOURCES[i++], SRI.xlsx, () => (window.XLSX ? resolve(window.XLSX) : next()), next);
     };
     next();
   });
 };
+/* Excel の読み取りは、本体から切り離した Worker の中で行う（細工されたファイルでも本体のデータに触れられない）。
+   20秒で終わらなければ止める（読み取りが固まるファイル対策） */
+IMP.xlsxWorkerSrc = null;
+IMP.xlsxWorkerCode = async () => {
+  if (IMP.xlsxWorkerSrc) return IMP.xlsxWorkerSrc;
+  let lib = null, err = null;
+  for (const u of XLSX_SOURCES) { try { lib = await fetchVerified(u, SRI.xlsx); break; } catch (e) { err = e; } }
+  if (!lib) throw new Error('Excelファイルの読み込み部品を取得できませんでした。電波の良い場所で試すか、CSV形式で保存してから読み込んでください');
+  const handler = `;self.onmessage=function(e){try{var X=self.XLSX;var wb=X.read(new Uint8Array(e.data),{type:'array',cellDates:true});var out=[];wb.SheetNames.forEach(function(name){var rows=X.utils.sheet_to_json(wb.Sheets[name],{header:1,raw:false,dateNF:'yyyy-mm-dd',defval:'',blankrows:false});if(rows.length)out.push({name:String(name),rows:rows.map(function(r){return r.map(function(v){return String(v==null?'':v)})})})});self.postMessage({ok:true,out:out})}catch(x){self.postMessage({ok:false,msg:String(x&&x.message||x)})}};`;
+  IMP.xlsxWorkerSrc = URL.createObjectURL(new Blob([lib, handler], { type: 'text/javascript' }));
+  return IMP.xlsxWorkerSrc;
+};
 /* Excel：全シートを表（行の配列）にする */
 IMP.xlsxRows = async (buf) => {
-  const X = await IMP.loadXlsx();
-  const wb = X.read(new Uint8Array(buf), { type: 'array', cellDates: true });
-  const out = [];
-  for (const name of wb.SheetNames) {
-    const rows = X.utils.sheet_to_json(wb.Sheets[name], { header: 1, raw: false, dateNF: 'yyyy-mm-dd', defval: '', blankrows: false });
-    if (rows.length) out.push({ name, rows: rows.map((r) => r.map((v) => String(v == null ? '' : v))) });
-  }
-  return out;
+  const src = await IMP.xlsxWorkerCode();
+  return new Promise((resolve, reject) => {
+    const w = new Worker(src);
+    const t = setTimeout(() => { w.terminate(); reject(new Error('Excelファイルの読み取りに時間がかかりすぎたため止めました。CSV形式で保存してから読み込んでください')); }, 20000);
+    w.onmessage = (e) => { clearTimeout(t); w.terminate(); const d = e.data || {}; if (d.ok && Array.isArray(d.out)) resolve(d.out); else reject(new Error('Excelファイルを読み取れませんでした' + (d.msg ? '（' + String(d.msg).slice(0, 80) + '）' : ''))); };
+    w.onerror = (e) => { clearTimeout(t); w.terminate(); reject(new Error('Excelファイルを読み取れませんでした')); e.preventDefault && e.preventDefault(); };
+    const copy = buf.slice(0); w.postMessage(copy, [copy]);
+  });
 };
 
 /* ---------- 文書ファイル（Word・Googleドキュメント・OpenDocument・RTF・HTML） ----------
@@ -6348,10 +6407,12 @@ IMP.loadPdf = () => {
     const next = () => {
       if (i >= PDF_SOURCES.length) { reject(new Error('PDFの読み込み部品を取得できませんでした。電波の良い場所で試すか、文章をコピーして下に貼り付けてください')); return; }
       const [src, worker] = PDF_SOURCES[i++];
-      const sc = document.createElement('script'); sc.src = src; sc.async = true;
-      sc.onload = () => { if (window.pdfjsLib) { window.pdfjsLib.GlobalWorkerOptions.workerSrc = worker; resolve(window.pdfjsLib); } else next(); };
-      sc.onerror = () => { sc.remove(); next(); };
-      document.head.appendChild(sc);
+      sriScript(src, SRI.pdf, async () => {
+        if (!window.pdfjsLib) { next(); return; }
+        // Worker の中身も確かめてから使う（確かめられなければ次の配信元へ）
+        try { const code = await fetchVerified(worker, SRI.pdfWorker); window.pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([code], { type: 'text/javascript' })); resolve(window.pdfjsLib); }
+        catch (e) { next(); }
+      }, next);
     };
     next();
   });
