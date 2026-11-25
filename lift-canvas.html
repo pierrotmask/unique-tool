@@ -1433,6 +1433,11 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
 .mli>.plan-btn{flex-basis:100%;justify-content:center;margin:2px 0 2px}
 @media (max-width:400px){.mli{gap:6px!important}.mli>.icon-btn,.mli>div>.icon-btn{width:34px;min-width:34px}.mli .stepper button{width:34px!important}.mli .stepper .val{min-width:50px!important;font-size:15px!important}.mli .exi,.mli>svg:first-child{flex:none}}
 @media (max-width:400px){.mli .stepper .val{white-space:nowrap;min-width:56px!important}.mli .stepper .u{font-size:11px}.mli .stepper button{width:32px!important}.mli .stepper{gap:3px!important}}
+/* 消えないお知らせ（保存できていない／保存データを読めていない） */
+.sys-banner{position:fixed;left:8px;right:8px;top:calc(var(--safe-top) + 8px);z-index:400;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:var(--danger);color:#fff;box-shadow:0 10px 30px -10px rgba(0,0,0,.5);max-width:620px;margin:0 auto}
+.sys-banner .m{flex:1;min-width:0;display:flex;flex-direction:column;font-size:12.5px;line-height:1.35}
+.sys-banner .m b{font-size:14px}
+.sys-banner .btn{flex:none;background:#fff;color:var(--danger);border:0;white-space:nowrap}
 
 </style>
 </head>
@@ -1457,7 +1462,7 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.25.12';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.25.13';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -2070,6 +2075,11 @@ const ICON = {
 /* ---------- 状態 ---------- */
 let DB = null;
 let storageOK = true;
+/* 保存データを読めなかったときの状態。読めなかった元データを上書きしないよう、利用者が選ぶまで保存を止める */
+let RECOVERY = null;          // { raws: [{ src, raw }] }
+let saveBlocked = false;
+let saveFailed = false;
+let HAS_BROKEN = false;      // 前に読めなかったデータが端末に残っているか（設定 → データ に取り出すボタンを出す）       // 保存に失敗して、まだ成功していない
 let exMapCache = null;
 let dataVer = 1;
 let idxCache = null;
@@ -2321,6 +2331,9 @@ function normalize(src) {
       date: isYmd(a.date) ? a.date : ymd(), exerciseIds: a.exerciseIds.map(String),
       startedAt: num(a.startedAt) || Date.now(), supersets: ss, note: String(a.note || ''), minimized: !!a.minimized
     };
+    const ap = obj(a.plan); const plan = {};
+    for (const k of Object.keys(ap)) { const p = obj(ap[k]); const r = num(p.r), rpe = num(p.rpe), mx = num(p.max); if (!out.active.exerciseIds.includes(k) || !(r >= 1 && r <= 12) || !(rpe >= 6 && rpe <= 10) || Math.round(rpe * 2) !== rpe * 2) continue; plan[k] = { r: Math.round(r), rpe }; if (mx > 0 && mx < 1000) plan[k].max = mx; }
+    if (Object.keys(plan).length) out.active.plan = plan;
   }
   const t = obj(d.timer);
   if (num(t.endAt)) out.timer = { endAt: num(t.endAt), dur: num(t.dur) || 90 };
@@ -2378,13 +2391,38 @@ function idbOpen() {
 }
 function idbGet(d) { return new Promise((res) => { try { const rq = d.transaction(IDB_STORE, 'readonly').objectStore(IDB_STORE).get(IDB_KEY); rq.onsuccess = () => res(rq.result || null); rq.onerror = () => res(null); } catch (e) { res(null); } }); }
 function idbPut(d, val) { return new Promise((res) => { try { const tx = d.transaction(IDB_STORE, 'readwrite'); tx.objectStore(IDB_STORE).put(val, IDB_KEY); tx.oncomplete = () => res(true); tx.onerror = () => res(false); tx.onabort = () => res(false); } catch (e) { res(false); } }); }
+function idbGetKey(d, key) { return new Promise((res) => { try { const rq = d.transaction(IDB_STORE, 'readonly').objectStore(IDB_STORE).get(key); rq.onsuccess = () => res(rq.result == null ? null : rq.result); rq.onerror = () => res(null); } catch (e) { res(null); } }); }
+function idbPutKey(d, key, val) { return new Promise((res) => { try { const tx = d.transaction(IDB_STORE, 'readwrite'); tx.objectStore(IDB_STORE).put(val, key); tx.oncomplete = () => res(true); tx.onerror = () => res(false); tx.onabort = () => res(false); } catch (e) { res(false); } }); }
+/* 保存場所から取り出した値を文字列にそろえる（文字列以外が入っていても起動を止めない） */
+function asRaw(v) { if (v == null) return null; if (typeof v === 'string') return v; try { return JSON.stringify(v); } catch (e) { return String(v); } }
 function parseSaved(raw, from) {
-  try { return normalize(JSON.parse(raw)); }
-  catch (e) {
-    console.error('保存データの読み込みに失敗しました', from, e);
-    try { localStorage.setItem(STORAGE_KEY + '_broken', String(raw).slice(0, 4000000)); } catch (e2) { /* 容量不足 */ }
-    return null;
-  }
+  try { const o = JSON.parse(raw); if (!o || typeof o !== 'object' || Array.isArray(o)) throw new Error('記録の形ではありません'); return normalize(o); }
+  catch (e) { console.error('保存データの読み込みに失敗しました', from, e); return null; }
+}
+/* 読めなかったデータを残す（IndexedDB には大きさの制限なし。localStorage は入る範囲で） */
+async function stashBroken(raws) {
+  const text = JSON.stringify({ at: Date.now(), raws });
+  let ok = false;
+  if (idb) ok = await idbPutKey(idb, IDB_KEY + '_broken', text);
+  try { localStorage.setItem(STORAGE_KEY + '_broken', text); ok = true; } catch (e) { /* 容量不足 */ }
+  return ok;
+}
+async function readBroken() {
+  let v = null;
+  if (idb) v = asRaw(await idbGetKey(idb, IDB_KEY + '_broken'));
+  if (!v) { try { v = localStorage.getItem(STORAGE_KEY + '_broken'); } catch (e) { v = null; } }
+  if (!v) return null;
+  try { const o = JSON.parse(v); if (o && Array.isArray(o.raws)) return o; } catch (e) { /* 古い形：生の文字列 */ }
+  return { at: 0, raws: [{ src: 'old', raw: v }] };
+}
+/* 読めなかった元データをファイルとして渡す（あとで直せば戻せる） */
+function downloadRaws(raws) {
+  raws.forEach((x, k) => {
+    const blob = new Blob([x.raw], { type: 'application/json' });
+    const url = URL.createObjectURL(blob); const a = document.createElement('a');
+    a.href = url; a.download = `liftcanvas-unreadable-${ymd()}-${x.src}${raws.length > 1 ? '-' + (k + 1) : ''}.json`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
+  });
 }
 /* 同期で読む（localStorage だけ。予備・テスト用） */
 function load() {
@@ -2393,22 +2431,31 @@ function load() {
   if (!raw) return defaultData();
   const d = parseSaved(raw, 'localStorage');
   if (d) return d;
-  setTimeout(() => toast('保存データが読み込めなかったため初期状態で起動しました', 'error'), 600);
+  RECOVERY = { raws: [{ src: 'ls', raw }] }; saveBlocked = true;
   return defaultData();
 }
 /* 起動時に読む：IndexedDB と localStorage の新しい方。localStorage にしかなければ IndexedDB へ引っ越す */
 async function loadAsync() {
   idb = await idbOpen();
-  const fromIdb = idb ? await idbGet(idb) : null;
+  const fromIdb = idb ? asRaw(await idbGet(idb)) : null;
   let fromLs = null; try { fromLs = localStorage.getItem(STORAGE_KEY); } catch (e) { storageOK = false; }
   const at = (raw) => { if (!raw) return -1; const m = /"updatedAt":(\d+)/.exec(raw.slice(0, 400)); if (m) return Number(m[1]); try { return Number(JSON.parse(raw).updatedAt) || 0; } catch (e) { return 0; } };
   let raw = fromIdb, src = 'idb';
   if (!fromIdb || (fromLs && at(fromLs) > at(fromIdb))) { raw = fromLs; src = 'ls'; }
   storeKind = idb ? 'IndexedDB' : 'localStorage';
+  // 安全モード（起動に失敗したときの画面から選ぶ）：保存データを読まずに、復旧の画面へ
+  let safe = false; try { safe = sessionStorage.getItem('lc-safe') === '1'; sessionStorage.removeItem('lc-safe'); } catch (e) { safe = false; }
+  if (safe && (fromIdb || fromLs)) { RECOVERY = { safe: true, raws: [fromIdb && { src: 'idb', raw: fromIdb }, fromLs && fromLs !== fromIdb && { src: 'ls', raw: fromLs }].filter(Boolean) }; saveBlocked = true; return defaultData(); }
   if (!raw) return defaultData();
   let d = parseSaved(raw, src);
   if (!d && src === 'idb' && fromLs) { d = parseSaved(fromLs, 'ls'); src = 'ls'; }
-  if (!d) { setTimeout(() => toast('保存データが読み込めなかったため初期状態で起動しました', 'error'), 600); return defaultData(); }
+  if (!d && src === 'ls' && fromIdb) { d = parseSaved(fromIdb, 'idb'); src = 'idb'; }
+  if (!d) {
+    // 読めない：元データは上書きせず残し、利用者に選んでもらう（ファイルに保存／バックアップから戻す／初期状態で始める）
+    RECOVERY = { raws: [fromIdb && { src: 'idb', raw: fromIdb }, fromLs && fromLs !== fromIdb && { src: 'ls', raw: fromLs }].filter(Boolean) };
+    saveBlocked = true;
+    return defaultData();
+  }
   // 引っ越し：localStorage の方が新しい（または IndexedDB が空）なら、すぐ IndexedDB に書き、読み戻して確かめる
   if (idb && src === 'ls') {
     const json = JSON.stringify(d); const ok = await idbPut(idb, json);
@@ -2426,7 +2473,7 @@ function save() { DB.updatedAt = Date.now(); if (!saveT) saveT = setTimeout(save
 function flushSave() { if (saveT) saveNow(); }   // 未保存の変更があるときだけ書き込む
 function saveNow() {
   clearTimeout(saveT); saveT = null;
-  if (!DB) return;
+  if (!DB || saveBlocked) return;
   const json = JSON.stringify(DB);
   let lsOk = false;
   if (json.length <= MIRROR_MAX || !idb) {
@@ -2435,11 +2482,49 @@ function saveNow() {
     // 大きくなったら本体は IndexedDB だけ（localStorage の古い写しは消して、取り違えを防ぐ）
     try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* noop */ }
   }
-  const fail = () => { storageOK = false; if (!saveErrShown) { saveErrShown = true; toast('端末への保存に失敗しました。空き容量やプライベートモードをご確認ください', 'error'); } };
+  const fail = () => { storageOK = false; saveFailed = true; if (!saveErrShown) { saveErrShown = true; toast('端末への保存に失敗しました。空き容量やプライベートモードをご確認ください', 'error'); } sysBanner(); };
+  const okk = () => { storageOK = true; if (saveFailed) { saveFailed = false; sysBanner(); } };
   if (idb) {
-    idbPut(idb, json).then((ok) => { if (ok) { storageOK = true; if (!lsOk && bc) { try { bc.postMessage({ t: 'saved', at: DB.updatedAt }); } catch (e) { /* noop */ } } } else if (!lsOk) fail(); });
-    if (lsOk) storageOK = true;
-  } else if (lsOk) storageOK = true; else fail();
+    idbPut(idb, json).then((ok) => { if (ok) { okk(); if (!lsOk && bc) { try { bc.postMessage({ t: 'saved', at: DB.updatedAt }); } catch (e) { /* noop */ } } } else if (!lsOk) fail(); });
+    if (lsOk) okk();
+  } else if (lsOk) okk(); else fail();
+}
+/* 画面上部の消えないお知らせ：保存できていない／保存データを読めていない（直るまで出し続ける） */
+function sysBanner() {
+  let el = document.getElementById('sysBanner');
+  const msg = saveBlocked ? ['保存データを読み込めませんでした', 'いまは記録を保存しません。元のデータは残してあります。', '対応する', 'recover']
+    : saveFailed ? ['端末に保存できていません', '空き容量やプライベートモードを確かめてください。', 'もう一度保存', 'retry'] : null;
+  if (!msg) { if (el) el.remove(); return; }
+  if (!el) { el = document.createElement('div'); el.id = 'sysBanner'; el.className = 'sys-banner'; el.setAttribute('role', 'alert'); document.body.appendChild(el); }
+  el.innerHTML = `<div class="m"><b>${msg[0]}</b><span>${msg[1]}</span></div><button type="button" class="btn btn-sm">${msg[2]}</button>`;
+  el.querySelector('button').onclick = () => { if (msg[3] === 'recover') openRecovery(); else { saveErrShown = false; saveNow(); setTimeout(() => { if (!saveFailed) toast('保存できました', 'ok'); }, 400); } };
+}
+/* 復旧の画面：保存データが読めなかったとき */
+function openRecovery() {
+  if (!RECOVERY) return;
+  const n = RECOVERY.raws.length; const kb = Math.round(RECOVERY.raws.reduce((a, x) => a + x.raw.length, 0) / 1024);
+  openSheet({
+    title: RECOVERY.safe ? '安全モードで起動しました' : '保存データを読み込めませんでした', dismissible: false,
+    render: () => `<p>${RECOVERY.safe ? '保存データを読まずに起動しています。' : 'この端末に保存された記録（約' + fmtNum(kb) + 'KB）を読み込めませんでした。'}<b>元のデータは消さずに残してあり、選ぶまで上書きしません。</b></p>
+      <div class="stack" style="margin-top:12px">
+      <button type="button" class="btn btn-block" data-a="dl">${ICON.download}読めなかったデータをファイルに保存${n > 1 ? `（${n}件）` : ''}</button>
+      <button type="button" class="btn btn-primary btn-block" data-a="restore">${ICON.upload || ''}バックアップから復元する</button>
+      ${RECOVERY.safe ? '<button type="button" class="btn btn-block" data-a="retry">もう一度ふつうに読み込む</button>' : ''}
+      <button type="button" class="btn btn-ghost btn-block" data-a="fresh">初期状態で始める（元のデータは端末に残します）</button></div>
+      <p class="hint">ファイルに保存しておけば、あとで直して取り込める場合があります。</p>`,
+    actions: {
+      dl: () => { downloadRaws(RECOVERY.raws); toast('ファイルに保存しました', 'ok'); },
+      restore: async (b, e, s) => { s.close(); setTab('settings'); setTimeout(() => { if (typeof openSetSec === 'function') openSetSec('backup'); }, 200); toast('「ファイルから復元」か「Googleドライブから復元」を選んでください'); },
+      retry: () => location.reload(),
+      fresh: async (b, e, s) => { await resolveRecovery(); s.close(); toast('初期状態で始めました。読めなかったデータは「設定 → データ」から取り出せます', 'ok'); }
+    }
+  });
+}
+/* 復旧を終える：読めなかった元データを別の場所に残してから、保存を再開する */
+async function resolveRecovery() {
+  if (!RECOVERY) return;
+  await stashBroken(RECOVERY.raws);
+  RECOVERY = null; saveBlocked = false; sysBanner(); saveNow();
 }
 /* 記録データが変わった時に呼ぶ（集計キャッシュ破棄＋保存） */
 function touch() { dataVer++; DB.settings.changedAt = Date.now(); save(); }
@@ -3192,6 +3277,12 @@ function navFollow(x) {
   const l = c.offsetLeft - nav.offsetLeft, r = l + c.offsetWidth;
   if (l < nav.scrollLeft + 8 || r > nav.scrollLeft + nav.clientWidth - 8) nav.scrollLeft = Math.max(0, l - 12);
 }
+/* この記録での計画：記録中に決め直した計画（ses.plan）＞メニューの計画 */
+function planFor(ses, exId) {
+  if (ses.plan && ses.plan[exId]) return ses.plan[exId];
+  const mp = ses.menuId && (DB.menus.find((m) => m.id === ses.menuId) || {}).plan;
+  return (mp && mp[exId]) || null;
+}
 function ssGroups(ses) {
   const map = {}; let n = 0;
   for (const id of ses.exerciseIds) { const g = ses.supersets && ses.supersets[id]; if (g && !(g in map)) map[g] = String.fromCharCode(65 + (n++ % 26)); }
@@ -3205,7 +3296,8 @@ function exCard(ses, i, rec, groups) {
   const prevAll = prev ? doneSets(prev) : [];
   const prevWork = prev ? work(prev) : [];
   const timed = isTimed(ex); const unit = unitOf(ex);
-  const target = ex.defaultTargetReps;
+  const pl = !timed && !(ex.equipment === '自重') ? planFor(ses, exId) : null;
+  const target = pl ? pl.r : ex.defaultTargetReps;   // 計画があれば、目標回数は計画の回数
   const bw = ex.equipment === '自重' || timed;
   let allMaxW = 0, allMaxR = 0;
   for (const r of prevs) { const st = setsStats(work(r), ex); allMaxW = Math.max(allMaxW, st.maxW); allMaxR = Math.max(allMaxR, st.maxR); }
@@ -3214,10 +3306,11 @@ function exCard(ses, i, rec, groups) {
   if (g) h += `<div class="ss-tag" style="padding-top:10px">${ICON.link} スーパーセット ${groups[g]}</div>`;
   h += `<div class="exc-h">${exIcon(ex)}<div class="nm"><button type="button" data-a="exDetail" data-id="${esc(exId)}">${esc(ex.name)}${ICON.chevR}</button></div>
     <button type="button" class="icon-btn" data-a="exMore" data-i="${i}" aria-label="${esc(ex.name)}の操作">${ICON.more}</button></div>
-    <div class="exc-tags exc-row${lv() === 'advanced' && !bw && exSummary(exId) && exSummary(exId).bestE1 ? ' n4' : ''}"><button type="button" data-a="exTarget" data-i="${i}" aria-label="目標 ${target}${unit}"><span class="lb">目標 </span>${target}${unit}</button><button type="button" data-a="exRest" data-i="${i}" aria-label="休憩 ${fmtSec(restOf(ex))}"><span class="lb">休憩 </span><span class="ic">${ICON.timer}</span>${fmtSec(restOf(ex))}</button>${timed ? '' : `<button type="button" class="rpe-tg" role="switch" data-a="exRpe" data-i="${i}" aria-checked="${rpeOnFor(exId)}" aria-label="RPE（きつさ）の入力欄を${rpeOnFor(exId) ? '隠す' : '出す'}"><span>RPE</span><i class="tg" aria-hidden="true"></i></button>`}${lv() === 'advanced' && !bw && exSummary(exId) && exSummary(exId).bestE1 ? `<button type="button" data-a="exPct" data-i="${i}">${ICON.percent}${ex.part === '全身・WL' ? `最高 ${fmtNum(exSummary(exId).maxW)}` : `1RM ${fmtNum(round1(exSummary(exId).bestE1))}`}kg</button>` : ''}</div>`;
+    <div class="exc-tags exc-row${lv() === 'advanced' && !bw && exSummary(exId) && exSummary(exId).bestE1 ? ' n4' : ''}"><button type="button" data-a="${pl ? 'exPlanEdit' : 'exTarget'}" data-i="${i}" aria-label="目標 ${target}${unit}${pl ? '（計画）' : ''}"><span class="lb">目標 </span>${target}${unit}</button><button type="button" data-a="exRest" data-i="${i}" aria-label="休憩 ${fmtSec(restOf(ex))}"><span class="lb">休憩 </span><span class="ic">${ICON.timer}</span>${fmtSec(restOf(ex))}</button>${timed ? '' : `<button type="button" class="rpe-tg" role="switch" data-a="exRpe" data-i="${i}" aria-checked="${rpeOnFor(exId)}" aria-label="RPE（きつさ）の入力欄を${rpeOnFor(exId) ? '隠す' : '出す'}"><span>RPE</span><i class="tg" aria-hidden="true"></i></button>`}${lv() === 'advanced' && !bw && exSummary(exId) && exSummary(exId).bestE1 ? `<button type="button" data-a="exPct" data-i="${i}">${ICON.percent}${ex.part === '全身・WL' ? `最高 ${fmtNum(exSummary(exId).maxW)}` : `1RM ${fmtNum(round1(exSummary(exId).bestE1))}`}kg</button>` : ''}</div>`;
   // 参考目安：①前回の通常セットが全て目標回数に到達 → +kg/+回　②RPE ON で前回までにRPE付きの記録あり → 今日の推奨重量
-  const reach = prevWork.length && prevWork.every((s) => s.r >= target);
-  const rec1 = !timed && !bw && rpeOnFor(exId) ? todayRec(ex, prevs, target) : null;
+  // 計画がある種目は、計画の行が目安（「次の目安」は出さない：目安が食い違わないように）
+  const reach = !pl && prevWork.length && prevWork.every((s) => s.r >= target);
+  const rec1 = !pl && !timed && !bw && rpeOnFor(exId) ? todayRec(ex, prevs, target) : null;
   if (reach || rec1) {
     const stepTxt = timed ? '+5秒' : `+${fmtNum(ex.stepKg)}kg`;
     const lab = rec1 ? `推定1RM ${fmtNum(round1(rec1.one))}kg（${fmtDate(rec1.date)}）から、目標${target}回をRPE${REC_RPE}でできる重さ。` : '';
@@ -3225,8 +3318,6 @@ function exCard(ses, i, rec, groups) {
       ${rec1 ? `<button type="button" class="rec" data-a="sugApply" data-i="${i}" data-m="rec" data-w="${rec1.w}" aria-label="今日の推奨 ${fmtNum(rec1.w)}kg×${target}回（RPE${REC_RPE}）を入力">今日 ${fmtNum(rec1.w)}kg<small>×${target}@${REC_RPE}</small></button>` : ''}
       ${reach ? (timed ? `<button type="button" data-a="sugApply" data-i="${i}" data-m="r">+5秒</button>` : `<button type="button" data-a="sugApply" data-i="${i}" data-m="w">${bw ? '加重' : ''}${stepTxt}</button><button type="button" data-a="sugApply" data-i="${i}" data-m="r">+1回</button>`) : ''}<span class="why">${rec1 ? `1RM ${fmtNum(round1(rec1.one))}から` : '前回 全セット目標達成'}</span></div>`;
   }
-  const mPlan = ses.menuId && (DB.menus.find((m) => m.id === ses.menuId) || {}).plan;
-  const pl = mPlan && mPlan[exId];
   if (pl && !timed && !bw) { const mx = planMax(exId, pl); h += `<div class="plan-line" role="note">${ICON.calc || ''}<span>計画 <b class="num">${fmtNum(planWeight(ex, mx, pl.r, pl.rpe))}kg×${pl.r}</b> @${fmtNum(pl.rpe)}</span><span class="why">MAX ${fmtNum(mx)}${pl.max ? '' : '推定'}</span></div>`; }
   if (prevs.length) {
     const ro = !!(UI.recOpen && UI.recOpen[exId]);
@@ -3540,7 +3631,9 @@ async function finishWorkout() {
   const a = DB.active; if (!a) return;
   closeKeypad();
   const recs = woRecsLive();
-  const pending = recs.reduce((n, r) => n + r.sets.filter((s) => !s.done && s.w != null && s.r > 0).length, 0);
+  // 重量か回数のどちらかを入れたセットは「入力済み」（もう片方は表示中の前回値・目標で補う）
+  const filled = (s) => !s.done && (s.w != null || s.r > 0);
+  const pending = recs.reduce((n, r) => n + r.sets.filter(filled).length, 0);
   const doneN = recs.reduce((n, r) => n + doneSets(r).length, 0);
   if (pending > 0) {
     const c = await choiceSheet({
@@ -3552,7 +3645,16 @@ async function finishWorkout() {
       ]
     });
     if (!c) return;
-    if (c === 'all') recs.forEach((r) => r.sets.forEach((s) => { if (!s.done && s.w != null && s.r > 0) s.done = true; }));
+    if (c === 'all') {
+      const ses = DB.active;
+      recs.forEach((r) => { const i = ses.exerciseIds.indexOf(r.exerciseId); r.sets.forEach((s, j) => {
+        if (!filled(s)) return;
+        const ph = i >= 0 ? phOf(i, j) : { w: null, r: null };
+        if (s.w == null) s.w = ph.w != null ? ph.w : 0;
+        if (!(s.r > 0)) s.r = ph.r > 0 ? ph.r : null;
+        if (s.w != null && s.r > 0) s.done = true;
+      }); r.updatedAt = Date.now(); });
+    }
   } else {
     const ok = await confirmSheet({ title: 'トレーニングを終了しますか？', message: doneN ? `<p>完了したセット：<b>${doneN}セット</b>・経過 ${fmtElapsed(Date.now() - a.startedAt)}</p>` : '<p>完了✓のセットがないため、今回の記録は保存されません。</p>', ok: '終了する' });
     if (!ok) return;
@@ -3767,6 +3869,17 @@ function openPercent(i) {
   });
 }
 
+/* 記録中に MAX×RPE で重さを決める：この記録の計画（ses.plan）として覚え、未完了のセットに入れる */
+function rpewFor(i) {
+  const ses = woSes(); const exId = ses.exerciseIds[i]; const ex = getEx(exId);
+  openRpePlan({ exId, plan: planFor(ses, exId), okLabel: '入力する', onSave: (pl) => {
+    if (!pl) return; const rec = recAt(i); const w = planWeight(ex, planMax(exId, pl), pl.r, pl.rpe);
+    rec.sets.forEach((x) => { if (!x.done && x.t !== 'w') { x.w = w; x.r = pl.r; } });
+    ses.plan = { ...(ses.plan || {}), [exId]: pl };
+    if (!DB.ui.rpeEx) DB.ui.rpeEx = {}; DB.ui.rpeEx[exId] = true;
+    rec.updatedAt = Date.now(); touch(); renderWorkout(); toast(`${pl.r}回 @RPE${fmtNum(pl.rpe)}（${fmtNum(w)}kg）を未完了のセットに入れました`);
+  } });
+}
 /* ---------- ワークアウト用アクション ---------- */
 Object.assign(ACT, {
   openWo: () => openWorkout(),
@@ -3824,6 +3937,7 @@ Object.assign(ACT, {
   rpeHelp: () => openRpeHelp(),
   rpeQ: (el) => { const rec = recAt(Number(el.dataset.i)); const s = rec && rec.sets[Number(el.dataset.s)]; if (!s) return; s.rpe = Number(el.dataset.v); rec.updatedAt = Date.now(); touch(); renderWorkout(); },
   exPct: (el) => openPercent(Number(el.dataset.i)),
+  exPlanEdit: (el) => rpewFor(Number(el.dataset.i)),
   usePrev: (el) => {
     const i = Number(el.dataset.i), j = Number(el.dataset.s); const ses = woSes(); const rec = recAt(i);
     const prev = prevRecords(rec.exerciseId, ses.id, ses.date)[0]; const p = prev && doneSets(prev)[j]; if (!p) return;
@@ -3909,15 +4023,7 @@ Object.assign(ACT, {
     if (c === 'detail') openExerciseDetail(exId);
     else if (c === 'warm') warmupFor(i);
     else if (c === 'pct') openPercent(i);
-    else if (c === 'rpew') {
-      const mp = ses.menuId && (DB.menus.find((m) => m.id === ses.menuId) || {}).plan;
-      openRpePlan({ exId, plan: mp && mp[exId], okLabel: '入力する', onSave: (pl) => {
-        if (!pl) return; const rec = recAt(i); const w = planWeight(ex, planMax(exId, pl), pl.r, pl.rpe);
-        rec.sets.forEach((x) => { if (!x.done && x.t !== 'w') { x.w = w; x.r = pl.r; } });
-        if (!DB.ui.rpeEx) DB.ui.rpeEx = {}; DB.ui.rpeEx[exId] = true;
-        rec.updatedAt = Date.now(); touch(); renderWorkout(); toast(`${pl.r}回 @RPE${fmtNum(pl.rpe)}（${fmtNum(w)}kg）を未完了のセットに入れました`);
-      } });
-    }
+    else if (c === 'rpew') rpewFor(i);
     else if (c === 'rm') ACT.rmCalc({ dataset: { id: exId } });
     else if (c === 'ss') { const gid = uid('ss'); ses.supersets = ses.supersets || {}; ses.supersets[exId] = ses.supersets[nextId] || gid; ses.supersets[nextId] = ses.supersets[exId]; touch(); renderWorkout(); toast('スーパーセットにしました。セット完了で次の種目へ自動で移動します'); }
     else if (c === 'unss') { for (const k of Object.keys(ses.supersets)) if (ses.supersets[k] === g) delete ses.supersets[k]; touch(); renderWorkout(); }
@@ -4064,7 +4170,13 @@ function menuMuscles(m) {
   for (const id of m.exerciseIds) { const e = getEx(id); if (e.missing) continue; for (const k of e.muscles) { fills[k] = partColor(e.part); set.add(k); } }
   return { fills, primary: [...set] };
 }
+/* 初心者で、まだ記録が3回未満のうちは、マシン中心の「はじめての全身」を勧める（最初のメニューを1つにそろえる） */
+function begFirst() { return lv() === 'beginner' && DB.sessions.filter((s) => !isDemoSes(s)).length < 3; }
 function recommendMenu() {
+  if (begFirst()) {
+    const ids = BEGINNER_MENU.filter((id) => exMap().has(id));
+    if (ids.length) { const m = { id: '__beg', name: 'はじめての全身（マシン中心）', exerciseIds: ids }; return { m, beg: true, score: 1, ready: 1, last: null, days: 10, mm: menuMuscles(m), agg: muscleAgg(28) }; }
+  }
   if (!DB.menus.length) return null;
   const agg = muscleAgg(28);
   const lastOf = (id) => DB.sessions.filter((s) => s.menuId === id && s.date).map((s) => s.date).sort().pop();
@@ -4108,7 +4220,6 @@ function beginnerCard() {
       <li><b>きつさは「あと2〜3回できる」</b><span>毎セット限界までやらなくて大丈夫です。</span></li>
       <li><b>少しずつ増やす</b><span>全セットで目標回数ができたら、次回は重さを1段階上げます（アプリが目安を表示します）。</span></li>
       <li><b>休養も練習のうち</b><span>同じ部位は2〜3日空けましょう。人体図の色で回復の目安がわかります。</span></li></ol>
-    ${DB.active ? '' : `<button type="button" class="btn btn-primary btn-block" data-a="begStart">${ICON.play}はじめての全身メニューで始める<span class="small" style="opacity:.85;font-weight:600">（マシン中心・5種目）</span></button>`}
     <div class="row beg-act"><button type="button" class="btn btn-sm" data-a="glossary">用語の説明</button><button type="button" class="btn btn-ghost btn-sm" data-a="begHide">このカードを隠す</button></div></details>`;
 }
 function openGlossary() {
@@ -4155,15 +4266,15 @@ function renderTrain() {
   const rec = !DB.active && recommendMenu();
   if (rec && !UI.reorder) {
     const parts = [...new Set(rec.m.exerciseIds.map((id) => getEx(id).part))].filter((p) => CATEGORIES.includes(p));
-    const reason = !IDX().sessions.length ? 'まずはこのメニューから始めてみましょう' : `${parts.map((p) => PART_SHORT[p]).join('と')}の回復度 <b class="num">${Math.round(rec.ready * 100)}</b>%<br>${rec.last ? `前回は${fmtRelDay(rec.last)}` : 'まだ実施していません'}`;
+    const reason = rec.beg ? 'マシン中心の5種目。フォームが安定しやすく、はじめての方に向いています' : !IDX().sessions.length ? 'まずはこのメニューから始めてみましょう' : `${parts.map((p) => PART_SHORT[p]).join('と')}の回復度 <b class="num">${Math.round(rec.ready * 100)}</b>%<br>${rec.last ? `前回は${fmtRelDay(rec.last)}` : 'まだ実施していません'}`;
     const glowFills = {}; for (const k of Object.keys(rec.mm.fills)) glowFills[k] = rec.mm.fills[k].length > 7 ? '#ffb54799' : '#ffb547';
     for (const k of rec.mm.primary) glowFills[k] = '#ff7a3d';
     const first = !UI.scanned && DB.ui.onboarded; if (first) UI.scanned = true;
     h += `<div class="card reco${first ? ' intro' : ''}"><i class="hud${first ? ' scan' : ''}" aria-hidden="true"></i><div class="reco-top"><div class="reco-body">${bodySvg(glowFills, { labels: false, glow: true })}</div><div style="flex:1;min-width:0"><div class="reco-kicker"><i class="live" aria-hidden="true"></i>今日のおすすめ</div>
       <div class="reco-name">${esc(rec.m.name)}</div><div class="reco-why">${reason}</div>
       ${rec.mm.primary.length ? `<div class="reco-tags">${[...new Set(rec.mm.primary.map((k) => MUSCLES[k].replace(/（.*?）/g, '')))].slice(0, 4).map((m) => `<span>${esc(m)}</span>`).join('')}</div>` : ''}</div></div>
-      <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top:12px" data-a="startMenu" data-id="${esc(rec.m.id)}">${ICON.play}このメニューで開始</button>
-      <p class="reco-note">回復の目安と前回からの日数で選んでいます</p></div>`;
+      <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top:12px" ${rec.beg ? 'data-a="begStart"' : `data-a="startMenu" data-id="${esc(rec.m.id)}"`}>${ICON.play}このメニューで開始</button>
+      <p class="reco-note">${rec.beg ? '記録が3回たまるまでは、このメニューをおすすめします' : '回復の目安と前回からの日数で選んでいます'}</p></div>`;
   }
   h += prStrip();
   if (!UI.reorder) h += quickStart();
@@ -4233,7 +4344,7 @@ function deleteMenu(m) {
   undoToast(`「${m.name}」を削除しました（記録は残ります）`, () => { if (DB.menus.some((x) => x.id === m.id)) return; DB.menus.splice(Math.min(i, DB.menus.length), 0, m); touch(); refreshAll(); });
 }
 Object.assign(ACT, {
-  begStart: () => startWorkout(BEGINNER_MENU, 'はじめての全身', null),
+  begStart: () => startWorkout(BEGINNER_MENU, 'はじめての全身（マシン中心）', null),
   begHide: () => { DB.ui.begHide = true; save(); renderTab(); toast('設定の「経験レベル」からいつでも戻せます'); },
   glossary: () => openGlossary(),
   undo: () => { const f = UI.undo; UI.undo = null; $('#toast').className = 'toast'; if (f) f(); },
@@ -5538,6 +5649,7 @@ function renderSettings() {
     <button type="button" class="btn btn-line btn-block" data-a="openBody">${ICON.weight}体重を記録・推移を見る${DB.bodylog.length ? `（最新 ${fmtNum(DB.bodylog[DB.bodylog.length - 1].kg)}kg）` : ''}</button></details>`;
   h += `${setSecHead('data', false, `${ICON.trash} データ`, `約${fmtNum(Math.round(JSON.stringify(DB).length / 1024))}KB`)}<div class="stack">
     ${hasDemo() ? '<button type="button" class="btn btn-block" data-a="demoRemove">サンプル記録を削除</button>' : '<button type="button" class="btn btn-block" data-a="demoAdd">サンプル記録を追加（グラフのお試し）</button>'}
+    ${HAS_BROKEN ? `<button type="button" class="btn btn-block" data-a="brokenDl">${ICON.download}前に読めなかったデータをファイルに保存</button>` : ''}
     <button type="button" class="btn btn-danger-line btn-block" data-a="resetAll">${ICON.trash}すべてのデータを削除して初期化</button></div>
     <p class="hint">保存容量の目安：約${fmtNum(round1(JSON.stringify(DB).length / 1024))}KB（保存先：${storeKind === 'IndexedDB' ? 'ブラウザのIndexedDB。30年分でも入る大きさです' : 'ブラウザのlocalStorage（約5MBまで）'}）。ブラウザの「サイトデータ削除」を行うとこの端末の記録は消えますが、Googleドライブかファイルに保存してあれば「復元」で戻せます。</p></details>
     <p class="center tiny faint" style="margin:18px 0 8px">LiftCanvas v${APP_VERSION} ・ 種目 ${allEx().length} ・ 保存キー ${STORAGE_KEY}<br>データはこの端末の中だけに保存され、外部に送信されません（Googleドライブ保存を除く）。</p>`;
@@ -5630,6 +5742,8 @@ async function askImportMode(parsed, label) {
 }
 function mergeById(cur, inc) { const map = new Map(cur.map((x) => [x.id, x])); for (const x of inc) { const e = map.get(x.id); if (!e || (x.updatedAt || 0) > (e.updatedAt || 0)) map.set(x.id, x); } return [...map.values()]; }
 function applyImport(inc, mode) {
+  // 読めなかったデータがある状態でバックアップから戻した：元データは別の場所に残して、保存を再開する
+  if (RECOVERY) { const raws = RECOVERY.raws; RECOVERY = null; saveBlocked = false; stashBroken(raws).then(() => { HAS_BROKEN = true; }); sysBanner(); }
   Timer.stop(); closeKeypad();
   if (UI.wo) closeWorkoutView();
   if (mode === 'overwrite') {
@@ -5849,6 +5963,7 @@ Object.assign(ACT, {
   exportCsv: () => exportCsv(),
   importOpen: () => { const f = $('#fileInput'); f.value = ''; f.click(); },
   cidSave: () => { const v = ($('#clientId').value || '').trim(); if (v && !/\.apps\.googleusercontent\.com$/.test(v)) { toast('クライアントIDは「〜.apps.googleusercontent.com」の形式です', 'error'); return; } DB.settings.googleClientId = v; Drive.forget(); save(); renderTab(); toast(v ? 'クライアントIDを保存しました' : '削除しました', 'ok'); },
+  brokenDl: async () => { const o = await readBroken(); if (o && o.raws.length) { downloadRaws(o.raws); toast('ファイルに保存しました', 'ok'); } else toast('残っているデータはありません'); },
   cidClear: () => { DB.settings.googleClientId = ''; Drive.forget(); save(); renderTab(); },
   theme: (el) => { DB.settings.theme = el.dataset.v; save(); applyTheme(); gcCharts(); renderTab(); },
   restDef: (el) => { DB.settings.restSec = Number(el.dataset.v); save(); renderTab(); },
@@ -7553,6 +7668,34 @@ if (bc) bc.onmessage = async (e) => {
   const raw = await idbGet(idb); const d = raw && parseSaved(raw, 'idb');
   if (d) { clearTimeout(saveT); saveT = null; DB = d; invalidateEx(); refreshAll(); }
 };
+/* 起動に失敗したとき：白い画面のままにせず、できることを出す（この画面はアプリの部品に頼らない） */
+let bootDone = false;
+function bootFail(err) {
+  if (bootDone || document.getElementById('bootFail')) return;
+  console.error('起動に失敗しました', err);
+  const box = document.createElement('div'); box.id = 'bootFail';
+  box.setAttribute('style', 'position:fixed;inset:0;z-index:9999;background:#f4f6fb;color:#111827;font:15px/1.6 system-ui,sans-serif;padding:max(24px,env(safe-area-inset-top)) 20px 24px;overflow:auto');
+  box.innerHTML = '<div style="max-width:520px;margin:0 auto"><h1 style="font-size:22px;margin:0 0 8px">LiftCanvas を起動できませんでした</h1>'
+    + '<p style="margin:0 0 16px">記録は端末に残っています。次のどれかを試してください。</p>'
+    + '<button type="button" data-k="reload" style="display:block;width:100%;min-height:48px;margin:0 0 10px;border-radius:12px;border:0;background:#1d4ed8;color:#fff;font:inherit;font-weight:700">もう一度読み込む</button>'
+    + '<button type="button" data-k="dl" style="display:block;width:100%;min-height:48px;margin:0 0 10px;border-radius:12px;border:1px solid #c7cede;background:#fff;color:#111827;font:inherit;font-weight:700">保存データをファイルに保存する</button>'
+    + '<button type="button" data-k="safe" style="display:block;width:100%;min-height:48px;margin:0 0 16px;border-radius:12px;border:1px solid #c7cede;background:#fff;color:#111827;font:inherit;font-weight:700">安全モードで起動する（データは消しません）</button>'
+    + '<p style="font-size:12px;color:#4b5563;word-break:break-all">エラー：' + String((err && (err.message || err.reason || err)) || '不明').replace(/[<>&]/g, '').slice(0, 200) + '</p></div>';
+  document.body.appendChild(box);
+  box.addEventListener('click', async (e) => {
+    const k = e.target && e.target.dataset && e.target.dataset.k; if (!k) return;
+    if (k === 'reload') location.reload();
+    if (k === 'safe') { try { sessionStorage.setItem('lc-safe', '1'); } catch (x) { /* noop */ } location.reload(); }
+    if (k === 'dl') {
+      const raws = [];
+      try { const d = idb || await idbOpen(); const v = d ? asRaw(await idbGet(d)) : null; if (v) raws.push({ src: 'idb', raw: v }); } catch (x) { /* noop */ }
+      try { const v = localStorage.getItem(STORAGE_KEY); if (v) raws.push({ src: 'ls', raw: v }); } catch (x) { /* noop */ }
+      if (raws.length) downloadRaws(raws); else alert('保存データが見つかりませんでした');
+    }
+  });
+}
+window.addEventListener('error', (e) => { if (!bootDone) bootFail(e.error || e.message); });
+window.addEventListener('unhandledrejection', (e) => { if (!bootDone) bootFail(e.reason); });
 async function init() {
   DB = await loadAsync();
   document.body.insertAdjacentHTML('afterbegin', bodyDefs());
@@ -7579,9 +7722,14 @@ async function init() {
     }), 900);
   }
   saveNow();
-  if (!storageOK) toast('この環境ではデータを保存できません（プライベートモード等）', 'error');
+  if (RECOVERY) { sysBanner(); setTimeout(openRecovery, 300); }
+  else {
+    readBroken().then((o) => { HAS_BROKEN = !!o; }).catch(() => {});
+    if (!storageOK) toast('この環境ではデータを保存できません（プライベートモード等）', 'error');
+  }
+  bootDone = true;
 }
-init();
+init().catch(bootFail);
 </script>
 </body>
 </html>
