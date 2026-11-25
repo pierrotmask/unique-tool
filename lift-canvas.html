@@ -461,11 +461,6 @@ html[data-theme="dark"] .cal .wd.sun{color:#ff8fa3} html[data-theme="dark"] .cal
 .tbl td b{color:var(--head)}
 .tbl tr.hl td{background:var(--accent-soft)}
 
-/* ===================== プレート ===================== */
-.plate-wrap{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:14px 6px;overflow-x:auto}
-.plate-wrap svg{width:100%;height:auto;min-width:300px}
-.plates-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.plates-list span{font-size:13px;font-weight:800;padding:4px 10px;border-radius:8px;color:#fff}
 
 /* ===================== ページ（全画面） ===================== */
 .page{position:fixed;inset:0;z-index:70;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;animation:pgin .22s cubic-bezier(.2,.8,.2,1)}
@@ -1356,8 +1351,17 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
 .rm-grid tr.on>th:first-child{background:var(--accent-soft)}
 
 /* RPE：種目ごとのオン・オフと入力欄 */
-.exc-tags .rpe-tg[aria-pressed="false"]{opacity:.65}
-.exc-tags .rpe-tg[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+/* RPE のオン・オフは小さなスイッチで（2026.11.25.10） */
+.exc-tags .rpe-tg{gap:5px;padding-right:5px}
+.exc-tags .rpe-tg[aria-checked="false"]{color:var(--text-3);background:var(--surface-3)}
+.exc-tags .rpe-tg .tg{position:relative;width:26px;height:15px;border-radius:999px;background:var(--line-2);flex:none;transition:background .15s}
+.exc-tags .rpe-tg .tg::after{content:"";position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.3);transition:transform .15s}
+.exc-tags .rpe-tg[aria-checked="true"] .tg{background:var(--accent)}
+.exc-tags .rpe-tg[aria-checked="true"] .tg::after{transform:translateX(11px)}
+/* 目標・休憩・RPE などの小さなボタンは1行に（入りきらないときは横にずらして見る） */
+.exc-tags{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:5px}
+.exc-tags::-webkit-scrollbar{display:none}
+.exc-tags>*{flex:none;white-space:nowrap}
 .sets.rpe-on .set-h,.sets.rpe-on .set-r{grid-template-columns:36px minmax(0,1fr) 68px 50px 44px 44px;gap:5px}
 @media (max-width:370px){.sets.rpe-on .set-h,.sets.rpe-on .set-r{grid-template-columns:30px minmax(0,1fr) 60px 44px 40px 40px;gap:3px}}
 .rpe-h{display:inline-flex;align-items:center;justify-content:center;gap:2px}
@@ -1382,6 +1386,28 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
 .quick{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)}
 .quick .btn{white-space:nowrap;padding-left:10px;padding-right:10px;gap:5px}
 .quick .repeat,.quick .imp-cta{white-space:normal}
+/* 記録画面：種目一覧と休憩タイマーを画面下にまとめる（2026.11.25.10） */
+.wo-dock{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--dock,var(--overlay));-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);box-shadow:0 -1px 0 var(--line),0 -14px 30px -18px rgba(0,0,0,.45);padding-bottom:var(--safe-bottom)}
+.wo-dock .wo-nav{padding:8px 12px;max-width:640px;margin:0 auto}
+.wo-dock .wo-nav button{min-height:40px}
+.wo-dock .wo-nav button.add{background:transparent;border:1.5px dashed var(--line-2);color:var(--text-2)}
+.wo-dock .wo-nav button.add svg{width:15px;height:15px}
+.wo-dock .restbar{position:static;padding-bottom:0;box-shadow:none;border-top:1px solid var(--line);-webkit-backdrop-filter:none;backdrop-filter:none}
+.wo-dock .restbar:not(.done){background:transparent}
+.wo-body{padding-bottom:200px}
+.add-set .wu-btn[aria-pressed="true"]{color:var(--danger);border-color:var(--danger)}
+.add-set .wu-btn svg{width:14px;height:14px}
+@media (max-width:420px){.wo-body{padding-bottom:200px}}
+/* 目標・休憩・RPE の行は種目名の下に全幅で（狭い画面でも1行・見切れない） */
+.exc-tags.exc-row{margin:0 12px 8px;padding-top:0}
+.exc-h{padding-bottom:4px}
+@media (max-width:370px){.exc-tags.exc-row button{padding:2px 7px}.exc-tags.exc-row{gap:4px}}
+.add-set .btn{white-space:nowrap;padding-left:8px;padding-right:8px;gap:5px}
+.exc-tags .ic{display:none}
+.exc-tags .ic svg{width:13px;height:13px}
+@media (max-width:370px){.exc-tags.n4 .lb{display:none}.exc-tags.n4 .ic{display:inline-flex}}
+.exc-tags button span{padding:0;background:none;min-height:0;border-radius:0;font:inherit;color:inherit}
+.set-h>span:first-child{white-space:nowrap;letter-spacing:-.04em}
 
 </style>
 </head>
@@ -1406,7 +1432,7 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.25.8';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.25.10';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -1463,7 +1489,6 @@ const SET_TYPES = {
   d: { label: 'ドロップセット', short: 'D', desc: '休憩タイマーを自動起動しません' },
   f: { label: '限界まで（オールアウト）', short: 'F', desc: '限界まで追い込んだセット' }
 };
-const PLATE_COLORS = { 25: '#d62828', 20: '#1d4ed8', 15: '#eab308', 10: '#16a34a', 5: '#f1f5f9', 2.5: '#d62828', 2: '#1d4ed8', 1.5: '#eab308', 1.25: '#94a3b8', 1: '#16a34a', 0.5: '#f1f5f9' };
 const ALL_PLATES = [25, 20, 15, 10, 5, 2.5, 2, 1.5, 1.25, 1, 0.5];
 /* Sinclair係数（IWF 2021–2024年版の定数・参考値） */
 const SINCLAIR = { m: { A: 0.722762521, b: 193.609 }, f: { A: 0.787004341, b: 153.757 } };
@@ -1954,7 +1979,7 @@ function bodySvg(fills = {}, opts = {}) {
     ${fig(BODY_FRONT, 'bdF', 0, labels ? '前面' : '')}${fig(BODY_BACK, 'bdB', 220, labels ? '背面' : '')}</svg>`;
 }
 
-/* ---------- 初期サンプルメニューセット（WL中心を含む6パターン） ---------- */
+/* ---------- 例のメニュー（定義は残す。初めての人に入れるのは KEEP_MENU_ID の1つだけ） ---------- */
 const DEFAULT_MENUS = [
   { id: 'menu_01', name: 'WL・スクワットの日', exerciseIds: ['wl_01', 'wl_02', 'wl_08', 'wl_05', 'leg_01'], sets: { wl_01: 5, wl_02: 5, wl_08: 4, wl_05: 4, leg_01: 3 } },
   { id: 'menu_02', name: '胸・肩の日', exerciseIds: ['chest_01', 'chest_04', 'chest_05', 'shoulder_01', 'shoulder_03'], sets: {} },
@@ -1965,6 +1990,7 @@ const DEFAULT_MENUS = [
   { id: 'menu_07', name: '脚の日', exerciseIds: ['leg_01', 'leg_03', 'leg_02', 'leg_06', 'leg_08'], sets: {} }
 ];
 const PRESET_MENU_IDS = DEFAULT_MENUS.map((m) => m.id);
+const KEEP_MENU_ID = 'menu_04';   // 全身ベーシック
 
 /* ---------- アイコン ---------- */
 const svgI = (p, cls = '') => `<svg viewBox="0 0 24 24" aria-hidden="true" class="${cls}">${p}</svg>`;
@@ -2113,7 +2139,7 @@ function defaultData() {
   return {
     schema: SCHEMA, createdAt: now, updatedAt: now,
     customExercises: [], overrides: {}, favorites: [], exNotes: {},
-    menus: DEFAULT_MENUS.map((m) => ({ id: m.id, name: m.name, exerciseIds: [...m.exerciseIds], sets: { ...m.sets }, updatedAt: 0 })),
+    menus: DEFAULT_MENUS.filter((m) => m.id === 'menu_04').map((m) => ({ id: m.id, name: m.name, exerciseIds: [...m.exerciseIds], sets: { ...m.sets }, updatedAt: 0 })),
     records: [], sessions: [], bodylog: [], imports: [], impDict: {},
     active: null, timer: null,
     settings: {
@@ -2121,7 +2147,7 @@ function defaultData() {
       barKg: 20, collar: false, plates: [25, 20, 15, 10, 5, 2.5, 2, 1.5, 1, 0.5], sex: 'm',
       wl: false, level: 'standard', goal: 'hyp', googleClientId: '', autoDrive: true, tipsOff: false, wake: true, lastBackupAt: null, lastBackupVia: '', lastDriveAt: null, drivePending: false, changedAt: 0
     },
-    ui: { metric: 'e1rm', period: '3m', mapMode: 'sets', welcomeDone: false, wkChart: 'sets', pwaHide: false, pwaMoved: false, transferAsked: false, themeV2: true, onboarded: false, menuTipDone: false, wlDef2: true, tourDone: false, introDone: false, tips: {} }
+    ui: { metric: 'e1rm', period: '3m', mapMode: 'sets', welcomeDone: false, wkChart: 'sets', pwaHide: false, pwaMoved: false, transferAsked: false, themeV2: true, menus1: true, onboarded: false, menuTipDone: false, wlDef2: true, tourDone: false, introDone: false, tips: {} }
   };
 }
 
@@ -2282,6 +2308,16 @@ function normalize(src) {
     for (const k of Object.keys(out.exNotes)) if (remap[k]) { if (!out.exNotes[remap[k]]) out.exNotes[remap[k]] = out.exNotes[k]; delete out.exNotes[k]; }
     out.favorites = [...new Set(out.favorites.map(m2))];
     for (const v of Object.values(out.impDict)) if (remap[v.id]) v.id = remap[v.id];
+  }
+  // 例のメニューは1つ（全身ベーシック）に（2026.11.25.9）。既存の利用者には一度だけ、
+  // 手を加えていない・自分のトレーニングで一度も使っていない例のメニューを外す（起動後に「元に戻す」を出す）
+  out.ui.menus1 = true;
+  if (!ui.menus1 && Array.isArray(d.menus)) {
+    const used = new Set(out.sessions.filter((x) => !String(x.id || '').startsWith('demo_')).map((x) => x.menuId).filter(Boolean));
+    if (out.active && out.active.menuId) used.add(out.active.menuId);
+    const gone = [];
+    out.menus.forEach((m, k) => { if (m.id !== 'menu_04' && presetUnchanged(m) && !used.has(m.id)) gone.push({ k, m }); });
+    if (gone.length) { const g = new Set(gone.map((x) => x.m)); out.menus = out.menus.filter((m) => !g.has(m)); normalize.slimmed = gone; }
   }
   return out;
 }
@@ -3077,11 +3113,7 @@ function renderWorkout() {
     <button type="button" class="icon-btn" data-a="woMore" aria-label="その他の操作">${ICON.more}</button>
     <button type="button" class="wo-finish" data-a="${live ? 'woFinish' : 'woEditDone'}">${live ? '終了' : '完了'}</button>
   </div>
-  <nav class="wo-nav" aria-label="種目へ移動">${ses.exerciseIds.map((id, i) => {
-    const r = recs[i]; const total = r.sets.length, done = r.sets.filter((s) => s.done).length;
-    const cls = total && done === total ? 'done' : i === curIdx ? 'cur' : '';
-    return `<button type="button" class="${cls}" data-a="woJump" data-i="${i}">${cls === 'done' ? ICON.check : ''}<span>${esc(getEx(id).name)}</span><small class="num">${done}/${total}</small></button>`;
-  }).join('')}</nav></header>
+  </header>
   <div class="wo-body">
     <div class="wo-meta">
       <button type="button" class="chip" data-a="woRename">${ICON.edit}<span>${esc(ses.name)}</span></button>
@@ -3094,12 +3126,28 @@ function renderWorkout() {
     ${live ? `<button type="button" class="btn btn-ok btn-block btn-lg" data-a="woFinish">${ICON.check}トレーニングを終了</button>
       <button type="button" class="btn btn-ghost btn-block" data-a="woDiscard" style="color:var(--danger)">このトレーニングを破棄</button>` : `<button type="button" class="btn btn-primary btn-block btn-lg" data-a="woEditDone">${ICON.check}編集を完了</button>`}
   </div>
-  <div class="restbar" id="restbar" hidden></div>`;
+  <div class="wo-dock">
+<nav class="wo-nav" id="woNav" aria-label="種目へ移動">${ses.exerciseIds.map((id, i) => {
+    const r = recs[i]; const total = r.sets.length, done = r.sets.filter((s) => s.done).length;
+    const cls = total && done === total ? 'done' : i === curIdx ? 'cur' : '';
+    return `<button type="button" class="${cls}" data-a="woJump" data-i="${i}">${cls === 'done' ? ICON.check : ''}<span>${esc(getEx(id).name)}</span><small class="num">${done}/${total}</small></button>`;
+  }).join('')}<button type="button" class="add" data-a="woAddEx" aria-label="種目を追加">${ICON.plus}<span>種目</span></button></nav>
+  <div class="restbar" id="restbar" hidden></div></div>`;
+  const navX = $('#woNav') ? $('#woNav').scrollLeft : null;
   el.innerHTML = h;
   el.scrollTop = top;
+  navFollow(navX);
   updateRestbar();
   if (UI.kp && kpValid()) highlightKp();
   if (typeof maybeTip === 'function') maybeTip();
+}
+/* 下の種目一覧：横スクロール位置を保ち、今の種目が見えていなければ見える位置へ */
+function navFollow(x) {
+  const nav = $('#woNav'); if (!nav) return;
+  if (x != null) nav.scrollLeft = x;
+  const c = nav.querySelector('.cur'); if (!c) return;
+  const l = c.offsetLeft - nav.offsetLeft, r = l + c.offsetWidth;
+  if (l < nav.scrollLeft + 8 || r > nav.scrollLeft + nav.clientWidth - 8) nav.scrollLeft = Math.max(0, l - 12);
 }
 function ssGroups(ses) {
   const map = {}; let n = 0;
@@ -3121,9 +3169,9 @@ function exCard(ses, i, rec, groups) {
   const g = ses.supersets && ses.supersets[exId];
   let h = `<section class="exc ${g ? 'ss' : ''}" id="exc-${i}" aria-label="${esc(ex.name)}">`;
   if (g) h += `<div class="ss-tag" style="padding-top:10px">${ICON.link} スーパーセット ${groups[g]}</div>`;
-  h += `<div class="exc-h">${exIcon(ex)}<div class="nm"><button type="button" data-a="exDetail" data-id="${esc(exId)}">${esc(ex.name)}${ICON.chevR}</button>
-    <div class="exc-tags"><button type="button" data-a="exTarget" data-i="${i}">目標 ${target}${unit}</button><button type="button" data-a="exRest" data-i="${i}">休憩 ${fmtSec(restOf(ex))}</button>${timed ? '' : `<button type="button" class="rpe-tg" data-a="exRpe" data-i="${i}" aria-pressed="${rpeOnFor(exId)}">RPE ${rpeOnFor(exId) ? 'ON' : 'OFF'}</button>`}${lv() === 'advanced' && !bw && exSummary(exId) && exSummary(exId).bestE1 ? `<button type="button" data-a="exPct" data-i="${i}">${ICON.percent}${ex.part === '全身・WL' ? `最高 ${fmtNum(exSummary(exId).maxW)}` : `1RM ${fmtNum(round1(exSummary(exId).bestE1))}`}kg</button>` : ''}${ex.equipment === 'バーベル' ? `<button type="button" data-a="exPlate" data-i="${i}">${ICON.plate}プレート</button>` : ''}</div></div>
-    <button type="button" class="icon-btn" data-a="exMore" data-i="${i}" aria-label="${esc(ex.name)}の操作">${ICON.more}</button></div>`;
+  h += `<div class="exc-h">${exIcon(ex)}<div class="nm"><button type="button" data-a="exDetail" data-id="${esc(exId)}">${esc(ex.name)}${ICON.chevR}</button></div>
+    <button type="button" class="icon-btn" data-a="exMore" data-i="${i}" aria-label="${esc(ex.name)}の操作">${ICON.more}</button></div>
+    <div class="exc-tags exc-row${lv() === 'advanced' && !bw && exSummary(exId) && exSummary(exId).bestE1 ? ' n4' : ''}"><button type="button" data-a="exTarget" data-i="${i}" aria-label="目標 ${target}${unit}"><span class="lb">目標 </span>${target}${unit}</button><button type="button" data-a="exRest" data-i="${i}" aria-label="休憩 ${fmtSec(restOf(ex))}"><span class="lb">休憩 </span><span class="ic">${ICON.timer}</span>${fmtSec(restOf(ex))}</button>${timed ? '' : `<button type="button" class="rpe-tg" role="switch" data-a="exRpe" data-i="${i}" aria-checked="${rpeOnFor(exId)}" aria-label="RPE（きつさ）の入力欄を${rpeOnFor(exId) ? '隠す' : '出す'}"><span>RPE</span><i class="tg" aria-hidden="true"></i></button>`}${lv() === 'advanced' && !bw && exSummary(exId) && exSummary(exId).bestE1 ? `<button type="button" data-a="exPct" data-i="${i}">${ICON.percent}${ex.part === '全身・WL' ? `最高 ${fmtNum(exSummary(exId).maxW)}` : `1RM ${fmtNum(round1(exSummary(exId).bestE1))}`}kg</button>` : ''}</div>`;
   // 参考目安：①前回の通常セットが全て目標回数に到達 → +kg/+回　②RPE ON で前回までにRPE付きの記録あり → 今日の推奨重量
   const reach = prevWork.length && prevWork.every((s) => s.r >= target);
   const rec1 = !timed && !bw && rpeOnFor(exId) ? todayRec(ex, prevs, target) : null;
@@ -3185,7 +3233,8 @@ function exCard(ses, i, rec, groups) {
       h += `<div class="e1-line"><span>推定1RM</span><b class="num">${fmtNum(round1(best.one))}<small>kg</small></b><em>${fmtNum(best.s.w)}kg×${best.s.r}回@${fmtNum(best.s.rpe)}${best.how === 'rts' ? '・RPE表' : ''}</em>${d != null ? `<i class="${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">前回比 ${d > 0 ? '+' : ''}${fmtNum(d)}</i>` : ''}</div>`;
     }
   }
-  h += `<div class="add-set"><button type="button" class="btn btn-soft" data-a="addSet" data-i="${i}">${ICON.plus}セットを追加</button><button type="button" class="btn" data-a="warmup" data-i="${i}">W ウォームアップ</button></div>`;
+  const wuOn = rec.sets.some((s) => s.t === 'w' && !s.done);
+  h += `<div class="add-set"><button type="button" class="btn btn-soft" data-a="addSet" data-i="${i}">${ICON.plus}セットを追加</button><button type="button" class="btn wu-btn" data-a="warmup" data-i="${i}" aria-pressed="${wuOn}" aria-label="${wuOn ? 'ウォームアップを外す' : 'ウォームアップを追加'}">${wuOn ? `${ICON.close}ウォームアップ` : 'W ウォームアップ'}</button></div>`;
   h += `<div class="exc-memo"><textarea class="input" data-in="recMemo" data-i="${i}" rows="1" maxlength="500" placeholder="メモ（フォーム・体調など）">${esc(rec.memo)}</textarea></div>`;
   const rel = relatedOf(ex);
   if (rel.length) {
@@ -3594,45 +3643,6 @@ async function shareSessionImage(sm) {
 }
 function roundRect(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
 
-/* ---------- プレート計算 ---------- */
-function plateLoad(total, bar, collar, plates) {
-  let side = (total - bar - (collar ? 5 : 0)) / 2;
-  if (side < -1e-9) return { ok: false, list: [], rest: side * 2 };
-  const list = [];
-  for (const p of plates) { while (side + 1e-9 >= p) { list.push(p); side = round2(side - p); } }
-  return { ok: side < 1e-6, list, rest: round2(side * 2) };
-}
-function plateSvg(list, collar) {
-  const H = 120, cy = 60; let x = 70; let h = `<rect x="0" y="${cy - 5}" width="70" height="10" rx="3" fill="#9aa4b2"/><rect x="62" y="${cy - 14}" width="8" height="28" rx="2" fill="#7b8594"/>`;
-  for (const p of list) {
-    const ph = p >= 10 ? 104 : p >= 5 ? 76 : p >= 2 ? 58 : 46; const pw = p >= 15 ? 16 : p >= 5 ? 12 : 9;
-    h += `<rect x="${x}" y="${cy - ph / 2}" width="${pw}" height="${ph}" rx="3" fill="${PLATE_COLORS[p] || '#94a3b8'}" stroke="rgba(0,0,0,.25)"/><text x="${x + pw / 2}" y="${cy + ph / 2 + 13}" font-size="9" text-anchor="middle" fill="var(--text-2)" font-weight="700">${p}</text>`;
-    x += pw + 2;
-  }
-  if (collar) { h += `<rect x="${x}" y="${cy - 14}" width="10" height="28" rx="2" fill="#475569"/>`; x += 12; }
-  h += `<rect x="${x}" y="${cy - 5}" width="${Math.max(40, 300 - x)}" height="10" rx="3" fill="#9aa4b2"/>`;
-  return `<svg viewBox="0 0 ${Math.max(340, x + 50)} ${H + 14}">${h}</svg>`;
-}
-function openPlateCalc(initial) {
-  const st = { w: initial || 60, bar: DB.settings.barKg, collar: DB.settings.collar };
-  openSheet({
-    title: 'プレート計算', state: st,
-    render: () => {
-      const r = plateLoad(st.w, st.bar, st.collar, DB.settings.plates);
-      return `<div class="center" style="margin-bottom:10px"><div class="stepper" style="justify-content:center"><button type="button" data-a="adj" data-d="-2.5">−</button><div><input class="input center" data-in="w" inputmode="decimal" value="${fmtNum(st.w)}" style="width:120px;font-size:24px;font-weight:850"></div><button type="button" data-a="adj" data-d="2.5">＋</button></div><div class="faint small" style="margin-top:4px">合計重量（kg）</div></div>
-        <div class="plate-wrap">${plateSvg(r.list, st.collar)}</div>
-        <div class="plates-list">${r.list.length ? r.list.map((p) => `<span style="background:${PLATE_COLORS[p]};${p === 5 || p === 0.5 ? 'color:#111;border:1px solid #ccc' : ''}">${p}kg</span>`).join('') : '<span style="background:var(--surface-3);color:var(--text-2)">プレートなし</span>'}</div>
-        <p class="hint">${r.ok ? `片側：<b>${r.list.reduce((a, b) => a + b, 0)}kg</b>（${r.list.join(' + ') || 'なし'}）` : r.rest < 0 ? 'バーより軽い重量です' : `ぴったりにできません（あと <b>${fmtNum(r.rest)}kg</b>）`}</p>
-        <div class="field" style="margin-top:14px"><span class="lbl">バーの重さ</span><div class="chip-wrap">${[20, 15, 10, 7, 0].map((b) => `<button type="button" class="chip" data-a="bar" data-v="${b}" aria-pressed="${st.bar === b}">${b ? b + 'kg' : 'なし'}</button>`).join('')}</div></div>
-        <div class="sw-row"><div class="t"><b>カラー（留め具）2.5kg×2を含める</b><span>ウェイトリフティング競技用カラー</span></div><label class="switch"><input type="checkbox" data-ch="collar" ${st.collar ? 'checked' : ''}><span></span></label></div>
-        <p class="hint">使えるプレートは「設定 → プレート」で変更できます。</p>`;
-    },
-    inputs: { w: (el) => { const v = parseNum(el.value); if (v != null) { st.w = v; const s = SCOPES.get(el.closest('[data-scope]')); clearTimeout(st._t); st._t = setTimeout(() => s.render(), 500); } } },
-    changes: { collar: (el, e, s) => { st.collar = el.checked; s.render(); } },
-    actions: { adj: (el, e, s) => { st.w = Math.max(0, round2(st.w + Number(el.dataset.d))); s.render(); }, bar: (el, e, s) => { st.bar = Number(el.dataset.v); s.render(); } }
-  });
-}
-
 /* ---------- ウォームアップ自動作成 ---------- */
 function buildWarmups(target, ex) {
   const bar = ex.equipment === 'バーベル' ? DB.settings.barKg : 0;
@@ -3650,6 +3660,14 @@ function buildWarmups(target, ex) {
 }
 async function warmupFor(i) {
   const rec = recAt(i); const ex = getEx(rec.exerciseId);
+  // 未完了のウォームアップがあれば、もう一度押したときは外す（誤って押したとき用）
+  if (rec.sets.some((s) => s.t === 'w' && !s.done)) {
+    const before = JSON.stringify(rec.sets);
+    rec.sets = rec.sets.filter((s) => !(s.t === 'w' && !s.done));
+    rec.updatedAt = Date.now(); touch(); renderWorkout();
+    undoToast('ウォームアップを外しました', () => { rec.sets = JSON.parse(before); rec.updatedAt = Date.now(); touch(); renderWorkout(); });
+    return;
+  }
   let first = rec.sets.find((s) => s.t !== 'w');
   let target = first && first.w != null ? first.w : null;
   if (target == null) { const j = rec.sets.indexOf(first); if (j >= 0) target = phOf(i, j).w; }
@@ -3663,7 +3681,7 @@ async function warmupFor(i) {
   const idx = rec.sets.findIndex((s) => s.t !== 'w');
   rec.sets.splice(idx < 0 ? rec.sets.length : idx, 0, ...ws.map((w) => ({ w: w.w, r: w.r, done: false, t: 'w' })));
   rec.updatedAt = Date.now(); touch(); renderWorkout();
-  toast(`ウォームアップ ${ws.length}セットを追加しました（${fmtNum(target)}kgの${ws.map((w) => Math.round(w.w / target * 100) + '%').join('・')}）`);
+  toast(`ウォームアップ ${ws.length}セットを追加しました（${fmtNum(target)}kgの${ws.map((w) => Math.round(w.w / target * 100) + '%').join('・')}）。もう一度押すと外せます`);
 }
 
 /* ---------- 1RMの%で入力 ---------- */
@@ -3828,7 +3846,6 @@ Object.assign(ACT, {
     openSheet({ title: `${ex.name}：休憩時間`, render: () => `<div class="chip-wrap">${REST_PRESETS.map((s) => `<button type="button" class="chip" data-a="v" data-v="${s}" aria-pressed="${restOf(ex) === s}">${fmtSec(s)}</button>`).join('')}</div><button type="button" class="btn btn-ghost btn-block" data-a="v" data-v="0" style="margin-top:10px">標準に戻す（${fmtSec(ex.part === '全身・WL' ? Math.max(DB.settings.restSec, 120) : DB.settings.restSec)}）</button>`,
       actions: { v: (b, e, s) => { const v = Number(b.dataset.v); setOverride(ex.id, 'restSec', v || null); s.close(); refreshAll(); } } });
   },
-  exPlate: (el) => { const i = Number(el.dataset.i); const rec = recAt(i); const j = rec.sets.findIndex((s) => !s.done); const w = j >= 0 ? (rec.sets[j].w ?? phOf(i, j).w) : (rec.sets[rec.sets.length - 1] || {}).w; openPlateCalc(w || 60); },
   exMore: async (el) => {
     const i = Number(el.dataset.i); const ses = woSes(); const exId = ses.exerciseIds[i]; const ex = getEx(exId);
     const g = ses.supersets && ses.supersets[exId];
@@ -3837,7 +3854,6 @@ Object.assign(ACT, {
       { key: 'detail', label: '種目の詳細・成長グラフ' },
       { key: 'warm', label: 'ウォームアップを自動作成' },
       ...(ex.equipment !== '自重' && !isTimed(ex) ? [{ key: 'pct', label: '1RMの%で重量を入力' }, { key: 'rm', label: 'RM計算（重量と回数から推定1RM）' }] : []),
-      ...(ex.equipment === 'バーベル' ? [{ key: 'plate', label: 'プレート計算' }] : []),
       ...(g ? [{ key: 'unss', label: 'スーパーセットを解除' }] : nextId ? [{ key: 'ss', label: `次の種目（${getEx(nextId).name}）とスーパーセットにする` }] : []),
       { key: 'replace', label: '別の種目に入れ替え' },
       ...(i > 0 ? [{ key: 'upm', label: '順番を上へ' }] : []), ...(i < ses.exerciseIds.length - 1 ? [{ key: 'downm', label: '順番を下へ' }] : []),
@@ -3848,7 +3864,6 @@ Object.assign(ACT, {
     else if (c === 'warm') warmupFor(i);
     else if (c === 'pct') openPercent(i);
     else if (c === 'rm') ACT.rmCalc({ dataset: { id: exId } });
-    else if (c === 'plate') ACT.exPlate(el);
     else if (c === 'ss') { const gid = uid('ss'); ses.supersets = ses.supersets || {}; ses.supersets[exId] = ses.supersets[nextId] || gid; ses.supersets[nextId] = ses.supersets[exId]; touch(); renderWorkout(); toast('スーパーセットにしました。セット完了で次の種目へ自動で移動します'); }
     else if (c === 'unss') { for (const k of Object.keys(ses.supersets)) if (ses.supersets[k] === g) delete ses.supersets[k]; touch(); renderWorkout(); }
     else if (c === 'replace') pickExercises({ title: `${ex.name} と入れ替え`, exclude: ses.exerciseIds, initialCat: ex.part, onDone: ([id]) => swapEx(i, id) });
@@ -4951,7 +4966,6 @@ function openExerciseDetail(exId) {
         if (DB.active) { if (!DB.active.exerciseIds.includes(exId)) { DB.active.exerciseIds.push(exId); ensureRec(DB.active, exId); touch(); } p.close(); openWorkout(); setTimeout(() => { if (DB.active) scrollToEx(DB.active.exerciseIds.indexOf(exId)); }, 120); }
         else { p.close(); startWorkout([exId], getEx(exId).name, null); }
       },
-      plate: () => openPlateCalc(exSummary(exId) ? exSummary(exId).maxW : 60),
       more: () => { st.hist += 20; p.render(); },
       editSes: (el) => openSessionEdit(el.dataset.id)
     }
@@ -4973,7 +4987,7 @@ function exDetailHtml(exId, st) {
     ${ex.en ? `<div class="small faint">${esc(ex.en)}</div>` : ''}
     <div class="small" style="margin-top:4px"><b>主に使う：</b>${ex.muscles.map((m) => MUSCLES[m]).join('、') || '-'}</div>${ex.sub.length ? `<div class="small muted"><b>補助：</b>${ex.sub.map((m) => MUSCLES[m]).join('、')}</div>` : ''}
     <div class="small muted" style="margin-top:4px">目標 ${ex.defaultTargetReps}${unitOf(ex)} ・ 刻み ${fmtNum(ex.stepKg)}kg ・ 休憩 ${fmtSec(restOf(ex))}</div></div></div>
-    <div class="row" style="margin-top:12px"><button type="button" class="btn btn-primary" data-a="record">${ICON.play}${DB.active ? '進行中に追加' : '記録する'}</button>${ex.equipment === 'バーベル' ? `<button type="button" class="btn" data-a="plate">${ICON.plate}プレート</button>` : ''}</div></div>`;
+    <div class="row" style="margin-top:12px"><button type="button" class="btn btn-primary" data-a="record">${ICON.play}${DB.active ? '進行中に追加' : '記録する'}</button></div></div>`;
   if (!recs.length) return h + `<div class="card empty"><div class="big">📊</div><p>まだ記録がありません。記録すると成長グラフや自己ベストが表示されます。</p></div>` + noteHtml(exId);
   const main = mainMetricOf(ex, recs);
   const timed = isTimed(ex);
@@ -5334,7 +5348,7 @@ ACT.rmCalc = (el) => {
 };
 
 /* =====================================================================
-   5. 設定（バックアップ・表示・トレーニング・プレート・データ）
+   5. 設定（バックアップ・表示・トレーニング・バーの重さ・データ）
    ===================================================================== */
 /* 設定の折りたたみ（開閉はこのセッション中だけ覚える） */
 function setOpenAttr(k, def) { const o = UI.setOpen && k in UI.setOpen ? UI.setOpen[k] : def; return o ? ' open' : ''; }
@@ -5406,10 +5420,8 @@ function renderSettings() {
     <div class="sw-row"><div class="t"><b>タイマー終了時に音を鳴らす</b></div><label class="switch"><input type="checkbox" data-ch="setSound" ${s.sound ? 'checked' : ''}><span></span></label></div>
     <div class="sw-row"><div class="t"><b>振動（バイブ）</b><span>対応端末のみ</span></div><label class="switch"><input type="checkbox" data-ch="setVib" ${s.vib ? 'checked' : ''}><span></span></label></div>
     <div class="sw-row"><div class="t"><b>トレーニング中は画面を消さない</b><span>${'wakeLock' in navigator ? 'セットの合間に画面が暗くならないようにします' : 'このブラウザは未対応です（ホーム画面に追加すると使える場合があります）'}</span></div><label class="switch"><input type="checkbox" data-ch="setWake" ${s.wake ? 'checked' : ''}><span></span></label></div></details>`;
-  h += `${setSecHead('plate', false, `${ICON.plate} プレート`, `バー${s.barKg}kg ・ ${s.plates.length}種類`)}
-    <div class="field" style="margin-bottom:10px"><span class="lbl">バーの重さ</span><div class="chip-wrap">${[20, 15, 10, 7].map((b) => `<button type="button" class="chip" data-a="barKg" data-v="${b}" aria-pressed="${s.barKg === b}">${b}kg</button>`).join('')}</div></div>
-    <div class="field" style="margin-bottom:6px"><span class="lbl">使えるプレート（タップで切り替え）</span><div class="chip-wrap">${ALL_PLATES.map((p) => `<button type="button" class="chip" data-a="plateT" data-v="${p}" aria-pressed="${s.plates.includes(p)}"><i class="dot" style="background:${PLATE_COLORS[p]};border:1px solid var(--line-2)"></i>${p}kg</button>`).join('')}</div></div>
-    <div class="sw-row"><div class="t"><b>カラー（2.5kg×2）を含めて計算</b><span>ウェイトリフティング競技用</span></div><label class="switch"><input type="checkbox" data-ch="collarDef" ${s.collar ? 'checked' : ''}><span></span></label></div></details>`;
+  h += `${setSecHead('plate', false, `${ICON.plate} バーの重さ`, `${s.barKg}kg`)}
+    <div class="field" style="margin-bottom:6px"><span class="lbl">ウォームアップの自動作成とRM計算に使います</span><div class="chip-wrap">${[20, 15, 10, 7].map((b) => `<button type="button" class="chip" data-a="barKg" data-v="${b}" aria-pressed="${s.barKg === b}">${b}kg</button>`).join('')}</div></div></details>`;
   h += `${setSecHead('profile', false, `${ICON.body} プロフィール`, `${s.sex === 'f' ? '女性' : '男性'}${DB.bodylog.length ? ` ・ ${fmtNum(DB.bodylog[DB.bodylog.length - 1].kg)}kg` : ''}`)}
     <div class="field" style="margin-bottom:10px"><span class="lbl">性別（Sinclair計算に使用）</span><div class="seg"><button type="button" data-a="sex" data-v="m" aria-pressed="${s.sex === 'm'}">男性</button><button type="button" data-a="sex" data-v="f" aria-pressed="${s.sex === 'f'}">女性</button></div></div>
     <button type="button" class="btn btn-line btn-block" data-a="openBody">${ICON.weight}体重を記録・推移を見る${DB.bodylog.length ? `（最新 ${fmtNum(DB.bodylog[DB.bodylog.length - 1].kg)}kg）` : ''}</button></details>`;
@@ -5730,14 +5742,12 @@ Object.assign(ACT, {
   theme: (el) => { DB.settings.theme = el.dataset.v; save(); applyTheme(); gcCharts(); renderTab(); },
   restDef: (el) => { DB.settings.restSec = Number(el.dataset.v); save(); renderTab(); },
   barKg: (el) => { DB.settings.barKg = Number(el.dataset.v); save(); renderTab(); },
-  plateT: (el) => { const p = Number(el.dataset.v); const s = new Set(DB.settings.plates); if (s.has(p)) s.delete(p); else s.add(p); if (!s.size) { toast('プレートを1種類以上選んでください'); return; } DB.settings.plates = [...s].sort((a, b) => b - a); save(); renderTab(); },
   sex: (el) => { DB.settings.sex = el.dataset.v; save(); renderTab(); },
   demoAdd: () => addDemoData(), demoRemove: () => removeDemoData(), resetAll: () => resetAll()
 });
 Object.assign(CHG, {
   setWl: (el) => { DB.settings.wl = el.checked; touch(); toast(el.checked ? 'ウェイトリフティング機能をONにしました' : 'ウェイトリフティング機能をOFFにしました（記録は残っています）'); renderTab(); },
   autoDrive: (el) => { DB.settings.autoDrive = el.checked; save(); },
-  collarDef: (el) => { DB.settings.collar = el.checked; save(); },
   file: (el) => { const f = el.files && el.files[0]; el.value = ''; handleImportFile(f); }
 });
 
@@ -5776,7 +5786,7 @@ const TIPS = {
     { sel: '.overlay .set-r .cell', title: '重量・回数を入力', text: '欄をタップすると大きなテンキーが出ます。薄い数字は<b>前回の値</b>で、そのまま✓を押せば同じ内容で記録できます。' },
     { sel: '.overlay .done-btn', title: 'できたら ✓', text: 'セット完了です。<b>休憩タイマー</b>が自動で動き、終わると音と振動で知らせます（設定で変更可）。' },
     { sel: '.overlay .set-no', title: 'セット番号をタップ', text: '<b>ウォームアップ／ドロップセット</b>への切り替え、<b>RPE（きつさ）</b>の記録、複製・削除ができます。' },
-    { sel: '.overlay .exc [data-a="exMore"]', title: '種目の ⋮', text: 'ウォームアップの自動作成、%計算、プレート計算、別の種目への入れ替え、順番の変更、スーパーセットはここから。' },
+    { sel: '.overlay .exc [data-a="exMore"]', title: '種目の ⋮', text: 'ウォームアップの自動作成、%計算、別の種目への入れ替え、順番の変更、スーパーセットはここから。' },
     { sel: '.overlay .wo-finish', title: '終わったら「終了」', text: '記録は1セットごとに自動保存されています。左上の<b>∨</b>で画面をたためば、ほかのタブを見ながら続けられます。' }] },
   kp: { cond: () => UI.kp && $('#keypad'), steps: [
     { sel: '#keypad', title: 'テンキー', text: '<b>＋／−</b>で刻み幅ずつ調整、<b>次へ</b>で重量→回数→次のセットへ進みます。<b>✓</b>でそのセットを完了にします。' }] },
@@ -5911,7 +5921,7 @@ function levelCompareHtml(cur) {
   const ks = Object.keys(LEVELS);
   return `<table class="lv-cmp"><thead><tr><th>表示されるもの</th>${ks.map((k) => `<th class="${k === cur ? 'on' : ''}">${LEVELS[k].short}</th>`).join('')}</tr></thead><tbody>
     ${LEVEL_ROWS.map(([t, who]) => `<tr class="${who === 'all' ? 'all' : ''}"><td>${t}</td>${ks.map((k) => { const y = who === 'all' || who.split(',').includes(k); return `<td class="${k === cur ? 'on' : ''}"><span class="${y ? 'y' : 'n'}">${y ? '●' : '－'}</span></td>`; }).join('')}</tr>`).join('')}
-    </tbody></table><p class="lv-note">記録・集計のしくみはどのレベルでも同じで、いつでも変更できます。RPE・%計算・プレート計算は、どのレベルでも各種目の <b>⋮</b> やセット番号から使えます。</p>`;
+    </tbody></table><p class="lv-note">記録・集計のしくみはどのレベルでも同じで、いつでも変更できます。RPE・%計算は、どのレベルでも各種目の <b>⋮</b> やセット番号から使えます。</p>`;
 }
 Object.assign(CHG, {
   guideTips: (el) => { DB.settings.tipsOff = !el.checked; touch(); },
@@ -7450,6 +7460,13 @@ async function init() {
   pwaInit();
   setTimeout(() => { if (!DB.ui.onboarded && !DB.active && !sheets.length) { if (DB.ui.introDone) openOnboarding(); else startIntro(); } }, 450);
   if (Drive.clientId() && navigator.onLine && location.protocol !== 'file:') setTimeout(() => Drive.loadGis().catch(() => { /* 使う時に再試行 */ }), 1500);
+  if (normalize.slimmed) {
+    const gone = normalize.slimmed; normalize.slimmed = null;
+    setTimeout(() => undoToast(`例のメニューを1つにしました（使っていない例${gone.length}件を外しました）`, () => {
+      for (const { k, m } of gone) if (!DB.menus.some((x) => x.id === m.id)) DB.menus.splice(Math.min(k, DB.menus.length), 0, m);
+      touch(); refreshAll(); toast('例のメニューを元に戻しました', 'ok');
+    }), 900);
+  }
   saveNow();
   if (!storageOK) toast('この環境ではデータを保存できません（プライベートモード等）', 'error');
 }
