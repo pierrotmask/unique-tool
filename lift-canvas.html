@@ -1329,6 +1329,11 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
 .sugg1 b{display:inline-flex;align-items:center;gap:3px;color:var(--ok-2);white-space:nowrap}
 .sugg1 b svg{width:13px;height:13px}
 .sugg1 button{min-height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--ok-line);background:var(--surface-solid);color:var(--ok-2);font:inherit;font-weight:800;white-space:nowrap;cursor:pointer}
+.sugg1 button.rec{border-color:var(--ok-2);background:var(--ok-btn);color:#fff}
+.sugg1 button.rec small{font-size:10.5px;font-weight:700;opacity:.85;margin-left:1px}
+.sugg1.has-rec{gap:5px}
+.sugg1.both .why{display:none}
+@media (max-width:389px){.sugg1.both b span{display:none}.sugg1.both button{padding:0 7px}.sugg1.both{padding-left:8px}}
 .sugg1 .why{flex:1;min-width:0;text-align:right;font-size:11px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* RM計算：回数×RPEの早見表（横にスクロール） */
 .rm-grid-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px;padding:0 4px}
@@ -1395,7 +1400,7 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.25.6';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.25.7';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -3113,11 +3118,15 @@ function exCard(ses, i, rec, groups) {
   h += `<div class="exc-h">${exIcon(ex)}<div class="nm"><button type="button" data-a="exDetail" data-id="${esc(exId)}">${esc(ex.name)}${ICON.chevR}</button>
     <div class="exc-tags"><button type="button" data-a="exTarget" data-i="${i}">目標 ${target}${unit}</button><button type="button" data-a="exRest" data-i="${i}">休憩 ${fmtSec(restOf(ex))}</button>${timed ? '' : `<button type="button" class="rpe-tg" data-a="exRpe" data-i="${i}" aria-pressed="${rpeOnFor(exId)}">RPE ${rpeOnFor(exId) ? 'ON' : 'OFF'}</button>`}${lv() === 'advanced' && !bw && exSummary(exId) && exSummary(exId).bestE1 ? `<button type="button" data-a="exPct" data-i="${i}">${ICON.percent}${ex.part === '全身・WL' ? `最高 ${fmtNum(exSummary(exId).maxW)}` : `1RM ${fmtNum(round1(exSummary(exId).bestE1))}`}kg</button>` : ''}${ex.equipment === 'バーベル' ? `<button type="button" data-a="exPlate" data-i="${i}">${ICON.plate}プレート</button>` : ''}</div></div>
     <button type="button" class="icon-btn" data-a="exMore" data-i="${i}" aria-label="${esc(ex.name)}の操作">${ICON.more}</button></div>`;
-  // 参考目安（前回の通常セットが全て目標回数に到達した時のみ）
-  if (prevWork.length && prevWork.every((s) => s.r >= target)) {
+  // 参考目安：①前回の通常セットが全て目標回数に到達 → +kg/+回　②RPE ON で前回までにRPE付きの記録あり → 今日の推奨重量
+  const reach = prevWork.length && prevWork.every((s) => s.r >= target);
+  const rec1 = !timed && !bw && rpeOnFor(exId) ? todayRec(ex, prevs, target) : null;
+  if (reach || rec1) {
     const stepTxt = timed ? '+5秒' : `+${fmtNum(ex.stepKg)}kg`;
-    h += `<div class="sugg1" role="note" aria-label="前回（${fmtDate(prev.date)}）全${prevWork.length}セットで目標${target}${unit}を達成。次の目安"><b>${ICON.up}次の目安</b>
-      ${timed ? `<button type="button" data-a="sugApply" data-i="${i}" data-m="r">+5秒</button>` : `<button type="button" data-a="sugApply" data-i="${i}" data-m="w">${bw ? '加重' : ''}${stepTxt}</button><button type="button" data-a="sugApply" data-i="${i}" data-m="r">+1回</button>`}<span class="why">前回 全セット目標達成</span></div>`;
+    const lab = rec1 ? `推定1RM ${fmtNum(round1(rec1.one))}kg（${fmtDate(rec1.date)}）から、目標${target}回をRPE${REC_RPE}でできる重さ。` : '';
+    h += `<div class="sugg1${rec1 ? ' has-rec' : ''}${rec1 && reach ? ' both' : ''}" role="note" aria-label="${reach ? `前回（${fmtDate(prev.date)}）全${prevWork.length}セットで目標${target}${unit}を達成。` : ''}${lab}次の目安"><b>${ICON.up}<span>次の目安</span></b>
+      ${rec1 ? `<button type="button" class="rec" data-a="sugApply" data-i="${i}" data-m="rec" data-w="${rec1.w}" aria-label="今日の推奨 ${fmtNum(rec1.w)}kg×${target}回（RPE${REC_RPE}）を入力">今日 ${fmtNum(rec1.w)}kg<small>×${target}@${REC_RPE}</small></button>` : ''}
+      ${reach ? (timed ? `<button type="button" data-a="sugApply" data-i="${i}" data-m="r">+5秒</button>` : `<button type="button" data-a="sugApply" data-i="${i}" data-m="w">${bw ? '加重' : ''}${stepTxt}</button><button type="button" data-a="sugApply" data-i="${i}" data-m="r">+1回</button>`) : ''}<span class="why">${rec1 ? `1RM ${fmtNum(round1(rec1.one))}から` : '前回 全セット目標達成'}</span></div>`;
   }
   if (prevs.length) {
     const ro = !!(UI.recOpen && UI.recOpen[exId]);
@@ -3786,7 +3795,15 @@ Object.assign(ACT, {
   sugApply: (el) => {
     const i = Number(el.dataset.i); const ses = woSes(); const rec = recAt(i); const ex = getEx(rec.exerciseId);
     const prev = prevRecords(rec.exerciseId, ses.id, ses.date)[0]; if (!prev) return;
-    const pw = work(prev); const m = el.dataset.m; let k = 0;
+    const m = el.dataset.m;
+    if (m === 'rec') {
+      const w = Number(el.dataset.w); const n = Math.max(1, work(prev).length); const tr = ex.defaultTargetReps;
+      const normal = rec.sets.filter((s) => s.t !== 'w');
+      while (normal.length < n) { const s = { w: null, r: null, done: false, t: 'n' }; rec.sets.push(s); normal.push(s); }
+      normal.forEach((s) => { if (!s.done) { s.w = w; s.r = tr; } });
+      rec.updatedAt = Date.now(); touch(); renderWorkout(); toast(`今日の推奨 ${fmtNum(w)}kg×${tr}回を入れました（きつさがRPE${REC_RPE}前後になる目安です）`); return;
+    }
+    const pw = work(prev); let k = 0;
     const normal = rec.sets.filter((s) => s.t !== 'w');
     while (normal.length < pw.length) { const s = { w: null, r: null, done: false, t: 'n' }; rec.sets.push(s); normal.push(s); }
     normal.forEach((s) => { const p = pw[Math.min(k++, pw.length - 1)]; if (s.done) return; if (m === 'w') { s.w = round2(p.w + ex.stepKg); s.r = p.r; } else { s.w = p.w; s.r = p.r + (isTimed(ex) ? 5 : 1); } });
@@ -3872,6 +3889,16 @@ Object.assign(CHG, {
 document.addEventListener('toggle', (e) => { const d = e.target; if (d && d.classList && d.classList.contains('recent2')) { UI.recOpen = UI.recOpen || {}; UI.recOpen[d.dataset.ex] = d.open; } }, true);
 
 /* RPE：種目ごとのオン・オフ（未設定なら上級だけオン） */
+/* 今日の推奨重量：直近（3回以内）のRPE付き記録の推定1RMから、目標回数をRPE8でできる重さ（RPE表）を刻み幅で丸める */
+const REC_RPE = 8;
+function todayRec(ex, prevs, target) {
+  const p = rtsPct(target, REC_RPE); if (!p || target > 12) return null;
+  for (const r of prevs.slice(0, 3)) {
+    let one = 0; for (const s of work(r)) if (s.rpe && s.w > 0 && s.r > 0) one = Math.max(one, rmEstimate(s.w, s.r, s.rpe).one);
+    if (one > 0) { const st = ex.stepKg || 2.5; const w = round2(Math.round(one * p / 100 / st) * st); return w > 0 ? { w, one, date: r.date } : null; }
+  }
+  return null;
+}
 function rpeOnFor(exId) { const m = DB.ui.rpeEx || {}; return exId in m ? !!m[exId] : lv() === 'advanced'; }
 function openRpeHelp() {
   openSheet({ title: 'RPE（きつさ）とは', render: () => `<p class="small" style="margin:0 0 8px;line-height:1.7">セットを終えたとき、<b>あと何回できたか</b>を10段階で表したものです。入れておくと、限界まで追い込まなかったセットからでも推定1RMを正確に出せます。<b>空欄のセットがあってもかまいません。</b></p>
