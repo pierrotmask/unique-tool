@@ -1339,6 +1339,16 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
 .rm-grid tr.on td,.rm-grid tr.on th{background:var(--accent-soft)}
 .rm-grid td.hit{background:var(--accent) !important;color:var(--on-accent,#fff);font-weight:900;border-radius:6px}
 .rm-rpe .chip{min-height:34px;padding:0 10px}
+.rm-unit{width:max-content;margin:0 0 8px auto}
+.rm-det{border-top:1px solid var(--line);margin-top:4px}
+.rm-bo{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.stepper.sm button{width:38px;height:36px}
+.stepper.sm .val{min-width:56px;font-size:16px}
+.rm-bo-res{margin:8px 0 4px;font-size:13px;color:var(--text-2)}
+.rm-bo-res b{font-family:var(--f-num);font-size:26px;color:var(--head)}
+.rm-grid-wrap{margin:0;padding:0}
+.rm-grid tr>th:first-child{box-shadow:1px 0 0 var(--line);padding-right:8px}
+.rm-grid tr.on>th:first-child{background:var(--accent-soft)}
 
 </style>
 </head>
@@ -1363,7 +1373,7 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.25.4';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.25.5';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -5145,46 +5155,87 @@ function rmEstimate(w, r, rpe, method) {
   if (method !== 'epley' && p) return { one: w / (p / 100), how: 'rts', pct: p };
   return { one: rmFrom(w, r, rpe), how: 'epley' };
 }
+/* 1RMの推定式（n＝回数＋余力）。RepCountなどの1RM計算と同じ代表的な式 */
+const RM_FORMULAS = [
+  ['Epley', (w, n) => w * (1 + n / 30)],
+  ['Brzycki', (w, n) => (n >= 37 ? 0 : w * 36 / (37 - n))],
+  ['Lander', (w, n) => 100 * w / (101.3 - 2.67123 * n)],
+  ['Lombardi', (w, n) => w * Math.pow(n, 0.1)],
+  ['Mayhew', (w, n) => 100 * w / (52.2 + 41.9 * Math.exp(-0.055 * n))],
+  ["O'Conner", (w, n) => w * (1 + 0.025 * n)],
+  ['Wathan', (w, n) => 100 * w / (48.8 + 53.8 * Math.exp(-0.075 * n))]
+];
+const RIR_ROWS = [[10, '0', '限界。もう1回もできない'], [9.5, '0.5', 'あと1回できたかもしれない'], [9, '1', 'あと1回できた'], [8.5, '1.5', 'あと2回できたかもしれない'], [8, '2', 'あと2回できた'], [7.5, '2.5', 'あと3回できたかもしれない'], [7, '3', 'あと3回できた'], [6.5, '3.5', 'あと4回できたかもしれない'], [6, '4', 'あと4回できた']];
 function openRmCalc(init = {}) {
   const ex = init.exId ? getEx(init.exId) : null;
-  const st = { w: init.w || '', r: init.r || 5, rpe: init.rpe || 0, step: ex ? ex.stepKg : 2.5, method: 'auto' };
+  const st = { w: init.w || '', r: init.r || 5, rpe: init.rpe || 0, unit: 'kg', step: ex ? ex.stepKg : 2.5, method: 'auto', boR: 8, boRpe: 7, open: {} };
+  const U = () => st.unit;
   const rnd = (v) => (v > 0 ? round2(Math.round(v / st.step) * st.step) : 0);
+  const det = (k, title, body) => `<details class="lv-more rm-det" data-k="${k}"${st.open[k] ? ' open' : ''}><summary>${title}${ICON.chevD}</summary>${body}</details>`;
   const out = () => {
     const w = Number(st.w); const est = rmEstimate(w, st.r, st.rpe, st.method); const one = est.one;
     if (!one) return '<p class="empty-mini" style="margin:12px 0">重量と回数を入れると計算します。</p>';
-    const n = st.r + (st.rpe ? 10 - st.rpe : 0); const ep = rmFrom(w, st.r, st.rpe); const b = rmBrzycki(w, n);
-    const alt = [ep, b].filter((x) => x > 0 && Math.abs(x - one) > 0.05);
-    const lo = Math.min(one, ...alt), hi = Math.max(one, ...alt);
+    const n = st.r + (st.rpe ? 10 - st.rpe : 0);
+    const fs = RM_FORMULAS.map(([nm, f]) => [nm, n <= 1 ? w : f(w, n)]).filter(([, v]) => v > 0 && isFinite(v));
+    const avg = fs.reduce((a, [, v]) => a + v, 0) / fs.length;
+    const lo = Math.min(one, ...fs.map(([, v]) => v)), hi = Math.max(one, ...fs.map(([, v]) => v));
     const curRpe = st.rpe || 10;
-    return `<div class="rm-big"><span>推定1RM</span><b class="num">${fmtNum(round1(one))}<small>kg</small></b><em>${est.how === 'rts' ? `RPE表で計算（${st.r}回@RPE${fmtNum(st.rpe)}＝1RMの${fmtNum(est.pct)}%）` : 'Epley式で計算'}${alt.length ? `・式による幅 ${fmtNum(round1(lo))}〜${fmtNum(round1(hi))}kg` : ''}</em></div>
-      <div class="field" style="margin:10px 0 4px"><span class="lbl">回数×RPEの重さ早見表（${fmtNum(st.step)}kg刻み）</span></div>
+    // バックオフ（重いセットのあとの軽めのセット）
+    const boP = rtsPct(st.boR, st.boRpe); const boW = boP ? rnd(one * boP / 100) : 0;
+    // ウォームアップ（入力した重さに向けて）
+    const barKg = (ex ? ex.equipment === 'バーベル' : true) ? (DB.settings.barKg || 20) : 0;
+    const bar = barKg ? (U() === 'lb' ? Math.round(barKg / LB / 5) * 5 : barKg) : 0;
+    const wu = [];
+    if (bar && w > bar * 1.5) wu.push({ w: bar, r: 10, rest: '30秒' });
+    for (const [p, r, rest] of [[0.4, 5, '1分'], [0.55, 3, '1分'], [0.7, 2, '1分半'], [0.8, 1, '2分'], [0.9, 1, '2〜3分']]) {
+      const x = rnd(w * p); if (x <= (wu.length ? wu[wu.length - 1].w : 0) || x >= w || x < bar) continue;
+      if (p >= 0.9 && st.r > 3) continue;   // 本番が4回以上なら90%は省く
+      wu.push({ w: x, r, rest });
+    }
+    return `<div class="rm-big"><span>推定1RM</span><b class="num">${fmtNum(round1(one))}<small>${U()}</small></b><em>${est.how === 'rts' ? `RPE表で計算（${st.r}回@RPE${fmtNum(st.rpe)}＝1RMの${fmtNum(est.pct)}%）` : 'Epley式で計算'}・式による幅 ${fmtNum(round1(lo))}〜${fmtNum(round1(hi))}${U()}</em></div>
+      <div class="field" style="margin:10px 0 4px"><span class="lbl">回数×RPEの重さ早見表（${fmtNum(st.step)}${U()}刻み）</span></div>
       <div class="rm-grid-wrap"><table class="tbl rm-grid"><tr><th>回数＼RPE</th>${RTS_RPES.map((p) => `<th class="${p === curRpe ? 'on' : ''}">${fmtNum(p)}</th>`).join('')}</tr>
         ${RTS_REPS.map((k) => `<tr class="${k === st.r ? 'on' : ''}"><th>${k}回</th>${RTS_RPES.map((p) => { const pc = rtsPct(k, p); return `<td class="${k === st.r && p === curRpe ? 'hit' : ''}">${pc ? fmtNum(rnd(one * pc / 100)) : '—'}</td>`; }).join('')}</tr>`).join('')}</table></div>
-      <p class="tiny faint" style="margin:4px 0 0">例：「8回をRPE8で」なら、8回の行とRPE8の列が交わる重さ。RPE10＝限界、RPE9＝あと1回、RPE8＝あと2回。</p>
-      <details class="lv-more" style="margin-top:6px"><summary>1RMの%から見る${ICON.chevD}</summary><table class="tbl rm-tbl"><tr><th>割合</th><th>重さ</th><th>限界までの回数の目安</th></tr>${RM_PCT.map((p) => `<tr><td>${p}%</td><td><b class="num">${fmtNum(rnd(one * p / 100))}</b>kg</td><td>${p >= 100 ? '1回' : `約${rmRepsAt(p)}回`}</td></tr>`).join('')}</table></details>
-      <p class="tiny faint" style="margin:8px 0 0">RPEを入れると、RPE表（Tuchscherer のRPEチャート）で計算します。RPEなしはアプリの推定1RMと同じEpley式です。回数が多い（10回超）ほど誤差が大きく、個人差もあります。</p>`;
+      <p class="tiny faint" style="margin:4px 0 0">例：「3回をRPE9で」なら、3回の行とRPE9の列が交わる重さを載せます。</p>
+      ${det('bo', 'バックオフセット（重いセットのあと）', `<p class="tiny faint" style="margin:0 0 6px">重いトップセットのあと、回数を増やしてRPEを下げたセットの重さです。</p>
+        <div class="rm-bo"><div class="stepper sm"><button type="button" data-a="boR" data-d="-1">−</button><span class="val num">${st.boR}<span class="u">回</span></span><button type="button" data-a="boR" data-d="1">＋</button></div>
+        <div class="seg pill mini">${[9, 8, 7, 6].map((p) => `<button type="button" data-a="boRpe" data-v="${p}" aria-pressed="${st.boRpe === p}">RPE${p}</button>`).join('')}</div></div>
+        <div class="rm-bo-res">${boW ? `<b class="num">${fmtNum(boW)}</b>${U()} <span>（1RMの${fmtNum(boP)}%・入力した重さから${w > boW ? `−${Math.round((1 - boW / w) * 100)}%` : `+${Math.round((boW / w - 1) * 100)}%`}）</span>` : '表の範囲外です（12回・RPE6まで）'}</div>`)}
+      ${det('wu', `ウォームアップ（${fmtNum(w)}${U()}×${st.r}回に向けて）`, wu.length ? `<table class="tbl rm-tbl"><tr><th></th><th>重さ</th><th>回数</th><th>次までの休憩</th></tr>${wu.map((x, i) => `<tr><td>${i + 1}</td><td><b class="num">${fmtNum(x.w)}</b>${U()}${x.w === bar ? '（バーのみ）' : ''}</td><td>${x.r}回</td><td>${x.rest}</td></tr>`).join('')}<tr class="on"><td>本番</td><td><b class="num">${fmtNum(w)}</b>${U()}</td><td>${st.r}回</td><td>${st.r <= 3 ? '3〜5分' : '2〜3分'}</td></tr></table><p class="tiny faint" style="margin:6px 0 0">回数を少しずつ減らして疲れを残さないのがコツです。記録画面の種目の「︙」→「ウォームアップを自動作成」でも同じ考え方で入れられます。</p>` : '<p class="tiny faint">軽い重さのため、ウォームアップは本番の重さで軽く1セットで十分です。</p>')}
+      ${det('f', `計算式で比べる（${fs.length}つの式・平均 ${fmtNum(round1(avg))}${U()}）`, `<table class="tbl rm-tbl"><tr><th>式</th><th>推定1RM</th></tr>${est.how === 'rts' ? `<tr class="on"><td>RPE表（Tuchscherer）</td><td><b class="num">${fmtNum(round1(one))}</b>${U()}</td></tr>` : ''}${fs.map(([nm, v]) => `<tr${est.how !== 'rts' && nm === 'Epley' ? ' class="on"' : ''}><td>${nm}</td><td><b class="num">${fmtNum(round1(v))}</b>${U()}</td></tr>`).join('')}<tr><td>平均</td><td><b class="num">${fmtNum(round1(avg))}</b>${U()}</td></tr></table><p class="tiny faint" style="margin:6px 0 0">${st.rpe ? `RPEの余力（${fmtNum(10 - st.rpe)}回）を回数に足して計算しています。` : ''}回数が少ない（1〜5回）ほど式どうしの差が小さく、正確です。</p>`)}
+      ${det('pct', '1RMの%から見る', `<table class="tbl rm-tbl"><tr><th>割合</th><th>重さ</th><th>限界までの回数の目安</th></tr>${RM_PCT.map((p) => `<tr><td>${p}%</td><td><b class="num">${fmtNum(rnd(one * p / 100))}</b>${U()}</td><td>${p >= 100 ? '1回' : `約${rmRepsAt(p)}回`}</td></tr>`).join('')}</table>`)}
+      ${det('rir', 'RPEとRIR（あと何回できたか）の対応', `<table class="tbl rm-tbl"><tr><th>RPE</th><th>RIR</th><th>意味</th></tr>${RIR_ROWS.map(([p, r, t]) => `<tr${p === st.rpe ? ' class="on"' : ''}><td>${fmtNum(p)}</td><td>${r}</td><td>${t}</td></tr>`).join('')}</table><p class="tiny faint" style="margin:6px 0 0">9.5・8.5などは、はっきり分からないときの「その間」です。</p>`)}
+      <p class="tiny faint" style="margin:8px 0 0">正確に使うコツ：RPEは6〜9.5の範囲が最も当てになります（6未満は限界から遠く判断しにくい、10は本当に限界のときだけ）。スクワット・ベンチプレス・デッドリフトなどのバーベル種目で最も正確で、マシンや単関節種目ではばらつきが大きくなります。同じRPE8でも1セット目と5セット目では違うので、1セットからの目安として使ってください。RPEに慣れていない人は、数週間すべてのセットにRPEを付けると感覚が合ってきます。</p>`;
   };
-  // いまの回数・RPEのマスが見えるように横へずらす（狭い画面用）
   const showHit = (s) => { const wrap = $('.rm-grid-wrap', s.body); const hit = wrap && $('td.hit', wrap); if (wrap && hit) { const x = hit.offsetLeft - wrap.clientWidth / 2 + hit.offsetWidth / 2; wrap.scrollLeft = Math.max(0, x); } };
+  const refresh = (s) => { const o = $('.rm-out', s.body); if (o) { o.innerHTML = out(); showHit(s); } };
+  const steps = () => (st.unit === 'lb' ? [1, 2.5, 5, 10] : [0.5, 1, 2, 2.5, 5]);
   openSheet({
     after: (s) => showHit(s),
     title: ex ? `RM計算：${ex.name}` : 'RM計算', state: st,
-    render: () => `<div class="rm-in"><label class="field"><span class="lbl">重量（kg）</span><input class="input num" type="number" inputmode="decimal" step="0.5" min="0" data-in="w" value="${esc(String(st.w))}" placeholder="例：80"></label>
+    render: () => `<div class="seg pill mini rm-unit">${['kg', 'lb'].map((u) => `<button type="button" data-a="unit" data-v="${u}" aria-pressed="${st.unit === u}">${u === 'kg' ? 'kg' : 'lbs'}</button>`).join('')}</div>
+      <div class="rm-in"><label class="field"><span class="lbl">重量（${U()}）</span><input class="input num" type="number" inputmode="decimal" step="0.5" min="0" data-in="w" value="${esc(String(st.w))}" placeholder="例：${U() === 'kg' ? '80' : '180'}"></label>
       <div class="field"><span class="lbl">回数</span><div class="stepper"><button type="button" data-a="rep" data-d="-1">−</button><span class="val num">${st.r}<span class="u">回</span></span><button type="button" data-a="rep" data-d="1">＋</button></div></div></div>
       <div class="field"><span class="lbl">そのときのきつさ（RPE・なくてもOK）</span><div class="chip-wrap rm-rpe">${[0, ...RTS_RPES].map((v) => `<button type="button" class="chip" data-a="rpe" data-v="${v}" aria-pressed="${st.rpe === v}">${v ? fmtNum(v) : 'なし'}</button>`).join('')}</div>
-        <p class="tiny faint" style="margin:4px 2px 0">${st.rpe ? `RPE${fmtNum(st.rpe)}＝あと${fmtNum(10 - st.rpe)}回できた` : '10＝限界、9＝あと1回、8＝あと2回、7＝あと3回'}</p></div>
+        <p class="tiny faint" style="margin:4px 2px 0">${st.rpe ? `RPE${fmtNum(st.rpe)}＝あと${fmtNum(10 - st.rpe)}回できた（RIR ${fmtNum(10 - st.rpe)}）` : '10＝限界、9＝あと1回、8＝あと2回、7＝あと3回'}</p></div>
       ${st.rpe ? `<div class="field"><span class="lbl">計算方法</span><div class="seg pill mini"><button type="button" data-a="meth" data-v="auto" aria-pressed="${st.method !== 'epley'}">RPE表</button><button type="button" data-a="meth" data-v="epley" aria-pressed="${st.method === 'epley'}">Epley式（余力を回数に足す）</button></div></div>` : ''}
-      <div class="field"><span class="lbl">丸める刻み</span><div class="seg pill mini">${[0.5, 1, 2, 2.5, 5].map((v) => `<button type="button" data-a="step" data-v="${v}" aria-pressed="${st.step === v}">${v}kg</button>`).join('')}</div></div>
+      <div class="field"><span class="lbl">丸める刻み</span><div class="seg pill mini">${steps().map((v) => `<button type="button" data-a="step" data-v="${v}" aria-pressed="${st.step === v}">${v}${U()}</button>`).join('')}</div></div>
       <div class="rm-out">${out()}</div>`,
-    inputs: { w: (el, e, s) => { st.w = el.value; const o = $('.rm-out', s.body); if (o) { o.innerHTML = out(); showHit(s); } } },
+    inputs: { w: (el, e, s) => { st.w = el.value; refresh(s); } },
     actions: {
+      unit: (el, e, s) => { const u = el.dataset.v; if (u === st.unit) return; const k = u === 'lb' ? 1 / LB : LB; if (Number(st.w) > 0) st.w = String(round1(Number(st.w) * k)); st.unit = u; st.step = u === 'lb' ? 5 : (ex ? ex.stepKg : 2.5); s.render(); },
       rep: (el, e, s) => { st.r = clamp(st.r + Number(el.dataset.d), 1, 20); s.render(); },
       rpe: (el, e, s) => { st.rpe = Number(el.dataset.v); s.render(); },
       meth: (el, e, s) => { st.method = el.dataset.v; s.render(); },
-      step: (el, e, s) => { st.step = Number(el.dataset.v); s.render(); }
+      step: (el, e, s) => { st.step = Number(el.dataset.v); s.render(); },
+      boR: (el, e, s) => { st.boR = clamp(st.boR + Number(el.dataset.d), 1, 12); refresh(s); },
+      boRpe: (el, e, s) => { st.boRpe = Number(el.dataset.v); refresh(s); }
     }
   });
 }
+/* 開いた項目を描き直しても閉じないように覚える */
+document.addEventListener('toggle', (e) => { const d = e.target; if (d && d.classList && d.classList.contains('rm-det')) { const s = sheets[sheets.length - 1]; if (s && s.state && s.state.open) s.state.open[d.dataset.k] = d.open; } }, true);
+
 ACT.rmCalc = (el) => {
   const id = el && el.dataset && el.dataset.id;
   if (!id) { openRmCalc(); return; }
