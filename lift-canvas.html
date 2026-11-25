@@ -1276,6 +1276,36 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
 .goal-tbl td{font-size:12px;line-height:1.5}
 .goal-tbl th:not(:first-child),.goal-tbl td:not(:first-child){width:auto;white-space:normal;text-align:left}
 
+/* 種目一覧：部位の中の分類（2段目） */
+.acc2-wrap{padding:2px 0 6px}
+.acc2{border-top:1px solid var(--line)}
+.acc2:first-child{border-top:0}
+.acc2-h{display:flex;align-items:center;gap:8px;width:100%;min-height:46px;padding:0 14px 0 26px;background:none;border:0;color:var(--text);font:inherit;text-align:left;cursor:pointer}
+.acc2-h b{font-size:14px;font-weight:800}
+.acc2-h .acc2-eq{flex:1;min-width:0;font-size:11.5px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acc2-h .acc-n{margin-left:auto}
+.acc2-h svg{width:16px;height:16px;color:var(--text-3);transition:transform .2s;flex:none}
+.acc2.open>.acc2-h svg{transform:rotate(180deg)}
+.acc2>.list{margin:0 8px 8px 18px}
+.chips-eq{margin-top:2px}
+.chips-eq .chip{font-size:12px;min-height:32px;padding:0 10px}
+
+/* AIに相談（控えめなリンク） */
+.ai-link{display:block;margin:10px auto 0;font-size:12.5px;font-weight:700;color:var(--text-3);text-decoration:underline;text-underline-offset:3px;min-height:36px}
+.ai-ta{font-size:12px;line-height:1.55;font-family:ui-monospace,Menlo,monospace;background:var(--surface-2)}
+
+/* RM計算 */
+.rm-in{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+.rm-in .field{margin:0}
+.rm-in .input{font-size:20px;font-weight:800}
+.rm-big{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:14px 0 4px;padding:12px 14px;border-radius:14px;background:var(--accent-soft)}
+.rm-big span{font-size:12.5px;font-weight:800;color:var(--accent)}
+.rm-big b{font-family:var(--f-num);font-size:36px;line-height:1;color:var(--head)}
+.rm-big b small{font-size:15px;margin-left:2px}
+.rm-big em{flex-basis:100%;font-style:normal;font-size:11.5px;color:var(--text-3)}
+.rm-tbl td,.rm-tbl th{padding:6px 8px}
+.rm-tbl tr.on td{background:var(--accent-soft);font-weight:800}
+
 </style>
 </head>
 <body>
@@ -1299,7 +1329,7 @@ body.covered .toast{top:calc(var(--safe-top) + 112px)}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.24.7';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.25.1';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -1369,7 +1399,7 @@ const WL_RATIOS = [
   { a: 'wl_09', b: 'wl_01', label: 'パワースナッチ ÷ スナッチ', lo: 75, hi: 85, low: '引きの高さ・爆発力に伸びしろがあるかもしれません', high: '深く受ける（キャッチ）技術に伸びしろがあるかもしれません' },
   { a: 'wl_03', b: 'wl_13', label: 'パワークリーン ÷ クリーン', lo: 80, hi: 88, low: '引きの爆発力に伸びしろがあるかもしれません', high: 'フロントスクワットでの受けに伸びしろがあるかもしれません' }
 ];
-/* ---------- 初期種目マスターデータ（全224種目：全身・WL 48、胸 27、背中 28、肩 28、脚 40、腕 27、腹筋 26） ---------- */
+/* ---------- 初期種目マスターデータ（全400種目：全身・WL 57、胸 51、背中 54、肩 48、脚 87、腕 55、腹筋 48） ---------- */
 const MASTER_EXERCISES = [
   { id: "wl_01", name: "スナッチ", en: "Snatch", part: "全身・WL", equipment: "バーベル", stepKg: 1.0, defaultTargetReps: 3, relatedIds: ["wl_09", "wl_04", "wl_10", "wl_06"], muscles: ["quads", "glutes", "hams", "traps", "lowback"], sub: ["delt_f", "delt_s", "upback", "triceps", "abs", "calves"] },
   { id: "wl_02", name: "クリーン＆ジャーク", en: "Clean & Jerk", part: "全身・WL", equipment: "バーベル", stepKg: 1.0, defaultTargetReps: 3, relatedIds: ["wl_03", "wl_11", "wl_12", "wl_08"], muscles: ["quads", "glutes", "hams", "traps", "delt_f", "triceps"], sub: ["lowback", "upback", "delt_s", "abs", "calves"] },
@@ -1419,6 +1449,15 @@ const MASTER_EXERCISES = [
   { id: "wl_46", name: "ダンベルスナッチ", en: "Dumbbell Snatch", part: "全身・WL", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 8, relatedIds: ["wl_01", "wl_04", "wl_09", "wl_17"], muscles: ["quads", "glutes", "hams", "traps", "lowback"], sub: ["delt_f", "delt_s", "upback", "triceps", "abs", "calves"] },
   { id: "wl_47", name: "バーピー", en: "Burpee", part: "全身・WL", equipment: "自重", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["wl_02", "wl_06", "wl_12", "wl_14"], muscles: ["chest", "quads"], sub: ["triceps", "abs", "delt_f", "glutes"] },
   { id: "wl_48", name: "ファーマーズキャリー", en: "Farmer's Carry", part: "全身・WL", equipment: "その他", stepKg: 2.5, defaultTargetReps: 30, relatedIds: ["wl_03", "wl_08", "wl_10", "wl_11"], muscles: ["forearm", "traps"], sub: ["abs", "oblique", "glutes", "calves"], timed: true },
+  { id: "wl_49", name: "メディシンボール・スラム", en: "Medicine Ball Slam", part: "全身・WL", equipment: "その他", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["wl_52"], muscles: ["abs",  "lats"], sub: ["delt_f",  "triceps",  "quads"] },
+  { id: "wl_50", name: "ケトルベル・クリーン", en: "Kettlebell Clean", part: "全身・WL", equipment: "その他", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["wl_43",  "wl_51",  "wl_01",  "wl_02"], muscles: ["glutes",  "hams",  "traps"], sub: ["forearm",  "quads"] },
+  { id: "wl_51", name: "ケトルベル・スナッチ", en: "Kettlebell Snatch", part: "全身・WL", equipment: "その他", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["wl_43",  "wl_50",  "wl_02",  "wl_01"], muscles: ["glutes",  "hams",  "delt_f"], sub: ["traps",  "forearm",  "abs"] },
+  { id: "wl_52", name: "ターキッシュゲットアップ", en: "Turkish Get-up", part: "全身・WL", equipment: "その他", stepKg: 2.5, defaultTargetReps: 3, relatedIds: ["wl_53",  "wl_07",  "wl_12",  "wl_14"], muscles: ["delt_f",  "abs"], sub: ["glutes",  "oblique",  "triceps"] },
+  { id: "wl_53", name: "バトルロープ", en: "Battle Rope", part: "全身・WL", equipment: "その他", stepKg: 2.5, defaultTargetReps: 30, relatedIds: ["wl_52",  "wl_07",  "wl_12",  "wl_14"], muscles: ["delt_f"], sub: ["abs",  "forearm",  "upback"], timed: true },
+  { id: "wl_54", name: "ダンベル・スラスター", en: "Dumbbell Thruster", part: "全身・WL", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["wl_02",  "wl_06",  "wl_21",  "wl_40"], muscles: ["quads",  "delt_f"], sub: ["glutes",  "triceps",  "abs"] },
+  { id: "wl_55", name: "マンメーカー", en: "Man Maker", part: "全身・WL", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 6, relatedIds: ["wl_12",  "wl_14",  "wl_15",  "wl_16"], muscles: ["delt_f",  "chest",  "quads"], sub: ["lats",  "triceps",  "abs",  "glutes"] },
+  { id: "wl_56", name: "パワークリーン＆ジャーク", en: "Power Clean & Jerk", part: "全身・WL", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 3, relatedIds: ["wl_02",  "wl_01",  "wl_03",  "wl_04"], muscles: ["quads",  "glutes",  "traps",  "delt_f"], sub: ["hams",  "triceps",  "lowback"] },
+  { id: "wl_57", name: "ロープクライム", en: "Rope Climb", part: "全身・WL", equipment: "その他", stepKg: 2.5, defaultTargetReps: 3, relatedIds: ["wl_48",  "wl_49"], muscles: ["lats",  "biceps",  "forearm"], sub: ["upback",  "abs"] },
   { id: "chest_01", name: "ベンチプレス", en: "Bench Press", part: "胸", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["chest_02", "chest_03", "chest_06", "arm_08"], muscles: ["chest", "triceps"], sub: ["delt_f"] },
   { id: "chest_02", name: "インクラインベンチプレス", en: "Incline Bench Press", part: "胸", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["chest_01", "chest_04", "chest_03"], muscles: ["chest", "delt_f"], sub: ["triceps"] },
   { id: "chest_03", name: "ダンベルプレス", en: "Dumbbell Bench Press", part: "胸", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["chest_01", "chest_04", "chest_06"], muscles: ["chest", "triceps"], sub: ["delt_f"] },
@@ -1446,6 +1485,30 @@ const MASTER_EXERCISES = [
   { id: "chest_25", name: "スヴェンドプレス", en: "Svend Press", part: "胸", equipment: "その他", stepKg: 1.0, defaultTargetReps: 15, relatedIds: ["chest_05", "chest_07", "chest_12", "chest_13"], muscles: ["chest"], sub: ["delt_f"] },
   { id: "chest_26", name: "合戸式ベンチプレス", en: "Godo-style Bench Press", part: "胸", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["chest_01", "chest_21", "chest_02"], muscles: ["chest", "triceps"], sub: ["delt_f"] },
   { id: "chest_27", name: "インクラインダンベルフライ＆プレス", en: "Incline DB Fly to Press", part: "胸", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["chest_12", "chest_04", "chest_05"], muscles: ["chest"], sub: ["delt_f", "triceps"] },
+  { id: "chest_28", name: "ギロチンプレス", en: "Guillotine Press", part: "胸", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["chest_01",  "chest_02",  "chest_10",  "chest_20"], muscles: ["chest"], sub: ["delt_f",  "triceps"] },
+  { id: "chest_29", name: "ピンプレス（ベンチ）", en: "Bench Pin Press", part: "胸", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 5, relatedIds: ["chest_01",  "chest_20",  "chest_21",  "chest_22"], muscles: ["chest",  "triceps"], sub: ["delt_f"] },
+  { id: "chest_30", name: "スポトプレス", en: "Spoto Press", part: "胸", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 5, relatedIds: ["chest_01",  "chest_20",  "chest_21",  "chest_22"], muscles: ["chest",  "triceps"], sub: ["delt_f"] },
+  { id: "chest_31", name: "ラーセンプレス", en: "Larsen Press", part: "胸", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 6, relatedIds: ["chest_01",  "chest_20",  "chest_21",  "chest_22"], muscles: ["chest",  "triceps"], sub: ["delt_f",  "abs"] },
+  { id: "chest_32", name: "リバースグリップ・ベンチプレス", en: "Reverse-grip Bench Press", part: "胸", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["chest_01",  "chest_20",  "chest_21",  "chest_22"], muscles: ["chest",  "triceps"], sub: ["delt_f",  "biceps"] },
+  { id: "chest_33", name: "ダンベル・フロアプレス", en: "Dumbbell Floor Press", part: "胸", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["chest_03",  "chest_35",  "chest_01",  "chest_06"], muscles: ["chest",  "triceps"], sub: ["delt_f"] },
+  { id: "chest_34", name: "スクイーズプレス", en: "Dumbbell Squeeze Press", part: "胸", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 12, relatedIds: ["chest_03",  "chest_04",  "chest_05",  "chest_11"], muscles: ["chest"], sub: ["triceps",  "delt_f"] },
+  { id: "chest_35", name: "ニュートラルグリップ・ダンベルプレス", en: "Neutral-grip Dumbbell Press", part: "胸", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["chest_03",  "chest_33",  "chest_01",  "chest_06"], muscles: ["chest",  "triceps"], sub: ["delt_f"] },
+  { id: "chest_36", name: "シングルアーム・ダンベルプレス", en: "Single-arm Dumbbell Press", part: "胸", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["chest_03",  "chest_04",  "chest_05",  "chest_11"], muscles: ["chest"], sub: ["triceps",  "delt_f",  "oblique"] },
+  { id: "chest_37", name: "デクラインダンベルフライ", en: "Decline Dumbbell Fly", part: "胸", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 12, relatedIds: ["chest_03",  "chest_04",  "chest_05",  "chest_11"], muscles: ["chest"], sub: ["delt_f"] },
+  { id: "chest_38", name: "ハイインクライン・ダンベルプレス", en: "High-incline Dumbbell Press", part: "胸", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["chest_04",  "chest_02",  "chest_15",  "chest_19"], muscles: ["chest",  "delt_f"], sub: ["triceps"] },
+  { id: "chest_39", name: "デクラインチェストプレス（マシン）", en: "Decline Chest Press Machine", part: "胸", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 10, relatedIds: ["chest_06",  "chest_13",  "chest_14",  "chest_15"], muscles: ["chest"], sub: ["triceps",  "delt_f"] },
+  { id: "chest_40", name: "スミスマシン・デクラインプレス", en: "Smith Decline Press", part: "胸", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 10, relatedIds: ["chest_06",  "chest_14",  "chest_41",  "chest_01"], muscles: ["chest",  "triceps"], sub: ["delt_f"] },
+  { id: "chest_41", name: "プレートロード・チェストプレス", en: "Plate-loaded Chest Press", part: "胸", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 10, relatedIds: ["chest_06",  "chest_14",  "chest_40",  "chest_01"], muscles: ["chest",  "triceps"], sub: ["delt_f"] },
+  { id: "chest_42", name: "インクラインフライ（マシン）", en: "Incline Machine Fly", part: "胸", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 12, relatedIds: ["chest_06",  "chest_13",  "chest_14",  "chest_15"], muscles: ["chest"], sub: ["delt_f"] },
+  { id: "chest_43", name: "ケーブル・チェストプレス", en: "Cable Chest Press", part: "胸", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["chest_07",  "chest_16",  "chest_17",  "chest_44"], muscles: ["chest"], sub: ["triceps",  "delt_f"] },
+  { id: "chest_44", name: "シングルアーム・ケーブルフライ", en: "Single-arm Cable Fly", part: "胸", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["chest_07",  "chest_16",  "chest_17",  "chest_43"], muscles: ["chest"], sub: ["delt_f"] },
+  { id: "chest_45", name: "インクライン・ケーブルフライ", en: "Incline Cable Fly", part: "胸", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["chest_07",  "chest_16",  "chest_17",  "chest_43"], muscles: ["chest"], sub: ["delt_f"] },
+  { id: "chest_46", name: "ワイド腕立て伏せ", en: "Wide Push-up", part: "胸", equipment: "自重", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["chest_08",  "chest_09",  "chest_23",  "chest_24"], muscles: ["chest"], sub: ["triceps",  "delt_f",  "abs"] },
+  { id: "chest_47", name: "膝つき腕立て伏せ", en: "Knee Push-up", part: "胸", equipment: "自重", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["chest_08",  "chest_09",  "chest_23",  "chest_24"], muscles: ["chest"], sub: ["triceps",  "delt_f"] },
+  { id: "chest_48", name: "アーチャー腕立て伏せ", en: "Archer Push-up", part: "胸", equipment: "自重", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["chest_08",  "chest_09",  "chest_23",  "chest_24"], muscles: ["chest"], sub: ["triceps",  "delt_f",  "abs"] },
+  { id: "chest_49", name: "クラップ腕立て伏せ", en: "Clap Push-up", part: "胸", equipment: "自重", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["chest_08",  "chest_09",  "chest_23",  "chest_24"], muscles: ["chest"], sub: ["triceps",  "delt_f"] },
+  { id: "chest_50", name: "リングディップス", en: "Ring Dips", part: "胸", equipment: "自重", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["chest_08",  "chest_09",  "chest_23",  "chest_24"], muscles: ["chest",  "triceps"], sub: ["delt_f",  "abs"] },
+  { id: "chest_51", name: "チューブ・チェストプレス", en: "Band Chest Press", part: "胸", equipment: "その他", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["chest_25",  "chest_01",  "chest_02",  "chest_03"], muscles: ["chest"], sub: ["triceps",  "delt_f"] },
   { id: "back_01", name: "デッドリフト", en: "Deadlift", part: "背中", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 5, relatedIds: ["leg_03", "back_04", "wl_08", "back_08"], muscles: ["hams", "glutes", "lowback"], sub: ["quads", "traps", "upback", "forearm", "lats"] },
   { id: "back_02", name: "懸垂（チンニング）", en: "Pull-up", part: "背中", equipment: "自重", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["back_03", "back_05", "back_06"], muscles: ["lats"], sub: ["biceps", "upback", "delt_r", "forearm"] },
   { id: "back_03", name: "ラットプルダウン", en: "Lat Pulldown", part: "背中", equipment: "マシン", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["back_02", "back_06", "back_05"], muscles: ["lats"], sub: ["biceps", "upback", "delt_r", "forearm"] },
@@ -1474,6 +1537,32 @@ const MASTER_EXERCISES = [
   { id: "back_26", name: "ケーブル・ワンアームロウ", en: "Single-arm Cable Row", part: "背中", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["back_06", "back_13", "back_14", "back_21"], muscles: ["lats", "upback"], sub: ["biceps", "delt_r", "forearm"] },
   { id: "back_27", name: "スーパーマン", en: "Superman", part: "背中", equipment: "自重", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["back_08", "back_01", "back_10", "back_11"], muscles: ["lowback", "glutes"], sub: ["hams"] },
   { id: "back_28", name: "ベントオーバー・ダンベルロウ", en: "Dumbbell Bent-over Row", part: "背中", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["back_05", "back_04", "back_07", "back_12"], muscles: ["lats", "upback"], sub: ["biceps", "delt_r", "forearm", "lowback"] },
+  { id: "back_29", name: "ヤーツロウ（逆手ロウ）", en: "Yates Row", part: "背中", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["back_04",  "back_07",  "back_12",  "back_13"], muscles: ["lats",  "upback"], sub: ["biceps",  "delt_r",  "lowback"] },
+  { id: "back_30", name: "バーベル・プルオーバー", en: "Barbell Pullover", part: "背中", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["back_04",  "back_07",  "back_12",  "back_13"], muscles: ["lats"], sub: ["chest",  "triceps"] },
+  { id: "back_31", name: "ポーズ・デッドリフト", en: "Paused Deadlift", part: "背中", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 3, relatedIds: ["back_01",  "back_10",  "back_11",  "back_23"], muscles: ["hams",  "glutes",  "lowback"], sub: ["lats",  "traps",  "forearm",  "quads"] },
+  { id: "back_32", name: "ランドマイン・ロウ", en: "Landmine Row", part: "背中", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["back_04",  "back_07",  "back_12",  "back_13"], muscles: ["lats",  "upback"], sub: ["biceps",  "delt_r",  "lowback"] },
+  { id: "back_33", name: "チェストサポート・ダンベルロウ", en: "Chest-supported Dumbbell Row", part: "背中", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["back_38",  "back_45",  "back_51",  "back_05"], muscles: ["upback",  "lats"], sub: ["delt_r",  "biceps"] },
+  { id: "back_34", name: "クロックロウ", en: "Kroc Row", part: "背中", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 15, relatedIds: ["back_05",  "back_28",  "back_36",  "back_04"], muscles: ["lats",  "upback"], sub: ["biceps",  "forearm",  "traps"] },
+  { id: "back_35", name: "ダンベル・デッドリフト", en: "Dumbbell Deadlift", part: "背中", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["back_01",  "back_10",  "back_11",  "back_23"], muscles: ["hams",  "glutes",  "lowback"], sub: ["quads",  "forearm",  "traps"] },
+  { id: "back_36", name: "レネゲードロウ", en: "Renegade Row", part: "背中", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 8, relatedIds: ["back_05",  "back_28",  "back_34",  "back_04"], muscles: ["lats",  "upback"], sub: ["abs",  "oblique",  "biceps"] },
+  { id: "back_37", name: "ハイロウ（マシン）", en: "High Row Machine", part: "背中", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 10, relatedIds: ["back_14",  "back_24",  "back_41",  "back_43"], muscles: ["lats",  "upback"], sub: ["biceps",  "delt_r"] },
+  { id: "back_38", name: "Tバーロウ（マシン）", en: "Chest-supported T-bar Row", part: "背中", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 10, relatedIds: ["back_33",  "back_45",  "back_51",  "back_14"], muscles: ["upback",  "lats"], sub: ["biceps",  "delt_r"] },
+  { id: "back_39", name: "プルオーバー（マシン）", en: "Pullover Machine", part: "背中", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 12, relatedIds: ["back_03",  "back_14",  "back_16",  "back_17"], muscles: ["lats"], sub: ["chest",  "triceps"] },
+  { id: "back_40", name: "バックエクステンション（マシン）", en: "Back Extension Machine", part: "背中", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 12, relatedIds: ["back_08",  "back_27",  "back_50",  "back_01"], muscles: ["lowback"], sub: ["glutes",  "hams"] },
+  { id: "back_41", name: "スミスマシン・ロウ", en: "Smith Machine Row", part: "背中", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 10, relatedIds: ["back_14",  "back_24",  "back_37",  "back_43"], muscles: ["lats",  "upback"], sub: ["biceps",  "delt_r",  "lowback"] },
+  { id: "back_42", name: "パラレルグリップ・ラットプルダウン", en: "Neutral-grip Lat Pulldown", part: "背中", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 10, relatedIds: ["back_03",  "back_14",  "back_16",  "back_17"], muscles: ["lats"], sub: ["biceps",  "upback"] },
+  { id: "back_43", name: "ビハインドネック・ラットプルダウン", en: "Behind-the-neck Lat Pulldown", part: "背中", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 10, relatedIds: ["back_14",  "back_24",  "back_37",  "back_41"], muscles: ["lats",  "upback"], sub: ["biceps",  "delt_r"] },
+  { id: "back_44", name: "ワンアーム・ラットプルダウン", en: "Single-arm Lat Pulldown", part: "背中", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["back_06",  "back_15",  "back_26",  "back_46"], muscles: ["lats"], sub: ["biceps"] },
+  { id: "back_45", name: "ワイドグリップ・シーテッドロウ", en: "Wide-grip Seated Cable Row", part: "背中", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["back_33",  "back_38",  "back_51",  "back_06"], muscles: ["upback",  "lats"], sub: ["delt_r",  "biceps"] },
+  { id: "back_46", name: "ケーブル・プルオーバー", en: "Cable Pullover", part: "背中", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["back_06",  "back_15",  "back_26",  "back_44"], muscles: ["lats"], sub: ["triceps",  "chest"] },
+  { id: "back_47", name: "ネガティブ懸垂", en: "Negative Pull-up", part: "背中", equipment: "自重", stepKg: 2.5, defaultTargetReps: 5, relatedIds: ["back_02",  "back_18",  "back_19",  "back_21"], muscles: ["lats"], sub: ["biceps",  "upback",  "forearm"] },
+  { id: "back_48", name: "パラレルグリップ懸垂", en: "Neutral-grip Pull-up", part: "背中", equipment: "自重", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["back_02",  "back_18",  "back_19",  "back_21"], muscles: ["lats"], sub: ["biceps",  "upback",  "forearm"] },
+  { id: "back_49", name: "マッスルアップ", en: "Muscle-up", part: "背中", equipment: "自重", stepKg: 2.5, defaultTargetReps: 3, relatedIds: ["back_02",  "back_18",  "back_19",  "back_21"], muscles: ["lats",  "triceps"], sub: ["chest",  "biceps",  "abs"] },
+  { id: "back_50", name: "リバースハイパーエクステンション", en: "Reverse Hyperextension", part: "背中", equipment: "その他", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["back_08",  "back_27",  "back_23",  "back_01"], muscles: ["lowback",  "glutes"], sub: ["hams"] },
+  { id: "back_51", name: "チューブ・ロウ", en: "Band Row", part: "背中", equipment: "その他", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["back_33",  "back_38",  "back_45",  "back_04"], muscles: ["upback",  "lats"], sub: ["biceps",  "delt_r"] },
+  { id: "back_52", name: "ワンアーム・マシンロウ", en: "Single-arm Machine Row", part: "背中", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 10, relatedIds: ["back_14",  "back_24",  "back_37",  "back_41"], muscles: ["lats",  "upback"], sub: ["biceps",  "delt_r"] },
+  { id: "back_53", name: "ロープ・シーテッドロウ", en: "Rope Seated Row", part: "背中", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["back_45",  "back_33",  "back_38",  "back_51"], muscles: ["upback",  "lats"], sub: ["delt_r",  "biceps"] },
+  { id: "back_54", name: "スキャプラ・プルアップ", en: "Scapular Pull-up", part: "背中", equipment: "自重", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["back_33",  "back_38",  "back_45",  "back_51"], muscles: ["upback",  "lats"], sub: ["traps"] },
   { id: "shoulder_01", name: "バーベルショルダープレス", en: "Overhead Press", part: "肩", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["shoulder_02", "shoulder_08", "wl_07"], muscles: ["delt_f", "triceps"], sub: ["delt_s", "traps", "upback", "abs"] },
   { id: "shoulder_02", name: "ダンベルショルダープレス", en: "Dumbbell Shoulder Press", part: "肩", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["shoulder_01", "shoulder_08", "shoulder_03"], muscles: ["delt_f", "triceps"], sub: ["delt_s", "traps", "upback", "abs"] },
   { id: "shoulder_03", name: "サイドレイズ", en: "Lateral Raise", part: "肩", equipment: "ダンベル", stepKg: 1.0, defaultTargetReps: 15, relatedIds: ["shoulder_06", "shoulder_04", "shoulder_05"], muscles: ["delt_s"], sub: ["traps", "delt_f"] },
@@ -1502,6 +1591,26 @@ const MASTER_EXERCISES = [
   { id: "shoulder_26", name: "スミスマシン・ショルダープレス", en: "Smith Shoulder Press", part: "肩", equipment: "マシン", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["shoulder_08", "shoulder_01", "shoulder_02", "shoulder_10"], muscles: ["delt_f", "triceps"], sub: ["delt_s", "traps", "upback", "abs"] },
   { id: "shoulder_27", name: "リアデルトロウ", en: "Rear Delt Row", part: "肩", equipment: "ダンベル", stepKg: 1.0, defaultTargetReps: 12, relatedIds: ["shoulder_05", "shoulder_13", "shoulder_14"], muscles: ["delt_r", "upback"], sub: ["lats", "biceps", "traps"] },
   { id: "shoulder_28", name: "肩の外旋（チューブ）", en: "Band External Rotation", part: "肩", equipment: "その他", stepKg: 1.0, defaultTargetReps: 15, relatedIds: ["shoulder_05", "shoulder_27"], muscles: ["delt_r"], sub: ["upback"] },
+  { id: "shoulder_29", name: "シーテッド・バーベルショルダープレス", en: "Seated Barbell Press", part: "肩", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["shoulder_01",  "shoulder_15",  "shoulder_16",  "shoulder_17"], muscles: ["delt_f",  "triceps"], sub: ["delt_s",  "upback"] },
+  { id: "shoulder_30", name: "バーベル・フロントレイズ", en: "Barbell Front Raise", part: "肩", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["shoulder_01",  "shoulder_15",  "shoulder_16",  "shoulder_17"], muscles: ["delt_f"], sub: ["delt_s",  "chest"] },
+  { id: "shoulder_31", name: "リーニング・サイドレイズ", en: "Leaning Lateral Raise", part: "肩", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 12, relatedIds: ["shoulder_03",  "shoulder_24",  "shoulder_32",  "shoulder_06"], muscles: ["delt_s"], sub: ["traps"] },
+  { id: "shoulder_32", name: "シーテッド・サイドレイズ", en: "Seated Lateral Raise", part: "肩", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 12, relatedIds: ["shoulder_03",  "shoulder_24",  "shoulder_31",  "shoulder_06"], muscles: ["delt_s"], sub: ["traps"] },
+  { id: "shoulder_33", name: "インクライン・リアレイズ", en: "Chest-supported Rear Delt Raise", part: "肩", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 15, relatedIds: ["shoulder_05",  "shoulder_23",  "shoulder_25",  "shoulder_27"], muscles: ["delt_r"], sub: ["upback",  "traps"] },
+  { id: "shoulder_34", name: "ダンベル外旋（Lフライ）", en: "Dumbbell External Rotation", part: "肩", equipment: "ダンベル", stepKg: 1.0, defaultTargetReps: 15, relatedIds: ["shoulder_05",  "shoulder_23",  "shoulder_25",  "shoulder_27"], muscles: ["delt_r"], sub: ["upback"] },
+  { id: "shoulder_35", name: "ワンアーム・ダンベルショルダープレス", en: "Single-arm Dumbbell Press", part: "肩", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["shoulder_02",  "shoulder_10",  "shoulder_36",  "shoulder_01"], muscles: ["delt_f",  "triceps"], sub: ["delt_s",  "abs",  "oblique"] },
+  { id: "shoulder_36", name: "ダンベル・Zプレス", en: "Dumbbell Z Press", part: "肩", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["shoulder_02",  "shoulder_10",  "shoulder_35",  "shoulder_01"], muscles: ["delt_f",  "triceps"], sub: ["delt_s",  "abs"] },
+  { id: "shoulder_37", name: "スミスマシン・シュラッグ", en: "Smith Machine Shrug", part: "肩", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 12, relatedIds: ["shoulder_09",  "shoulder_18",  "shoulder_41",  "shoulder_38"], muscles: ["traps"], sub: ["forearm"] },
+  { id: "shoulder_38", name: "スミスマシン・アップライトロウ", en: "Smith Upright Row", part: "肩", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 12, relatedIds: ["shoulder_06",  "shoulder_24",  "shoulder_39",  "shoulder_12"], muscles: ["delt_s",  "traps"], sub: ["biceps"] },
+  { id: "shoulder_39", name: "ケーブル・アップライトロウ", en: "Cable Upright Row", part: "肩", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["shoulder_06",  "shoulder_24",  "shoulder_38",  "shoulder_11"], muscles: ["delt_s",  "traps"], sub: ["biceps"] },
+  { id: "shoulder_40", name: "ケーブル・Yレイズ", en: "Cable Y Raise", part: "肩", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["shoulder_11",  "shoulder_39",  "shoulder_03",  "shoulder_06"], muscles: ["delt_s",  "delt_r"], sub: ["traps",  "upback"] },
+  { id: "shoulder_41", name: "ケーブル・シュラッグ", en: "Cable Shrug", part: "肩", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["shoulder_09",  "shoulder_18",  "shoulder_37",  "shoulder_39"], muscles: ["traps"], sub: ["forearm"] },
+  { id: "shoulder_42", name: "ケーブル外旋", en: "Cable External Rotation", part: "肩", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["shoulder_07",  "shoulder_14",  "shoulder_43",  "shoulder_05"], muscles: ["delt_r"], sub: ["upback"] },
+  { id: "shoulder_43", name: "ケーブル・リアデルトロウ", en: "Cable Rear Delt Row", part: "肩", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["shoulder_07",  "shoulder_27",  "shoulder_45",  "shoulder_14"], muscles: ["delt_r",  "upback"], sub: ["biceps",  "traps"] },
+  { id: "shoulder_44", name: "壁倒立", en: "Wall Handstand Hold", part: "肩", equipment: "自重", stepKg: 2.5, defaultTargetReps: 30, relatedIds: ["shoulder_21",  "shoulder_22",  "shoulder_01",  "shoulder_02"], muscles: ["delt_f"], sub: ["triceps",  "traps",  "abs"], timed: true },
+  { id: "shoulder_45", name: "バンド・プルアパート", en: "Band Pull-apart", part: "肩", equipment: "その他", stepKg: 2.5, defaultTargetReps: 20, relatedIds: ["shoulder_07",  "shoulder_27",  "shoulder_43",  "shoulder_28"], muscles: ["delt_r",  "upback"], sub: ["traps"] },
+  { id: "shoulder_46", name: "チューブ・サイドレイズ", en: "Band Lateral Raise", part: "肩", equipment: "その他", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["shoulder_03",  "shoulder_06",  "shoulder_11",  "shoulder_12"], muscles: ["delt_s"], sub: ["traps"] },
+  { id: "shoulder_47", name: "ケトルベル・プレス", en: "Kettlebell Press", part: "肩", equipment: "その他", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["shoulder_01",  "shoulder_02",  "shoulder_08",  "shoulder_10"], muscles: ["delt_f",  "triceps"], sub: ["delt_s",  "abs"] },
+  { id: "shoulder_48", name: "トラップバー・シュラッグ", en: "Trap-bar Shrug", part: "肩", equipment: "その他", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["shoulder_09",  "shoulder_18",  "shoulder_37",  "shoulder_41"], muscles: ["traps"], sub: ["forearm"] },
   { id: "leg_01", name: "バックスクワット", en: "Back Squat", part: "脚", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["wl_05", "leg_02", "leg_04", "leg_07"], muscles: ["quads", "glutes"], sub: ["adduct", "lowback", "hams", "abs"] },
   { id: "leg_02", name: "レッグプレス", en: "Leg Press", part: "脚", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 10, relatedIds: ["leg_01", "leg_04", "leg_05"], muscles: ["quads", "glutes"], sub: ["adduct", "hams"] },
   { id: "leg_03", name: "ルーマニアンデッドリフト", en: "Romanian Deadlift", part: "脚", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["back_01", "leg_06", "leg_09"], muscles: ["hams", "glutes"], sub: ["lowback", "upback", "forearm"] },
@@ -1542,6 +1651,53 @@ const MASTER_EXERCISES = [
   { id: "leg_38", name: "ダンベルスクワット", en: "Dumbbell Squat", part: "脚", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["leg_12", "leg_01", "leg_04"], muscles: ["quads", "glutes"], sub: ["adduct", "hams", "forearm"] },
   { id: "leg_39", name: "ヒールエレベイテッド・ゴブレットスクワット", en: "Heel-elevated Goblet Squat", part: "脚", equipment: "その他", stepKg: 2.0, defaultTargetReps: 12, relatedIds: ["leg_12", "leg_38", "leg_20"], muscles: ["quads"], sub: ["glutes", "adduct", "abs"] },
   { id: "leg_40", name: "サイドレッグレイズ", en: "Side-lying Leg Raise", part: "脚", equipment: "自重", stepKg: 1.0, defaultTargetReps: 20, relatedIds: ["leg_24", "leg_09"], muscles: ["glutes"], sub: ["oblique"] },
+  { id: "leg_41", name: "ゼルチャースクワット", en: "Zercher Squat", part: "脚", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["leg_01",  "leg_13",  "leg_14",  "leg_15"], muscles: ["quads",  "glutes"], sub: ["abs",  "upback",  "adduct",  "biceps"] },
+  { id: "leg_42", name: "バーベル・グルートブリッジ", en: "Barbell Glute Bridge", part: "脚", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["leg_09",  "leg_16",  "leg_24",  "leg_26"], muscles: ["glutes"], sub: ["hams"] },
+  { id: "leg_43", name: "バーベル・ランジ", en: "Barbell Lunge", part: "脚", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["leg_01",  "leg_13",  "leg_14",  "leg_15"], muscles: ["quads",  "glutes"], sub: ["adduct",  "hams"] },
+  { id: "leg_44", name: "バーベル・スプリットスクワット", en: "Barbell Split Squat", part: "脚", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["leg_01",  "leg_13",  "leg_14",  "leg_15"], muscles: ["quads",  "glutes"], sub: ["adduct",  "hams"] },
+  { id: "leg_45", name: "ピンスクワット", en: "Pin Squat", part: "脚", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 5, relatedIds: ["leg_01",  "leg_13",  "leg_14",  "leg_15"], muscles: ["quads",  "glutes"], sub: ["adduct",  "lowback"] },
+  { id: "leg_46", name: "ハーフスクワット", en: "Half Squat", part: "脚", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 6, relatedIds: ["leg_01",  "leg_13",  "leg_14",  "leg_15"], muscles: ["quads",  "glutes"], sub: ["lowback"] },
+  { id: "leg_47", name: "バーベル・カーフレイズ", en: "Standing Barbell Calf Raise", part: "脚", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["leg_08",  "leg_23",  "leg_36",  "leg_55"], muscles: ["calves"], sub: [] },
+  { id: "leg_48", name: "バーベル・ハックスクワット", en: "Barbell Hack Squat", part: "脚", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["leg_01",  "leg_13",  "leg_14",  "leg_15"], muscles: ["quads"], sub: ["glutes",  "forearm"] },
+  { id: "leg_49", name: "ダンベル・ルーマニアンデッドリフト", en: "Dumbbell Romanian Deadlift", part: "脚", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["leg_29",  "leg_03",  "leg_28",  "leg_06"], muscles: ["hams",  "glutes"], sub: ["lowback",  "forearm"] },
+  { id: "leg_50", name: "サイドランジ", en: "Side Lunge", part: "脚", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["leg_54",  "leg_16",  "leg_04",  "leg_07"], muscles: ["adduct",  "quads",  "glutes"], sub: [] },
+  { id: "leg_51", name: "カーテシーランジ", en: "Curtsy Lunge", part: "脚", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["leg_16",  "leg_04",  "leg_07",  "leg_12"], muscles: ["glutes",  "quads"], sub: ["adduct"] },
+  { id: "leg_52", name: "ダンベル・スプリットスクワット", en: "Dumbbell Split Squat", part: "脚", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["leg_04",  "leg_07",  "leg_12",  "leg_17"], muscles: ["quads",  "glutes"], sub: ["adduct",  "hams"] },
+  { id: "leg_53", name: "ダンベル・ヒップスラスト", en: "Dumbbell Hip Thrust", part: "脚", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 12, relatedIds: ["leg_51",  "leg_09",  "leg_16",  "leg_24"], muscles: ["glutes"], sub: ["hams"] },
+  { id: "leg_54", name: "ダンベル・スモウスクワット", en: "Dumbbell Sumo Squat", part: "脚", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 12, relatedIds: ["leg_04",  "leg_07",  "leg_12",  "leg_17"], muscles: ["quads",  "glutes",  "adduct"], sub: [] },
+  { id: "leg_55", name: "シングルレッグ・カーフレイズ", en: "Single-leg Calf Raise", part: "脚", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 15, relatedIds: ["leg_36",  "leg_08",  "leg_23",  "leg_47"], muscles: ["calves"], sub: [] },
+  { id: "leg_56", name: "シングルレッグ・レッグプレス", en: "Single-leg Leg Press", part: "脚", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 12, relatedIds: ["leg_02",  "leg_10",  "leg_11",  "leg_30"], muscles: ["quads",  "glutes"], sub: ["hams",  "adduct"] },
+  { id: "leg_57", name: "シングルレッグ・エクステンション", en: "Single-leg Leg Extension", part: "脚", equipment: "マシン", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["leg_02",  "leg_05",  "leg_10",  "leg_11"], muscles: ["quads"], sub: [] },
+  { id: "leg_58", name: "スタンディング・レッグカール", en: "Standing Leg Curl", part: "脚", equipment: "マシン", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["leg_06",  "leg_22",  "leg_66",  "leg_03"], muscles: ["hams"], sub: ["calves"] },
+  { id: "leg_59", name: "ヒップスラスト（マシン）", en: "Hip Thrust Machine", part: "脚", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 12, relatedIds: ["leg_24",  "leg_60",  "leg_62",  "leg_09"], muscles: ["glutes"], sub: ["hams"] },
+  { id: "leg_60", name: "グルートキックバック（マシン）", en: "Glute Kickback Machine", part: "脚", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 12, relatedIds: ["leg_24",  "leg_59",  "leg_62",  "leg_09"], muscles: ["glutes"], sub: ["hams"] },
+  { id: "leg_61", name: "スミスマシン・スプリットスクワット", en: "Smith Split Squat", part: "脚", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 10, relatedIds: ["leg_02",  "leg_10",  "leg_11",  "leg_30"], muscles: ["quads",  "glutes"], sub: ["adduct"] },
+  { id: "leg_62", name: "スミスマシン・ヒップスラスト", en: "Smith Hip Thrust", part: "脚", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 10, relatedIds: ["leg_24",  "leg_59",  "leg_60",  "leg_09"], muscles: ["glutes"], sub: ["hams"] },
+  { id: "leg_63", name: "スミスマシン・カーフレイズ", en: "Smith Calf Raise", part: "脚", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 15, relatedIds: ["leg_08",  "leg_23",  "leg_64",  "leg_36"], muscles: ["calves"], sub: [] },
+  { id: "leg_64", name: "レッグプレス・カーフレイズ", en: "Leg Press Calf Raise", part: "脚", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 15, relatedIds: ["leg_08",  "leg_23",  "leg_63",  "leg_36"], muscles: ["calves"], sub: [] },
+  { id: "leg_65", name: "Vスクワット（マシン）", en: "V Squat Machine", part: "脚", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 10, relatedIds: ["leg_02",  "leg_10",  "leg_11",  "leg_30"], muscles: ["quads",  "glutes"], sub: ["adduct"] },
+  { id: "leg_66", name: "グルートハムレイズ", en: "Glute-Ham Raise", part: "脚", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 8, relatedIds: ["leg_06",  "leg_22",  "leg_58",  "leg_03"], muscles: ["hams"], sub: ["glutes",  "calves"] },
+  { id: "leg_67", name: "ケーブル・プルスルー", en: "Cable Pull-through", part: "脚", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["leg_16",  "leg_79",  "leg_27",  "leg_68"], muscles: ["glutes",  "hams"], sub: ["lowback"] },
+  { id: "leg_68", name: "ケーブル・ヒップアブダクション", en: "Cable Hip Abduction", part: "脚", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["leg_27",  "leg_67",  "leg_09",  "leg_16"], muscles: ["glutes"], sub: [] },
+  { id: "leg_69", name: "ケーブル・ヒップアダクション", en: "Cable Hip Adduction", part: "脚", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["leg_25",  "leg_50",  "leg_76",  "leg_16"], muscles: ["adduct"], sub: [] },
+  { id: "leg_70", name: "ウォールシット", en: "Wall Sit", part: "脚", equipment: "自重", stepKg: 2.5, defaultTargetReps: 45, relatedIds: ["leg_20",  "leg_31",  "leg_32",  "leg_33"], muscles: ["quads"], sub: ["glutes"], timed: true },
+  { id: "leg_71", name: "ジャンピングランジ", en: "Jumping Lunge", part: "脚", equipment: "自重", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["leg_31",  "leg_32",  "leg_33",  "leg_34"], muscles: ["quads",  "glutes"], sub: ["calves",  "hams"] },
+  { id: "leg_72", name: "シングルレッグ・グルートブリッジ", en: "Single-leg Glute Bridge", part: "脚", equipment: "自重", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["leg_26",  "leg_40",  "leg_73",  "leg_74"], muscles: ["glutes"], sub: ["hams"] },
+  { id: "leg_73", name: "シングルレッグ・ヒップスラスト", en: "Single-leg Hip Thrust", part: "脚", equipment: "自重", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["leg_26",  "leg_40",  "leg_72",  "leg_74"], muscles: ["glutes"], sub: ["hams"] },
+  { id: "leg_74", name: "ドンキーキック", en: "Donkey Kick", part: "脚", equipment: "自重", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["leg_26",  "leg_40",  "leg_72",  "leg_73"], muscles: ["glutes"], sub: ["hams"] },
+  { id: "leg_75", name: "フロッグポンプ", en: "Frog Pump", part: "脚", equipment: "自重", stepKg: 2.5, defaultTargetReps: 20, relatedIds: ["leg_26",  "leg_40",  "leg_72",  "leg_73"], muscles: ["glutes"], sub: ["adduct"] },
+  { id: "leg_76", name: "コペンハーゲン・プランク", en: "Copenhagen Plank", part: "脚", equipment: "自重", stepKg: 2.5, defaultTargetReps: 20, relatedIds: ["leg_25",  "leg_50",  "leg_69",  "leg_16"], muscles: ["adduct"], sub: ["oblique",  "abs"], timed: true },
+  { id: "leg_77", name: "リバースノルディック", en: "Reverse Nordic", part: "脚", equipment: "自重", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["leg_20",  "leg_31",  "leg_32",  "leg_33"], muscles: ["quads"], sub: ["abs"] },
+  { id: "leg_78", name: "カーフレイズ（自重）", en: "Bodyweight Calf Raise", part: "脚", equipment: "自重", stepKg: 2.5, defaultTargetReps: 20, relatedIds: ["leg_08",  "leg_23",  "leg_36",  "leg_47"], muscles: ["calves"], sub: [] },
+  { id: "leg_79", name: "ケトルベル・デッドリフト", en: "Kettlebell Deadlift", part: "脚", equipment: "その他", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["leg_16",  "leg_67",  "leg_80",  "leg_81"], muscles: ["glutes",  "hams"], sub: ["quads",  "lowback",  "forearm"] },
+  { id: "leg_80", name: "モンスターウォーク（チューブ）", en: "Band Monster Walk", part: "脚", equipment: "その他", stepKg: 2.5, defaultTargetReps: 20, relatedIds: ["leg_79",  "leg_81",  "leg_09",  "leg_16"], muscles: ["glutes"], sub: ["quads"] },
+  { id: "leg_81", name: "クラムシェル", en: "Clamshell", part: "脚", equipment: "その他", stepKg: 2.5, defaultTargetReps: 20, relatedIds: ["leg_79",  "leg_80",  "leg_09",  "leg_16"], muscles: ["glutes"], sub: [] },
+  { id: "leg_82", name: "スレッドプッシュ", en: "Sled Push", part: "脚", equipment: "その他", stepKg: 10.0, defaultTargetReps: 20, relatedIds: ["leg_01",  "leg_02",  "leg_04",  "leg_07"], muscles: ["quads",  "glutes"], sub: ["calves",  "hams"] },
+  { id: "leg_83", name: "リバース・ハックスクワット", en: "Reverse Hack Squat", part: "脚", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 10, relatedIds: ["leg_16",  "leg_51",  "leg_86",  "leg_02"], muscles: ["glutes",  "quads"], sub: ["hams"] },
+  { id: "leg_84", name: "スプリットスクワット（自重）", en: "Bodyweight Split Squat", part: "脚", equipment: "自重", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["leg_31",  "leg_32",  "leg_33",  "leg_34"], muscles: ["quads",  "glutes"], sub: ["adduct"] },
+  { id: "leg_85", name: "スレッドプル", en: "Sled Pull", part: "脚", equipment: "その他", stepKg: 10.0, defaultTargetReps: 20, relatedIds: ["leg_82",  "leg_01",  "leg_02",  "leg_04"], muscles: ["quads",  "glutes"], sub: ["hams",  "calves",  "forearm"] },
+  { id: "leg_86", name: "デフィシット・リバースランジ", en: "Deficit Reverse Lunge", part: "脚", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["leg_51",  "leg_16",  "leg_83",  "leg_04"], muscles: ["glutes",  "quads"], sub: ["hams",  "adduct"] },
+  { id: "leg_87", name: "バーベル・ステップアップ", en: "Barbell Step-up", part: "脚", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["leg_01",  "leg_13",  "leg_14",  "leg_15"], muscles: ["quads",  "glutes"], sub: ["hams"] },
   { id: "arm_01", name: "バーベルカール", en: "Barbell Curl", part: "腕", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["arm_02", "arm_03", "arm_04"], muscles: ["biceps"], sub: ["forearm"] },
   { id: "arm_02", name: "ダンベルカール", en: "Dumbbell Curl", part: "腕", equipment: "ダンベル", stepKg: 1.0, defaultTargetReps: 10, relatedIds: ["arm_01", "arm_03", "arm_04"], muscles: ["biceps"], sub: ["forearm"] },
   { id: "arm_03", name: "ハンマーカール", en: "Hammer Curl", part: "腕", equipment: "ダンベル", stepKg: 1.0, defaultTargetReps: 10, relatedIds: ["arm_02", "arm_01", "arm_04"], muscles: ["biceps", "forearm"], sub: [] },
@@ -1569,6 +1725,34 @@ const MASTER_EXERCISES = [
   { id: "arm_25", name: "ゾットマンカール", en: "Zottman Curl", part: "腕", equipment: "ダンベル", stepKg: 1.0, defaultTargetReps: 10, relatedIds: ["arm_03", "arm_27", "arm_14", "arm_02"], muscles: ["biceps", "forearm"], sub: [] },
   { id: "arm_26", name: "マシンディップス", en: "Machine Dip", part: "腕", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 10, relatedIds: ["chest_09", "arm_08", "arm_21", "arm_22"], muscles: ["chest", "triceps"], sub: ["delt_f"] },
   { id: "arm_27", name: "ケーブル・ハンマーカール", en: "Cable Rope Hammer Curl", part: "腕", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["arm_03", "arm_25", "arm_14", "arm_12"], muscles: ["biceps", "forearm"], sub: [] },
+  { id: "arm_28", name: "EZバー・オーバーヘッドエクステンション", en: "EZ-bar Overhead Extension", part: "腕", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["arm_06",  "arm_08",  "arm_21",  "arm_30"], muscles: ["triceps"], sub: [] },
+  { id: "arm_29", name: "21カール", en: "21s Curl", part: "腕", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 21, relatedIds: ["arm_01",  "arm_09",  "arm_15",  "arm_02"], muscles: ["biceps"], sub: ["forearm"] },
+  { id: "arm_30", name: "インクライン・トライセプスエクステンション", en: "Incline Skull Crusher", part: "腕", equipment: "バーベル", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["arm_06",  "arm_08",  "arm_21",  "arm_28"], muscles: ["triceps"], sub: [] },
+  { id: "arm_31", name: "クロスボディ・ハンマーカール", en: "Cross-body Hammer Curl", part: "腕", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["arm_03",  "arm_25",  "arm_32",  "arm_27"], muscles: ["biceps",  "forearm"], sub: [] },
+  { id: "arm_32", name: "インクライン・ハンマーカール", en: "Incline Hammer Curl", part: "腕", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["arm_03",  "arm_25",  "arm_31",  "arm_27"], muscles: ["biceps",  "forearm"], sub: [] },
+  { id: "arm_33", name: "ダンベル・プリーチャーカール", en: "Dumbbell Preacher Curl", part: "腕", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["arm_02",  "arm_03",  "arm_10",  "arm_11"], muscles: ["biceps"], sub: ["forearm"] },
+  { id: "arm_34", name: "シーテッド・ダンベルカール", en: "Seated Dumbbell Curl", part: "腕", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["arm_02",  "arm_03",  "arm_10",  "arm_11"], muscles: ["biceps"], sub: ["forearm"] },
+  { id: "arm_35", name: "テイトプレス", en: "Tate Press", part: "腕", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 12, relatedIds: ["arm_07",  "arm_17",  "arm_36",  "arm_37"], muscles: ["triceps"], sub: ["chest"] },
+  { id: "arm_36", name: "ライイング・ダンベルエクステンション", en: "Dumbbell Skull Crusher", part: "腕", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 10, relatedIds: ["arm_07",  "arm_17",  "arm_35",  "arm_37"], muscles: ["triceps"], sub: [] },
+  { id: "arm_37", name: "ワンアーム・オーバーヘッドエクステンション", en: "Single-arm Overhead Extension", part: "腕", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 12, relatedIds: ["arm_07",  "arm_17",  "arm_35",  "arm_36"], muscles: ["triceps"], sub: [] },
+  { id: "arm_38", name: "ダンベル・リストカール", en: "Dumbbell Wrist Curl", part: "腕", equipment: "ダンベル", stepKg: 1.0, defaultTargetReps: 15, relatedIds: ["arm_14",  "arm_23",  "arm_24",  "arm_44"], muscles: ["forearm"], sub: [] },
+  { id: "arm_39", name: "トライセプスエクステンション（マシン）", en: "Triceps Extension Machine", part: "腕", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 12, relatedIds: ["arm_40",  "arm_05",  "arm_06",  "arm_07"], muscles: ["triceps"], sub: [] },
+  { id: "arm_40", name: "スミスマシン・ナローベンチプレス", en: "Smith Close-grip Bench Press", part: "腕", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 8, relatedIds: ["arm_08",  "arm_21",  "arm_22",  "arm_26"], muscles: ["triceps",  "chest"], sub: ["delt_f"] },
+  { id: "arm_41", name: "ベイヤーカール", en: "Bayesian Cable Curl", part: "腕", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["arm_12",  "arm_27",  "arm_42",  "arm_43"], muscles: ["biceps"], sub: [] },
+  { id: "arm_42", name: "ケーブル・プリーチャーカール", en: "Cable Preacher Curl", part: "腕", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["arm_12",  "arm_27",  "arm_41",  "arm_43"], muscles: ["biceps"], sub: ["forearm"] },
+  { id: "arm_43", name: "ハイケーブルカール", en: "High Cable Curl", part: "腕", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["arm_12",  "arm_27",  "arm_41",  "arm_42"], muscles: ["biceps"], sub: [] },
+  { id: "arm_44", name: "ケーブル・リバースカール", en: "Cable Reverse Curl", part: "腕", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["arm_14",  "arm_27",  "arm_03",  "arm_23"], muscles: ["forearm",  "biceps"], sub: [] },
+  { id: "arm_45", name: "リバースグリップ・プレスダウン", en: "Reverse-grip Pushdown", part: "腕", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["arm_05",  "arm_19",  "arm_20",  "arm_46"], muscles: ["triceps"], sub: [] },
+  { id: "arm_46", name: "ワンアーム・プレスダウン", en: "Single-arm Pushdown", part: "腕", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["arm_05",  "arm_19",  "arm_20",  "arm_45"], muscles: ["triceps"], sub: [] },
+  { id: "arm_47", name: "ケーブル・トライセプスキックバック", en: "Cable Triceps Kickback", part: "腕", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["arm_05",  "arm_19",  "arm_20",  "arm_45"], muscles: ["triceps"], sub: [] },
+  { id: "arm_48", name: "デッドハング", en: "Dead Hang", part: "腕", equipment: "自重", stepKg: 2.5, defaultTargetReps: 30, relatedIds: ["arm_14",  "arm_23",  "arm_24",  "arm_38"], muscles: ["forearm"], sub: ["lats"], timed: true },
+  { id: "arm_49", name: "チューブ・カール", en: "Band Curl", part: "腕", equipment: "その他", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["arm_04",  "arm_01",  "arm_02",  "arm_03"], muscles: ["biceps"], sub: ["forearm"] },
+  { id: "arm_50", name: "チューブ・プレスダウン", en: "Band Pushdown", part: "腕", equipment: "その他", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["arm_05",  "arm_06",  "arm_07",  "arm_08"], muscles: ["triceps"], sub: [] },
+  { id: "arm_51", name: "ハンドグリップ", en: "Hand Gripper", part: "腕", equipment: "その他", stepKg: 1.0, defaultTargetReps: 15, relatedIds: ["arm_52",  "arm_53",  "arm_14",  "arm_23"], muscles: ["forearm"], sub: [] },
+  { id: "arm_52", name: "リストローラー", en: "Wrist Roller", part: "腕", equipment: "その他", stepKg: 1.0, defaultTargetReps: 3, relatedIds: ["arm_51",  "arm_53",  "arm_14",  "arm_23"], muscles: ["forearm"], sub: [] },
+  { id: "arm_53", name: "プレートピンチ", en: "Plate Pinch", part: "腕", equipment: "その他", stepKg: 1.0, defaultTargetReps: 30, relatedIds: ["arm_51",  "arm_52",  "arm_14",  "arm_23"], muscles: ["forearm"], sub: [], timed: true },
+  { id: "arm_54", name: "ナロー腕立て伏せ", en: "Close-grip Push-up", part: "腕", equipment: "自重", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["arm_22",  "arm_08",  "arm_21",  "arm_40"], muscles: ["triceps",  "chest"], sub: ["delt_f"] },
+  { id: "arm_55", name: "ダンベル・リバースカール", en: "Dumbbell Reverse Curl", part: "腕", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 12, relatedIds: ["arm_14",  "arm_44",  "arm_03",  "arm_25"], muscles: ["forearm",  "biceps"], sub: [] },
   { id: "abs_01", name: "クランチ", en: "Crunch", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 20, relatedIds: ["abs_02", "abs_06", "abs_08"], muscles: ["abs"], sub: ["oblique"] },
   { id: "abs_02", name: "シットアップ", en: "Sit-up", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 20, relatedIds: ["abs_01", "abs_08", "abs_03"], muscles: ["abs"], sub: ["oblique"] },
   { id: "abs_03", name: "レッグレイズ", en: "Leg Raise", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["abs_04", "abs_02", "abs_05"], muscles: ["abs"], sub: ["oblique", "quads"] },
@@ -1594,7 +1778,29 @@ const MASTER_EXERCISES = [
   { id: "abs_23", name: "Lシット", en: "L-sit", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 20, relatedIds: ["abs_03", "abs_04", "abs_11", "abs_12"], muscles: ["abs"], sub: ["oblique", "quads"], timed: true },
   { id: "abs_24", name: "ウインドシールドワイパー", en: "Windshield Wiper", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 10, relatedIds: ["abs_10", "abs_14", "abs_07", "abs_15"], muscles: ["oblique"], sub: ["abs"] },
   { id: "abs_25", name: "アブローラー（立ちコロ）", en: "Standing Ab Rollout", part: "腹筋", equipment: "その他", stepKg: 2.5, defaultTargetReps: 5, relatedIds: ["abs_05", "abs_08", "abs_01", "abs_02"], muscles: ["abs"], sub: ["lats", "delt_f", "oblique"] },
-  { id: "abs_26", name: "ロータリートルソー（マシン）", en: "Rotary Torso Machine", part: "腹筋", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 12, relatedIds: ["abs_22", "abs_10"], muscles: ["oblique"], sub: ["abs"] }
+  { id: "abs_26", name: "ロータリートルソー（マシン）", en: "Rotary Torso Machine", part: "腹筋", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 12, relatedIds: ["abs_22", "abs_10"], muscles: ["oblique"], sub: ["abs"] },
+  { id: "abs_27", name: "フラッターキック", en: "Flutter Kick", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 30, relatedIds: ["abs_01",  "abs_02",  "abs_03",  "abs_04"], muscles: ["abs"], sub: ["quads"], timed: true },
+  { id: "abs_28", name: "シザーズ", en: "Scissor Kick", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 20, relatedIds: ["abs_01",  "abs_02",  "abs_03",  "abs_04"], muscles: ["abs"], sub: ["quads"] },
+  { id: "abs_29", name: "ヒールタッチ", en: "Heel Touch", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 20, relatedIds: ["abs_10",  "abs_14",  "abs_24",  "abs_31"], muscles: ["oblique"], sub: ["abs"] },
+  { id: "abs_30", name: "ジャックナイフ", en: "Jackknife Sit-up", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["abs_01",  "abs_02",  "abs_03",  "abs_04"], muscles: ["abs"], sub: ["quads"] },
+  { id: "abs_31", name: "オブリーククランチ", en: "Oblique Crunch", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["abs_10",  "abs_14",  "abs_24",  "abs_29"], muscles: ["oblique"], sub: ["abs"] },
+  { id: "abs_32", name: "デクラインクランチ", en: "Decline Crunch", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["abs_01",  "abs_02",  "abs_03",  "abs_04"], muscles: ["abs"], sub: ["oblique"] },
+  { id: "abs_33", name: "プランク・ショルダータップ", en: "Plank Shoulder Tap", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 20, relatedIds: ["abs_01",  "abs_02",  "abs_03",  "abs_04"], muscles: ["abs",  "oblique"], sub: ["delt_f"] },
+  { id: "abs_34", name: "サイドプランク・ヒップディップ", en: "Side Plank Hip Dip", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["abs_10",  "abs_14",  "abs_24",  "abs_29"], muscles: ["oblique"], sub: ["abs",  "glutes"] },
+  { id: "abs_35", name: "ハンギング・オブリークニーレイズ", en: "Hanging Oblique Knee Raise", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["abs_10",  "abs_14",  "abs_24",  "abs_29"], muscles: ["oblique",  "abs"], sub: ["forearm"] },
+  { id: "abs_36", name: "バードドッグ", en: "Bird Dog", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 12, relatedIds: ["abs_01",  "abs_02",  "abs_03",  "abs_04"], muscles: ["abs",  "lowback"], sub: ["glutes"] },
+  { id: "abs_37", name: "ベアプランク", en: "Bear Plank", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 30, relatedIds: ["abs_01",  "abs_02",  "abs_03",  "abs_04"], muscles: ["abs"], sub: ["delt_f",  "quads"], timed: true },
+  { id: "abs_38", name: "ダンベル・サイドベンド", en: "Dumbbell Side Bend", part: "腹筋", equipment: "ダンベル", stepKg: 2.0, defaultTargetReps: 15, relatedIds: ["abs_07",  "abs_10",  "abs_14",  "abs_15"], muscles: ["oblique"], sub: ["abs"] },
+  { id: "abs_39", name: "加重クランチ（プレート）", en: "Weighted Crunch", part: "腹筋", equipment: "その他", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["abs_05",  "abs_08",  "abs_25",  "abs_40"], muscles: ["abs"], sub: ["oblique"] },
+  { id: "abs_40", name: "バランスボール・クランチ", en: "Stability Ball Crunch", part: "腹筋", equipment: "その他", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["abs_05",  "abs_08",  "abs_25",  "abs_39"], muscles: ["abs"], sub: ["oblique"] },
+  { id: "abs_41", name: "スーツケースキャリー", en: "Suitcase Carry", part: "腹筋", equipment: "その他", stepKg: 2.5, defaultTargetReps: 30, relatedIds: ["abs_07",  "abs_10",  "abs_14",  "abs_15"], muscles: ["oblique"], sub: ["forearm",  "traps",  "abs"], timed: true },
+  { id: "abs_42", name: "バーベル・ロールアウト", en: "Barbell Rollout", part: "腹筋", equipment: "その他", stepKg: 2.5, defaultTargetReps: 8, relatedIds: ["abs_05",  "abs_08",  "abs_25",  "abs_39"], muscles: ["abs"], sub: ["lats",  "delt_f"] },
+  { id: "abs_43", name: "ケーブル・サイドベンド", en: "Cable Side Bend", part: "腹筋", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["abs_15",  "abs_16",  "abs_07",  "abs_10"], muscles: ["oblique"], sub: ["abs"] },
+  { id: "abs_44", name: "スタンディング・ケーブルクランチ", en: "Standing Cable Crunch", part: "腹筋", equipment: "ケーブル", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["abs_06",  "abs_01",  "abs_02",  "abs_03"], muscles: ["abs"], sub: ["oblique"] },
+  { id: "abs_45", name: "キャプテンズチェア・レッグレイズ", en: "Captain's Chair Leg Raise", part: "腹筋", equipment: "マシン", stepKg: 5.0, defaultTargetReps: 12, relatedIds: ["abs_22",  "abs_01",  "abs_02",  "abs_03"], muscles: ["abs"], sub: ["oblique",  "quads"] },
+  { id: "abs_46", name: "ベンチ・ニーアップ", en: "Bench Knee Tuck", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["abs_01",  "abs_02",  "abs_03",  "abs_04"], muscles: ["abs"], sub: ["quads"] },
+  { id: "abs_47", name: "Vシット", en: "V-sit Hold", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 20, relatedIds: ["abs_01",  "abs_02",  "abs_03",  "abs_04"], muscles: ["abs"], sub: ["quads"], timed: true },
+  { id: "abs_48", name: "ホロー・ロック", en: "Hollow Rock", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["abs_01",  "abs_02",  "abs_03",  "abs_04"], muscles: ["abs"], sub: ["quads"] }
 ];
 /* ---------- 人体図（筋肉マップ）SVG ----------
    座標系：1体あたり 幅200 × 高さ440（中心線 x=100）。左半身だけを定義し、中心線で反転して左右対称にする。
@@ -3457,7 +3663,7 @@ Object.assign(ACT, {
     const c = await choiceSheet({ title: ex.name, choices: [
       { key: 'detail', label: '種目の詳細・成長グラフ' },
       { key: 'warm', label: 'ウォームアップを自動作成' },
-      ...(ex.equipment !== '自重' && !isTimed(ex) ? [{ key: 'pct', label: '1RMの%で重量を入力' }] : []),
+      ...(ex.equipment !== '自重' && !isTimed(ex) ? [{ key: 'pct', label: '1RMの%で重量を入力' }, { key: 'rm', label: 'RM計算（重量と回数から推定1RM）' }] : []),
       ...(ex.equipment === 'バーベル' ? [{ key: 'plate', label: 'プレート計算' }] : []),
       ...(g ? [{ key: 'unss', label: 'スーパーセットを解除' }] : nextId ? [{ key: 'ss', label: `次の種目（${getEx(nextId).name}）とスーパーセットにする` }] : []),
       { key: 'replace', label: '別の種目に入れ替え' },
@@ -3468,6 +3674,7 @@ Object.assign(ACT, {
     if (c === 'detail') openExerciseDetail(exId);
     else if (c === 'warm') warmupFor(i);
     else if (c === 'pct') openPercent(i);
+    else if (c === 'rm') ACT.rmCalc({ dataset: { id: exId } });
     else if (c === 'plate') ACT.exPlate(el);
     else if (c === 'ss') { const gid = uid('ss'); ses.supersets = ses.supersets || {}; ses.supersets[exId] = ses.supersets[nextId] || gid; ses.supersets[nextId] = ses.supersets[exId]; touch(); renderWorkout(); toast('スーパーセットにしました。セット完了で次の種目へ自動で移動します'); }
     else if (c === 'unss') { for (const k of Object.keys(ses.supersets)) if (ses.supersets[k] === g) delete ses.supersets[k]; touch(); renderWorkout(); }
@@ -3624,7 +3831,8 @@ function quickStart() {
   return `<section class="sec quick-sec"><div class="quick">
     ${lastSes && !DB.active ? `<button type="button" class="card repeat tap" data-a="repeatLast"><span class="rp-i">${ICON.copy}</span><span class="m"><b>前回と同じ内容でもう一度</b><span class="small muted">${esc(lastSes.name)}（${fmtRelDay(lastSes.date)}）・${lastSes.recs.length}種目</span></span>${ICON.chevR}</button>` : ''}
     <button type="button" class="btn" data-a="startPick">${ICON.search}種目を選んで開始</button><button type="button" class="btn" data-a="startEmpty">${ICON.plus}空で開始</button>
-    ${hasRealData() ? '' : `<button type="button" class="btn btn-ghost btn-sm btn-block imp-cta" data-a="importWizard">${ICON.upload}これまでの記録を取り込む（他のアプリ・Excel・メモ）</button>`}</div></section>`;
+    ${hasRealData() ? '' : `<button type="button" class="btn btn-ghost btn-sm btn-block imp-cta" data-a="importWizard">${ICON.upload}これまでの記録を取り込む（他のアプリ・Excel・メモ）</button>`}</div>
+    ${lastSes ? '<button type="button" class="link ai-link" data-a="aiPrompt">迷ったら：AIに今日のメニューを相談する</button>' : ''}</section>`;
 }
 /* 初心者向けの案内（設定で「はじめて・初心者」のときだけ） */
 function beginnerCard() {
@@ -3672,7 +3880,7 @@ function openOnboarding() {
   });
 }
 function renderTrain() {
-  let h = topbar('トレーニング', `<button type="button" class="icon-btn ${UI.reorder ? 'solid' : ''}" data-a="reorder" aria-label="メニューの並び替え" aria-pressed="${UI.reorder}">${ICON.sort}</button>`);
+  let h = topbar('トレーニング', `<button type="button" class="icon-btn" data-a="rmCalc" aria-label="RM計算（重量と回数から推定1RM）">${ICON.calc}</button><button type="button" class="icon-btn ${UI.reorder ? 'solid' : ''}" data-a="reorder" aria-label="メニューの並び替え" aria-pressed="${UI.reorder}">${ICON.sort}</button>`);
   h += pwaCard();
   if (DB.settings.drivePending) h += `<div class="banner">${ICON.cloud}<div class="m"><b>Googleドライブへの自動保存が未完了です</b><br>電波の良い場所でもう一度保存してください。</div><button type="button" class="btn btn-sm" data-a="driveBackup">保存</button></div>`;
   else if (backupStale()) h += `<div class="banner">${ICON.cloud}<div class="m"><b>しばらくバックアップしていません</b><br>機種変更や故障に備えて保存しましょう。</div><button type="button" class="btn btn-sm" data-a="goSetSec" data-sk="backup">保存へ</button></div>`;
@@ -4348,7 +4556,7 @@ function analysisHtml() {
       <p class="goal-desc">${GOALS[g].desc}</p>
       <details class="lv-more goal-cmp"><summary>目的で何が変わる？${ICON.chevD}</summary>${goalCompareHtml(g)}</details></div>
     <p class="tiny faint" style="margin:0 0 8px">直近${a.span}日の記録を、研究で示された目安と比べています（一般的な目安で、医学的な助言ではありません）。タップで根拠を表示。</p>
-    <div class="ins-list">${ins.map((x) => { const lvl = anaLevelOf(x.refs); return `<details class="ins ins-${x.st}"><summary><i class="dot"></i><span class="m"><b>${esc(x.title)}</b><span>${esc(x.detail)}</span></span>${x.refs.length ? `<em class="ev ev-${lvl}">${EV_LABEL[lvl]}</em>` : ''}</summary>${x.more ? `<p class="tiny" style="margin:6px 0 0">${esc(x.more)}</p>` : ''}${x.refs.length ? `<ul class="ins-refs">${anaRefChips(x.refs)}</ul>` : '<p class="tiny faint" style="margin:6px 0 0">研究による目安ではなく、記録から計算した参考情報です。</p>'}</details>`; }).join('')}</div></section>`;
+    <div class="ins-list">${ins.map((x) => { const lvl = anaLevelOf(x.refs); return `<details class="ins ins-${x.st}"><summary><i class="dot"></i><span class="m"><b>${esc(x.title)}</b><span>${esc(x.detail)}</span></span>${x.refs.length ? `<em class="ev ev-${lvl}">${EV_LABEL[lvl]}</em>` : ''}</summary>${x.more ? `<p class="tiny" style="margin:6px 0 0">${esc(x.more)}</p>` : ''}${x.refs.length ? `<ul class="ins-refs">${anaRefChips(x.refs)}</ul>` : '<p class="tiny faint" style="margin:6px 0 0">研究による目安ではなく、記録から計算した参考情報です。</p>'}</details>`; }).join('')}</div><button type="button" class="link ai-link" data-a="aiPrompt">この記録をもとにAIに相談する文章を作る</button></section>`;
   // 筋肉別の量
   const mx = Math.max(band[1] + 5, ...a.groups.map((x) => x.v));
   const pos = (v) => `${Math.min(100, v / mx * 100).toFixed(1)}%`;
@@ -4394,15 +4602,49 @@ function filterEx(q, cat, equip) {
     return true;
   });
 }
-/* ジャンル別の折りたたみ一覧（最近使った種目は上に開いて表示） */
+/* 部位の中の分類（動きの種類）。上から順に当てはめ、最後は残り全部 */
+const SUBGROUPS = {
+  '全身・WL': [['スナッチ系', /スナッチ|ソッツ/], ['クリーン系', /クリーン/], ['ジャーク・プレス系', /ジャーク|プレス|スラスター/], ['スクワット系', /スクワット/], ['コンディショニング・その他', /./]],
+  '胸': [['フライ系', /フライ|クロスオーバー|ペックデック|プルオーバー|スヴェンド|スクイーズ/], ['自重（腕立て・ディップス）', /腕立て|ディップ|プッシュアップ/], ['インクライン・デクライン', /インクライン|デクライン|ギロチン/], ['プレス（フラット）', /./]],
+  '背中': [['デッドリフト・腰', /デッド|ラックプル|グッドモーニング|エクステンション|スーパーマン|ハイパー/], ['懸垂・プルダウン', /懸垂|チンアップ|チンニング|プルダウン|プルアップ|マッスルアップ/], ['ロウ（引く）', /ロウ|ロー$|ローイング/], ['プルオーバー', /./]],
+  '肩': [['僧帽筋（シュラッグ）', /シュラッグ/], ['後部（リア）', /リア|フェイスプル|外旋|プルアパート/], ['横（サイドレイズ）', /サイド|ラテラル|アップライト|Yレイズ/], ['前（フロントレイズ）', /フロント/], ['プレス', /./]],
+  '脚': [['ふくらはぎ', /カーフ/], ['内もも', /アダクション|コペンハーゲン/], ['もも前', /エクステンション|シシー|リバースノルディック|ウォールシット/], ['もも裏・ヒンジ', /デッド|RDL|カール|ノルディック|グルートハム/], ['お尻', /ヒップ|グルート|ブリッジ|キックバック|アブダクション|サイドレッグ|プルスルー|ドンキー|フロッグ|クラムシェル|モンスター/], ['ランジ・片脚', /ランジ|ステップ|ブルガリアン|スプリット|ピストル|シングルレッグ/], ['ジャンプ・スレッド', /ジャンプ|スレッド/], ['スクワット・レッグプレス', /./]],
+  '腕': [['三頭筋', /トライセプス|エクステンション|プレスダウン|キックバック|ディップ|JM|ナロー|ダイヤモンド|テイト|腕立て/], ['前腕・握力', /リスト|グリップ|ピンチ|ハング|ローラー|リバースカール/], ['二頭筋', /./]],
+  '腹筋': [['ひねり・脇腹', /ツイスト|ウッドチョップ|ロータリー|バイシクル|ワイパー|パロフ|オブリーク|サイド|ヒールタッチ|スーツケース/], ['下腹・脚上げ', /レッグレイズ|ニーレイズ|ニーアップ|トゥーズ|リバースクランチ|Vアップ|Vシット|ドラゴン|Lシット|シザーズ|フラッター|ジャックナイフ/], ['体幹・プランク', /プランク|ホロー|デッドバグ|ローラー|ロールアウト|マウンテン|バードドッグ|ベア/], ['上部・クランチ', /./]]
+};
+/* 表示する順番（よく使うものから） */
+const SUB_ORDER = {
+  '全身・WL': ['スナッチ系', 'クリーン系', 'ジャーク・プレス系', 'スクワット系', 'コンディショニング・その他'],
+  '胸': ['プレス（フラット）', 'インクライン・デクライン', 'フライ系', '自重（腕立て・ディップス）'],
+  '背中': ['懸垂・プルダウン', 'ロウ（引く）', 'デッドリフト・腰', 'プルオーバー'],
+  '肩': ['プレス', '横（サイドレイズ）', '後部（リア）', '前（フロントレイズ）', '僧帽筋（シュラッグ）'],
+  '脚': ['スクワット・レッグプレス', 'ランジ・片脚', 'もも前', 'もも裏・ヒンジ', 'お尻', '内もも', 'ふくらはぎ', 'ジャンプ・スレッド'],
+  '腕': ['二頭筋', '三頭筋', '前腕・握力'],
+  '腹筋': ['上部・クランチ', '下腹・脚上げ', 'ひねり・脇腹', '体幹・プランク']
+};
+function subOf(e) { const rules = SUBGROUPS[e.part]; if (!rules) return 'その他'; for (const [n, re] of rules) if (re.test(e.name)) return n; return 'その他'; }
+const eqIdx = (e) => { const i = EQUIPMENTS.indexOf(e.equipment); return i < 0 ? 99 : i; };
+/* ジャンル別の折りたたみ一覧（最近使った種目は上に開いて表示）。部位の中は動きの種類でもう1段分ける */
 function accordionHtml(list, rowFn, openSet, { act, allOpen = false, recent = [] }) {
   const groups = [];
   if (recent.length) groups.push({ key: '__recent', name: '最近使った種目', color: 'var(--glow-2,#22d3ee)', items: recent, open: true });
   for (const c of visibleCats()) { const it = list.filter((e) => e.part === c); if (it.length) groups.push({ key: c, name: c, color: partColor(c), items: it }); }
+  const subHtml = (g) => {
+    if (g.key === '__recent' || g.items.length <= 10) return `<div class="list">${g.items.map(rowFn).join('')}</div>`;
+    const order = SUB_ORDER[g.key] || (SUBGROUPS[g.key] || []).map(([n]) => n); const by = new Map();
+    for (const e of g.items) { const k = subOf(e); if (!by.has(k)) by.set(k, []); by.get(k).push(e); }
+    const keys = [...by.keys()].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+    return `<div class="acc2-wrap">${keys.map((k) => {
+      const key = `${g.key}|${k}`; const items = by.get(k).slice().sort((a, b) => eqIdx(a) - eqIdx(b));
+      const open = allOpen || openSet.has(key);
+      const eqs = [...new Set(items.map((e) => e.equipment))].slice(0, 4).join('・');
+      return `<div class="acc2 ${open ? 'open' : ''}"><button type="button" class="acc2-h" data-a="${act}" data-k="${esc(key)}" aria-expanded="${open}"><b>${esc(k)}</b><span class="acc2-eq">${esc(eqs)}</span><span class="acc-n num">${items.length}</span>${ICON.chevD}</button>${open ? `<div class="list">${items.map(rowFn).join('')}</div>` : ''}</div>`;
+    }).join('')}</div>`;
+  };
   return groups.map((g) => {
     const open = allOpen || (g.key === '__recent' ? !openSet.has('!__recent') : openSet.has(g.key));
     return `<section class="acc ${open ? 'open' : ''}"><button type="button" class="acc-h" data-a="${act}" data-k="${esc(g.key)}" aria-expanded="${open}"><i class="pdot" style="background:${g.color}"></i><b>${esc(g.name)}</b><span class="acc-n num">${g.items.length}</span>${ICON.chevD}</button>
-      ${open ? `<div class="list">${g.items.map(rowFn).join('')}</div>` : ''}</section>`;
+      ${open ? subHtml(g) : ''}</section>`;
   }).join('');
 }
 function toggleAcc(set, k) { if (k === '__recent') { if (set.has('!__recent')) set.delete('!__recent'); else set.add('!__recent'); } else if (set.has(k)) set.delete(k); else set.add(k); }
@@ -4425,7 +4667,8 @@ function libList() {
   if (L.sort === 'name') return `<div class="list">${[...list].sort((a, b) => a.name.localeCompare(b.name, 'ja')).map((e) => exRow(e, `data-a="exDetail" data-id="${esc(e.id)}"`)).join('')}</div>`;
   if (!UI.lib.open) UI.lib.open = new Set();
   const ids = new Set(list.map((e) => e.id));
-  return accordionHtml(list, (e) => exRow(e, `data-a="exDetail" data-id="${esc(e.id)}"`), UI.lib.open, { act: 'libAcc', allOpen: !!L.q.trim() || CATEGORIES.includes(L.cat), recent: L.q.trim() || L.cat !== 'すべて' ? [] : recentEx((e) => ids.has(e.id)) });
+  if (CATEGORIES.includes(L.cat)) UI.lib.open.add(L.cat);
+  return accordionHtml(list, (e) => exRow(e, `data-a="exDetail" data-id="${esc(e.id)}"`), UI.lib.open, { act: 'libAcc', allOpen: !!L.q.trim() || (!!L.equip && CATEGORIES.includes(L.cat)), recent: L.q.trim() || L.cat !== 'すべて' ? [] : recentEx((e) => ids.has(e.id)) });
 }
 function renderLib() {
   const L = UI.lib;
@@ -4438,10 +4681,10 @@ function renderLib() {
 
 /* 種目選択シート（単一／複数） */
 function pickExercises({ title = '種目を選ぶ', multi = false, exclude = [], initialCat = 'すべて', onDone }) {
-  const st = { q: '', cat: initialCat, sel: [], open: new Set() };
+  const st = { q: '', cat: initialCat, equip: '', sel: [], open: new Set(CATEGORIES.includes(initialCat) ? [initialCat] : []) };
   const cats = ['すべて', '★お気に入り', '記録あり', '自分の種目', ...visibleCats()];
   const listHtml = () => {
-    const list = filterEx(st.q, st.cat);
+    const list = filterEx(st.q, st.cat, st.equip);
     if (!list.length) return '<p class="empty">該当する種目がありません。</p>';
     const row = (e) => {
       const ex = exclude.includes(e.id); const on = st.sel.includes(e.id); const sm = exSummary(e.id);
@@ -4450,17 +4693,20 @@ function pickExercises({ title = '種目を選ぶ', multi = false, exclude = [],
     };
     if (st.cat === '記録あり') return `<div class="list">${list.sort((a, b) => (exSummary(a.id).last < exSummary(b.id).last ? 1 : -1)).map(row).join('')}</div>`;
     const ids = new Set(list.map((e) => e.id));
-    return accordionHtml(list, row, st.open, { act: 'acc', allOpen: !!st.q.trim() || CATEGORIES.includes(st.cat), recent: st.q.trim() || st.cat !== 'すべて' ? [] : recentEx((e) => ids.has(e.id)) });
+    if (CATEGORIES.includes(st.cat)) st.open.add(st.cat);
+    return accordionHtml(list, row, st.open, { act: 'acc', allOpen: !!st.q.trim() || (!!st.equip && CATEGORIES.includes(st.cat)), recent: st.q.trim() || st.cat !== 'すべて' ? [] : recentEx((e) => ids.has(e.id)) });
   };
   openSheet({
     title, state: st, cls: 'sheet-pick',
     render: () => `<div class="picker-top"><div class="search">${ICON.search}<input type="search" class="input" data-in="q" placeholder="種目名・英名で検索" value="${esc(st.q)}"></div>
-      <div class="chips" style="margin-top:8px">${cats.map((c) => `<button type="button" class="chip" data-a="cat" data-v="${esc(c)}" aria-pressed="${st.cat === c}">${esc(c)}</button>`).join('')}</div></div>
+      <div class="chips" style="margin-top:8px">${cats.map((c) => `<button type="button" class="chip" data-a="cat" data-v="${esc(c)}" aria-pressed="${st.cat === c}">${esc(c)}</button>`).join('')}</div>
+      <div class="chips chips-eq">${['', ...EQUIPMENTS].map((q) => `<button type="button" class="chip" data-a="eq" data-v="${q}" aria-pressed="${st.equip === q}">${q || '器具：すべて'}</button>`).join('')}</div></div>
       <div class="pk-list">${listHtml()}</div><div style="height:12px"></div><button type="button" class="btn btn-line btn-block" data-a="create">${ICON.plus}リストにない種目を新しく作る</button>`,
     foot: multi ? () => `<button type="button" class="btn" data-a="__close">キャンセル</button><button type="button" class="btn btn-primary" data-a="ok" ${st.sel.length ? '' : 'disabled'}>${st.sel.length ? `${st.sel.length}種目を追加` : '種目を選んでください'}</button>` : null,
     inputs: { q: (el, e, s) => { st.q = el.value; $('.pk-list', s.body).innerHTML = listHtml(); } },
     actions: {
       cat: (el, e, s) => { st.cat = el.dataset.v; s.render(); },
+      eq: (el, e, s) => { st.equip = el.dataset.v; s.render(); },
       acc: (el, e, s) => { toggleAcc(st.open, el.dataset.k); $('.pk-list', s.body).innerHTML = listHtml(); },
       pick: (el, e, s) => {
         const id = el.dataset.id;
@@ -4572,7 +4818,7 @@ function exDetailHtml(exId, st) {
     h += `<div class="card"><div class="card-h"><h3>ボリューム（週ごと）</h3></div><div class="big2"><div><b>${fmtBig(ws[11])}<small>kg</small></b><span>今週（${setsThis}セット）</span></div><div><b>${fmtBig(ws[10])}<small>kg</small></b><span>先週（${setsLast}セット）</span></div></div>
       ${chartHtml({ type: 'bar', labels: ws.map((_, i) => { const d = parseYmd(addDays(thisW, -7 * (11 - i))); return `${d.getMonth() + 1}/${d.getDate()}`; }), datasets: [{ label: '総負荷量', data: ws.map(Math.round), color: partColor(ex.part) }], kind: 'volume', aria: '週ごとのボリューム' }, 'sm')}</div>`;
     const rm = repMaxTable(exId);
-    if (rm.length) h += `<div class="card"><div class="card-h"><h3>${ICON.trophy} 回数別の自己ベスト</h3></div><table class="tbl"><tr><th>回数</th><th>重量</th><th>推定1RM</th><th>日付</th></tr>${rm.map((r) => `<tr><td>${r.n}回</td><td><b>${fmtNum(r.w)}kg</b></td><td>${fmtNum(round1(e1rm(r.w, r.n)))}kg</td><td class="faint">${fmtDate(r.date)}</td></tr>`).join('')}</table>
+    if (rm.length) h += `<div class="card"><div class="card-h"><h3>${ICON.trophy} 回数別の自己ベスト</h3><button type="button" class="btn btn-ghost btn-sm" data-a="rmCalc" data-id="${esc(exId)}">${ICON.calc}RM計算</button></div><table class="tbl"><tr><th>回数</th><th>重量</th><th>推定1RM</th><th>日付</th></tr>${rm.map((r) => `<tr><td>${r.n}回</td><td><b>${fmtNum(r.w)}kg</b></td><td>${fmtNum(round1(e1rm(r.w, r.n)))}kg</td><td class="faint">${fmtDate(r.date)}</td></tr>`).join('')}</table>
       <p class="hint">「その回数以上」で挙げた最高重量です。</p></div>`;
     const b = bestOneRm(exId);
     if (b && b.e1 && ex.equipment !== '自重') {
@@ -4691,6 +4937,144 @@ Object.assign(ACT, {
   libAcc: (el) => { if (!UI.lib.open) UI.lib.open = new Set(); toggleAcc(UI.lib.open, el.dataset.k); const l = $('#libList'); if (l) l.innerHTML = libList(); }
 });
 Object.assign(INP, { libQ: (el) => { UI.lib.q = el.value; const l = $('#libList'); if (l) l.innerHTML = libList(); } });
+
+/* =====================================================================
+   AIに相談（迷ったときだけ使う）
+   直近の記録を要約した「相談文」を作り、ChatGPT・Claude・Gemini などに貼り付けて使う。
+   アプリから外へ自動送信はしない（コピー／共有メニューだけ）。名前などの個人情報は入れない。
+   ===================================================================== */
+const AI_PLACES = { gym: 'ジム（バーベル・ダンベル・マシン・ケーブルあり）', home: '自宅（ダンベル・ベンチ程度）', bw: '道具なし（自重のみ）' };
+const AI_ASKS = { today: '今日のメニューを1回分', week: '次の1週間の分け方（各日のメニュー）', fix: '今のメニューの改善点' };
+function aiSetsTxt(r, ex) {
+  const ws = work(r); if (!ws.length) return '';
+  const timed = isTimed(ex); const out = []; let cur = null;
+  for (const s of ws) {
+    const w = s.w > 0 ? `${fmtNum(s.w)}kg` : (ex.equipment === '自重' ? '自重' : '0kg');
+    const rr = `${fmtNum(s.r)}${timed ? '秒' : ''}${s.rpe ? `@${fmtNum(s.rpe)}` : ''}`;
+    if (cur && cur.w === w) cur.r.push(rr); else { cur = { w, r: [rr] }; out.push(cur); }
+  }
+  return out.map((x) => `${x.w}×${x.r.join(',')}`).join(' / ');
+}
+function aiPromptText(o) {
+  const a = anaCompute(); const today = ymd();
+  const ses = IDX().sessions.filter((s) => !s.live && daysBetween(s.date, today) <= 28).slice(0, 14);
+  const L = [];
+  L.push('あなたは経験豊富な筋力トレーニングのコーチです。以下の記録をもとに相談に乗ってください。', '');
+  L.push('【私について】');
+  L.push(`- 経験：${LEVELS[lv()].label}`);
+  L.push(`- 目的：${GOALS[goalOf()].label}`);
+  const bw = DB.bodylog.length ? DB.bodylog[DB.bodylog.length - 1] : null;
+  if (bw) L.push(`- 体重：${fmtNum(bw.kg)}kg（${fmtDate(bw.date)}）`);
+  L.push(`- 使える時間：約${o.min}分`, `- 場所・器具：${AI_PLACES[o.place]}`);
+  if (o.note.trim()) L.push(`- 気になること・希望：${o.note.trim().slice(0, 300)}`);
+  L.push('');
+  if (a) {
+    L.push(`【直近${a.span}日の概要】`);
+    L.push(`- ペース：週${fmtNum(a.dpw)}日、最後のトレーニング：${a.gap === 0 ? '今日' : `${a.gap}日前`}`);
+    if (a.groups.length) L.push(`- 部位ごとの週のセット数（補助的に使った筋肉は0.5セット）：${a.groups.map((g) => `${g.name} ${fmtNum(g.v)}`).join('、')}`);
+    const lastPart = new Map();
+    for (const s of IDX().sessions) for (const p of s.parts) if (!lastPart.has(p)) lastPart.set(p, s.date);
+    const parts = visibleCats().filter((p) => lastPart.has(p));
+    if (parts.length) L.push(`- 部位ごとの最後に鍛えた日：${parts.map((p) => `${p} ${daysBetween(lastPart.get(p), today)}日前`).join('、')}`);
+    const up = a.lifts.filter((x) => !x.plateau && x.pct > 0.5), pl = a.lifts.filter((x) => x.plateau);
+    if (up.length) L.push(`- 伸びている種目：${up.map((x) => `${x.ex.name}（推定1RM 約${fmtNum(x.cur)}kg）`).join('、')}`);
+    if (pl.length) L.push(`- 伸び悩んでいる種目：${pl.map((x) => x.ex.name).join('、')}`);
+    L.push('');
+  }
+  L.push('【直近の記録（新しい順・ウォームアップは除く）】');
+  if (!ses.length) L.push('（直近4週間の記録はありません）');
+  for (const s of ses) {
+    L.push(`${fmtDate(s.date)} ${s.name}`);
+    for (const r of s.recs) { const ex = getEx(r.exerciseId); const t = aiSetsTxt(r, ex); if (t) L.push(`・${ex.name} ${t}${r.memo ? `（メモ：${r.memo.slice(0, 60)}）` : ''}`); }
+  }
+  L.push('', '【お願い】');
+  if (o.ask === 'today') {
+    L.push('1. 回復の具合と部位ごとの量の偏りを見て、今日鍛えるとよい部位とその理由を2〜3行で',
+      '2. 種目・順番・セット数・回数・重量の目安・休憩時間を表で（重量は上の記録から無理のない値に）',
+      '3. 時間が足りないときに削ってよい種目', '4. 痛みや疲れがあるときの代わりの案');
+  } else if (o.ask === 'week') {
+    L.push('1. 上の記録の偏りを直す、次の1週間の分け方（何曜日に何をするか）',
+      '2. 各日の種目・セット数・回数の目安（重量は上の記録から無理のない値に）', '3. 前の週から変えた点とその理由');
+  } else {
+    L.push('1. 今のやり方のよい点と、直すとよい点（量・頻度・回数帯・種目の偏り）',
+      '2. 具体的な変更案を3つまで（優先順に）', '3. 伸び悩んでいる種目があれば、その対策');
+  }
+  L.push('', `回答は日本語で簡潔にお願いします。種目名は一般的な日本語名で書いてください。目的が「${GOALS[goalOf()].label}」であることを踏まえてください。`);
+  return L.join('\n');
+}
+function openAiPrompt() {
+  const st = { min: 60, place: 'gym', ask: 'today', note: '' };
+  const chip = (k, v, l) => `<button type="button" class="chip" data-a="opt" data-k="${k}" data-v="${v}" aria-pressed="${String(st[k]) === String(v)}">${l}</button>`;
+  openSheet({
+    title: 'AIに相談する文章を作る', state: st, live: false,
+    render: () => `<p class="small muted" style="margin:0 0 10px">直近の記録をまとめた相談文を作ります。コピーして、ふだん使っているAI（ChatGPT・Claude・Geminiなど）に貼り付けてください。</p>
+      <div class="field"><span class="lbl">相談したいこと</span><div class="chip-wrap">${Object.entries(AI_ASKS).map(([k, l]) => chip('ask', k, l.replace('（各日のメニュー）', ''))).join('')}</div></div>
+      <div class="field"><span class="lbl">使える時間</span><div class="chip-wrap">${[30, 45, 60, 90].map((m) => chip('min', m, `${m}分`)).join('')}</div></div>
+      <div class="field"><span class="lbl">場所・器具</span><div class="chip-wrap">${chip('place', 'gym', 'ジム')}${chip('place', 'home', '自宅（ダンベル）')}${chip('place', 'bw', '道具なし')}</div></div>
+      <label class="field"><span class="lbl">気になること・希望（なくてもOK）</span><input class="input" data-in="note" maxlength="300" value="${esc(st.note)}" placeholder="例：右肩が少し痛い、脚を重点的に"></label>
+      <div class="field"><span class="lbl">できあがる文章</span><textarea class="input ai-ta" readonly rows="9">${esc(aiPromptText(st))}</textarea></div>
+      <p class="tiny faint" style="margin:0">文章には記録の内容（日付・種目・重量・回数・メモ）が入ります。名前などは入りません。AIへの送信はあなたが貼り付けたときだけで、アプリからは送りません。AIの答えは参考として使い、痛みがあるときは無理をしないでください。</p>`,
+    foot: () => `${navigator.share ? '<button type="button" class="btn" data-a="share">共有</button>' : ''}<button type="button" class="btn btn-primary" data-a="copy">${ICON.copy}コピー</button>`,
+    inputs: { note: (el, e, s) => { st.note = el.value; const ta = $('.ai-ta', s.body); if (ta) ta.value = aiPromptText(st); } },
+    actions: {
+      opt: (el, e, s) => { const k = el.dataset.k; st[k] = k === 'min' ? Number(el.dataset.v) : el.dataset.v; s.render(); },
+      copy: async () => { try { await navigator.clipboard.writeText(aiPromptText(st)); toast('コピーしました。AIの入力欄に貼り付けてください', 'ok'); } catch (e) { const ta = $('.ai-ta'); if (ta) { ta.removeAttribute('readonly'); ta.select(); } toast('文章を長押しして「コピー」を選んでください'); } },
+      share: async () => { try { await navigator.share({ text: aiPromptText(st) }); } catch (e) { /* キャンセル */ } }
+    }
+  });
+}
+ACT.aiPrompt = () => openAiPrompt();
+
+/* =====================================================================
+   RM計算：重量×回数（とRPE）から推定1RMと、回数ごとに挙げられる重さの目安を出す
+   ・推定式はアプリ全体と同じ Epley（1RM＝重量×(1＋回数÷30)、回数は15まで）
+   ・RPE（きつさ）を入れると「あと何回できたか」を回数に足して計算する
+   ===================================================================== */
+ICON.calc = svgI('<rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8.5 7h7M8.5 11.5h1M12 11.5h1M15.5 11.5h0M8.5 15h1M12 15h1M15.5 15v2.5"/>');
+const RM_REPS = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15];
+const RM_PCT = [100, 95, 90, 85, 80, 75, 70, 65, 60, 50];
+function rmFrom(w, r, rpe) { const rir = rpe >= 6 && rpe <= 10 ? 10 - rpe : 0; const n = r + rir; if (!(w > 0) || !(n > 0)) return 0; return n <= 1 ? w : w * (1 + Math.min(n, 15) / 30); }
+function rmBrzycki(w, n) { return n <= 1 ? w : n >= 37 ? 0 : w * 36 / (37 - n); }
+function rmWeightFor(oneRm, reps, rpe) { const n = reps + (10 - rpe); return n <= 1 ? oneRm : oneRm / (1 + Math.min(n, 15) / 30); }
+function rmRepsAt(pct) { return pct >= 100 ? 1 : Math.max(1, Math.round((100 / pct - 1) * 30)); }
+function openRmCalc(init = {}) {
+  const ex = init.exId ? getEx(init.exId) : null;
+  const st = { w: init.w || '', r: init.r || 5, rpe: init.rpe || 0, step: ex ? ex.stepKg : 2.5, tgt: 10 };
+  const rnd = (v) => (v > 0 ? round2(Math.round(v / st.step) * st.step) : 0);
+  const out = () => {
+    const w = Number(st.w); const one = rmFrom(w, st.r, st.rpe);
+    if (!one) return '<p class="empty-mini" style="margin:12px 0">重量と回数を入れると計算します。</p>';
+    const n = st.r + (st.rpe ? 10 - st.rpe : 0); const b = rmBrzycki(w, n);
+    return `<div class="rm-big"><span>推定1RM</span><b class="num">${fmtNum(round1(one))}<small>kg</small></b>${n > 1 && b ? `<em>式による幅：${fmtNum(round1(Math.min(one, b)))}〜${fmtNum(round1(Math.max(one, b)))}kg</em>` : ''}</div>
+      <div class="field" style="margin:10px 0 6px"><span class="lbl">回数ごとの重さの目安</span><div class="seg pill mini">${[[10, '限界まで'], [9, 'あと1回'], [8, 'あと2回']].map(([v, l]) => `<button type="button" data-a="tgt" data-v="${v}" aria-pressed="${st.tgt === v}">${l}</button>`).join('')}</div></div>
+      <table class="tbl rm-tbl"><tr><th>回数</th><th>重さ</th><th>1RM比</th></tr>${RM_REPS.map((k) => { const x = rmWeightFor(one, k, st.tgt); return `<tr class="${k === st.r ? 'on' : ''}"><td>${k}回</td><td><b class="num">${fmtNum(rnd(x))}</b>kg</td><td>${Math.round(x / one * 100)}%</td></tr>`; }).join('')}</table>
+      <details class="lv-more" style="margin-top:6px"><summary>1RMの%から見る${ICON.chevD}</summary><table class="tbl rm-tbl"><tr><th>割合</th><th>重さ</th><th>できる回数の目安</th></tr>${RM_PCT.map((p) => `<tr><td>${p}%</td><td><b class="num">${fmtNum(rnd(one * p / 100))}</b>kg</td><td>${p >= 100 ? '1回' : `約${rmRepsAt(p)}回`}</td></tr>`).join('')}</table></details>
+      <p class="tiny faint" style="margin:8px 0 0">Epleyの式（アプリ全体の推定1RMと同じ）で計算し、重さは${fmtNum(st.step)}kg刻みに丸めています。回数が多い（10回超）ほど誤差が大きくなります。RPEを入れると、「あと何回できたか」を回数に足して計算します。</p>`;
+  };
+  openSheet({
+    title: ex ? `RM計算：${ex.name}` : 'RM計算', state: st,
+    render: () => `<div class="rm-in"><label class="field"><span class="lbl">重量（kg）</span><input class="input num" type="number" inputmode="decimal" step="0.5" min="0" data-in="w" value="${esc(String(st.w))}" placeholder="例：80"></label>
+      <div class="field"><span class="lbl">回数</span><div class="stepper"><button type="button" data-a="rep" data-d="-1">−</button><span class="val num">${st.r}<span class="u">回</span></span><button type="button" data-a="rep" data-d="1">＋</button></div></div></div>
+      <div class="field"><span class="lbl">そのときのきつさ（RPE・なくてもOK）</span><div class="chip-wrap">${[[0, 'なし'], [10, '10 限界'], [9, '9 あと1回'], [8, '8 あと2回'], [7, '7 あと3回'], [6, '6 あと4回']].map(([v, l]) => `<button type="button" class="chip" data-a="rpe" data-v="${v}" aria-pressed="${st.rpe === v}">${l}</button>`).join('')}</div></div>
+      <div class="field"><span class="lbl">丸める刻み</span><div class="seg pill mini">${[0.5, 1, 2, 2.5, 5].map((v) => `<button type="button" data-a="step" data-v="${v}" aria-pressed="${st.step === v}">${v}kg</button>`).join('')}</div></div>
+      <div class="rm-out">${out()}</div>`,
+    inputs: { w: (el, e, s) => { st.w = el.value; const o = $('.rm-out', s.body); if (o) o.innerHTML = out(); } },
+    actions: {
+      rep: (el, e, s) => { st.r = clamp(st.r + Number(el.dataset.d), 1, 20); s.render(); },
+      rpe: (el, e, s) => { st.rpe = Number(el.dataset.v); s.render(); },
+      step: (el, e, s) => { st.step = Number(el.dataset.v); s.render(); },
+      tgt: (el, e, s) => { st.tgt = Number(el.dataset.v); const o = $('.rm-out', s.body); if (o) o.innerHTML = out(); }
+    }
+  });
+}
+ACT.rmCalc = (el) => {
+  const id = el && el.dataset && el.dataset.id;
+  if (!id) { openRmCalc(); return; }
+  // 種目から開いたときは、その種目の推定1RMが一番高いセットを初期値にする
+  let best = null;
+  for (const r of exRecords(id)) for (const s of work(r)) { const v = rmFrom(s.w, s.r, s.rpe); if (v > 0 && (!best || v > best.v)) best = { v, w: s.w, r: Math.min(s.r, 20), rpe: s.rpe >= 6 ? s.rpe : 0 }; }
+  openRmCalc(best ? { exId: id, w: best.w, r: best.r, rpe: best.rpe } : { exId: id });
+};
 
 /* =====================================================================
    5. 設定（バックアップ・表示・トレーニング・プレート・データ）
