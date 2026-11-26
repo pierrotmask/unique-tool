@@ -1489,6 +1489,10 @@ button.plan-line>svg:last-child{width:13px;height:13px;flex:none;opacity:.7}
 .pwa-first-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
 .pwa-first-top .pwa-ic{flex:none;width:52px;height:52px;border-radius:13px;overflow:hidden}
 .pwa-first-top p{margin:0;font-size:14px;line-height:1.6}
+.rp-dir button{flex:1}
+.rp-w{width:110px;text-align:center;font-size:20px;font-weight:800}
+.rp-tbl tr.off td{color:var(--text-3)}
+.rp-cmp{text-align:left;margin:0 0 10px;line-height:1.7}
 
 </style>
 </head>
@@ -1513,7 +1517,7 @@ button.plan-line>svg:last-child{width:13px;height:13px;flex:none;opacity:.7}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.25.19';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.25.20';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -4010,8 +4014,8 @@ function openPercent(i) {
 function rpewFor(i) {
   const ses = woSes(); const exId = ses.exerciseIds[i]; const ex = getEx(exId);
   const menu = ses.menuId ? DB.menus.find((m) => m.id === ses.menuId) : null;
-  openRpePlan({ exId, plan: planFor(ses, exId), okLabel: '入力する', toMenu: menu && menu.exerciseIds.includes(exId) ? { name: menu.name, on: !(menu.plan && menu.plan[exId]) } : null, onSave: (pl, o) => {
-    if (!pl) return; const rec = recAt(i); const w = planWeight(ex, planMax(exId, pl), pl.r, pl.rpe);
+  openRpePlan({ exId, sessionId: ses.id, plan: planFor(ses, exId), okLabel: '入力する', toMenu: menu && menu.exerciseIds.includes(exId) ? { name: menu.name, on: !(menu.plan && menu.plan[exId]) } : null, onSave: (pl, o) => {
+    if (!pl) return; const rec = recAt(i); const w = o && o.weight ? o.weight : planWeight(ex, planMax(exId, pl), pl.r, pl.rpe);
     rec.sets.forEach((x) => { if (!x.done && x.t !== 'w') { x.w = w; x.r = pl.r; } });
     ses.plan = { ...(ses.plan || {}), [exId]: pl };
     if (o && o.toMenu && menu) { menu.plan = { ...(menu.plan || {}), [exId]: pl }; menu.updatedAt = Date.now(); }
@@ -4129,8 +4133,11 @@ Object.assign(ACT, {
     const pw = work(prev); let k = 0;
     const normal = rec.sets.filter((s) => s.t !== 'w');
     while (normal.length < pw.length) { const s = { w: null, r: null, done: false, t: 'n' }; rec.sets.push(s); normal.push(s); }
-    normal.forEach((s) => { const p = pw[Math.min(k++, pw.length - 1)]; if (s.done) return; if (m === 'w') { s.w = round2(p.w + ex.stepKg); s.r = p.r; } else { s.w = p.w; s.r = p.r + (isTimed(ex) ? 5 : 1); } });
-    rec.updatedAt = Date.now(); touch(); renderWorkout(); toast('参考目安を入力欄に反映しました（自由に調整できます）');
+    // 重さを上げるとき：前回と同じきつさ（RPE）でできる回数を入れる（前回の回数は超えない）
+    const pe = m === 'w' && !isTimed(ex) ? prevEffort(ex.id, ses.id) : null; const mx = pe ? estMax(ex.id) : 0; let guide = null;
+    normal.forEach((s) => { const p = pw[Math.min(k++, pw.length - 1)]; if (s.done) return; if (m === 'w') { s.w = round2(p.w + ex.stepKg); const n = pe && mx ? repsAt(mx, s.w, pe.rpe) : 0; s.r = n ? Math.min(p.r, n) : p.r; if (n && !guide) guide = { w: s.w, r: s.r }; } else { s.w = p.w; s.r = p.r + (isTimed(ex) ? 5 : 1); } });
+    rec.updatedAt = Date.now(); touch(); renderWorkout();
+    toast(guide ? `${fmtNum(guide.w)}kgなら、前回と同じきつさ（RPE${fmtNum(pe.rpe)}${pe.measured ? '' : '相当'}）で${guide.r}回が目安です` : '参考目安を入力欄に反映しました（自由に調整できます）');
   },
   exTarget: async (el) => {
     const rec = recAt(Number(el.dataset.i)); const ex = getEx(rec.exerciseId); const timed = isTimed(ex);
@@ -5699,6 +5706,15 @@ function rpeAt(exId, w, reps) {
   let best = null, d = Infinity; for (const r of RTS_RPES) { const p = rtsPct(reps, r); if (p && Math.abs(p - pct) < d) { d = Math.abs(p - pct); best = r; } }
   return best;
 }
+/* 重さ → 回数：MAX と RPE から、その重さで何回できるか（RPE 表の範囲 1〜12回）。重すぎれば 0 */
+function repsAt(max, w, rpe) { if (!(max > 0) || !(w > 0)) return 0; for (let r = 12; r >= 1; r--) { const p = rtsPct(r, rpe); if (p && max * p / 100 >= w - 1e-6) return r; } return 0; }
+/* 前回のいちばん重いセットのきつさ（RPE を入れていなければ推定） */
+function prevEffort(exId, before) {
+  const rec = exRecords(exId).find((r) => (!before || r.sessionId !== before) && work(r).some((s) => s.w > 0 && s.r > 0)); if (!rec) return null;
+  const s = work(rec).filter((x) => x.w > 0 && x.r > 0).sort((a, b) => b.w - a.w || b.r - a.r)[0];
+  let rpe = s.rpe || rpeAt(exId, s.w, s.r); if (rpe === 'over') rpe = 10; if (!rpe) return null;
+  return { w: s.w, r: s.r, rpe, measured: !!s.rpe, date: rec.date };
+}
 function lastDoneDate(exId) { const l = exRecords(exId).find((r) => work(r).length); return l ? l.date : null; }
 /* 計画の MAX：手入力 or 期間内の最高（期間内に記録がなければ全期間）× 調整% */
 function planMaxInfo(exId, plan) {
@@ -5729,11 +5745,26 @@ function openRpePlan(opt) {
   const last = lastDoneDate(ex.id); const gapW = last ? Math.floor(daysBetween(last, ymd()) / 7) : 0;
   const st = { mode: p0.max > 0 ? 'manual' : 'win', win: p0.win != null ? p0.win : MAX_WIN_DEF, adj: p0.adj || (gapW >= 6 && !opt.plan ? 90 : 100), manual: p0.max > 0 ? String(p0.max) : '', r: p0.r || clamp(ex.defaultTargetReps || 5, 1, 12), rpe: p0.rpe || 8, toMenu: !!(opt.toMenu && opt.toMenu.on) };
   if (st.mode === 'win' && !wins.some((w) => w.v > 0)) st.mode = 'manual';
+  const pe = prevEffort(ex.id, opt.sessionId);
+  st.dir = opt.dir || 'r2w'; st.w = opt.weight ? String(opt.weight) : pe ? String(round2(pe.w + ex.stepKg)) : '';
   const cur = () => planMaxInfo(ex.id, { win: st.win, adj: st.adj, ...(st.mode === 'manual' ? { max: Number(st.manual) || 0 } : {}) });
   const maxV = () => cur().v;
+  const wV = () => Number(st.w) || 0;
+  const tableW = (m) => {
+    const w = wV();
+    if (!w) return '<p class="empty-mini" style="margin:10px 0">重さを入れると、RPEごとにできる回数を計算します。</p>';
+    const same = pe ? repsAt(m, w, pe.rpe) : 0, up = pe ? repsAt(m, w, Math.min(10, pe.rpe + 1)) : 0;
+    const cmp = pe ? `<div class="rp-pick rp-cmp">前回 ${fmtNum(pe.w)}kg×${pe.r}（RPE${fmtNum(pe.rpe)}${pe.measured ? '' : '相当'}）と比べて：<br>同じきつさなら <b class="num">${same ? same + '回' : 'できない重さ'}</b>${up && up !== same ? `・少しがんばる（RPE${fmtNum(Math.min(10, pe.rpe + 1))}）なら <b class="num">${up}回</b>` : ''}</div>` : '';
+    return `${cmp}<table class="tbl rm-tbl rp-tbl"><thead><tr><th>RPE</th><th>余力</th><th>${fmtNum(w)}kgでできる回数</th></tr></thead><tbody>${PLAN_RPES.map((v) => {
+      const n = repsAt(m, w, v);
+      return `<tr class="${st.rpe === v && n ? 'on' : ''}${n ? '' : ' off'}" data-a="pickRpe" data-v="${v}" role="button" tabindex="0"><td><b>${fmtNum(v)}</b></td><td>あと${fmtNum(10 - v)}回</td><td class="num"><b>${n ? n + '回' : '重すぎ'}</b></td></tr>`;
+    }).join('')}</tbody></table>
+    ${repsAt(m, w, st.rpe) ? `<div class="rp-pick">選んだ計画：<b class="num">${fmtNum(w)}kg×${repsAt(m, w, st.rpe)}回</b> @RPE${fmtNum(st.rpe)}</div>` : ''}`;
+  };
   const table = () => {
     const i = cur(); const m = i.v;
     if (!m) return '<p class="empty-mini" style="margin:10px 0">MAX重量を入れると、RPEごとの重さを計算します。</p>';
+    if (st.dir === 'w2r') return `<div class="rp-max">使うMAX <b class="num">${fmtNum(m)}kg</b><span>${i.src === 'manual' ? '手入力' : `${i.src === 'fallback' ? '全期間' : winLabel(i.win)}の最高`}${i.adj < 100 ? ` × ${i.adj}%` : ''}</span></div>` + tableW(m);
     const how = i.src === 'manual' ? `手入力 ${fmtNum(i.base)}kg` : `${i.src === 'fallback' ? '全期間' : winLabel(i.win)}の最高 ${fmtNum(i.base)}kg${i.date ? `（${fmtDate(i.date)}）` : ''}`;
     return `<div class="rp-max">使うMAX <b class="num">${fmtNum(m)}kg</b><span>${how}${i.adj < 100 ? ` × ${i.adj}%` : ''}</span></div>
     ${i.src === 'fallback' ? `<p class="rp-warn">${winLabel(i.win)}以内の記録がないため、全期間の最高を使っています。今の力より重いかもしれません。</p>` : ''}
@@ -5745,33 +5776,39 @@ function openRpePlan(opt) {
   };
   const refresh = (s) => { const o = $('.rp-out', s.body); if (o) o.innerHTML = table(); if (s.footEl) s.renderFoot(); };
   openSheet({
-    title: opt.title || `${ex.name}：RPEで重量`, state: st, cls: 'rp-sheet',
-    render: () => `<div class="field"><span class="lbl">MAXの決め方</span>
+    title: opt.title || `${ex.name}：RPEで重さ・回数`, state: st, cls: 'rp-sheet',
+    render: () => `<div class="seg pill rp-dir" style="margin-bottom:12px"><button type="button" data-a="dir" data-v="r2w" aria-pressed="${st.dir === 'r2w'}">回数 → 重さ</button><button type="button" data-a="dir" data-v="w2r" aria-pressed="${st.dir === 'w2r'}">重さ → 回数</button></div>
+      <div class="field"><span class="lbl">MAXの決め方</span>
       <div class="rp-wins">${wins.map((w) => `<button type="button" data-a="win" data-v="${w.d}" aria-pressed="${st.mode === 'win' && st.win === w.d}" ${w.v ? '' : 'disabled'}><b>${w.l}</b><small>${w.v ? fmtNum(w.v) + 'kg' : '記録なし'}</small></button>`).join('')}<button type="button" data-a="win" data-v="manual" aria-pressed="${st.mode === 'manual'}"><b>手入力</b><small>測定値</small></button></div>
       ${st.mode === 'manual' ? `<input class="input num" style="margin-top:8px" type="number" inputmode="decimal" step="0.5" min="0" data-in="max" value="${esc(st.manual)}" placeholder="分かっているMAX（kg）">` : ''}
       <p class="tiny faint" style="margin:6px 2px 0">期間内の記録からの推定1RMの最高です。始めるたびに計算し直すので、力が落ちても伸びても今の身の丈に合わせて変わります。</p></div>
       ${gapW >= 6 ? `<p class="rp-warn">この種目は前回の記録（${fmtDate(last)}）から<b>${gapW}週間</b>空いています。久しぶりのときは、調整を90%前後に下げて様子を見るのがおすすめです。</p>` : ''}
       <div class="field"><span class="lbl">調整（久しぶり・不調のときは下げる）</span><div class="seg pill mini">${MAX_ADJS.map((a) => `<button type="button" data-a="adj" data-v="${a}" aria-pressed="${st.adj === a}">${a}%</button>`).join('')}</div></div>
-      <div class="field"><span class="lbl">1セットの回数</span><div class="stepper"><button type="button" data-a="rep" data-d="-1">−</button><span class="val num">${st.r}<span class="u">回</span></span><button type="button" data-a="rep" data-d="1">＋</button></div></div>
-      <div class="field"><span class="lbl">RPEごとの重さ（行をタップして選ぶ）</span><div class="rp-out">${table()}</div></div>
+      ${st.dir === 'w2r' ? `<div class="field"><span class="lbl">使う重さ（kg）</span><div class="stepper"><button type="button" data-a="wst" data-d="-1" aria-label="${fmtNum(ex.stepKg)}kg減らす">−</button><input class="input num rp-w" type="number" inputmode="decimal" step="0.5" min="0" data-in="w" value="${esc(st.w)}" aria-label="使う重さ（kg）"><button type="button" data-a="wst" data-d="1" aria-label="${fmtNum(ex.stepKg)}kg増やす">＋</button></div></div>` : ''}
+      <div class="field"${st.dir === 'w2r' ? ' hidden' : ''}><span class="lbl">1セットの回数</span><div class="stepper"><button type="button" data-a="rep" data-d="-1">−</button><span class="val num">${st.r}<span class="u">回</span></span><button type="button" data-a="rep" data-d="1">＋</button></div></div>
+      <div class="field"><span class="lbl">${st.dir === 'w2r' ? 'RPEごとの回数（行をタップして選ぶ）' : 'RPEごとの重さ（行をタップして選ぶ）'}</span><div class="rp-out">${table()}</div></div>
       ${opt.toMenu ? `<div class="sw-row" style="border:0;padding:4px 0 8px"><div class="t"><b>メニュー「${esc(opt.toMenu.name)}」の計画にも保存</b><span>次からこのメニューを始めると、この決め方で重さが入ります</span></div><label class="switch"><input type="checkbox" data-ch="toMenu" ${st.toMenu ? 'checked' : ''}><span></span></label></div>` : ''}
       <p class="tiny faint">RPE10＝限界、9＝あと1回、8＝あと2回できる重さ。RPE表（Tuchscherer）で計算し、${fmtNum(ex.stepKg)}kg刻みで丸めています。</p>`,
-    foot: () => `${opt.allowClear ? '<button type="button" class="btn" data-a="clear">計画を外す</button>' : '<button type="button" class="btn" data-a="__close">閉じる</button>'}<button type="button" class="btn btn-primary" data-a="ok" ${maxV() > 0 ? '' : 'disabled'}>${esc(opt.okLabel || '決定')}</button>`,
-    inputs: { max: (el, e, s) => { st.manual = el.value; refresh(s); } },
+    foot: () => `${opt.allowClear ? '<button type="button" class="btn" data-a="clear">計画を外す</button>' : '<button type="button" class="btn" data-a="__close">閉じる</button>'}<button type="button" class="btn btn-primary" data-a="ok" ${maxV() > 0 && (st.dir !== 'w2r' || repsAt(maxV(), wV(), st.rpe)) ? '' : 'disabled'}>${esc(opt.okLabel || '決定')}</button>`,
+    inputs: { max: (el, e, s) => { st.manual = el.value; refresh(s); }, w: (el, e, s) => { st.w = el.value; refresh(s); } },
     changes: { toMenu: (el) => { st.toMenu = el.checked; } },
     actions: {
       win: (el, e, s) => { const v = el.dataset.v; if (v === 'manual') st.mode = 'manual'; else { st.mode = 'win'; st.win = Number(v); } s.render(); if (st.mode === 'manual') { const i = $('[data-in="max"]', s.body); if (i && !st.manual) i.focus(); } },
       adj: (el, e, s) => { st.adj = Number(el.dataset.v); s.render(); },
+      dir: (el, e, s) => { st.dir = el.dataset.v; s.render(); },
+      wst: (el, e, s) => { const v = Math.max(0, round2((wV() || 0) + Number(el.dataset.d) * (ex.stepKg || 2.5))); st.w = String(v); s.render(); },
       rep: (el, e, s) => { st.r = clamp(st.r + Number(el.dataset.d), 1, 12); s.render(); },
       pickRpe: (el, e, s) => { st.rpe = Number(el.dataset.v); refresh(s); },
       clear: (el, e, s) => { s.close(); opt.onSave(null); },
       ok: (el, e, s) => {
         if (!(maxV() > 0)) return;
+        let weight = null;
+        if (st.dir === 'w2r') { const n = repsAt(maxV(), wV(), st.rpe); if (!n) { toast('この重さとRPEではできない回数です。RPEか重さを選び直してください'); return; } st.r = n; weight = wV(); }
         s.close();
         const pl = { r: st.r, rpe: st.rpe, win: st.win };
         if (st.adj < 100) pl.adj = st.adj;
         if (st.mode === 'manual') pl.max = round2(Number(st.manual));
-        opt.onSave(pl, { toMenu: st.toMenu });
+        opt.onSave(pl, { toMenu: st.toMenu, weight });
       }
     }
   });
