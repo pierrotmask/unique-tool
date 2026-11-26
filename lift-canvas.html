@@ -1479,6 +1479,8 @@ button.plan-line>svg:last-child{width:13px;height:13px;flex:none;opacity:.7}
 .rp-max{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;margin:0 0 8px;font-size:13px;color:var(--text-2)}
 .rp-max b{font-size:20px;color:var(--head)}.rp-max span{font-size:12px}
 .rp-warn{margin:0 0 10px;padding:8px 10px;border-radius:10px;background:var(--warn-soft,rgba(234,179,8,.14));color:var(--text);font-size:12.5px;line-height:1.5}
+.form-vid{text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+.form-vid svg{width:14px;height:14px}
 
 </style>
 </head>
@@ -1503,7 +1505,7 @@ button.plan-line>svg:last-child{width:13px;height:13px;flex:none;opacity:.7}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.25.17';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.25.18';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -2141,6 +2143,7 @@ let storageOK = true;
 let RECOVERY = null;          // { raws: [{ src, raw }] }
 let saveBlocked = false;
 let saveFailed = false;
+let liveApplied = false;   // 起動時に記録中の部分保存を重ねた（このあと全体を書き直す）
 let HAS_BROKEN = false;      // 前に読めなかったデータが端末に残っているか（設定 → データ に取り出すボタンを出す）       // 保存に失敗して、まだ成功していない
 let exMapCache = null;
 let dataVer = 1;
@@ -2342,6 +2345,9 @@ function normalize(src) {
   }));
   out.imports = arr(d.imports).filter((x) => x && x.id).map((x) => ({ id: String(x.id).slice(0, 20), label: String(x.label || '').slice(0, 60), at: num(x.at) || 0, days: num(x.days) || 0, sets: num(x.sets) || 0, body: num(x.body) || 0, from: isYmd(x.from) ? x.from : '', to: isYmd(x.to) ? x.to : '', updatedAt: num(x.updatedAt) || 0 }));
   // 取り込みで確認した種目名の対応（次回から自動で同じ判断をする）
+  // 端末間の同期：前回の同期の時点にあった id（この端末だけの情報。バックアップには含めない）
+  const sy = obj(d.sync);
+  if (num(sy.at)) { const sb = obj(sy.base); const ids = (v) => arr(v).filter((x) => typeof x === 'string' && x.length < 120).slice(0, 200000); out.sync = { at: num(sy.at), base: { records: ids(sb.records), sessions: ids(sb.sessions), menus: ids(sb.menus), customExercises: ids(sb.customExercises), bodylog: ids(sb.bodylog), imports: ids(sb.imports) } }; }
   out.impDict = {};
   for (const [k, v] of Object.entries(obj(d.impDict)).slice(0, 2000)) { if (!k || !v || typeof v !== 'object') continue; const act = ['map', 'new', 'split', 'skip'].includes(v.act) ? v.act : null; if (!act) continue; out.impDict[String(k).slice(0, 80)] = { act, id: typeof v.id === 'string' ? v.id.slice(0, 60) : '', name: String(v.name || '').slice(0, 40), part: String(v.part || '').slice(0, 10) }; }
   out.bodylog = arr(d.bodylog).filter((b) => b && isYmd(b.date) && num(b.kg) > 0).map((b) => ({
@@ -2519,6 +2525,20 @@ async function loadAsync() {
     saveBlocked = true;
     return defaultData();
   }
+  // 記録中の部分保存（db_live）が全体より新しければ重ねる
+  if (idb) {
+    try {
+      const lr = asRaw(await idbGetKey(idb, IDB_KEY + '_live'));
+      const L = lr ? JSON.parse(lr) : null;
+      if (L && L.active && L.active.id && Number(L.at) > at(src === 'ls' ? fromLs : fromIdb)) {
+        const o = clone(d);
+        o.active = L.active; o.records = o.records.filter((r) => r.sessionId !== L.active.id).concat(Array.isArray(L.recs) ? L.recs : []);
+        for (const k of ['ui', 'settings', 'menus']) if (L[k] && typeof L[k] === 'object') o[k] = L[k];
+        o.timer = L.timer || null;
+        d = normalize(o); liveApplied = true;
+      }
+    } catch (e) { console.warn('記録中の部分保存を読めませんでした', e); }
+  }
   // 引っ越し：localStorage の方が新しい（または IndexedDB が空）なら、すぐ IndexedDB に書き、読み戻して確かめる
   if (idb && src === 'ls') {
     const json = JSON.stringify(d); const ok = await idbPut(idb, json);
@@ -2532,23 +2552,52 @@ let saveErrShown = false;
 /* 保存はまとめて行う（連続操作でも端末が重くならないよう0.25秒以内に1回）。
    画面を閉じる・アプリを切り替える時は必ずその場で保存する（saveNow） */
 let saveT = null;
-function save() { DB.updatedAt = Date.now(); if (!saveT) saveT = setTimeout(saveNow, 250); }
-function flushSave() { if (saveT) saveNow(); }   // 未保存の変更があるときだけ書き込む
+/* 記録の入力中は「変わった部分だけ」を保存する：
+   記録が多い（保存データが大きい）とき、記録中の入力のたびに全部を書き直すと端末が一瞬止まる。
+   記録中は、進行中の記録とその周り（設定・メニューなど小さいもの）だけを IndexedDB の別の場所（db_live）にすぐ書き、
+   全体は手が止まったとき（5秒後・最長15秒ごと）と、画面を閉じる・アプリを切り替える・終了するときに書く。
+   起動時は、全体より新しい db_live があれば、それを重ねて読む */
+let liveT = null, lastFull = 0, lastJsonLen = 0, hadLive = true, saveLong = false;
+const LIVE_MIN = 300000;   // これより小さければ、これまでどおり毎回全体を書く
+function liveMode() { return !!(idb && DB && DB.active && typeof UI !== 'undefined' && UI.wo && UI.wo.live && lastJsonLen > LIVE_MIN && !saveBlocked); }
+function save() {
+  DB.updatedAt = Date.now();
+  if (liveMode()) {
+    if (!liveT) liveT = setTimeout(saveLive, 250);
+    if (!saveT) { const run = () => { if (typeof requestIdleCallback === 'function') requestIdleCallback(() => saveNow(), { timeout: 2000 }); else saveNow(); }; saveT = setTimeout(run, Date.now() - lastFull > 15000 ? 1500 : 5000); saveLong = true; }
+    return;
+  }
+  // 記録を終えた・画面を閉じた：待っていた全体の保存をすぐ行う
+  if (saveT && saveLong) { clearTimeout(saveT); saveT = null; }
+  saveLong = false;
+  if (!saveT) saveT = setTimeout(saveNow, 250);
+}
+function flushSave() { if (saveT || liveT) saveNow(); }   // 未保存の変更があるときだけ書き込む
+function saveLive() {
+  liveT = null;
+  if (!liveMode()) { saveNow(); return; }
+  const a = DB.active;
+  const json = JSON.stringify({ at: DB.updatedAt, active: a, recs: DB.records.filter((r) => r.sessionId === a.id), ui: DB.ui, settings: DB.settings, menus: DB.menus, timer: DB.timer });
+  hadLive = true;
+  idbPutKey(idb, IDB_KEY + '_live', json).then((ok) => { if (!ok) saveNow(); });
+}
 function saveNow() {
-  clearTimeout(saveT); saveT = null;
+  clearTimeout(saveT); saveT = null; clearTimeout(liveT); liveT = null; saveLong = false;
   if (!DB || saveBlocked) return;
   const json = JSON.stringify(DB);
+  lastFull = Date.now(); lastJsonLen = json.length;
+  if (idb && !DB.active && hadLive) { hadLive = false; idbPutKey(idb, IDB_KEY + '_live', ''); }   // 記録が終わったら部分保存は空にする
   let lsOk = false;
   if (json.length <= MIRROR_MAX || !idb) {
     try { localStorage.setItem(STORAGE_KEY, json); lsOk = true; } catch (e) { lsOk = false; }
-  } else {
-    // 大きくなったら本体は IndexedDB だけ（localStorage の古い写しは消して、取り違えを防ぐ）
-    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* noop */ }
   }
+  // 大きくなったら本体は IndexedDB だけ。localStorage の古い写しは、IndexedDB への書き込みが確かめられてから消す
+  // （先に消すと、書き込みの途中でアプリが閉じられたときに手元の写しまで失うため）
+  const dropLs = !lsOk && json.length > MIRROR_MAX && !!idb;
   const fail = () => { storageOK = false; saveFailed = true; if (!saveErrShown) { saveErrShown = true; toast('端末への保存に失敗しました。空き容量やプライベートモードをご確認ください', 'error'); } sysBanner(); };
   const okk = () => { storageOK = true; if (saveFailed) { saveFailed = false; sysBanner(); } };
   if (idb) {
-    idbPut(idb, json).then((ok) => { if (ok) { okk(); if (!lsOk && bc) { try { bc.postMessage({ t: 'saved', at: DB.updatedAt }); } catch (e) { /* noop */ } } } else if (!lsOk) fail(); });
+    idbPut(idb, json).then((ok) => { if (ok) { okk(); if (dropLs) { try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* noop */ } } if (!lsOk && bc) { try { bc.postMessage({ t: 'saved', at: DB.updatedAt }); } catch (e) { /* noop */ } } } else if (!lsOk) fail(); });
     if (lsOk) okk();
   } else if (lsOk) okk(); else fail();
 }
@@ -3266,6 +3315,7 @@ function closeWorkoutView() {
   closeKeypad();
   $('#workout').hidden = true;
   UI.wo = null;
+  if (saveLong) flushSave();   // 記録画面を閉じたら、待っていた全体の保存をすぐ行う
   updateLock(); renderMinibar(); renderTab(true); updateTabbar();
 }
 function minimizeWorkout() {
@@ -4075,6 +4125,7 @@ Object.assign(ACT, {
     const nextId = ses.exerciseIds[i + 1];
     const c = await choiceSheet({ title: ex.name, choices: [
       { key: 'detail', label: '種目の詳細・成長グラフ' },
+      { key: 'video', label: 'フォームを動画で見る（YouTube）' },
       { key: 'warm', label: 'ウォームアップを自動作成' },
       ...(ex.equipment !== '自重' && !isTimed(ex) ? [{ key: 'rpew', label: 'MAXからRPEで重量を入力' }, { key: 'pct', label: '1RMの%で重量を入力' }, { key: 'rm', label: 'RM計算（重量と回数から推定1RM）' }] : []),
       ...(g ? [{ key: 'unss', label: 'スーパーセットを解除' }] : nextId ? [{ key: 'ss', label: `次の種目（${getEx(nextId).name}）とスーパーセットにする` }] : []),
@@ -4084,6 +4135,7 @@ Object.assign(ACT, {
     ], cancel: '閉じる' });
     if (!c) return;
     if (c === 'detail') openExerciseDetail(exId);
+    else if (c === 'video') window.open(formVideoUrl(ex), '_blank', 'noopener');
     else if (c === 'warm') warmupFor(i);
     else if (c === 'pct') openPercent(i);
     else if (c === 'rpew') rpewFor(i);
@@ -5222,7 +5274,7 @@ function exDetailHtml(exId, st) {
     ${ex.en ? `<div class="small faint">${esc(ex.en)}</div>` : ''}
     <div class="small" style="margin-top:4px"><b>主に使う：</b>${ex.muscles.map((m) => MUSCLES[m]).join('、') || '-'}</div>${ex.sub.length ? `<div class="small muted"><b>補助：</b>${ex.sub.map((m) => MUSCLES[m]).join('、')}</div>` : ''}
     <div class="small muted" style="margin-top:4px">目標 ${ex.defaultTargetReps}${unitOf(ex)} ・ 刻み ${fmtNum(ex.stepKg)}kg ・ 休憩 ${fmtSec(restOf(ex))}</div></div></div>
-    <div class="row" style="margin-top:12px"><button type="button" class="btn btn-primary" data-a="record">${ICON.play}${DB.active ? '進行中に追加' : '記録する'}</button></div></div>`;
+    <div class="row" style="margin-top:12px"><button type="button" class="btn btn-primary" data-a="record">${ICON.play}${DB.active ? '進行中に追加' : '記録する'}</button><a class="btn form-vid" href="${esc(formVideoUrl(ex))}" target="_blank" rel="noopener noreferrer" aria-label="${esc(ex.name)}のフォームを動画で見る（YouTube・外部サイト）">${ICON.play}フォーム動画</a></div></div>`;
   if (!recs.length) return h + `<div class="card empty"><div class="big">📊</div><p>まだ記録がありません。記録すると成長グラフや自己ベストが表示されます。</p></div>` + noteHtml(exId);
   const main = mainMetricOf(ex, recs);
   const timed = isTimed(ex);
@@ -5591,6 +5643,8 @@ ACT.rmCalc = (el) => {
    ・重さ＝MAX × RPE表の% を、その種目の刻みで丸める
    ===================================================================== */
 const PLAN_RPES = [10, 9.5, 9, 8.5, 8, 7.5, 7, 6.5, 6];
+/* 種目のフォーム動画：YouTube で「種目名＋フォーム」を検索した結果を開く（自分の種目も同じ） */
+function formVideoUrl(ex) { return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(`${ex.name} フォーム やり方`); }
 /* MAX の参照期間（日数。0＝全期間）と調整（%）。久しぶり・体調・年齢で今の力が落ちているときに、昔の最高で重すぎる計画にならないように */
 const MAX_WINS = [[28, '4週'], [90, '3か月'], [180, '半年'], [0, '全期間']];
 const MAX_WIN_DEF = 90;
@@ -5718,8 +5772,8 @@ function renderSettings() {
 `;
     let dh = '';
   if (cid) {
-    dh += `<div class="sw-row" style="border:0"><div class="t"><b>トレーニング終了時に自動保存</b><span>${s.lastDriveAt ? '終わるたびに自分のGoogleドライブへ自動でバックアップします' : '下のボタンで一度保存（Googleにログイン）すると、以降は自動になります'}</span></div><label class="switch"><input type="checkbox" data-ch="autoDrive" ${s.autoDrive ? 'checked' : ''}><span></span></label></div>
-      <div class="stack"><button type="button" class="btn btn-primary btn-block" data-a="driveBackup">${ICON.upload}今すぐGoogleドライブに保存</button>
+    dh += `<div class="sw-row" style="border:0"><div class="t"><b>トレーニング終了時に自動保存</b><span>${s.lastDriveAt ? '終わるたびに自分のGoogleドライブと同期します（ほかの端末の記録も取り込みます）' : '下のボタンで一度保存（Googleにログイン）すると、以降は自動になります'}</span></div><label class="switch"><input type="checkbox" data-ch="autoDrive" ${s.autoDrive ? 'checked' : ''}><span></span></label></div>
+      <div class="stack">${s.lastDriveAt ? `<button type="button" class="btn btn-primary btn-block" data-a="driveSyncNow">${ICON.cloud || ICON.upload}ほかの端末と今すぐ同期</button>` : ''}<button type="button" class="btn ${s.lastDriveAt ? 'btn-line' : 'btn-primary'} btn-block" data-a="driveBackup">${ICON.upload}今すぐGoogleドライブに保存</button>
       <button type="button" class="btn btn-line btn-block" data-a="driveRestore">${ICON.download}Googleドライブから復元</button></div>
       <p class="hint">初回だけGoogleのログイン画面が出ます。保存先はあなたのマイドライブの「${DRIVE_FOLDERS.join(' / ')}」フォルダで、他の人（アプリの提供者を含む）からは見えません。${s.lastDriveAt ? `<br>最終ドライブ保存：${fmtDateTime(s.lastDriveAt)}` : ''}</p>`;
   } else {
@@ -5807,7 +5861,7 @@ Object.assign(ACT, { shareApp: () => openShareApp() });
 
 /* ---------- エクスポート／インポート ---------- */
 /* バックアップにはサンプル記録を含めない（復元で紛れ込まないように） */
-function buildExport() { const data = stripDemo(clone(DB)); data.timer = null; return { app: 'LiftCanvas', format: STORAGE_KEY, version: APP_VERSION, exportedAt: new Date().toISOString(), data }; }
+function buildExport() { const data = stripDemo(clone(DB)); data.timer = null; delete data.sync; return { app: 'LiftCanvas', format: STORAGE_KEY, version: APP_VERSION, exportedAt: new Date().toISOString(), data }; }
 function exportName(ext = 'json') { const d = new Date(); return `liftcanvas_backup_${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}_${pad2(d.getHours())}${pad2(d.getMinutes())}.${ext}`; }
 function markBackup(via) { DB.settings.lastBackupAt = Date.now(); DB.settings.lastBackupVia = via; if (via.startsWith('Google')) { DB.settings.lastDriveAt = Date.now(); DB.settings.drivePending = false; } save(); updateTabbar(); if (UI.tab === 'settings' || UI.tab === 'train') renderTab(); }
 function downloadBlob(blob, name) { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000); }
@@ -5992,15 +6046,80 @@ async function driveBackup() {
     if (!ok) return;
   }
   setBusy(true, 'Googleドライブに保存しています…');
-  try { const r = await Drive.upload(); markBackup('Googleドライブ'); toast(r === 'created' ? 'Googleドライブに保存しました' : 'Googleドライブのバックアップを更新しました', 'ok'); }
+  try { const r = await Drive.upload(); DB.sync = { at: Date.now(), base: syncBase() }; markBackup('Googleドライブ'); toast(r === 'created' ? 'Googleドライブに保存しました' : 'Googleドライブのバックアップを更新しました', 'ok'); }
   catch (e) { console.error(e); DB.settings.drivePending = true; save(); toast(e.message || '保存に失敗しました', 'error'); }
   finally { setBusy(false); }
 }
 /* トレーニング終了時の自動保存（失敗しても記録は端末に残り、あとで再保存できる） */
+/* ---------- 端末間の同期（Googleドライブのバックアップを介して） ----------
+   3者比較：前回の同期の時点にあった id（base）と比べて、
+   ・片方にしかない → base になければ「新しく追加」→ 残す／base にあれば「もう片方で削除」→ 消す（ただし同期のあとに編集していれば残す）
+   ・両方にある → 新しい方（updatedAt）
+   設定・お気に入り・メモなどは、これまでの統合と同じ（この端末を優先） */
+const SYNC_KEYS = [['records', (x) => x.id], ['sessions', (x) => x.id], ['menus', (x) => x.id], ['customExercises', (x) => x.id], ['bodylog', (x) => x.date], ['imports', (x) => x.id]];
+function syncMerge(local, remote, sync) {
+  const at = sync ? sync.at : 0; const stats = { added: 0, removed: 0 };
+  const out = {};
+  for (const [k, key] of SYNC_KEYS) {
+    const L = local[k] || [], R = remote[k] || [];
+    const base = new Set(sync && sync.base[k] ? sync.base[k] : []);
+    const lm = new Map(L.map((x) => [key(x), x])), rm = new Map(R.map((x) => [key(x), x]));
+    const res = [];
+    for (const [id, x] of lm) {
+      const r = rm.get(id);
+      if (r) { res.push((r.updatedAt || 0) > (x.updatedAt || 0) ? r : x); continue; }
+      // ここにだけある：前回の同期にあった（＝もう片方で消された）なら、同期のあとに編集していない限り消す
+      if (sync && base.has(id) && (x.updatedAt || 0) <= at && !isDemoRec(x) && !isDemoSes(x)) { if (k === 'records') stats.removed++; continue; }
+      res.push(x);
+    }
+    for (const [id, r] of rm) {
+      if (lm.has(id)) continue;
+      // もう片方にだけある：前回の同期にあった（＝この端末で消した）なら、向こうで編集されていない限り入れない
+      if (sync && base.has(id) && (r.updatedAt || 0) <= at) continue;
+      res.push(r); if (k === 'records') stats.added++;
+    }
+    out[k] = res;
+  }
+  out.bodylog.sort((a, b) => (a.date < b.date ? -1 : 1));
+  return { out, stats };
+}
+function syncBase() { const d = stripDemo(clone(DB)); const base = {}; for (const [k, key] of SYNC_KEYS) base[k] = (d[k] || []).map(key); return base; }
+let syncing = false;
+async function driveSync(opts = {}) {
+  if (syncing) return false; syncing = true;
+  try {
+    const f = await Drive.findFile();
+    let stats = { added: 0, removed: 0 };
+    if (f) {
+      const res = await Drive.api(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(f.id)}?alt=media`);
+      const inc = parseImport(await res.text()).data;
+      const { out, stats: st } = syncMerge(DB, inc, DB.sync);
+      stats = st;
+      // 安全のため：記録が大きく減る同期は、確かめてから
+      const before = DB.records.filter((r) => !isDemoRec(r)).length;
+      if (st.removed > 20 && st.removed > before * 0.2) {
+        const ok = await confirmSheet({ title: 'ほかの端末で削除された記録があります', message: `<p>同期すると、この端末の記録が <b>${st.removed}件</b> 消えます（ほかの端末で削除されたもの）。続けますか？</p><p class="small muted">やめると、今回は同期しません。</p>`, ok: '同期する', danger: true });
+        if (!ok) return false;
+      }
+      for (const [k] of SYNC_KEYS) DB[k] = out[k];
+      DB.overrides = { ...inc.overrides, ...DB.overrides };
+      DB.favorites = [...new Set([...DB.favorites, ...inc.favorites])];
+      DB.exNotes = { ...inc.exNotes, ...DB.exNotes };
+      invalidateEx(); sanitizeRefs(); touch();
+    }
+    await Drive.upload();
+    DB.sync = { at: Date.now(), base: syncBase() };
+    markBackup(opts.auto ? 'Googleドライブ（自動同期）' : 'Googleドライブ（同期）');
+    refreshAll();
+    const msg = stats.added || stats.removed ? `ほかの端末と同期しました（記録の追加 ${stats.added}件・削除 ${stats.removed}件）` : opts.auto ? 'Googleドライブに自動保存しました（同期済み）' : '同期しました（変更はありません）';
+    toast(msg, 'ok');
+    return true;
+  } finally { syncing = false; }
+}
 async function autoDriveBackup() {
   if (!DB.settings.autoDrive || !DB.settings.lastDriveAt || !Drive.clientId() || location.protocol === 'file:') return;
   if (!navigator.onLine) { DB.settings.drivePending = true; save(); return; }
-  try { await Drive.upload(); markBackup('Googleドライブ（自動）'); toast('Googleドライブに自動保存しました', 'ok'); }
+  try { await driveSync({ auto: true }); }
   catch (e) { console.warn(e); DB.settings.drivePending = true; save(); updateTabbar(); toast('ドライブへの自動保存ができませんでした。あとで「設定」から保存できます'); }
 }
 async function driveRestore() {
@@ -6086,6 +6205,7 @@ Object.assign(ACT, {
 Object.assign(CHG, {
   setWl: (el) => { DB.settings.wl = el.checked; touch(); toast(el.checked ? 'ウェイトリフティング機能をONにしました' : 'ウェイトリフティング機能をOFFにしました（記録は残っています）'); renderTab(); },
   autoDrive: (el) => { DB.settings.autoDrive = el.checked; save(); },
+  driveSyncNow: async () => { if (!driveReady()) return; setBusy(true, 'ほかの端末と同期しています…'); try { await driveSync(); } catch (e) { console.error(e); DB.settings.drivePending = true; save(); toast(e.message || '同期できませんでした', 'error'); } finally { setBusy(false); } },
   file: (el) => { const f = el.files && el.files[0]; el.value = ''; handleImportFile(f); }
 });
 
@@ -6104,7 +6224,7 @@ const INTRO_TOUR = [
   { hero: 'STRENGTHS', title: 'LiftCanvasの強み', text: '続けるほど、トレーニングの判断材料が増えていきます。',
     items: [['ic-lab', '研究の根拠つきのアドバイス', '週のセット数・頻度・回数帯などを研究の目安と比べて助言。出典と<b>根拠の強さ</b>（高・中・参考）も確認できます'],
       ['ic-import', 'これまでの記録をそのまま引き継げる', '他のアプリのファイル・Excel・メモ帳の書き方を読み取って取り込みます'],
-      ['ic-wl', `${MASTER_EXERCISES.length}種目、ウェイトリフティングにも対応`, 'スナッチ・クリーン＆ジャークの種目、リフト比率やSinclairの分析も使えます']] },
+      ['ic-wl', 'RPEとウェイトリフティングに本格対応', `セットごとのRPE、MAXとRPEから今日の重さを決める計画、スナッチ・クリーン＆ジャークのリフト比率やSinclairの分析まで。${MASTER_EXERCISES.length}種目`]] },
   { hero: 'PRIVACY', title: '気軽に、安心して', text: '',
     items: [['ic-lock', 'アカウント登録なしで、すぐ使える', '記録はこの端末の中に保存されます'],
       ['ic-cloud', 'バックアップは自分のGoogleドライブかファイルへ', '保存先はあなた自身のもので、提供者を含むほかの人からは見えません'],
