@@ -2,7 +2,7 @@
    ・このアプリ（lift-canvas*）だけを担当し、同じリポジトリの他ツールには影響しない
    ・HTMLは「ネット優先」：オンラインなら毎回最新版を取得し、オフライン時だけ保存版を表示
    ・アイコン等は保存版を即表示しつつ裏で更新 */
-const VERSION = '2026.11.25.18';
+const VERSION = '2026.11.25.19';
 const CACHE = 'lift-canvas-' + VERSION;
 const PAGE = './lift-canvas.html';
 const ASSETS = [PAGE, './lift-canvas.webmanifest', './lift-canvas-icon-192.png', './lift-canvas-icon-512.png', './lift-canvas-apple-touch-icon.png'];
@@ -24,6 +24,8 @@ function networkFirst(req) {
     fetch(req, { cache: 'no-store' }).then(res => {
       clearTimeout(timer);
       if (res && res.ok && !new URL(req.url).searchParams.has('check')) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(PAGE, copy)); }
+      // サーバーのエラー（503・404 など）のときは、保存してある版があればそちらを出す
+      if (res && !res.ok && !done) { caches.open(CACHE).then(c => c.match(PAGE)).then(r => { if (!done) { done = true; resolve(r || res); } }); return; }
       if (!done) { done = true; resolve(res); }
     }).catch(() => { clearTimeout(timer); fallback().then(() => { if (!done) { done = true; resolve(Response.error()); } }); });
   });
