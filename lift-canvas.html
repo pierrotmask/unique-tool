@@ -1527,6 +1527,15 @@ button.plan-line>svg:last-child{width:13px;height:13px;flex:none;opacity:.7}
 .qa-f{display:flex;gap:6px;align-items:center;margin-top:6px}
 .qa-memo{flex:1;min-height:38px;font-size:14px}
 @media (max-width:370px){.qa-set{grid-template-columns:30px minmax(0,1.1fr) minmax(0,1fr) minmax(0,.9fr) 30px 30px;gap:3px}.qa-set .icon-btn{width:30px}.qa-t{width:30px}}
+/* 下の一覧：「＋種目」「音声」は横スクロールの外に固定（種目が多くても常に見える） */
+.wo-dock-row{display:flex;align-items:center;max-width:640px;margin:0 auto}
+.wo-dock .wo-dock-row .wo-nav{flex:1;min-width:0;margin:0;padding-right:4px}
+.wo-pin{flex:none;display:flex;gap:6px;padding:8px 10px 8px 2px;box-shadow:-8px 0 10px -8px rgba(0,0,0,.25)}
+.wo-pin button{min-height:54px;width:52px;border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:4px;font:inherit;font-size:11px;font-weight:750;cursor:pointer}
+.wo-pin button svg{width:18px;height:18px}
+.wo-pin .add{background:transparent;border:1.5px dashed var(--line-2);color:var(--text-2)}
+.wo-pin .qa-open{background:var(--accent);border:0;color:#fff}
+@media (max-width:370px){.wo-pin{gap:4px;padding-right:8px}.wo-pin button{width:46px}}
 
 </style>
 </head>
@@ -1551,7 +1560,7 @@ button.plan-line>svg:last-child{width:13px;height:13px;flex:none;opacity:.7}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.25.21';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.25.22';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -3426,11 +3435,11 @@ function renderWorkout() {
       <button type="button" class="btn btn-ghost btn-block" data-a="woDiscard" style="color:var(--danger)">このトレーニングを破棄</button>` : `<button type="button" class="btn btn-primary btn-block btn-lg" data-a="woEditDone">${ICON.check}編集を完了</button>`}
   </div>
   <div class="wo-dock">
-<nav class="wo-nav" id="woNav" aria-label="種目へ移動">${ses.exerciseIds.map((id, i) => {
+<div class="wo-dock-row"><nav class="wo-nav" id="woNav" aria-label="種目へ移動">${ses.exerciseIds.map((id, i) => {
     const r = recs[i]; const total = r.sets.length, done = r.sets.filter((s) => s.done).length;
     const cls = total && done === total ? 'done' : i === curIdx ? 'cur' : '';
     return `<button type="button" class="${cls}" data-a="woJump" data-i="${i}">${cls === 'done' ? ICON.check : ''}<small class="num">${done}/${total}${cls === 'done' ? '' : 'セット'}</small><span>${esc(getEx(id).name)}</span></button>`;
-  }).join('')}<button type="button" class="add" data-a="woAddEx" aria-label="種目を追加">${ICON.plus}<span>種目</span></button><button type="button" class="add qa-open" data-a="qaOpen" aria-label="音声・テキストで追加">${ICON.mic}<span>音声</span></button></nav>
+  }).join('')}</nav><div class="wo-pin"><button type="button" class="add" data-a="woAddEx" aria-label="種目を追加">${ICON.plus}<span>種目</span></button><button type="button" class="qa-open" data-a="qaOpen" aria-label="音声で追加（押すと録音が始まります）">${ICON.mic}<span>音声</span></button></div></div>
   <div class="restbar" id="restbar" hidden></div></div>`;
   const navX = $('#woNav') ? $('#woNav').scrollLeft : null;
   el.innerHTML = h;
@@ -4417,7 +4426,7 @@ QA.check = (it) => {
 
 /* ---------- 画面 ---------- */
 const QA_SAMPLES = ['ベンチプレス80キロ10回を3セット', 'スクワット百キロ八回三セット余力二回', 'アップで懸垂5回、本番加重20キロ8回3セット、プランク60秒2セット'];
-function openQuickAdd() {
+function openQuickAdd(opts = {}) {
   const ses = woSes(); if (!ses) return;
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   const st = { txt: '', items: [], last: '', rec: null, listening: false };
@@ -4460,7 +4469,7 @@ function openQuickAdd() {
       <div class="qa-samples">${QA_SAMPLES.map((x, k) => `<button type="button" class="chip" data-a="qaSample" data-v="${k}">${esc(x)}</button>`).join('')}</div>
       <div class="qa-out">${out()}</div>`,
     foot: () => `<button type="button" class="btn" data-a="__close">閉じる</button><button type="button" class="btn btn-primary" data-a="qaApply" ${st.items.length ? '' : 'disabled'}>${ICON.check}反映する${st.items.length ? `（${st.items.length}種目）` : ''}</button>`,
-    after: (s) => { setTimeout(() => { const i = $('[data-in="qaTxt"]', s.body); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }, 200); },
+    after: (s) => { setTimeout(() => { const i = $('[data-in="qaTxt"]', s.body); if (i && !st.listening && !st.noFocus) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }, 200); },
     onClose: () => { if (st.rec) try { st.rec.stop(); } catch (e) { /* noop */ } if (fitter && window.visualViewport) { visualViewport.removeEventListener('resize', fitter); visualViewport.removeEventListener('scroll', fitter); } },
     inputs: {
       qaTxt: (el, e, s) => { st.txt = el.value; clearTimeout(tm); tm = setTimeout(() => parseNow(s), 250); },
@@ -4475,7 +4484,7 @@ function openQuickAdd() {
         try {
           const r = new SR(); r.lang = 'ja-JP'; r.interimResults = false; r.continuous = false;
           r.onresult = (ev) => { const said = [...ev.results].map((x) => x[0].transcript).join(''); st.txt = (st.txt.trim() ? st.txt.trim() + '、' : '') + said; s.render(); parseNow(s); };
-          r.onend = () => { st.listening = false; st.rec = null; s.render(); };
+          r.onend = () => { st.listening = false; st.rec = null; s.render(); };   // もう一度話すときはマイク、直すときは入力欄をタップ
           r.onerror = (ev) => { st.listening = false; toast(ev && ev.error === 'not-allowed' ? 'マイクの使用が許可されていません。キーボードのマイクボタンでも入力できます' : '音声を聞き取れませんでした。もう一度どうぞ'); };
           st.rec = r; st.listening = true; r.start(); s.render();
         } catch (err) { st.listening = false; toast('この端末では音声入力を始められませんでした。キーボードのマイクボタンをお使いください'); }
@@ -4501,6 +4510,8 @@ function openQuickAdd() {
       }
     }
   });
+  // ボタン1回で、開くと同時に録音を始める（押した操作の中で始める必要があるので、ここで直接）
+  if (opts.listen && SR) { st.noFocus = true; sheet.actions.qaMic(null, null, sheet); }
   if (window.visualViewport) { fitter = () => fit(sheet); visualViewport.addEventListener('resize', fitter); visualViewport.addEventListener('scroll', fitter); fit(sheet); }
 }
 /* 反映：同じ種目があればその末尾（空のセットがあれば先に埋める）、なければ新しい種目として */
@@ -4524,7 +4535,7 @@ QA.apply = (items) => {
   touch(); renderWorkout();
   return `反映しました：${parts.join('、')}`;
 };
-Object.assign(ACT, { qaOpen: () => openQuickAdd() });
+Object.assign(ACT, { qaOpen: () => openQuickAdd({ listen: true }) });
 
 /* =====================================================================
    タブ共通
