@@ -1493,6 +1493,40 @@ button.plan-line>svg:last-child{width:13px;height:13px;flex:none;opacity:.7}
 .rp-w{width:110px;text-align:center;font-size:20px;font-weight:800}
 .rp-tbl tr.off td{color:var(--text-3)}
 .rp-cmp{text-align:left;margin:0 0 10px;line-height:1.7}
+/* 音声・テキストで追加 */
+.wo-dock .wo-nav button.qa-open{border-style:solid;border-color:var(--accent);color:var(--accent)}
+.qa-sheet .sheet-b{padding-bottom:12px}
+.qa-in{display:flex;gap:8px;align-items:stretch;margin-bottom:8px}
+.qa-in textarea{flex:1;min-height:64px;font-size:16px;resize:vertical}
+.qa-mic{flex:none;width:56px;border-radius:14px;border:0;background:var(--accent);color:#fff;display:grid;place-items:center;cursor:pointer}
+.qa-mic svg{width:26px;height:26px}
+.qa-mic.on{background:var(--danger);animation:qaPulse 1s ease-in-out infinite}
+@keyframes qaPulse{50%{opacity:.6}}
+.qa-samples{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:8px}
+.qa-samples .chip{flex:none;white-space:nowrap;font-size:12px}
+.qa-empty,.qa-last{font-size:12.5px;color:var(--text-3);margin:8px 2px}
+.qa-last{color:var(--ok-2)}
+.qa-card{border:1px solid var(--line);border-radius:14px;padding:8px 8px 10px;margin:0 0 10px;background:var(--surface)}
+.qa-card.low{border-color:var(--warn,#d97706);box-shadow:0 0 0 1px var(--warn,#d97706) inset}
+.qa-h{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.qa-ex{border:0;background:none;font:inherit;font-weight:800;font-size:15px;color:var(--head);display:inline-flex;align-items:center;gap:3px;cursor:pointer;padding:4px 2px;text-align:left}
+.qa-ex svg{width:14px;height:14px}
+.qa-b{font-size:11px;font-weight:700;color:var(--text-2);background:var(--surface-3);border-radius:6px;padding:2px 6px}
+.qa-b.need{background:var(--warn,#d97706);color:#fff}
+.qa-h .icon-btn{margin-left:auto;width:36px;height:36px}
+.qa-set{display:grid;grid-template-columns:34px minmax(0,1.1fr) minmax(0,1fr) minmax(0,.9fr) 34px 34px;align-items:center;gap:5px;margin:4px 0}
+.qa-hd{margin:0;font-size:11px;font-weight:700;color:var(--text-3);text-align:center}
+.qa-set .input{min-height:40px;padding:4px 6px;font-size:16px;text-align:center}
+.qa-set .icon-btn{width:34px;height:34px}
+.qa-set .icon-btn svg{width:15px;height:15px}
+.qa-sp{text-align:center;color:var(--text-3)}
+.qa-t{width:34px;height:40px;border-radius:9px;border:1px solid var(--line-2);background:var(--surface-2);font-weight:800;color:var(--head);cursor:pointer}
+.qa-t.t-w{background:var(--surface-3);color:var(--text-3)}
+.qa-set.warn .input{border-color:var(--danger)}
+.qa-w{grid-column:1/-1;margin:0 0 0 38px;font-size:11.5px;color:var(--danger);font-weight:700}
+.qa-f{display:flex;gap:6px;align-items:center;margin-top:6px}
+.qa-memo{flex:1;min-height:38px;font-size:14px}
+@media (max-width:370px){.qa-set{grid-template-columns:30px minmax(0,1.1fr) minmax(0,1fr) minmax(0,.9fr) 30px 30px;gap:3px}.qa-set .icon-btn{width:30px}.qa-t{width:30px}}
 
 </style>
 </head>
@@ -1517,7 +1551,7 @@ button.plan-line>svg:last-child{width:13px;height:13px;flex:none;opacity:.7}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.25.20';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.25.21';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -3396,7 +3430,7 @@ function renderWorkout() {
     const r = recs[i]; const total = r.sets.length, done = r.sets.filter((s) => s.done).length;
     const cls = total && done === total ? 'done' : i === curIdx ? 'cur' : '';
     return `<button type="button" class="${cls}" data-a="woJump" data-i="${i}">${cls === 'done' ? ICON.check : ''}<small class="num">${done}/${total}${cls === 'done' ? '' : 'セット'}</small><span>${esc(getEx(id).name)}</span></button>`;
-  }).join('')}<button type="button" class="add" data-a="woAddEx" aria-label="種目を追加">${ICON.plus}<span>種目</span></button></nav>
+  }).join('')}<button type="button" class="add" data-a="woAddEx" aria-label="種目を追加">${ICON.plus}<span>種目</span></button><button type="button" class="add qa-open" data-a="qaOpen" aria-label="音声・テキストで追加">${ICON.mic}<span>音声</span></button></nav>
   <div class="restbar" id="restbar" hidden></div></div>`;
   const navX = $('#woNav') ? $('#woNav').scrollLeft : null;
   el.innerHTML = h;
@@ -4235,6 +4269,262 @@ function openRpeHelp() {
     <table class="tbl rm-tbl"><tr><th>RPE</th><th>あと何回（RIR）</th><th>感じ方</th></tr>${RIR_ROWS.map(([p, r, t]) => `<tr><td><b>${fmtNum(p)}</b></td><td>${r}</td><td>${t}</td></tr>`).join('')}</table>
     <p class="tiny faint" style="margin:8px 0 0">9.5・8.5などは、はっきり分からないときの「その間」。RPE6〜9.5の範囲が最も当てになります。種目ごとに、見出しの「RPE ON／OFF」で入力欄を出したりしまったりできます。推定1RMは、RPEを入れたセットのうち一番高いものを、RPE表（Tuchscherer）で計算しています。</p>` });
 }
+/* =====================================================================
+   記録中の「音声・テキストで追加」
+   ・記録画面から1タップで開き、話した（打った）内容をその場で読み取って、カードでプレビュー → 反映
+   ・何度でも続けて追記できる：同じ種目があればその末尾にセットを足し、なければ新しい種目として足す
+   ・読み取りは端末の中だけで行う（外部に送らない）。音声はブラウザの音声認識（使えない端末はキーボードのマイク）
+   ===================================================================== */
+const QA = {};
+ICON.mic = svgI('<rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v2.5M8.5 20.5h7"/>');
+/* 音声の誤変換・筋トレの略し方 → 種目（名前で引くので ID が変わっても壊れない） */
+const QA_ALIAS = {
+  'ベンチ': 'ベンチプレス', 'ベンチプレス': 'ベンチプレス', 'ベンチプレスー': 'ベンチプレス', 'べんち': 'ベンチプレス',
+  'インクラダンベル': 'インクラインダンベルプレス', 'インクラインダンベル': 'インクラインダンベルプレス', 'インクラダンベルプレス': 'インクラインダンベルプレス', 'インクラインdb': 'インクラインダンベルプレス', 'インクラ': 'インクラインダンベルプレス',
+  'ラットプル': 'ラットプルダウン', 'ラッドプル': 'ラットプルダウン', 'ラットプルダウン': 'ラットプルダウン', 'ラットプールダウン': 'ラットプルダウン',
+  'ルーマニアン': 'ルーマニアンデッドリフト', 'rdl': 'ルーマニアンデッドリフト', 'ルーマニアンデッド': 'ルーマニアンデッドリフト',
+  'ブルガリアン': 'ブルガリアンスクワット', 'ブルスク': 'ブルガリアンスクワット',
+  'アブローラー': '腹筋ローラー', 'アブロ': '腹筋ローラー', '腹筋ローラー': '腹筋ローラー', 'コロコロ': '腹筋ローラー',
+  'スクワット': 'バックスクワット', 'デッド': 'デッドリフト', 'デッドリフト': 'デッドリフト', 'デッドリスト': 'デッドリフト',
+  '懸垂': '懸垂（チンニング）', 'けんすい': '懸垂（チンニング）', 'チンニング': '懸垂（チンニング）', 'チンアップ': '懸垂（チンニング）',
+  'プランク': 'プランク', 'ショルダープレス': 'ショルダープレス', 'サイドレイズ': 'サイドレイズ', 'レッグプレス': 'レッグプレス'
+};
+QA.aliasId = (key) => {
+  const name = QA_ALIAS[key]; if (!name) return null;
+  const e = allEx().find((x) => x.name === name) || allEx().find((x) => x.name.replace(/[（(].*?[)）]/g, '') === name);
+  return e ? e.id : null;
+};
+/* 漢数字 → 算用数字（「百二十」「二十二点五」「十」） */
+QA.kanji = (s) => {
+  const D = { 〇: 0, 零: 0, 一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9 };
+  let total = 0, cur = 0, any = false;
+  for (const ch of s) {
+    if (ch in D) { cur = cur * 10 + D[ch]; any = true; }
+    else if (ch === '十') { total += (cur || 1) * 10; cur = 0; any = true; }
+    else if (ch === '百') { total += (cur || 1) * 100; cur = 0; any = true; }
+    else if (ch === '千') { total += (cur || 1) * 1000; cur = 0; any = true; }
+  }
+  return any ? total + cur : null;
+};
+QA.normalize = (text) => {
+  let t = String(text || '').normalize('NFKC').toLowerCase();
+  // 漢数字は、単位の前（キロ・回・セット・秒・分）と「余力」「RPE」のあとだけ数字にする（種目名の「二頭」などは変えない）
+  const KN = '[〇零一二三四五六七八九十百千]+';
+  t = t.replace(new RegExp(`(${KN})(?:点([〇零一二三四五六七八九]+))?(?=\\s*(?:キロ|kg|㎏|回|レップ|rep|セット|set|秒|分|本))`, 'g'), (m, a, b) => { const n = QA.kanji(a); if (n == null) return m; return b ? `${n}.${[...b].map((c) => QA.kanji(c)).join('')}` : String(n); });
+  t = t.replace(new RegExp(`(余力|rpe)\\s*(${KN})`, 'g'), (m, k, a) => `${k}${QA.kanji(a)}`);
+  t = t.replace(/(\d)\s*点\s*(\d)/g, '$1.$2');
+  // 単位をそろえる
+  t = t.replace(/キログラム|キロ|kgs?|㎏|kilo/g, 'kg').replace(/レップス?|reps?\b/g, '回').replace(/sets?\b/g, 'セット').replace(/[×✕*]/g, 'x');
+  t = t.replace(/(\d+(?:\.\d+)?)\s*分(?!\s*\d)/g, (m, n) => `${Math.round(Number(n) * 60)}秒`);
+  // 余力 n 回 → RPE（10 − 余力）
+  t = t.replace(/余力\s*(?:あと)?\s*(\d+(?:\.\d+)?)\s*回?/g, (m, n) => ` rpe${Math.max(5, 10 - Number(n))} `);
+  t = t.replace(/@\s*(\d+(?:\.\d+)?)/g, ' rpe$1 ');
+  // 口ぐせ・つなぎの言葉は区切りにする
+  t = t.replace(/えーっと|えーと|えっと|えー|あのー|それから|そのあと|その後|次は|次に|続いて|あと(?!\s*\d)|やりました|やった|しました|でした|ました|です/g, '、');
+  return t;
+};
+QA.isBody = (ex) => !!ex && (ex.equipment === '自重' || ex.equipment === 'その他');
+QA.match = (word) => {
+  const key = IMP.normName(word);
+  const a = QA.aliasId(key) || QA.aliasId(word);
+  if (a) return { id: a, score: 0.97, cands: [a] };
+  const m = IMP.matchEx(word);
+  return m;
+};
+/* 文章 → 種目ごとのセット */
+QA.parse = (text) => {
+  const t = QA.normalize(text);
+  const TOK = /(\d+)\s*セット目|(\d+(?:\.\d+)?)\s*kg|(\d+)\s*回|(\d+)\s*秒|(\d+)\s*セット|x\s*(\d+)|rpe\s*(\d+(?:\.\d+)?)|(\d+(?:\.\d+)?)|([、,。\n\/;・]+)|(\s+)/g;
+  const toks = []; let last = 0, m;
+  while ((m = TOK.exec(t))) {
+    if (m.index > last) toks.push({ k: 'word', s: t.slice(last, m.index) });
+    if (m[1]) toks.push({ k: 'setno' }); else if (m[2]) toks.push({ k: 'w', v: Number(m[2]) }); else if (m[3]) toks.push({ k: 'r', v: Number(m[3]) });
+    else if (m[4]) toks.push({ k: 'sec', v: Number(m[4]) }); else if (m[5]) toks.push({ k: 'sets', v: Number(m[5]) }); else if (m[6]) toks.push({ k: 'x', v: Number(m[6]) });
+    else if (m[7]) toks.push({ k: 'rpe', v: Number(m[7]) }); else if (m[8]) toks.push({ k: 'num', v: Number(m[8]) }); else if (m[9]) toks.push({ k: 'sep' });   // 空白（m[10]）は読み飛ばす
+    last = TOK.lastIndex;
+  }
+  if (last < t.length) toks.push({ k: 'word', s: t.slice(last) });
+  const items = []; const unknown = [];
+  let cur = null, mode = 'n', addW = false, pendingMemo = [], prevKind = null;
+  const start = (word, mt) => {
+    cur = { src: word, exId: mt.id, score: mt.score, cands: mt.cands || [], sets: [], memo: pendingMemo.join(' '), group: [] };
+    pendingMemo = []; items.push(cur); mode = 'n'; addW = false;
+    if (items.length === 1 && unknown.length) { const pre = unknown.splice(0); prevKind = null; pre.forEach((x) => run(x)); }
+  };
+  const ex = () => (cur && cur.exId ? getEx(cur.exId) : null);
+  const newSet = (w, r) => { const e = ex(); const s = { w: w != null ? w : (QA.isBody(e) ? 0 : null), r, t: mode, rpe: null }; cur.sets.push(s); cur.group = [s]; return s; };
+  const run = (tk) => {
+    if (tk.k === 'word') {
+      let w = tk.s.trim(); if (!w) return;
+      if (/ウォームアップ|アップ|warm\s*up|w-?up/.test(w)) { mode = 'w'; w = w.replace(/ウォームアップ|アップ|warm\s*up|w-?up/g, ''); }
+      if (/本番|メイン|ワークセット/.test(w)) { mode = 'n'; w = w.replace(/本番|メイン|ワークセット/g, ''); }
+      if (/加重/.test(w)) { addW = true; w = w.replace(/加重/g, ''); }
+      if (/自重/.test(w)) { w = w.replace(/自重/g, ''); }
+      w = w.replace(/^[でをのはがにともへや\s]+|[でをのはがにともへや\s]+$/g, '').trim();
+      if (!w) { prevKind = 'word'; return; }
+      const keepMode = mode;
+      const mt = w.length >= 2 ? QA.match(w) : { id: null, score: 0 };
+      if (mt.id && mt.score >= 0.6) { start(w, mt); mode = keepMode; }
+      else if (cur) cur.memo = (cur.memo ? cur.memo + ' ' : '') + w;
+      else if (/[ァ-ヿ]{3,}/.test(w)) { start(w, { id: null, score: 0, cands: mt.cands || [] }); mode = keepMode; }   // 知らない種目名（カタカナ）は「要確認」の種目として
+      else pendingMemo.push(w);
+      prevKind = 'word'; return;
+    }
+    if (tk.k === 'sep') { prevKind = 'sep'; return; }
+    if (!cur) { unknown.push(tk); return; }
+    const e = ex(); const timed = e && isTimed(e);
+    if (tk.k === 'setno') { cur.group = []; prevKind = 'setno'; return; }
+    if (tk.k === 'w') {
+      cur.wNow = tk.v;
+      const pend = cur.group.filter((s) => s.w == null || (s.w === 0 && QA.isBody(e) && addW));
+      if (pend.length && prevKind === 'r') pend.forEach((s) => { s.w = tk.v; });
+      prevKind = 'w'; return;
+    }
+    if (tk.k === 'r') { newSet(cur.wNow, tk.v); prevKind = 'r'; return; }
+    if (tk.k === 'sec') { newSet(cur.wNow, tk.v); prevKind = 'r'; return; }
+    if (tk.k === 'sets' || (tk.k === 'x' && prevKind !== 'w')) {
+      const base = cur.group[cur.group.length - 1];
+      if (base) { for (let k = 1; k < Math.min(tk.v, 20); k++) { const c = { ...base }; cur.sets.push(c); cur.group.push(c); } }
+      prevKind = 'sets'; return;
+    }
+    if (tk.k === 'x') { newSet(cur.wNow, tk.v); prevKind = 'r'; return; }   // 「80kg x10」＝10回
+    if (tk.k === 'rpe') { const v = Math.round(Math.min(10, Math.max(5, tk.v)) * 2) / 2; (cur.group.length ? cur.group : cur.sets.slice(-1)).forEach((s) => { s.rpe = v; }); prevKind = 'rpe'; return; }
+    if (tk.k === 'num') {
+      // 単位なしの数：重さがまだで、20以上なら重さ。それ以外は回数（時間の種目は秒）
+      if (!timed && cur.wNow == null && tk.v >= 20 && !QA.isBody(e)) cur.wNow = tk.v; else newSet(cur.wNow, tk.v);
+      prevKind = tk.v >= 20 ? 'w' : 'r'; return;
+    }
+  }
+  for (const tk of toks) run(tk);
+  for (const it of items) { delete it.group; delete it.wNow; QA.check(it); }
+  return { items, unknown, norm: t };
+};
+/* 異常値の目印（音声の聞き違いで自己ベストを誤って更新しないように） */
+QA.check = (it) => {
+  const e = it.exId ? getEx(it.exId) : null; const timed = e && isTimed(e);
+  const mx = e && typeof estMax === 'function' ? estMax(e.id) : 0;
+  for (const s of it.sets) {
+    const w = [];
+    if (!timed && s.w != null && (s.w > 300 || (mx > 0 && s.w > mx * 1.3))) w.push(`${fmtNum(s.w)}kgは重すぎませんか`);
+    if (!timed && s.r > 30) w.push(`${s.r}回は多すぎませんか`);
+    if (timed && s.r > 600) w.push(`${s.r}秒は長すぎませんか`);
+    if (!timed && e && !QA.isBody(e) && s.w == null) w.push('重さが入っていません');
+    if (!(s.r > 0)) w.push(timed ? '秒数が入っていません' : '回数が入っていません');
+    s.warn = w.join('・');
+  }
+  it.low = !it.exId || it.score < 0.85;
+};
+
+/* ---------- 画面 ---------- */
+const QA_SAMPLES = ['ベンチプレス80キロ10回を3セット', 'スクワット百キロ八回三セット余力二回', 'アップで懸垂5回、本番加重20キロ8回3セット、プランク60秒2セット'];
+function openQuickAdd() {
+  const ses = woSes(); if (!ses) return;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const st = { txt: '', items: [], last: '', rec: null, listening: false };
+  let tm = null;
+  const parseNow = (s) => { st.items = st.txt.trim() ? QA.parse(st.txt).items : []; refresh(s); };
+  const setRow = (it, i, j) => {
+    const s = it.sets[j]; const e = it.exId ? getEx(it.exId) : null; const timed = e && isTimed(e);
+    return `<div class="qa-set${s.warn ? ' warn' : ''}">
+      <button type="button" class="qa-t t-${s.t}" data-a="qaT" data-i="${i}" data-s="${j}" aria-label="セット${j + 1}の種類（今：${s.t === 'w' ? 'アップ' : '本番'}）">${s.t === 'w' ? 'W' : j + 1 - it.sets.slice(0, j).filter((x) => x.t === 'w').length}</button>
+      ${timed ? '<span class="qa-sp" aria-hidden="true">—</span>' : `<input class="input num" type="number" inputmode="decimal" step="0.5" min="0" data-in="qaV" data-ch="qaC" data-i="${i}" data-s="${j}" data-f="w" value="${s.w == null ? '' : s.w}" placeholder="kg" aria-label="セット${j + 1}の重さ（kg）">`}
+      <input class="input num" type="number" inputmode="numeric" min="0" data-in="qaV" data-ch="qaC" data-i="${i}" data-s="${j}" data-f="r" value="${s.r == null ? '' : s.r}" placeholder="${timed ? '秒' : '回'}" aria-label="セット${j + 1}の${timed ? '秒数' : '回数'}">
+      <input class="input num qa-rpe" type="number" inputmode="decimal" step="0.5" min="5" max="10" data-in="qaV" data-ch="qaC" data-i="${i}" data-s="${j}" data-f="rpe" value="${s.rpe || ''}" placeholder="RPE" aria-label="セット${j + 1}のRPE（空欄でもよい）">
+      <button type="button" class="icon-btn" data-a="qaDup" data-i="${i}" data-s="${j}" aria-label="セット${j + 1}を複製">${ICON.copy}</button>
+      <button type="button" class="icon-btn" data-a="qaDel" data-i="${i}" data-s="${j}" aria-label="セット${j + 1}を削除">${ICON.close}</button>
+      ${s.warn ? `<p class="qa-w">${ICON.warn || '⚠'} ${esc(s.warn)}</p>` : ''}</div>`;
+  };
+  const card = (it, i) => {
+    const e = it.exId ? getEx(it.exId) : null; const has = e && woSes().exerciseIds.includes(e.id);
+    return `<section class="qa-card${it.low ? ' low' : ''}">
+      <div class="qa-h"><button type="button" class="qa-ex" data-a="qaEx" data-i="${i}">${e ? esc(e.name) : `「${esc(it.src)}」`}${ICON.chevD}</button>
+        ${it.low ? '<span class="qa-b need">要確認</span>' : ''}<span class="qa-b">${!e ? '種目を選んでください' : has ? '既存の末尾に追加' : '新しく追加'}</span>
+        <button type="button" class="icon-btn" data-a="qaRm" data-i="${i}" aria-label="この種目を外す">${ICON.trash}</button></div>
+      <div class="qa-set qa-hd" aria-hidden="true"><span></span><span>${e && isTimed(e) ? '' : 'kg'}</span><span>${e && isTimed(e) ? '秒' : '回'}</span><span>RPE</span><span></span><span></span></div>
+      ${it.sets.map((s, j) => setRow(it, i, j)).join('')}
+      <div class="qa-f"><button type="button" class="btn btn-sm" data-a="qaAdd" data-i="${i}">${ICON.plus}セット</button>
+        <input class="input qa-memo" data-in="qaMemo" data-i="${i}" value="${esc(it.memo || '')}" placeholder="メモ（フォーム意識など）" aria-label="${e ? esc(e.name) : '種目'}のメモ"></div></section>`;
+  };
+  const out = () => (st.items.length ? st.items.map(card).join('') : `<p class="qa-empty">${st.txt.trim() ? '種目名が読み取れませんでした。「ベンチプレス80キロ10回」のように、種目名と数字を入れてください。' : '話した（入力した）内容を、ここにカードで表示します。'}</p>`) + (st.last ? `<p class="qa-last">${ICON.check} ${esc(st.last)}</p>` : '');
+  const refresh = (s) => { const o = $('.qa-out', s.body); if (o) o.innerHTML = out(); if (s.footEl) s.renderFoot(); };
+  const fit = (s) => {   // キーボードが出ても、プレビューと「反映」が隠れないように
+    const vv = window.visualViewport; if (!vv || !s.el) return;
+    s.el.style.top = vv.offsetTop + 'px'; s.el.style.height = vv.height + 'px'; s.el.style.bottom = 'auto';
+  };
+  let fitter = null;
+  const sheet = openSheet({
+    title: '音声・テキストで追加', state: st, cls: 'qa-sheet',
+    render: () => `<div class="qa-in"><textarea class="input" data-in="qaTxt" rows="2" placeholder="例：ベンチプレス80キロ10回を3セット" aria-label="追加する内容（話す・入力する）">${esc(st.txt)}</textarea>
+        ${SR ? `<button type="button" class="qa-mic${st.listening ? ' on' : ''}" data-a="qaMic" aria-pressed="${st.listening}" aria-label="${st.listening ? '音声入力を止める' : '音声で入力'}">${ICON.mic}</button>` : ''}</div>
+      ${SR ? '' : '<p class="tiny faint" style="margin:-4px 2px 8px">キーボードのマイクボタンでも音声入力できます。</p>'}
+      <div class="qa-samples">${QA_SAMPLES.map((x, k) => `<button type="button" class="chip" data-a="qaSample" data-v="${k}">${esc(x)}</button>`).join('')}</div>
+      <div class="qa-out">${out()}</div>`,
+    foot: () => `<button type="button" class="btn" data-a="__close">閉じる</button><button type="button" class="btn btn-primary" data-a="qaApply" ${st.items.length ? '' : 'disabled'}>${ICON.check}反映する${st.items.length ? `（${st.items.length}種目）` : ''}</button>`,
+    after: (s) => { setTimeout(() => { const i = $('[data-in="qaTxt"]', s.body); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }, 200); },
+    onClose: () => { if (st.rec) try { st.rec.stop(); } catch (e) { /* noop */ } if (fitter && window.visualViewport) { visualViewport.removeEventListener('resize', fitter); visualViewport.removeEventListener('scroll', fitter); } },
+    inputs: {
+      qaTxt: (el, e, s) => { st.txt = el.value; clearTimeout(tm); tm = setTimeout(() => parseNow(s), 250); },
+      qaV: (el) => { const it = st.items[+el.dataset.i]; const x = it && it.sets[+el.dataset.s]; if (!x) return; const v = el.value === '' ? null : Number(el.value); x[el.dataset.f] = el.dataset.f === 'rpe' ? (v >= 5 && v <= 10 ? v : null) : v; },
+      qaMemo: (el) => { const it = st.items[+el.dataset.i]; if (it) it.memo = el.value; }
+    },
+    changes: { qaC: (el, e, s) => { const it = st.items[+el.dataset.i]; if (it) { QA.check(it); refresh(s); } } },
+    actions: {
+      qaSample: (el, e, s) => { st.txt = QA_SAMPLES[+el.dataset.v]; s.render(); parseNow(s); },
+      qaMic: (el, e, s) => {
+        if (st.listening && st.rec) { st.rec.stop(); return; }
+        try {
+          const r = new SR(); r.lang = 'ja-JP'; r.interimResults = false; r.continuous = false;
+          r.onresult = (ev) => { const said = [...ev.results].map((x) => x[0].transcript).join(''); st.txt = (st.txt.trim() ? st.txt.trim() + '、' : '') + said; s.render(); parseNow(s); };
+          r.onend = () => { st.listening = false; st.rec = null; s.render(); };
+          r.onerror = (ev) => { st.listening = false; toast(ev && ev.error === 'not-allowed' ? 'マイクの使用が許可されていません。キーボードのマイクボタンでも入力できます' : '音声を聞き取れませんでした。もう一度どうぞ'); };
+          st.rec = r; st.listening = true; r.start(); s.render();
+        } catch (err) { st.listening = false; toast('この端末では音声入力を始められませんでした。キーボードのマイクボタンをお使いください'); }
+      },
+      qaEx: (el, e, s) => { const it = st.items[+el.dataset.i]; pickExercises({ title: '種目を選ぶ', onDone: (ids) => { if (!ids[0]) return; it.exId = ids[0]; it.score = 1; QA.check(it); refresh(s); } }); },
+      qaRm: (el, e, s) => { st.items.splice(+el.dataset.i, 1); refresh(s); },
+      qaT: (el, e, s) => { const x = st.items[+el.dataset.i].sets[+el.dataset.s]; x.t = x.t === 'w' ? 'n' : 'w'; refresh(s); },
+      qaDup: (el, e, s) => { const it = st.items[+el.dataset.i]; const j = +el.dataset.s; it.sets.splice(j + 1, 0, { ...it.sets[j] }); refresh(s); },
+      qaDel: (el, e, s) => { const it = st.items[+el.dataset.i]; it.sets.splice(+el.dataset.s, 1); QA.check(it); refresh(s); },
+      qaAdd: (el, e, s) => { const it = st.items[+el.dataset.i]; const l = it.sets[it.sets.length - 1]; it.sets.push(l ? { ...l, rpe: null } : { w: null, r: null, t: 'n', rpe: null }); QA.check(it); refresh(s); },
+      qaApply: async (el, e, s) => {
+        st.items.forEach(QA.check);
+        if (st.items.some((it) => !it.exId)) { toast('種目が決まっていないカードがあります。名前をタップして選んでください'); return; }
+        if (st.items.some((it) => !it.sets.length || it.sets.some((x) => !(x.r > 0)))) { toast('回数（秒数）が入っていないセットがあります'); refresh(s); return; }
+        const warns = st.items.flatMap((it) => it.sets.filter((x) => x.warn).map((x) => `${getEx(it.exId).name}：${x.warn}`));
+        if (warns.length) {
+          const ok = await confirmSheet({ title: '数値を確かめてください', message: `<p>聞き違いの可能性があります。このまま反映すると、自己ベストや推定1RMに入ります。</p><ul class="small">${warns.slice(0, 6).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`, ok: 'このまま反映', danger: true });
+          if (!ok) return;
+        }
+        const msg = QA.apply(st.items);
+        st.txt = ''; st.items = []; st.last = msg; s.render();
+        toast(msg, 'ok');
+      }
+    }
+  });
+  if (window.visualViewport) { fitter = () => fit(sheet); visualViewport.addEventListener('resize', fitter); visualViewport.addEventListener('scroll', fitter); fit(sheet); }
+}
+/* 反映：同じ種目があればその末尾（空のセットがあれば先に埋める）、なければ新しい種目として */
+QA.apply = (items) => {
+  const ses = woSes(); const parts = [];
+  for (const it of items) {
+    const id = it.exId; let isNew = false;
+    if (!ses.exerciseIds.includes(id)) { ses.exerciseIds.push(id); isNew = true; }
+    const rec = ensureRec(ses, id);
+    if (isNew) rec.sets = rec.sets.filter((x) => x.done || x.w != null || x.r != null);
+    const blanks = rec.sets.filter((x) => !x.done && x.w == null && x.r == null);
+    for (const x of it.sets) {
+      const set = { w: x.w == null ? (QA.isBody(getEx(id)) ? 0 : null) : x.w, r: x.r, done: true, t: x.t === 'w' ? 'w' : 'n' };
+      if (x.rpe) { set.rpe = x.rpe; if (!DB.ui.rpeEx) DB.ui.rpeEx = {}; DB.ui.rpeEx[id] = true; }
+      const b = blanks.shift(); if (b) Object.assign(b, set); else rec.sets.push(set);
+    }
+    if (it.memo && it.memo.trim()) rec.memo = rec.memo ? `${rec.memo} / ${it.memo.trim()}` : it.memo.trim();
+    rec.updatedAt = Date.now();
+    parts.push(`${getEx(id).name} ${isNew ? '新規' : '＋'}${it.sets.length}セット`);
+  }
+  touch(); renderWorkout();
+  return `反映しました：${parts.join('、')}`;
+};
+Object.assign(ACT, { qaOpen: () => openQuickAdd() });
 
 /* =====================================================================
    タブ共通
