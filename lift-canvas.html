@@ -1546,6 +1546,13 @@ button.plan-line>svg:last-child{width:13px;height:13px;flex:none;opacity:.7}
 .pr-chip b.wr{font-size:23px}
 .pr-chip .pr-e{font-size:11.5px;font-weight:650;color:var(--text-2)}
 .pr-v em{display:block;font-style:normal}
+.li .s.ex-desc{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.li .s.ex-desc .eq{color:var(--text-2);font-weight:650}
+.li .m{min-width:0}
+.ex-desc-full{margin:2px 0 4px;font-size:13px;line-height:1.55;color:var(--text);font-weight:600}
+.li .meta-row{flex-wrap:nowrap;overflow:hidden;white-space:nowrap}
+.li .s .badge.cmn{font-size:10.5px;padding:1px 6px;margin:0 6px 0 0;vertical-align:1px}
+.li .meta-row .badge.cmn{margin-right:0}
 
 </style>
 </head>
@@ -1570,7 +1577,7 @@ button.plan-line>svg:last-child{width:13px;height:13px;flex:none;opacity:.7}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.25.24';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.25.25';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -2214,6 +2221,151 @@ function relGuess(exId) {
   const one = round1(best.v / fam[best.id] * fam[exId] * REL_SAFE * (best.old ? 0.9 : 1));
   return one > 0 ? { srcId: best.id, srcMax: best.v, date: best.date, old: best.old, one } : null;
 }
+/* ---------- 種目の一言説明（どんな動きか。一覧では1行に収め、詳細では全文） ---------- */
+const EX_DESC = {
+  // 全身・WL
+  wl_01: '床のバーを一気に頭上へ。しゃがんで受ける', wl_02: '肩で受けるクリーンの後、頭上へ突き上げる', wl_03: '床のバーを肩の前へ。浅いしゃがみで受ける',
+  wl_04: 'ももの高さから一気に頭上へ', wl_05: 'バーを肩の前にのせてしゃがむ', wl_06: 'バーを頭上に持ったまましゃがむ',
+  wl_07: 'ひざの反動を使って頭上へ押し上げる', wl_08: 'クリーンの引きだけ。肩をすくめて終わる', wl_09: '床から頭上へ。浅いしゃがみで受ける',
+  wl_10: 'スナッチの引きだけ。広い握りで肩をすくめる', wl_11: 'ももの高さから肩の前へ', wl_12: '頭上へ突き上げ、脚を前後に開いて受ける',
+  wl_13: '床のバーを肩の前へ。深くしゃがんで受ける', wl_14: 'ラックから肩の前のバーを頭上へ突き上げる', wl_15: '頭上へ突き上げ、浅く沈んで受ける',
+  wl_16: '頭上へ突き上げ、深くしゃがんで受ける', wl_17: 'ももの高さから頭上へ。浅く受ける', wl_18: 'ももの高さから肩の前へ。浅く受ける',
+  wl_19: '台にのせたバーから頭上へ', wl_20: '台にのせたバーから肩の前へ', wl_21: '頭上でバーを支えたまま素早くしゃがむ',
+  wl_22: 'スナッチの引きで、ひじを高く引き上げる', wl_23: 'クリーンの引きで、ひじを高く引き上げる', wl_24: 'スナッチの広い握りで行うデッドリフト',
+  wl_25: 'クリーンの握り・姿勢で行うデッドリフト', wl_26: '引きの途中で一度止めてからスナッチ', wl_27: '引きの途中で一度止めてからクリーン',
+  wl_28: '脚で沈まず、腕で頭上まで引き上げる', wl_29: '脚で沈まず、腕で肩の前まで引き上げる', wl_30: 'スナッチの広い握りで頭上へ押す',
+  wl_31: '深くしゃがんだまま頭上へ押す', wl_32: 'ジャークの沈み込みと反発だけを練習', wl_33: '首の後ろにのせたバーを頭上へ突き上げる',
+  wl_34: 'ひざ下の高さから頭上へ', wl_35: 'ひざ下の高さから肩の前へ', wl_36: 'クリーンで受けて、続けてフロントスクワット',
+  wl_37: 'スナッチで受けて、続けてしゃがみ込む', wl_38: '脚の付け根の高さから頭上へ', wl_39: '脚の付け根の高さから肩の前へ',
+  wl_40: '首の後ろのバーから素早くしゃがんで頭上で受ける', wl_41: '肩の前のバーを頭上へ。脚を前後に開いて受ける練習', wl_42: '下で止めてから立つフロントスクワット',
+  wl_43: 'ケトルベルを脚の間から前へ振り上げる', wl_44: 'フロントスクワットから一気に頭上へ押す', wl_45: '肩の前へ引き上げ、頭上へ押す',
+  wl_46: 'ダンベルを片手で床から頭上へ', wl_47: 'しゃがむ→腕立て→ジャンプを繰り返す', wl_48: '重りを両手に持って歩く',
+  wl_49: 'ボールを頭上から床へたたきつける', wl_50: 'ケトルベルを肩の前へ引き上げる', wl_51: 'ケトルベルを片手で頭上へ振り上げる',
+  wl_52: 'あお向けから重りを掲げたまま立ち上がる', wl_53: '太いロープを波打たせる', wl_54: 'ダンベルでスクワットから頭上へ押す',
+  wl_55: '腕立て・ロウ・クリーン・プレスを連続', wl_56: 'パワークリーンの後、頭上へ突き上げる', wl_57: 'ロープを手（と脚）で登る',
+  // 胸
+  chest_01: 'ベンチに寝てバーを胸に下ろし押す', chest_02: '背もたれを斜めに起こしてバーを押す', chest_03: 'ベンチに寝てダンベルを押す',
+  chest_04: '斜めのベンチでダンベルを押す', chest_05: '寝て腕を開き、弧を描いて閉じる', chest_06: '座ってマシンの取っ手を前へ押す',
+  chest_07: '左右上のケーブルを体の前で合わせる', chest_08: '床で体を一直線にして腕を曲げ伸ばす', chest_09: '平行棒で体を支え、上下する（前傾で胸）',
+  chest_10: '頭を下げた斜めのベンチでバーを押す', chest_11: '頭を下げた斜めのベンチでダンベルを押す', chest_12: '斜めのベンチでダンベルを開閉',
+  chest_13: '座って腕を左右から前で閉じるマシン', chest_14: 'レールに沿って動くバーでベンチプレス', chest_15: 'レールのバーで、斜めのベンチから押す',
+  chest_16: '低い位置のケーブルを胸の前へすくい上げる', chest_17: '高い位置のケーブルを下へ合わせる', chest_18: '寝てダンベルを頭の後ろへ下ろし戻す',
+  chest_19: '座って斜め上へ押すマシン', chest_20: '手幅を広くしたベンチプレス', chest_21: '胸の上で一度止めてから押す',
+  chest_22: '床に寝てバーを押す（ひじは床まで）', chest_23: '足を台にのせた腕立て伏せ', chest_24: '台に手をついた腕立て伏せ（やさしめ）',
+  chest_25: 'プレートを両手ではさんで前へ押し出す', chest_26: '胸の上で止めてからゆっくり押すベンチプレス', chest_27: '斜めのベンチでフライとプレスを続ける',
+  chest_28: 'バーを首の近くに下ろすベンチプレス', chest_29: 'ラックのピンの高さから押す', chest_30: '胸の少し上で止めてから押す',
+  chest_31: '足を浮かせて行うベンチプレス', chest_32: '逆手で握るベンチプレス', chest_33: '床に寝てダンベルを押す',
+  chest_34: 'ダンベルどうしを押しつけたまま押す', chest_35: '手のひらを向かい合わせてダンベルを押す', chest_36: '片手だけでダンベルを押す',
+  chest_37: '頭を下げた斜めのベンチでダンベルを開閉', chest_38: '背もたれを高く起こしてダンベルを押す', chest_39: '座って斜め下へ押すマシン',
+  chest_40: 'レールのバーで、頭を下げた斜めのベンチから押す', chest_41: 'プレートをのせるタイプのチェストプレス', chest_42: '斜め上へ腕を閉じるマシン',
+  chest_43: '後ろのケーブルを前へ押す', chest_44: '片手ずつケーブルを体の前へ合わせる', chest_45: '斜めのベンチでケーブルを開閉',
+  chest_46: '手幅を広くした腕立て伏せ', chest_47: 'ひざをついた腕立て伏せ（やさしめ）', chest_48: '片腕を横に伸ばし、もう片腕に体重をのせる',
+  chest_49: '押し上げて体を浮かせ、手をたたく', chest_50: '吊り輪で体を支えて上下する', chest_51: 'チューブを後ろから前へ押す',
+  // 背中
+  back_01: '床のバーを、背中をまっすぐに持ち上げる', back_02: '鉄棒にぶら下がり、順手であごを上げる', back_03: '座って上のバーを胸へ引き下ろすマシン',
+  back_04: '前かがみでバーをおなかへ引く', back_05: 'ベンチに片手片ひざをつき、ダンベルを引く', back_06: '座ってケーブルの取っ手をおなかへ引く',
+  back_07: 'バーの片端を持ち、前かがみで胸へ引く', back_08: 'うつぶせの台で、上体を下ろして起こす', back_09: '足を大きく開き、手を脚の内側で持つデッドリフト',
+  back_10: 'ひざの高さから持ち上げるデッドリフト', back_11: '台に乗って深い位置から引くデッドリフト', back_12: '毎回床にバーを置いて、前かがみで引く',
+  back_13: '台にうつぶせになり、下のバーを引く', back_14: '胸を台にあてて引くマシン', back_15: '腕を伸ばしたままケーブルを腰へ引き下ろす',
+  back_16: '狭い握りで引くラットプルダウン', back_17: '逆手で引くラットプルダウン', back_18: '逆手（手のひらが自分側）の懸垂',
+  back_19: '手幅を広くした懸垂', back_20: 'ひざ台に補助を受けて行う懸垂マシン', back_21: '低い棒の下で体を斜めにして引き寄せる',
+  back_22: 'バーをかついで上体を前に倒して起こす', back_23: '六角形のバーの中に立って持ち上げる', back_24: '座って取っ手を手前へ引くマシン',
+  back_25: 'バーの片端を片手で横向きに引く', back_26: '片手でケーブルを引く', back_27: 'うつぶせで手足を同時に浮かせる',
+  back_28: '前かがみで両手のダンベルを引く', back_29: '逆手で、上体を起こし気味に引くロウ', back_30: '寝てバーを頭の後ろへ下ろし戻す',
+  back_31: 'ひざ下で一度止めるデッドリフト', back_32: '床に固定したバーの端を前かがみで引く', back_33: '斜めの台に胸をあててダンベルを引く',
+  back_34: '片手で反動を使い、重いダンベルを引く', back_35: 'ダンベルで行うデッドリフト', back_36: '腕立ての姿勢で片手ずつダンベルを引く',
+  back_37: '上から斜め下へ引くマシン', back_38: '胸をパッドにあてて引くTバーのマシン', back_39: '腕を頭上から下へ回すマシン',
+  back_40: 'マシンで上体を後ろへ反らす', back_41: 'レールのバーで行う前かがみのロウ', back_42: '手のひらを向かい合わせて引くラットプルダウン',
+  back_43: 'バーを首の後ろへ引き下ろす', back_44: '片手でケーブルを上から引き下ろす', back_45: '広い握りで座って引くロウ',
+  back_46: 'ケーブルを頭上から腰へ回すように引く', back_47: '上から跳びついて、ゆっくり下りる懸垂', back_48: '手のひらを向かい合わせる懸垂',
+  back_49: '懸垂から棒の上まで体を押し上げる', back_50: '台にうつぶせで脚を後ろへ振り上げる', back_51: 'チューブを手前へ引く',
+  back_52: '片手ずつ引くロウのマシン', back_53: 'ロープの取っ手で座って引く', back_54: '腕を伸ばしたまま肩甲骨だけで体を上げる',
+  // 肩
+  shoulder_01: '立って肩の前のバーを頭上へ押す', shoulder_02: '座る（立つ）姿勢でダンベルを頭上へ押す', shoulder_03: 'ダンベルを横へ肩の高さまで上げる',
+  shoulder_04: 'ダンベルを前へ肩の高さまで上げる', shoulder_05: '前かがみでダンベルを横へ上げる（肩の後ろ）', shoulder_06: 'バーを体にそって胸まで引き上げる',
+  shoulder_07: '顔の高さのロープを顔へ引く', shoulder_08: '座って取っ手を頭上へ押すマシン', shoulder_09: 'ダンベルを持って肩をすくめる',
+  shoulder_10: '手のひらを返しながらダンベルを押す', shoulder_11: 'ケーブルを片手で横へ上げる', shoulder_12: '腕を横へ上げるマシン',
+  shoulder_13: '腕を後ろへ開くマシン（肩の後ろ）', shoulder_14: 'ケーブルを交差させて後ろへ開く', shoulder_15: '床に固定したバーの端を斜め上へ押す',
+  shoulder_16: '首の後ろからバーを頭上へ押す', shoulder_17: '床に脚を伸ばして座り、頭上へ押す', shoulder_18: 'バーを持って肩をすくめる',
+  shoulder_19: 'ケーブルを前へ上げる', shoulder_20: 'プレートを両手で前へ上げる', shoulder_21: '逆立ちで腕を曲げ伸ばす',
+  shoulder_22: 'お尻を高くした腕立て（頭を床へ）', shoulder_23: 'うつぶせ（前かがみ）で腕をY字に上げる', shoulder_24: 'ダンベルを体にそって胸まで引き上げる',
+  shoulder_25: '引き上げ→ひじを回す→頭上へ押す', shoulder_26: 'レールのバーで頭上へ押す', shoulder_27: '前かがみでダンベルを外へ引く（肩の後ろ）',
+  shoulder_28: 'ひじを体につけ、チューブを外へひねる', shoulder_29: '座ってバーを頭上へ押す', shoulder_30: 'バーを前へ肩の高さまで上げる',
+  shoulder_31: '柱をつかみ体を傾けて横へ上げる', shoulder_32: '座ってダンベルを横へ上げる', shoulder_33: '斜めの台にうつぶせで横へ上げる',
+  shoulder_34: '横向きに寝てダンベルを外へひねる', shoulder_35: '片手でダンベルを頭上へ押す', shoulder_36: '床に脚を伸ばして座り、ダンベルを押す',
+  shoulder_37: 'レールのバーで肩をすくめる', shoulder_38: 'レールのバーを胸まで引き上げる', shoulder_39: 'ケーブルを胸まで引き上げる',
+  shoulder_40: 'ケーブルを斜め上へY字に上げる', shoulder_41: 'ケーブルを持って肩をすくめる', shoulder_42: 'ひじを体につけ、ケーブルを外へひねる',
+  shoulder_43: 'ケーブルを顔の高さで外へ引く', shoulder_44: '壁に足をつけて逆立ちを保つ', shoulder_45: 'チューブを胸の前で左右に引き離す',
+  shoulder_46: 'チューブを横へ引き上げる', shoulder_47: 'ケトルベルを片手で頭上へ押す', shoulder_48: '六角形のバーで肩をすくめる',
+  // 脚
+  leg_01: 'バーを肩の後ろにかついでしゃがむ', leg_02: '座って足で板を押すマシン', leg_03: 'ひざを軽く曲げ、お尻を引いてバーを下ろす（もも裏）',
+  leg_04: '後ろ足を台にのせて片脚でしゃがむ', leg_05: '座ってひざを伸ばすマシン（もも前）', leg_06: '座ってひざを曲げるマシン（もも裏）',
+  leg_07: '一歩前に踏み出してしゃがむ', leg_08: 'つま先立ちでかかとを上げ下げ（マシン）', leg_09: '背中をベンチにあて、お尻でバーを押し上げる',
+  leg_10: '肩をパッドにあて、斜めのレールでしゃがむマシン', leg_11: 'レールに沿って動くバーでしゃがむ', leg_12: 'ダンベル1つを胸の前で持ってしゃがむ',
+  leg_13: '後ろの箱に一度座ってから立つ', leg_14: '下で止めてから立つスクワット', leg_15: 'バーを背中の低い位置にかつぐスクワット',
+  leg_16: '足を大きく開いてしゃがむ', leg_17: '台に片足ずつ上り下りする', leg_18: '前へ歩きながらランジを続ける',
+  leg_19: '一歩後ろへ引いてしゃがむ', leg_20: 'かかとを上げ、ひざを前に出して後ろへ倒れる', leg_21: 'ひざ立ちで足を固定し、前へゆっくり倒れる（もも裏）',
+  leg_22: 'うつぶせでひざを曲げるマシン', leg_23: '座ってかかとを上げ下げ（ふくらはぎ）', leg_24: '座って脚を外へ開くマシン（お尻の横）',
+  leg_25: '座って脚を閉じるマシン（内もも）', leg_26: 'あお向けでひざを立て、お尻を上げる', leg_27: 'ケーブルを足首につけて脚を後ろへ蹴る',
+  leg_28: 'ひざをほぼ伸ばしたまま上体を倒すデッドリフト', leg_29: '片脚立ちで上体を倒し、もう片脚を後ろへ', leg_30: '腰のベルトに重りをかけてしゃがむマシン',
+  leg_31: '片脚を前に伸ばし、もう片脚だけでしゃがむ', leg_32: 'しゃがんでから跳び上がる', leg_33: '跳んで箱に乗る',
+  leg_34: '道具なしで行うスクワット', leg_35: '振り子のように動く台でしゃがむマシン', leg_36: 'ダンベルを持ってかかとを上げ下げ',
+  leg_37: '持ち手つきの専用バーをかついでしゃがむ', leg_38: '両手にダンベルを下げてしゃがむ', leg_39: 'かかとを台にのせたゴブレットスクワット',
+  leg_40: '横向きに寝て脚を上げる（お尻の横）', leg_41: 'バーをひじの内側で抱えてしゃがむ', leg_42: '床にあお向けでバーをお尻で押し上げる',
+  leg_43: 'バーをかついで一歩踏み出す', leg_44: 'バーをかついで脚を前後に開き、上下する', leg_45: 'ラックのピンの高さから立ち上がる',
+  leg_46: '半分の深さまでしゃがむ', leg_47: 'バーをかついでかかとを上げ下げ', leg_48: 'バーを体の後ろで持ってしゃがむ',
+  leg_49: 'ダンベルで行うルーマニアンデッドリフト', leg_50: '横へ大きく踏み出してしゃがむ', leg_51: '脚を斜め後ろへ交差させてしゃがむ',
+  leg_52: 'ダンベルを持って脚を前後に開き、上下する', leg_53: 'ダンベルをお尻で押し上げる', leg_54: 'ダンベル1つを下げ、足を大きく開いてしゃがむ',
+  leg_55: '片足でかかとを上げ下げ', leg_56: '片脚で板を押すレッグプレス', leg_57: '片脚ずつひざを伸ばすマシン',
+  leg_58: '立って片脚ずつひざを曲げるマシン', leg_59: 'お尻で押し上げるマシン', leg_60: '四つんばいの姿勢で脚を後ろへ押すマシン',
+  leg_61: 'レールのバーで脚を前後に開き、上下する', leg_62: 'レールのバーをお尻で押し上げる', leg_63: 'レールのバーでかかとを上げ下げ',
+  leg_64: 'レッグプレスでつま先だけで板を押す', leg_65: 'V字の台でしゃがむマシン', leg_66: '台に足を固定し、上体を下ろして起こす（もも裏）',
+  leg_67: '脚の間のケーブルを前へ引き、腰を伸ばす', leg_68: 'ケーブルを足首につけて脚を外へ開く', leg_69: 'ケーブルを足首につけて脚を内へ閉じる',
+  leg_70: '壁に背中をつけ、空気いすの姿勢を保つ', leg_71: '脚を入れ替えながら跳ぶランジ', leg_72: '片脚でお尻を上げる（あお向け）',
+  leg_73: '片脚で、背中をベンチにあててお尻を上げる', leg_74: '四つんばいで片脚を後ろへ蹴り上げる', leg_75: '足裏を合わせ、あお向けでお尻を上げる',
+  leg_76: '横向きで上の脚を台にのせて体を支える', leg_77: 'ひざ立ちで上体をまっすぐ後ろへ倒す（もも前）', leg_78: '道具なしでかかとを上げ下げ',
+  leg_79: 'ケトルベルで行うデッドリフト', leg_80: 'ひざにチューブを巻き、横へ歩く', leg_81: '横向きでひざを貝のように開く',
+  leg_82: '重りをのせたそりを押して進む', leg_83: 'マシンに向かい合って立つハックスクワット', leg_84: '道具なしで脚を前後に開き、上下する',
+  leg_85: '重りをのせたそりを引いて進む', leg_86: '台に乗って一歩後ろへ深く下がる', leg_87: 'バーをかついで台に上り下りする',
+  // 腕
+  arm_01: 'バーを持ってひじを曲げる（力こぶ）', arm_02: 'ダンベルを持ってひじを曲げる（力こぶ）', arm_03: '縦向きにダンベルを持ってひじを曲げる',
+  arm_04: '斜めの台に腕をのせてひじを曲げる', arm_05: 'ケーブルの取っ手をひじから下へ押す（二の腕）', arm_06: '寝てバーを額へ下ろし、ひじを伸ばす（二の腕）',
+  arm_07: '頭の後ろへダンベルを下ろし、伸ばす（二の腕）', arm_08: '手幅を狭くしたベンチプレス（二の腕）', arm_09: '波形のバーでひじを曲げる',
+  arm_10: '斜めのベンチにもたれて腕を下げたままカール', arm_11: '座ってひじをももにあて、片手でカール', arm_12: 'ケーブルを引いてひじを曲げる',
+  arm_13: '斜めの台にうつぶせで腕を下げてカール', arm_14: '手の甲を上にしてバーでカール', arm_15: 'ひじを後ろへ引きながら体にそってカール',
+  arm_16: '座ってひじを曲げるマシン', arm_17: '前かがみでひじを固定し、後ろへ伸ばす（二の腕）', arm_18: 'ベンチに手をついて体を上下する（二の腕）',
+  arm_19: 'ロープの取っ手で下へ押す（二の腕）', arm_20: 'ケーブルを頭上から前へ伸ばす（二の腕）', arm_21: 'ベンチプレスとフレンチプレスの中間の押し方',
+  arm_22: '両手でひし形を作る腕立て伏せ（二の腕）', arm_23: '前腕を台にのせ、手首を曲げる', arm_24: '手の甲を上にして手首を反らす',
+  arm_25: '上げるときは手のひら上、下ろすときは下', arm_26: '座って取っ手を下へ押すマシン（二の腕）', arm_27: 'ロープで縦向きに持ってカール',
+  arm_28: '波形のバーを頭の後ろへ下ろし、伸ばす', arm_29: '下半分・上半分・全部を7回ずつ', arm_30: '斜めのベンチで頭の後ろへ下ろし、伸ばす',
+  arm_31: 'ダンベルを体の前で斜めに持ち上げる', arm_32: '斜めのベンチにもたれて縦向きにカール', arm_33: '台に腕をのせて片手でダンベルカール',
+  arm_34: '座ってダンベルでカール', arm_35: '寝てダンベルを胸の上で内側へ下ろし、伸ばす', arm_36: '寝てダンベルを顔の横へ下ろし、伸ばす',
+  arm_37: '片手で頭の後ろへ下ろし、伸ばす', arm_38: 'ダンベルで手首を曲げる', arm_39: '座ってひじを伸ばすマシン（二の腕）',
+  arm_40: 'レールのバーで手幅を狭くして押す', arm_41: 'ケーブルを背中側にして前向きにカール', arm_42: '台に腕をのせてケーブルでカール',
+  arm_43: '両腕を横に上げ、上のケーブルを頭へ引く', arm_44: '手の甲を上にしてケーブルでカール', arm_45: '逆手でケーブルを下へ押す',
+  arm_46: '片手でケーブルを下へ押す', arm_47: '前かがみでケーブルを後ろへ伸ばす', arm_48: '鉄棒にぶら下がったままでいる',
+  arm_49: 'チューブを引いてひじを曲げる', arm_50: 'チューブを下へ押す', arm_51: '握力器を握る',
+  arm_52: '棒を回して重りを巻き上げる', arm_53: 'プレートを指でつまんで持つ', arm_54: '手幅を狭くした腕立て伏せ（二の腕）',
+  arm_55: 'ダンベルを手の甲を上にしてカール',
+  // 腹筋
+  abs_01: 'あお向けで背中を丸め、肩を浮かせる', abs_02: 'あお向けから上体を最後まで起こす', abs_03: 'あお向けで脚を上げ下げ',
+  abs_04: '鉄棒にぶら下がって脚を上げる', abs_05: 'ひざをついてローラーを前へ転がし戻す', abs_06: 'ひざ立ちで上のケーブルを持ち、背中を丸める',
+  abs_07: '座って上体をひねり、左右にさわる', abs_08: '頭を下げた斜めの台で上体を起こす', abs_09: 'ひじとつま先で体を一直線に保つ',
+  abs_10: '横向きでひじと足で体を支える', abs_11: 'ベンチで肩だけつけ、体をまっすぐ下ろす', abs_12: '手と脚を同時に上げてV字になる',
+  abs_13: '腕立ての姿勢でひざを交互に胸へ', abs_14: 'ひじと逆のひざを近づけて自転車こぎ', abs_15: 'ケーブルを斜めに振り下ろす（ひねり）',
+  abs_16: 'ケーブルを胸の前へ押し出し、ひねられないよう耐える', abs_17: '鉄棒にぶら下がってひざを上げる', abs_18: '鉄棒にぶら下がって足先を棒につける',
+  abs_19: 'あお向けで手と逆の脚を交互に伸ばす', abs_20: 'あお向けで手足を浮かせ、背中を床につけて保つ', abs_21: 'あお向けでお尻を浮かせてひざを胸へ',
+  abs_22: '座って上体を丸めるマシン', abs_23: '手で体を支え、脚を前に伸ばして浮かせる', abs_24: '鉄棒にぶら下がり、脚を左右にふる',
+  abs_25: '立った姿勢からローラーを転がす（上級）', abs_26: '座って上体をひねるマシン', abs_27: 'あお向けで脚を小さく交互にばたつかせる',
+  abs_28: 'あお向けで脚を交差させる', abs_29: 'あお向けで左右のかかとに手を伸ばす', abs_30: '手足を同時に上げて体を折りたたむ',
+  abs_31: '上体を斜めにひねって起こす（わき腹）', abs_32: '頭を下げた斜めの台で行うクランチ', abs_33: '腕立ての姿勢で片手ずつ肩にふれる',
+  abs_34: 'サイドプランクで腰を上下させる', abs_35: '鉄棒にぶら下がり、ひざを斜めに上げる', abs_36: '四つんばいで手と逆の脚を伸ばす',
+  abs_37: '四つんばいでひざを少し浮かせて保つ', abs_38: 'ダンベルを片手に下げ、体を横へ倒す', abs_39: 'プレートを胸に抱えてクランチ',
+  abs_40: 'バランスボールの上で行うクランチ', abs_41: '重りを片手だけに持って歩く', abs_42: 'バーベルを転がして行う腹筋ローラー',
+  abs_43: 'ケーブルを片手に持ち、体を横へ倒す', abs_44: '立って上のケーブルを持ち、背中を丸める', abs_45: '台にひじをのせ、脚を上げる',
+  abs_46: 'ベンチに座り、ひざを胸へ引き寄せる', abs_47: '座ったまま手足を上げてV字を保つ', abs_48: '丸めた姿勢でゆりかごのように揺れる'
+};
+const exDesc = (e) => (e && EX_DESC[e.id]) || (e && e.desc) || '';
 /* ---------- 人体図（筋肉マップ）SVG ----------
    座標系：1体あたり 幅200 × 高さ440（中心線 x=100）。左半身だけを定義し、中心線で反転して左右対称にする。
    頭身・関節位置は成人男性の標準的なプロポーション（約8頭身）に合わせている。 */
@@ -5639,7 +5791,7 @@ const eqIdx = (e) => { const i = EQUIPMENTS.indexOf(e.equipment); return i < 0 ?
 /* ジャンル別の折りたたみ一覧（最近使った種目は上に開いて表示）。部位の中は動きの種類でもう1段分ける */
 function accordionHtml(list, rowFn, openSet, { act, allOpen = false, recent = [], q = '' }) {
   const groups = [];
-  if (q.trim()) { const has = new Set(list.map((e) => e.id)); for (const c of commonHits(q)) { const it = c.ids.filter((id) => has.has(id)).map(getEx); if (it.length) groups.push({ key: '__cn' + c.k[0], name: `「${c.k[0]}」と言えば`, color: 'var(--accent)', items: it, open: true, note: c.note }); } }
+  if (q.trim()) { const has = new Set(list.map((e) => e.id)); for (const c of commonHits(q)) { const it = c.ids.filter((id) => has.has(id)).map(getEx); if (it.length) groups.push({ key: '__cn' + c.k[0], name: `「${c.k[0]}」なら`, color: 'var(--accent)', items: it, open: true, note: c.note }); } }
   if (recent.length) groups.push({ key: '__recent', name: '最近使った種目', color: 'var(--glow-2,#22d3ee)', items: recent, open: true });
   for (const c of visibleCats()) { const it = list.filter((e) => e.part === c); if (it.length) groups.push({ key: c, name: c, color: partColor(c), items: it }); }
   const subHtml = (g) => {
@@ -5662,11 +5814,13 @@ function accordionHtml(list, rowFn, openSet, { act, allOpen = false, recent = []
 }
 function toggleAcc(set, k) { if (k === '__recent') { if (set.has('!__recent')) set.delete('!__recent'); else set.add('!__recent'); } else if (set.has(k)) set.delete(k); else set.add(k); }
 function recentEx(filterFn) { return [...IDX().exStat.entries()].sort((a, b) => (a[1].last < b[1].last ? 1 : a[1].last > b[1].last ? -1 : 0)).map(([id]) => getEx(id)).filter((e) => !e.missing && filterFn(e)).slice(0, 5); }
+/* 一覧の2行目：器具と、どんな動きかの一言（1行に収め、はみ出しは…。全文は詳細に） */
+function exDescLine(e) { const d = exDesc(e); return `<div class="s ex-desc"${d ? ` title="${esc(d)}"` : ''}>${commonBadge(e.id)}<span class="eq">${esc(e.equipment)}</span>${d ? `・${esc(d)}` : `・${esc(e.muscles.slice(0, 2).map((m) => MUSCLES[m].replace(/（.*?）/, '')).join('、'))}`}</div>`; }
 function exRow(e, attrs, extra = '') {
   const sm = exSummary(e.id);
   const fav = DB.favorites.includes(e.id);
-  return `<button type="button" class="li" ${attrs}>${exIcon(e)}<div class="m"><div class="t">${fav ? `<span style="color:#f5b301">${ICON.starF}</span>` : ''}${esc(e.name)}${commonBadge(e.id)}${e.custom ? '<span class="badge custom">自分で追加</span>' : ''}${extra}</div>
-    <div class="s meta-row"><span>${esc(e.equipment)}</span>${sm ? `<span>最終 ${fmtDate(sm.last)}</span><span>最高 <b class="num">${fmtNum(sm.maxW)}</b>kg</span>` : `<span>${e.muscles.slice(0, 2).map((m) => MUSCLES[m].replace(/（.*?）/, '')).join('、')}</span>`}</div></div>${ICON.chevR}</button>`;
+  return `<button type="button" class="li" ${attrs}>${exIcon(e)}<div class="m"><div class="t">${fav ? `<span style="color:#f5b301">${ICON.starF}</span>` : ''}${esc(e.name)}${e.custom ? '<span class="badge custom">自分で追加</span>' : ''}${extra}</div>
+    ${sm ? `<div class="s meta-row">${commonBadge(e.id)}<span>${esc(e.equipment)}</span><span>最終 ${fmtDate(sm.last)}</span><span>最高 <b class="num">${fmtNum(sm.maxW)}</b>kg</span></div>` : exDescLine(e)}</div>${ICON.chevR}</button>`;
 }
 function libList() {
   const L = UI.lib;
@@ -5701,8 +5855,8 @@ function pickExercises({ title = '種目を選ぶ', multi = false, exclude = [],
     if (!list.length) return '<p class="empty">該当する種目がありません。</p>';
     const row = (e) => {
       const ex = exclude.includes(e.id); const on = st.sel.includes(e.id); const sm = exSummary(e.id);
-      return `<button type="button" class="li ${on ? 'sel' : ''}" data-a="pick" data-id="${esc(e.id)}" ${ex ? 'disabled' : ''}>${multi ? `<span class="check">${ICON.check}</span>` : ''}${exIcon(e)}<div class="m"><div class="t">${esc(e.name)}${commonBadge(e.id)}${ex ? '<span class="badge">追加済み</span>' : ''}${e.custom ? '<span class="badge custom">自分</span>' : ''}</div>
-        <div class="s meta-row"><span>${esc(e.equipment)}</span>${sm ? `<span>最終 ${fmtDate(sm.last)}</span><span>最高 <b class="num">${fmtNum(sm.maxW)}</b>kg</span>` : '<span>未実施</span>'}</div></div></button>`;
+      return `<button type="button" class="li ${on ? 'sel' : ''}" data-a="pick" data-id="${esc(e.id)}" ${ex ? 'disabled' : ''}>${multi ? `<span class="check">${ICON.check}</span>` : ''}${exIcon(e)}<div class="m"><div class="t">${esc(e.name)}${ex ? '<span class="badge">追加済み</span>' : ''}${e.custom ? '<span class="badge custom">自分</span>' : ''}</div>
+        ${sm ? `<div class="s meta-row">${commonBadge(e.id)}<span>${esc(e.equipment)}</span><span>最終 ${fmtDate(sm.last)}</span><span>最高 <b class="num">${fmtNum(sm.maxW)}</b>kg</span></div>` : exDescLine(e)}</div></button>`;
     };
     if (st.cat === '記録あり') return `<div class="list">${list.sort((a, b) => (exSummary(a.id).last < exSummary(b.id).last ? 1 : -1)).map(row).join('')}</div>`;
     const ids = new Set(list.map((e) => e.id));
@@ -5788,7 +5942,7 @@ function exDetailHtml(exId, st) {
   const fills = {}; for (const m of ex.sub) fills[m] = partColor(ex.part) + '70'; for (const m of ex.muscles) fills[m] = partColor(ex.part);
   let h = `<div class="card"><div style="display:flex;gap:14px;align-items:center"><div class="stage" style="width:132px;flex:none;padding:8px 2px 2px">${bodySvg(fills, { labels: false, glow: true })}</div><div style="flex:1;min-width:0">
     <div class="exc-tags" style="margin-bottom:6px"><span style="background:${partColor(ex.part)};color:#fff">${esc(ex.part)}</span><span>${esc(ex.equipment)}</span>${ex.custom ? '<span>自分で追加</span>' : ''}</div>
-    ${ex.en ? `<div class="small faint">${esc(ex.en)}</div>` : ''}
+    ${ex.en ? `<div class="small faint">${esc(ex.en)}</div>` : ''}${exDesc(ex) ? `<p class="ex-desc-full">${esc(exDesc(ex))}</p>` : ''}
     <div class="small" style="margin-top:4px"><b>主に使う：</b>${ex.muscles.map((m) => MUSCLES[m]).join('、') || '-'}</div>${ex.sub.length ? `<div class="small muted"><b>補助：</b>${ex.sub.map((m) => MUSCLES[m]).join('、')}</div>` : ''}
     <div class="small muted" style="margin-top:4px">目標 ${ex.defaultTargetReps}${unitOf(ex)} ・ 刻み ${fmtNum(ex.stepKg)}kg ・ 休憩 ${fmtSec(restOf(ex))}</div></div></div>
     <div class="row" style="margin-top:12px"><button type="button" class="btn btn-primary" data-a="record">${ICON.play}${DB.active ? '進行中に追加' : '記録する'}</button><a class="btn form-vid" href="${esc(formVideoUrl(ex))}" target="_blank" rel="noopener noreferrer" aria-label="${esc(ex.name)}のフォームを動画で見る（YouTube・外部サイト）">${ICON.play}フォーム動画</a></div></div>`;
