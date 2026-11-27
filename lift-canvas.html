@@ -1543,6 +1543,9 @@ button.plan-line>svg:last-child{width:13px;height:13px;flex:none;opacity:.7}
 .rel-guess p>b:first-child{display:block;font-size:12px;color:var(--accent);margin-bottom:2px}
 .rel-guess button{min-height:44px;padding:0 14px;border-radius:11px;border:0;background:var(--accent);color:#fff;font:inherit;font-weight:750;cursor:pointer}
 .rel-guess .why{display:block;margin-top:6px;font-size:11.5px;color:var(--text-3)}
+.pr-chip b.wr{font-size:23px}
+.pr-chip .pr-e{font-size:11.5px;font-weight:650;color:var(--text-2)}
+.pr-v em{display:block;font-style:normal}
 
 </style>
 </head>
@@ -1567,7 +1570,7 @@ button.plan-line>svg:last-child{width:13px;height:13px;flex:none;opacity:.7}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.25.23';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.25.24';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -2061,37 +2064,105 @@ const MASTER_EXERCISES = [
   { id: "abs_48", name: "ホロー・ロック", en: "Hollow Rock", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["abs_01",  "abs_02",  "abs_03",  "abs_04"], muscles: ["abs"], sub: ["quads"] }
 ];
 /* ---------- よく呼ばれる名前（通称）→ 正式名 ----------
-   ids の先頭が「ふつうそう呼ぶもの」。検索のいちばん上に出し、一覧では「通称」を付ける */
+   ids の先頭が「ふつうそう呼ぶもの」。検索のいちばん上に出し、一覧では「通称」を付ける（nl：部位名などで札は付けない）
+   全400種目を見直して、初心者が言いそうな呼び名（部位・言い換え・英語）を入れている */
 const COMMON_NAMES = [
-  { k: ['スクワット'], ids: ['leg_01', 'leg_11', 'leg_12', 'leg_34'], note: 'ふつう「スクワット」と言えば、バーベルを肩にかついでしゃがむ<b>バックスクワット</b>です。マシンならスミスマシン、ダンベル1つならゴブレット、道具なしはエアスクワット。' },
-  { k: ['ベンチ', 'ベンチプレス'], ids: ['chest_01', 'chest_14', 'chest_06'], note: 'ふつうはバーベルの<b>ベンチプレス</b>。レールつきのバーはスミスマシン、座って押すマシンはチェストプレスです。' },
-  { k: ['デッド', 'デッドリフト'], ids: ['back_01', 'leg_03'], note: 'ふつうは床から持ち上げる<b>デッドリフト</b>。ひざをあまり曲げずにもも裏をのばすのはルーマニアンデッドリフトです。' },
-  { k: ['懸垂', 'けんすい', 'チンニング', 'プルアップ'], ids: ['back_02', 'back_20', 'back_18'], note: 'ふつうは順手の<b>懸垂（チンニング）</b>。補助つきのマシンはアシスト懸垂です。' },
-  { k: ['腕立て', 'うでたて', 'プッシュアップ'], ids: ['chest_08', 'chest_47', 'chest_24'], note: 'ふつうは<b>腕立て伏せ</b>。きつければ膝つき・インクライン（台に手をつく）から。' },
-  { k: ['腹筋', 'ふっきん'], ids: ['abs_01', 'abs_02', 'abs_05', 'abs_03'], note: '上体を丸める<b>クランチ</b>が基本。最後まで起き上がるのはシットアップです。' },
-  { k: ['背筋', 'はいきん'], ids: ['back_08', 'back_40', 'back_27'], note: 'うつぶせで上体を起こす<b>バックエクステンション</b>が基本です。' },
+  // ---- 脚・お尻 ----
+  { k: ['スクワット', 'squat'], ids: ['leg_01', 'leg_11', 'leg_12', 'leg_34'], note: 'ふつう「スクワット」と言えば、バーベルを肩にかついでしゃがむ<b>バックスクワット</b>です。マシンならスミスマシン、ダンベル1つならゴブレット、道具なしはエアスクワット。' },
+  { k: ['自重スクワット', 'ノーマルスクワット'], ids: ['leg_34'], note: '道具を持たずに行うスクワットは<b>エアスクワット</b>です。' },
+  { k: ['ワイドスクワット', '相撲スクワット', 'スモウスクワット'], ids: ['leg_16', 'leg_54'], note: '足を大きく開くスクワット。バーベルならワイドスタンス・スクワット、ダンベル1つならダンベル・スモウスクワットです。' },
+  { k: ['ジャンプスクワット'], ids: ['leg_32'], note: '' },
+  { k: ['片足スクワット'], ids: ['leg_31', 'leg_04'], note: '完全に片足で立つのは<b>ピストルスクワット</b>、後ろ足を台にのせるのはブルガリアンスクワットです。' },
+  { k: ['ブルスク', 'ブルガリアン'], ids: ['leg_04'], note: '' },
+  { nl: 1, k: ['スプリットスクワット'], ids: ['leg_52', 'leg_84', 'leg_44'], note: '' },
+  { k: ['ハック', 'ハックスクワット'], ids: ['leg_10', 'leg_48'], note: '' },
+  { k: ['レッグプレス', '脚のマシン'], ids: ['leg_02'], note: '' },
+  { k: ['レッグエクステンション', 'レッグエクステ', 'もも前のマシン'], ids: ['leg_05'], note: '' },
+  { k: ['レッグカール', 'ハムカール', 'もも裏のマシン'], ids: ['leg_06', 'leg_22', 'leg_58'], note: '座って行うのが<b>レッグカール</b>、うつぶせはライイング・レッグカールです。' },
+  { k: ['ランジ', 'フロントランジ'], ids: ['leg_07', 'leg_18', 'leg_19'], note: '' },
+  { k: ['バックランジ'], ids: ['leg_19'], note: '後ろに足を引くランジは<b>リバースランジ</b>です。' },
+  { k: ['ステップアップ', '踏み台昇降'], ids: ['leg_17', 'leg_87'], note: '' },
+  { k: ['カーフ', 'カーフレイズ', 'かかと上げ', 'つま先立ち', 'ふくらはぎ'], ids: ['leg_08', 'leg_78', 'leg_36'], note: 'マシンなら<b>カーフレイズ</b>、道具なしはカーフレイズ（自重）です。' },
+  { k: ['ヒップリフト', 'ブリッジ'], ids: ['leg_26', 'leg_42'], note: 'あお向けでお尻を上げる<b>グルートブリッジ</b>のことです。' },
+  { k: ['ヒップスラスト'], ids: ['leg_09', 'leg_59', 'leg_53'], note: '' },
+  { k: ['ルーマニアン', 'rdl'], ids: ['leg_03', 'leg_49'], note: '' },
+  { k: ['スティッフ'], ids: ['leg_28'], note: '' },
+  { k: ['空気椅子', 'ウォールシット'], ids: ['leg_70'], note: '' },
+  { k: ['内もも', 'アダクション', '内転'], ids: ['leg_25', 'leg_69'], note: '脚を閉じるマシンは<b>ヒップアダクション</b>です。' },
+  { k: ['外もも', 'アブダクション', '外転'], ids: ['leg_24', 'leg_68'], note: '脚を開くマシンは<b>ヒップアブダクション</b>です。' },
+  { nl: 1, k: ['キックバック'], ids: ['leg_60', 'leg_27', 'arm_17'], note: 'お尻なら<b>グルートキックバック</b>、腕（二の腕）ならトライセプス・キックバックです。' },
+  { k: ['ノルディック'], ids: ['leg_21'], note: '' },
+  // ---- 胸 ----
+  { k: ['ベンチ', 'ベンチプレス', 'bench'], ids: ['chest_01', 'chest_14', 'chest_06'], note: 'ふつうはバーベルの<b>ベンチプレス</b>。レールつきのバーはスミスマシン、座って押すマシンはチェストプレスです。' },
+  { k: ['ダンベルベンチ'], ids: ['chest_03'], note: 'ダンベルで行うベンチプレスは<b>ダンベルプレス</b>です。' },
+  { k: ['インクライン'], ids: ['chest_02', 'chest_04'], note: '' },
+  { k: ['デクライン'], ids: ['chest_10', 'chest_11'], note: '' },
+  { k: ['スミス'], ids: ['leg_11', 'chest_14', 'shoulder_26'], note: '' },
+  { k: ['腕立て', 'うでたて', 'プッシュアップ', 'pushup'], ids: ['chest_08', 'chest_47', 'chest_24'], note: 'ふつうは<b>腕立て伏せ</b>。きつければ膝つき・インクライン（台に手をつく）から。' },
+  { k: ['膝つき腕立て'], ids: ['chest_47'], note: '' },
+  { k: ['チェストプレス', '胸のマシン', 'マシンプレス'], ids: ['chest_06', 'chest_19'], note: '' },
+  { nl: 1, k: ['フライ', 'チェストフライ'], ids: ['chest_05', 'chest_13', 'chest_07'], note: 'ダンベルなら<b>ダンベルフライ</b>、マシンならペックデックです。' },
+  { k: ['マシンフライ', 'ペックフライ', 'バタフライ', 'バタフライマシン'], ids: ['chest_13'], note: '' },
+  { k: ['ケーブルクロス', 'クロスオーバー'], ids: ['chest_07'], note: '' },
+  { nl: 1, k: ['プルオーバー'], ids: ['chest_18', 'back_46', 'back_39'], note: '' },
+  { k: ['ディップス', 'ディップ'], ids: ['chest_09', 'arm_18', 'arm_26'], note: '' },
+  // ---- 背中 ----
+  { k: ['デッド', 'デッドリフト', 'deadlift'], ids: ['back_01', 'leg_03'], note: 'ふつうは床から持ち上げる<b>デッドリフト</b>。ひざをあまり曲げずにもも裏をのばすのはルーマニアンデッドリフトです。' },
+  { k: ['スモウデッド', '相撲デッド'], ids: ['back_09'], note: '' },
+  { k: ['トラップバー', 'ヘックスバー'], ids: ['back_23', 'shoulder_48'], note: '' },
+  { k: ['懸垂', 'けんすい', 'チンニング', 'プルアップ', 'pullup'], ids: ['back_02', 'back_20', 'back_18'], note: 'ふつうは順手の<b>懸垂（チンニング）</b>。補助つきのマシンはアシスト懸垂です。' },
+  { k: ['アシスト懸垂', '補助付き懸垂', 'アシストチンニング'], ids: ['back_20'], note: '' },
+  { k: ['斜め懸垂', 'オーストラリアン懸垂', '低い懸垂'], ids: ['back_21'], note: '低い鉄棒で体を斜めにして引くのは<b>インバーテッドロウ</b>です。' },
+  { k: ['ラットプル', 'プルダウン', 'ラット'], ids: ['back_03', 'back_16', 'back_17'], note: '' },
+  { k: ['ローイング', 'ロウ', 'row'], ids: ['back_04', 'back_06', 'back_05'], note: '背中で引く種目のまとめた呼び名。バーベルならベントオーバーロウ、ケーブルならシーテッドケーブルロウ、ダンベルならワンハンドダンベルロウ。' },
+  { k: ['ベントロウ', 'ベントオーバー', 'バーベルロウ'], ids: ['back_04'], note: '' },
+  { k: ['シーテッドロウ', 'ケーブルロウ', 'ロープーリー'], ids: ['back_06', 'back_45'], note: '' },
+  { k: ['ワンハンドロウ', 'ダンベルロウ', '片手ロウ'], ids: ['back_05', 'back_28'], note: '' },
+  { k: ['マシンロウ', 'ロウマシン'], ids: ['back_24', 'back_14'], note: '' },
+  { k: ['背筋', 'はいきん', 'ハイパーエクステンション', 'ハイパー'], ids: ['back_08', 'back_40', 'back_27'], note: 'うつぶせで上体を起こす<b>バックエクステンション</b>が基本です。' },
+  // ---- 肩 ----
   { k: ['ショルダープレス', 'ショルダー'], ids: ['shoulder_02', 'shoulder_08', 'shoulder_01'], note: 'ジムではダンベルかマシンが一般的。バーベルで行うものはオーバーヘッドプレス（OHP）とも呼びます。' },
-  { k: ['オーバーヘッドプレス', 'ohp', 'ミリタリープレス'], ids: ['shoulder_01'], note: 'バーベルを頭上に押す<b>バーベルショルダープレス</b>のことです。' },
-  { k: ['ラテラルレイズ', 'サイドレイズ'], ids: ['shoulder_03', 'shoulder_11', 'shoulder_12'], note: '' },
-  { k: ['アームカール', 'カール'], ids: ['arm_02', 'arm_01', 'arm_16'], note: '「アームカール」は、ふつう<b>ダンベルカール</b>かバーベルカールのことです。' },
+  { k: ['オーバーヘッドプレス', 'ohp', 'ミリタリープレス', 'ミリタリー'], ids: ['shoulder_01'], note: 'バーベルを頭上に押す<b>バーベルショルダープレス</b>のことです。' },
+  { k: ['ラテラルレイズ', 'サイドレイズ', 'ラテラル'], ids: ['shoulder_03', 'shoulder_11', 'shoulder_12'], note: '' },
+  { k: ['リアレイズ', 'リアデルト', 'リアフライ', 'ベントオーバーラテラル'], ids: ['shoulder_05', 'shoulder_13', 'shoulder_14'], note: '' },
+  { k: ['アップライト'], ids: ['shoulder_06', 'shoulder_24'], note: '' },
+  { k: ['シュラッグ', '肩すくめ'], ids: ['shoulder_09', 'shoulder_18'], note: '' },
+  { k: ['アーノルド'], ids: ['shoulder_10'], note: '' },
+  { k: ['倒立腕立て', '逆立ち腕立て'], ids: ['shoulder_21', 'shoulder_22'], note: '' },
+  { nl: 1, k: ['倒立', '逆立ち'], ids: ['shoulder_44'], note: '' },
+  { k: ['インナーマッスル', '外旋', 'ローテーターカフ', 'カフ'], ids: ['shoulder_28', 'shoulder_34', 'shoulder_42'], note: '肩のインナーマッスルは、腕を外にひねる<b>外旋</b>の種目で鍛えます。' },
+  // ---- 腕 ----
+  { k: ['アームカール', 'カール', '力こぶ', 'curl'], ids: ['arm_02', 'arm_01', 'arm_16'], note: '「アームカール」は、ふつう<b>ダンベルカール</b>かバーベルカールのことです。' },
+  { k: ['ハンマー'], ids: ['arm_03', 'arm_27'], note: '' },
+  { k: ['スコットカール', 'プリーチャー', 'スコット'], ids: ['arm_04', 'arm_33'], note: '台に腕をのせて行う<b>プリーチャーカール</b>のことです。' },
+  { nl: 1, k: ['二の腕', '三頭'], ids: ['arm_05', 'arm_07', 'arm_17'], note: '二の腕（上腕三頭筋）は、ケーブルで押し下げる<b>プレスダウン</b>が基本です。' },
   { k: ['プレスダウン', 'プッシュダウン'], ids: ['arm_05', 'arm_19'], note: '' },
   { k: ['フレンチプレス'], ids: ['arm_07', 'arm_28'], note: '頭の後ろに下ろす<b>オーバーヘッド・エクステンション</b>のことです。' },
-  { k: ['スカルクラッシャー'], ids: ['arm_06'], note: '寝て額に下ろす<b>ライイング・トライセプスエクステンション</b>のことです。' },
-  { k: ['ナローベンチ', 'クローズグリップ'], ids: ['arm_08'], note: '' },
-  { k: ['ローイング', 'ロウ'], ids: ['back_04', 'back_06', 'back_05'], note: '背中で引く種目のまとめた呼び名。バーベルならベントオーバーロウ、ケーブルならシーテッドケーブルロウ、ダンベルならワンハンドダンベルロウ。' },
-  { k: ['ラットプル', 'プルダウン'], ids: ['back_03'], note: '' },
-  { k: ['フライ', 'チェストフライ'], ids: ['chest_05', 'chest_13', 'chest_07'], note: 'ダンベルなら<b>ダンベルフライ</b>、マシンならペックデックです。' },
-  { k: ['チェストプレス'], ids: ['chest_06'], note: '' },
-  { k: ['ランジ'], ids: ['leg_07', 'leg_18', 'leg_19'], note: '' },
-  { k: ['カーフ', 'カーフレイズ'], ids: ['leg_08', 'leg_78'], note: '' },
-  { k: ['ヒップリフト'], ids: ['leg_26'], note: 'あお向けでお尻を上げる<b>グルートブリッジ</b>のことです。' },
-  { k: ['ルーマニアン', 'rdl'], ids: ['leg_03'], note: '' },
-  { k: ['ブルスク', 'ブルガリアン'], ids: ['leg_04'], note: '' },
-  { k: ['シュラッグ'], ids: ['shoulder_09', 'shoulder_18'], note: '' },
-  { k: ['ディップス'], ids: ['chest_09', 'arm_18'], note: '' },
-  { k: ['アブローラー', 'コロコロ'], ids: ['abs_05'], note: '' },
-  { k: ['インクライン'], ids: ['chest_02', 'chest_04'], note: '' },
-  { k: ['ハック'], ids: ['leg_10'], note: '' }
+  { k: ['スカルクラッシャー', 'ライイングエクステンション'], ids: ['arm_06', 'arm_36'], note: '寝て額に下ろす<b>ライイング・トライセプスエクステンション</b>のことです。' },
+  { k: ['ナローベンチ', 'クローズグリップ', 'ナロー'], ids: ['arm_08'], note: '' },
+  { k: ['リバースディップス', 'ベンチディップ'], ids: ['arm_18'], note: '' },
+  { k: ['ダイヤモンド'], ids: ['arm_22'], note: '' },
+  { k: ['リストカール', '手首'], ids: ['arm_23', 'arm_38'], note: '' },
+  { k: ['握力', 'ハンドグリップ', 'グリッパー'], ids: ['arm_51', 'arm_48'], note: '' },
+  { k: ['ぶら下がり'], ids: ['arm_48'], note: '鉄棒にぶら下がるだけの<b>デッドハング</b>です。' },
+  // ---- 腹 ----
+  { k: ['腹筋', 'ふっきん'], ids: ['abs_01', 'abs_02', 'abs_05', 'abs_03'], note: '上体を丸める<b>クランチ</b>が基本。最後まで起き上がるのはシットアップです。' },
+  { k: ['上体起こし'], ids: ['abs_02'], note: '' },
+  { k: ['足上げ腹筋', '脚上げ'], ids: ['abs_03', 'abs_04', 'abs_17'], note: '' },
+  { k: ['ぶら下がり腹筋', 'ハンギング'], ids: ['abs_04', 'abs_17'], note: '' },
+  { k: ['腹筋マシン', 'アブドミナル', 'アブクランチ'], ids: ['abs_22', 'abs_06'], note: '' },
+  { k: ['アブローラー', 'コロコロ', '腹筋ローラー'], ids: ['abs_05', 'abs_25'], note: '' },
+  { nl: 1, k: ['ツイスト', 'ひねり'], ids: ['abs_07', 'abs_14', 'abs_26'], note: '' },
+  { nl: 1, k: ['わき腹', '脇腹', '腹斜筋'], ids: ['abs_31', 'abs_07', 'abs_10', 'abs_38'], note: '' },
+  { nl: 1, k: ['体幹'], ids: ['abs_09', 'abs_10', 'abs_19', 'abs_36'], note: '体幹は<b>プランク</b>などの姿勢を保つ種目が基本です。' },
+  { k: ['v字腹筋', 'vアップ'], ids: ['abs_12', 'abs_47'], note: '' },
+  { k: ['自転車こぎ', 'バイシクル'], ids: ['abs_14'], note: '' },
+  // ---- 全身 ----
+  { k: ['ケトルベル', 'スイング'], ids: ['wl_43', 'wl_50', 'shoulder_47'], note: '' },
+  { k: ['ファーマーズウォーク', '重いものを持って歩く'], ids: ['wl_48', 'abs_41'], note: '' },
+  { k: ['縄登り', 'ロープ登り'], ids: ['wl_57'], note: '' },
+  { k: ['メディシンボール'], ids: ['wl_49'], note: '' },
+  { nl: 1, k: ['ゲットアップ'], ids: ['wl_52'], note: '' }
 ];
 const CN_KEYS = () => CN_KEYS.c || (CN_KEYS.c = COMMON_NAMES.map((c) => ({ c, keys: c.k.map((x) => IMP.normName(x)) })));
 /* 検索語に当てはまる通称（「スク」でもスクワットに当たる。ほかの言葉の途中は当てない） */
@@ -2103,7 +2174,7 @@ function commonHits(q) {
 function commonExact(word) { const n = IMP.normName(word || ''); const h = CN_KEYS().find(({ keys }) => keys.includes(n)); return h ? h.c.ids.find((id) => !getEx(id).missing) || null : null; }
 /* その種目が「ふつうそう呼ばれる」通称（名前がその言葉で始まるなら出さない） */
 function commonLabel(exId) {
-  if (!commonLabel.m) { commonLabel.m = new Map(); for (const c of COMMON_NAMES) if (!commonLabel.m.has(c.ids[0])) commonLabel.m.set(c.ids[0], c.k[0]); }
+  if (!commonLabel.m) { commonLabel.m = new Map(); for (const c of COMMON_NAMES) if (!c.nl && !commonLabel.m.has(c.ids[0])) commonLabel.m.set(c.ids[0], c.k[0]); }
   const k = commonLabel.m.get(exId); if (!k) return '';
   const e = getEx(exId); return e && !e.missing && !e.name.startsWith(k) ? k : '';
 }
@@ -2870,14 +2941,17 @@ const isWork = (s) => s.done && s.t !== 'w' && s.r > 0 && s.w != null && s.w >= 
 function work(rec) { return (rec.sets || []).filter(isWork); }
 function doneSets(rec) { return (rec.sets || []).filter((s) => s.done && s.r > 0 && s.w != null); }
 function e1rm(w, r) { if (!(w > 0) || !(r > 0)) return 0; if (r === 1) return w; return w * (1 + Math.min(r, 15) / 30); }
+/* 実際に挙げた重さ×回数（「100kg×5回」） */
+const fmtWR = (t) => (t ? `${fmtNum(t.w)}kg×${t.r}回` : '');
 function setsStats(sets, ex) {
-  let maxW = 0, best = 0, vol = 0, maxR = 0, totalR = 0;
+  let maxW = 0, best = 0, vol = 0, maxR = 0, totalR = 0, top = null, heavy = null;
   const timed = ex && isTimed(ex);
   for (const s of sets) {
+    if (!heavy || s.w > heavy.w || (s.w === heavy.w && s.r > heavy.r)) heavy = s;
     maxW = Math.max(maxW, s.w); maxR = Math.max(maxR, s.r); totalR += s.r;
-    if (!timed) { best = Math.max(best, e1rm(s.w, s.r)); vol += s.w * s.r; }
+    if (!timed) { const e = e1rm(s.w, s.r); if (e > best) { best = e; top = s; } vol += s.w * s.r; }
   }
-  return { maxW, e1rm: best, vol, maxR, totalR, n: sets.length };
+  return { maxW, e1rm: best, vol, maxR, totalR, n: sets.length, top: top ? { w: top.w, r: top.r } : null, heavy: heavy ? { w: heavy.w, r: heavy.r } : null };
 }
 const byDateDesc = (a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : (b.updatedAt || 0) - (a.updatedAt || 0));
 /* 種目ごとの「伸び」を測る主指標：時間種目→最長秒数、自重のみ→最多回数、それ以外→推定1RM */
@@ -3994,8 +4068,8 @@ function sessionSummary(a, recs) {
     const bw = ex.equipment === '自重' || isTimed(ex);
     let pr = null;
     if (prevs.length && ws.length) {
-      if (!bw && st.maxW > mx && st.maxW > 0) pr = `最高重量 ${fmtNum(st.maxW)}kg`;
-      else if (!bw && st.e1rm > me + 0.05) pr = `推定1RM ${fmtNum(round1(st.e1rm))}kg`;
+      if (!bw && st.maxW > mx && st.maxW > 0) pr = `最高重量 ${fmtWR(st.heavy)}`;
+      else if (!bw && st.e1rm > me + 0.05) pr = `${fmtWR(st.top)}（推定1RM ${fmtNum(round1(st.e1rm))}kg）`;
       else if (bw && st.maxR > mr) pr = `最多 ${st.maxR}${unitOf(ex)}`;
     }
     if (pr) prs.push({ ex, label: pr });
@@ -4751,7 +4825,7 @@ function prStrip() {
   for (const x of list) { if (seen.has(x.ex.id)) continue; seen.add(x.ex.id); top.push(x); if (top.length >= 6) break; }
   if (!top.length) return '';
   return `<section class="sec"><div class="sec-h"><h2>${ICON.trophy || ICON.bolt} 最近の自己ベスト</h2><button type="button" class="link" data-a="tab" data-tab="review">すべて見る</button></div>
-    <div class="pr-strip">${top.map((x) => `<button type="button" class="pr-chip" data-a="exDetail" data-id="${esc(x.ex.id)}"><span class="pr-n">${esc(x.ex.name)}</span><b class="num">${fmtNum(x.v)}<small>${x.key === 'e1rm' ? 'kg' : unitOf(x.ex)}</small></b><span class="pr-d">+${fmtNum(round1(x.v - x.prev))} ・ ${fmtRelDay(x.date)}</span></button>`).join('')}</div></section>`;
+    <div class="pr-strip">${top.map((x) => `<button type="button" class="pr-chip" data-a="exDetail" data-id="${esc(x.ex.id)}"><span class="pr-n">${esc(x.ex.name)}</span>${x.top ? `<b class="num wr">${fmtNum(x.top.w)}<small>kg</small>×${x.top.r}<small>回</small></b><span class="pr-e">推定1RM ${fmtNum(x.v)}kg（+${fmtNum(round1(x.v - x.prev))}）</span><span class="pr-d">${fmtRelDay(x.date)}</span>` : `<b class="num">${fmtNum(x.v)}<small>${unitOf(x.ex)}</small></b><span class="pr-d">+${fmtNum(round1(x.v - x.prev))} ・ ${fmtRelDay(x.date)}</span>`}</button>`).join('')}</div></section>`;
 }
 /* メニューを使わない開始方法（メニュー一覧の上に置く） */
 function quickStart() {
@@ -5064,7 +5138,7 @@ function prEvents() {
     let best = null;
     for (const r of [...list].reverse()) {
       const st = setsStats(work(r), ex); const v = key === 'e1rm' ? round1(st.e1rm) : st.maxR;
-      if (best != null && v > best) out.push({ date: r.date, ex, v, prev: best, key });
+      if (best != null && v > best) out.push({ date: r.date, ex, v, prev: best, key, top: key === 'e1rm' ? st.top : null });
       if (best == null || v > best) best = v;
     }
   }
@@ -5144,7 +5218,7 @@ function renderReview() {
     <button type="button" class="btn btn-ghost btn-block btn-sm" data-a="openTrends">すべての種目（${IDX().byEx.size}）${ICON.chevR}</button></section>`;
   // 自己ベスト
   const prAll = prEvents().slice(0, 10); const prs = UI.prMore ? prAll : prAll.slice(0, 3);
-  h += `${foldSec('pr', '', `${ICON.trophy} 自己ベスト更新`, false)}</div>${prs.length ? prs.map((p) => `<button type="button" class="pr-row" data-a="exDetail" data-id="${esc(p.ex.id)}"><span class="pr-m"><b>${esc(p.ex.name)}</b><span>${fmtDate(p.date)} ・ ${p.key === 'e1rm' ? '推定1RM' : p.key === 'time' ? '最長' : '最多回数'}</span></span><span class="pr-v"><b class="num">${fmtNum(p.v)}<small>${p.key === 'e1rm' ? 'kg' : p.key === 'time' ? '秒' : '回'}</small></b>${deltaHtml(p.v, p.prev)}</span></button>`).join('') : '<p class="empty-mini">記録を重ねると、自己ベストの更新がここに並びます。</p>'}
+  h += `${foldSec('pr', '', `${ICON.trophy} 自己ベスト更新`, false)}</div>${prs.length ? prs.map((p) => `<button type="button" class="pr-row" data-a="exDetail" data-id="${esc(p.ex.id)}"><span class="pr-m"><b>${esc(p.ex.name)}</b><span>${fmtDate(p.date)} ・ ${p.top ? `推定1RM ${fmtNum(p.v)}kg ${deltaHtml(p.v, p.prev)}` : p.key === 'time' ? '最長' : '最多回数'}</span></span><span class="pr-v">${p.top ? `<b class="num">${fmtNum(p.top.w)}<small>kg</small>×${p.top.r}<small>回</small></b><em class="faint">実際に挙げた重さ</em>` : `<b class="num">${fmtNum(p.v)}<small>${p.key === 'time' ? '秒' : '回'}</small></b>${deltaHtml(p.v, p.prev)}`}</span></button>`).join('') : '<p class="empty-mini">記録を重ねると、自己ベストの更新がここに並びます。</p>'}
     ${prAll.length > 3 ? `<button type="button" class="btn btn-ghost btn-block btn-sm" data-a="prMore">${UI.prMore ? '閉じる' : `もっと見る（${prAll.length - 3}）`}</button>` : ''}</section>`;
   // WL分析
   const bl = DB.bodylog;
