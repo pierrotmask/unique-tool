@@ -1536,6 +1536,13 @@ button.plan-line>svg:last-child{width:13px;height:13px;flex:none;opacity:.7}
 .wo-pin .add{background:transparent;border:1.5px dashed var(--line-2);color:var(--text-2)}
 .wo-pin .qa-open{background:var(--accent);border:0;color:#fff}
 @media (max-width:370px){.wo-pin{gap:4px;padding-right:8px}.wo-pin button{width:46px}}
+.badge.cmn{background:var(--accent-soft,rgba(37,99,235,.12));color:var(--accent);font-weight:750}
+.cn-note{margin:2px 14px 8px;font-size:12.5px;line-height:1.6;color:var(--text-2)}
+.rel-guess{margin:4px 12px 10px;padding:10px 12px;border-radius:12px;background:var(--surface-2,rgba(127,127,127,.08));border:1px solid var(--line)}
+.rel-guess p{margin:0 0 8px;font-size:13px;line-height:1.6}
+.rel-guess p>b:first-child{display:block;font-size:12px;color:var(--accent);margin-bottom:2px}
+.rel-guess button{min-height:44px;padding:0 14px;border-radius:11px;border:0;background:var(--accent);color:#fff;font:inherit;font-weight:750;cursor:pointer}
+.rel-guess .why{display:block;margin-top:6px;font-size:11.5px;color:var(--text-3)}
 
 </style>
 </head>
@@ -1560,7 +1567,7 @@ button.plan-line>svg:last-child{width:13px;height:13px;flex:none;opacity:.7}
    ===================================================================== */
 const STORAGE_KEY = 'liftcanvas_v1_data';
 const SCHEMA = 2;
-const APP_VERSION = '2026.11.25.22';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
+const APP_VERSION = '2026.11.25.23';   // 自動更新の判定に使用（SWの VERSION と同じ値にする）
 // ▼ Google Cloud の OAuth クライアントID（ウェブアプリ用）をここに入れると、全員が「自分のGoogleドライブ」へ保存できます。
 //   ※1つのIDを全員で使っても、保存先は各自のGoogleドライブです（他人のデータは見えません）。
 const GOOGLE_CLIENT_ID = '799019257076-3r0ffiqggt60m18l4fgrctccgt9b78rt.apps.googleusercontent.com';
@@ -2053,6 +2060,89 @@ const MASTER_EXERCISES = [
   { id: "abs_47", name: "Vシット", en: "V-sit Hold", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 20, relatedIds: ["abs_01",  "abs_02",  "abs_03",  "abs_04"], muscles: ["abs"], sub: ["quads"], timed: true },
   { id: "abs_48", name: "ホロー・ロック", en: "Hollow Rock", part: "腹筋", equipment: "自重", stepKg: 2.5, defaultTargetReps: 15, relatedIds: ["abs_01",  "abs_02",  "abs_03",  "abs_04"], muscles: ["abs"], sub: ["quads"] }
 ];
+/* ---------- よく呼ばれる名前（通称）→ 正式名 ----------
+   ids の先頭が「ふつうそう呼ぶもの」。検索のいちばん上に出し、一覧では「通称」を付ける */
+const COMMON_NAMES = [
+  { k: ['スクワット'], ids: ['leg_01', 'leg_11', 'leg_12', 'leg_34'], note: 'ふつう「スクワット」と言えば、バーベルを肩にかついでしゃがむ<b>バックスクワット</b>です。マシンならスミスマシン、ダンベル1つならゴブレット、道具なしはエアスクワット。' },
+  { k: ['ベンチ', 'ベンチプレス'], ids: ['chest_01', 'chest_14', 'chest_06'], note: 'ふつうはバーベルの<b>ベンチプレス</b>。レールつきのバーはスミスマシン、座って押すマシンはチェストプレスです。' },
+  { k: ['デッド', 'デッドリフト'], ids: ['back_01', 'leg_03'], note: 'ふつうは床から持ち上げる<b>デッドリフト</b>。ひざをあまり曲げずにもも裏をのばすのはルーマニアンデッドリフトです。' },
+  { k: ['懸垂', 'けんすい', 'チンニング', 'プルアップ'], ids: ['back_02', 'back_20', 'back_18'], note: 'ふつうは順手の<b>懸垂（チンニング）</b>。補助つきのマシンはアシスト懸垂です。' },
+  { k: ['腕立て', 'うでたて', 'プッシュアップ'], ids: ['chest_08', 'chest_47', 'chest_24'], note: 'ふつうは<b>腕立て伏せ</b>。きつければ膝つき・インクライン（台に手をつく）から。' },
+  { k: ['腹筋', 'ふっきん'], ids: ['abs_01', 'abs_02', 'abs_05', 'abs_03'], note: '上体を丸める<b>クランチ</b>が基本。最後まで起き上がるのはシットアップです。' },
+  { k: ['背筋', 'はいきん'], ids: ['back_08', 'back_40', 'back_27'], note: 'うつぶせで上体を起こす<b>バックエクステンション</b>が基本です。' },
+  { k: ['ショルダープレス', 'ショルダー'], ids: ['shoulder_02', 'shoulder_08', 'shoulder_01'], note: 'ジムではダンベルかマシンが一般的。バーベルで行うものはオーバーヘッドプレス（OHP）とも呼びます。' },
+  { k: ['オーバーヘッドプレス', 'ohp', 'ミリタリープレス'], ids: ['shoulder_01'], note: 'バーベルを頭上に押す<b>バーベルショルダープレス</b>のことです。' },
+  { k: ['ラテラルレイズ', 'サイドレイズ'], ids: ['shoulder_03', 'shoulder_11', 'shoulder_12'], note: '' },
+  { k: ['アームカール', 'カール'], ids: ['arm_02', 'arm_01', 'arm_16'], note: '「アームカール」は、ふつう<b>ダンベルカール</b>かバーベルカールのことです。' },
+  { k: ['プレスダウン', 'プッシュダウン'], ids: ['arm_05', 'arm_19'], note: '' },
+  { k: ['フレンチプレス'], ids: ['arm_07', 'arm_28'], note: '頭の後ろに下ろす<b>オーバーヘッド・エクステンション</b>のことです。' },
+  { k: ['スカルクラッシャー'], ids: ['arm_06'], note: '寝て額に下ろす<b>ライイング・トライセプスエクステンション</b>のことです。' },
+  { k: ['ナローベンチ', 'クローズグリップ'], ids: ['arm_08'], note: '' },
+  { k: ['ローイング', 'ロウ'], ids: ['back_04', 'back_06', 'back_05'], note: '背中で引く種目のまとめた呼び名。バーベルならベントオーバーロウ、ケーブルならシーテッドケーブルロウ、ダンベルならワンハンドダンベルロウ。' },
+  { k: ['ラットプル', 'プルダウン'], ids: ['back_03'], note: '' },
+  { k: ['フライ', 'チェストフライ'], ids: ['chest_05', 'chest_13', 'chest_07'], note: 'ダンベルなら<b>ダンベルフライ</b>、マシンならペックデックです。' },
+  { k: ['チェストプレス'], ids: ['chest_06'], note: '' },
+  { k: ['ランジ'], ids: ['leg_07', 'leg_18', 'leg_19'], note: '' },
+  { k: ['カーフ', 'カーフレイズ'], ids: ['leg_08', 'leg_78'], note: '' },
+  { k: ['ヒップリフト'], ids: ['leg_26'], note: 'あお向けでお尻を上げる<b>グルートブリッジ</b>のことです。' },
+  { k: ['ルーマニアン', 'rdl'], ids: ['leg_03'], note: '' },
+  { k: ['ブルスク', 'ブルガリアン'], ids: ['leg_04'], note: '' },
+  { k: ['シュラッグ'], ids: ['shoulder_09', 'shoulder_18'], note: '' },
+  { k: ['ディップス'], ids: ['chest_09', 'arm_18'], note: '' },
+  { k: ['アブローラー', 'コロコロ'], ids: ['abs_05'], note: '' },
+  { k: ['インクライン'], ids: ['chest_02', 'chest_04'], note: '' },
+  { k: ['ハック'], ids: ['leg_10'], note: '' }
+];
+const CN_KEYS = () => CN_KEYS.c || (CN_KEYS.c = COMMON_NAMES.map((c) => ({ c, keys: c.k.map((x) => IMP.normName(x)) })));
+/* 検索語に当てはまる通称（「スク」でもスクワットに当たる。ほかの言葉の途中は当てない） */
+function commonHits(q) {
+  const n = IMP.normName(q || ''); if (n.length < 2) return [];
+  return CN_KEYS().filter(({ keys }) => keys.some((k) => k === n || (k.startsWith(n) && n.length >= 2))).map(({ c }) => c).slice(0, 3);
+}
+/* 言い方がぴったり同じ通称 → その定番の種目 */
+function commonExact(word) { const n = IMP.normName(word || ''); const h = CN_KEYS().find(({ keys }) => keys.includes(n)); return h ? h.c.ids.find((id) => !getEx(id).missing) || null : null; }
+/* その種目が「ふつうそう呼ばれる」通称（名前がその言葉で始まるなら出さない） */
+function commonLabel(exId) {
+  if (!commonLabel.m) { commonLabel.m = new Map(); for (const c of COMMON_NAMES) if (!commonLabel.m.has(c.ids[0])) commonLabel.m.set(c.ids[0], c.k[0]); }
+  const k = commonLabel.m.get(exId); if (!k) return '';
+  const e = getEx(exId); return e && !e.missing && !e.name.startsWith(k) ? k : '';
+}
+const commonBadge = (exId) => { const k = commonLabel(exId); return k ? `<span class="badge cmn">通称 ${esc(k)}</span>` : ''; };
+
+/* ---------- 近い種目の強さの比（1RMの比。各グループの基準＝1） ----------
+   一般的な目安の比。初めての種目で、近い種目の記録から重さの目安を出すのに使う（控えめに9割で見積もる） */
+const LIFT_FAMILIES = [
+  { leg_01: 1, leg_15: 1.03, leg_13: 0.95, leg_14: 0.9, leg_16: 1, leg_37: 0.9, leg_45: 0.85, leg_46: 1.15, leg_11: 1, wl_05: 0.8, wl_42: 0.72, wl_06: 0.6, leg_41: 0.7, leg_48: 0.6 },
+  { chest_01: 1, chest_02: 0.8, chest_10: 1.05, chest_14: 1, chest_15: 0.8, chest_20: 0.97, chest_21: 0.93, chest_22: 0.9, chest_26: 1, chest_29: 0.85, chest_30: 0.9, chest_31: 0.9, chest_32: 0.95, chest_28: 0.7, arm_08: 0.88, arm_40: 0.88, arm_21: 0.6 },
+  { chest_03: 1, chest_04: 0.85, chest_11: 1.05, chest_33: 0.9, chest_35: 0.95, chest_38: 0.75, chest_36: 0.95 },
+  { back_01: 1, back_09: 1, back_10: 1.15, back_11: 0.9, back_31: 0.85, back_23: 1.05, leg_03: 0.7, leg_28: 0.65, wl_25: 0.85, wl_24: 0.8 },
+  { back_04: 1, back_12: 0.9, back_29: 1.05, back_41: 1 },
+  { shoulder_01: 1, shoulder_29: 0.95, shoulder_16: 0.9, shoulder_17: 0.85, shoulder_26: 1.05, wl_07: 1.25 },
+  { shoulder_02: 1, shoulder_10: 0.85, shoulder_35: 1, shoulder_36: 0.85 },
+  { arm_01: 1, arm_09: 1, arm_15: 0.9, arm_14: 0.7 },
+  { arm_02: 1, arm_03: 1.1, arm_10: 0.85, arm_11: 0.9, arm_34: 0.95, arm_25: 0.85, arm_13: 0.8, arm_55: 0.75, arm_33: 0.85 },
+  { leg_09: 1, leg_42: 1, leg_62: 1 },
+  { wl_13: 1, wl_03: 0.85, wl_11: 0.9, wl_18: 0.8, wl_02: 0.95, wl_20: 0.9 },
+  { wl_01: 1, wl_09: 0.85, wl_04: 0.95, wl_17: 0.8, wl_19: 0.9 },
+  { back_03: 1, back_16: 1, back_17: 1, back_42: 1 }
+];
+const REL_SAFE = 0.9;   // 初めての動きなので、換算値の9割で見積もる
+/* 近い種目の記録から、この種目の推定1RM（控えめ）。最近（MAXの参照期間）の記録を優先、なければ全期間（さらに9割） */
+function relGuess(exId) {
+  const fam = LIFT_FAMILIES.find((f) => f[exId]); if (!fam) return null;
+  let best = null;
+  for (const id of Object.keys(fam)) {
+    if (id === exId || getEx(id).missing) continue;
+    let w = estMaxWin(id, MAX_WIN_DEF); let old = false;
+    if (!(w.v > 0)) { w = estMaxWin(id, 0); old = true; }
+    if (!(w.v > 0)) continue;
+    const c = { id, v: w.v, date: w.date, old };
+    if (!best || (best.old && !old) || (best.old === old && c.date > best.date)) best = c;
+  }
+  if (!best) return null;
+  const one = round1(best.v / fam[best.id] * fam[exId] * REL_SAFE * (best.old ? 0.9 : 1));
+  return one > 0 ? { srcId: best.id, srcMax: best.v, date: best.date, old: best.old, one } : null;
+}
 /* ---------- 人体図（筋肉マップ）SVG ----------
    座標系：1体あたり 幅200 × 高さ440（中心線 x=100）。左半身だけを定義し、中心線で反転して左右対称にする。
    頭身・関節位置は成人男性の標準的なプロポーション（約8頭身）に合わせている。 */
@@ -3507,8 +3597,11 @@ function exCard(ses, i, rec, groups) {
       <div class="recent" aria-label="直近3回の実績">${prevs.slice(0, 3).map((r, k) => `<div class="recent-row"><span class="d">${k === 0 ? '前回 ' : ''}${fmtDate(r.date)}</span><span class="v">${esc(fmtSets(doneSets(r), ex))}</span>${r.memo ? `<span class="memo">📝 ${esc(r.memo)}</span>` : ''}</div>`).join('')}</div>
       <div class="recent-act"><button type="button" class="btn btn-soft" data-a="copyPrev" data-i="${i}">${ICON.copy}前回をコピー</button><button type="button" class="btn" data-a="exHistory" data-id="${esc(exId)}">${ICON.chart}推移</button></div></details>`;
   } else {
+    const rg = !bw ? relGuess(exId) : null; const rgW = rg ? planWeight(ex, rg.one, target, 7) : 0;
+    if (rgW > 0) h += `<div class="rel-guess" role="note"><p><b>近い種目からの目安</b>${esc(getEx(rg.srcId).name)}の推定1RM ${fmtNum(rg.srcMax)}kg${rg.old ? `（${fmtDate(rg.date)}・古い記録）` : ''}から換算すると、この種目は約<b class="num">${fmtNum(rg.one)}kg</b>（控えめに見積もり）。</p>
+      <button type="button" data-a="relApply" data-i="${i}" data-w="${rgW}" data-r="${target}">${fmtNum(rgW)}kg×${target}回 を入れる</button><span class="why">あと3回できる（RPE7）くらいの重さ。1セット目が軽すぎ・重すぎなら調整を</span></div>`;
     h += lv() === 'beginner' ? `<p class="empty-mini beg-hint" style="margin:4px 12px 10px">🔰 初めての種目です。まずは<b>軽めの重さ</b>で、正しいフォームで余裕をもって${bw ? 'できる回数' : '10〜12回できる重さ'}を探しましょう。きつさは「あと2〜3回できる」くらいが目安です。</p>`
-      : `<p class="empty-mini" style="margin:4px 12px 10px">この種目は初めての記録です。がんばりましょう！</p>`;
+      : rgW > 0 ? '' : `<p class="empty-mini" style="margin:4px 12px 10px">この種目は初めての記録です。がんばりましょう！</p>`;
   }
   // セット表
   const rpeOn = !timed && rpeOnFor(exId);
@@ -4162,6 +4255,11 @@ Object.assign(ACT, {
     doneSets(prev).forEach((p, k) => { if (!rec.sets[k]) rec.sets.push({ w: p.w, r: p.r, done: false, t: p.t }); else if (!rec.sets[k].done) Object.assign(rec.sets[k], { w: p.w, r: p.r, t: p.t }); });
     rec.updatedAt = Date.now(); touch(); renderWorkout(); toast('前回の内容をコピーしました（自由に変更できます）');
   },
+  relApply: (el) => {
+    const rec = recAt(Number(el.dataset.i)); const w = Number(el.dataset.w), r = Number(el.dataset.r);
+    rec.sets.forEach((s) => { if (!s.done && s.t !== 'w') { s.w = w; s.r = r; } });
+    rec.updatedAt = Date.now(); touch(); renderWorkout(); toast(`${fmtNum(w)}kg×${r}回を入れました（近い種目からの目安です）`);
+  },
   sugApply: (el) => {
     const i = Number(el.dataset.i); const ses = woSes(); const rec = recAt(i); const ex = getEx(rec.exerciseId);
     const prev = prevRecords(rec.exerciseId, ses.id, ses.date)[0]; if (!prev) return;
@@ -4337,6 +4435,8 @@ QA.match = (word) => {
   const key = IMP.normName(word);
   const a = QA.aliasId(key) || QA.aliasId(word);
   if (a) return { id: a, score: 0.97, cands: [a] };
+  const c = commonExact(word);
+  if (c) return { id: c, score: 0.95, cands: [c] };
   const m = IMP.matchEx(word);
   return m;
 };
@@ -5426,7 +5526,8 @@ Object.assign(ACT, {
    ===================================================================== */
 const libCats = () => ['すべて', '★お気に入り', '記録あり', '自分の種目', ...visibleCats()];
 function filterEx(q, cat, equip) {
-  q = (q || '').trim().toLowerCase();
+  q = (q || '').trim().toLowerCase(); const qk = q ? IMP.kata(q) : '';
+  const cn = new Set(commonHits(q).flatMap((c) => c.ids));
   const fav = new Set(DB.favorites);
   return allEx().filter((e) => {
     if (!exVisible(e)) return false;
@@ -5435,7 +5536,7 @@ function filterEx(q, cat, equip) {
     if (cat === '自分の種目' && !e.custom) return false;
     if (CATEGORIES.includes(cat) && e.part !== cat) return false;
     if (equip && e.equipment !== equip) return false;
-    if (q && !(e.name.toLowerCase().includes(q) || (e.en || '').toLowerCase().includes(q) || e.muscles.some((m) => MUSCLES[m].includes(q)))) return false;
+    if (q && !(cn.has(e.id) || e.name.toLowerCase().includes(q) || e.name.includes(qk) || (e.en || '').toLowerCase().includes(q) || e.muscles.some((m) => MUSCLES[m].includes(q)))) return false;
     return true;
   });
 }
@@ -5462,12 +5563,13 @@ const SUB_ORDER = {
 function subOf(e) { const rules = SUBGROUPS[e.part]; if (!rules) return 'その他'; for (const [n, re] of rules) if (re.test(e.name)) return n; return 'その他'; }
 const eqIdx = (e) => { const i = EQUIPMENTS.indexOf(e.equipment); return i < 0 ? 99 : i; };
 /* ジャンル別の折りたたみ一覧（最近使った種目は上に開いて表示）。部位の中は動きの種類でもう1段分ける */
-function accordionHtml(list, rowFn, openSet, { act, allOpen = false, recent = [] }) {
+function accordionHtml(list, rowFn, openSet, { act, allOpen = false, recent = [], q = '' }) {
   const groups = [];
+  if (q.trim()) { const has = new Set(list.map((e) => e.id)); for (const c of commonHits(q)) { const it = c.ids.filter((id) => has.has(id)).map(getEx); if (it.length) groups.push({ key: '__cn' + c.k[0], name: `「${c.k[0]}」と言えば`, color: 'var(--accent)', items: it, open: true, note: c.note }); } }
   if (recent.length) groups.push({ key: '__recent', name: '最近使った種目', color: 'var(--glow-2,#22d3ee)', items: recent, open: true });
   for (const c of visibleCats()) { const it = list.filter((e) => e.part === c); if (it.length) groups.push({ key: c, name: c, color: partColor(c), items: it }); }
   const subHtml = (g) => {
-    if (g.key === '__recent' || g.items.length <= 10) return `<div class="list">${g.items.map(rowFn).join('')}</div>`;
+    if (g.key.startsWith('__') || g.items.length <= 10) return `${g.note ? `<p class="cn-note">${g.note}</p>` : ''}<div class="list">${g.items.map(rowFn).join('')}</div>`;
     const order = SUB_ORDER[g.key] || (SUBGROUPS[g.key] || []).map(([n]) => n); const by = new Map();
     for (const e of g.items) { const k = subOf(e); if (!by.has(k)) by.set(k, []); by.get(k).push(e); }
     const keys = [...by.keys()].sort((a, b) => order.indexOf(a) - order.indexOf(b));
@@ -5489,7 +5591,7 @@ function recentEx(filterFn) { return [...IDX().exStat.entries()].sort((a, b) => 
 function exRow(e, attrs, extra = '') {
   const sm = exSummary(e.id);
   const fav = DB.favorites.includes(e.id);
-  return `<button type="button" class="li" ${attrs}>${exIcon(e)}<div class="m"><div class="t">${fav ? `<span style="color:#f5b301">${ICON.starF}</span>` : ''}${esc(e.name)}${e.custom ? '<span class="badge custom">自分で追加</span>' : ''}${extra}</div>
+  return `<button type="button" class="li" ${attrs}>${exIcon(e)}<div class="m"><div class="t">${fav ? `<span style="color:#f5b301">${ICON.starF}</span>` : ''}${esc(e.name)}${commonBadge(e.id)}${e.custom ? '<span class="badge custom">自分で追加</span>' : ''}${extra}</div>
     <div class="s meta-row"><span>${esc(e.equipment)}</span>${sm ? `<span>最終 ${fmtDate(sm.last)}</span><span>最高 <b class="num">${fmtNum(sm.maxW)}</b>kg</span>` : `<span>${e.muscles.slice(0, 2).map((m) => MUSCLES[m].replace(/（.*?）/, '')).join('、')}</span>`}</div></div>${ICON.chevR}</button>`;
 }
 function libList() {
@@ -5505,7 +5607,7 @@ function libList() {
   if (!UI.lib.open) UI.lib.open = new Set();
   const ids = new Set(list.map((e) => e.id));
   if (CATEGORIES.includes(L.cat)) UI.lib.open.add(L.cat);
-  return accordionHtml(list, (e) => exRow(e, `data-a="exDetail" data-id="${esc(e.id)}"`), UI.lib.open, { act: 'libAcc', allOpen: !!L.q.trim() || (!!L.equip && CATEGORIES.includes(L.cat)), recent: L.q.trim() || L.cat !== 'すべて' ? [] : recentEx((e) => ids.has(e.id)) });
+  return accordionHtml(list, (e) => exRow(e, `data-a="exDetail" data-id="${esc(e.id)}"`), UI.lib.open, { act: 'libAcc', q: L.q, allOpen: !!L.q.trim() || (!!L.equip && CATEGORIES.includes(L.cat)), recent: L.q.trim() || L.cat !== 'すべて' ? [] : recentEx((e) => ids.has(e.id)) });
 }
 function renderLib() {
   const L = UI.lib;
@@ -5525,17 +5627,17 @@ function pickExercises({ title = '種目を選ぶ', multi = false, exclude = [],
     if (!list.length) return '<p class="empty">該当する種目がありません。</p>';
     const row = (e) => {
       const ex = exclude.includes(e.id); const on = st.sel.includes(e.id); const sm = exSummary(e.id);
-      return `<button type="button" class="li ${on ? 'sel' : ''}" data-a="pick" data-id="${esc(e.id)}" ${ex ? 'disabled' : ''}>${multi ? `<span class="check">${ICON.check}</span>` : ''}${exIcon(e)}<div class="m"><div class="t">${esc(e.name)}${ex ? '<span class="badge">追加済み</span>' : ''}${e.custom ? '<span class="badge custom">自分</span>' : ''}</div>
+      return `<button type="button" class="li ${on ? 'sel' : ''}" data-a="pick" data-id="${esc(e.id)}" ${ex ? 'disabled' : ''}>${multi ? `<span class="check">${ICON.check}</span>` : ''}${exIcon(e)}<div class="m"><div class="t">${esc(e.name)}${commonBadge(e.id)}${ex ? '<span class="badge">追加済み</span>' : ''}${e.custom ? '<span class="badge custom">自分</span>' : ''}</div>
         <div class="s meta-row"><span>${esc(e.equipment)}</span>${sm ? `<span>最終 ${fmtDate(sm.last)}</span><span>最高 <b class="num">${fmtNum(sm.maxW)}</b>kg</span>` : '<span>未実施</span>'}</div></div></button>`;
     };
     if (st.cat === '記録あり') return `<div class="list">${list.sort((a, b) => (exSummary(a.id).last < exSummary(b.id).last ? 1 : -1)).map(row).join('')}</div>`;
     const ids = new Set(list.map((e) => e.id));
     if (CATEGORIES.includes(st.cat)) st.open.add(st.cat);
-    return accordionHtml(list, row, st.open, { act: 'acc', allOpen: !!st.q.trim() || (!!st.equip && CATEGORIES.includes(st.cat)), recent: st.q.trim() || st.cat !== 'すべて' ? [] : recentEx((e) => ids.has(e.id)) });
+    return accordionHtml(list, row, st.open, { act: 'acc', q: st.q, allOpen: !!st.q.trim() || (!!st.equip && CATEGORIES.includes(st.cat)), recent: st.q.trim() || st.cat !== 'すべて' ? [] : recentEx((e) => ids.has(e.id)) });
   };
   openSheet({
     title, state: st, cls: 'sheet-pick',
-    render: () => `<div class="picker-top"><div class="search">${ICON.search}<input type="search" class="input" data-in="q" placeholder="種目名・英名で検索" value="${esc(st.q)}"></div>
+    render: () => `<div class="picker-top"><div class="search">${ICON.search}<input type="search" class="input" data-in="q" placeholder="種目名・よく言う名前で検索（例：スクワット）" value="${esc(st.q)}"></div>
       <div class="chips" style="margin-top:8px">${cats.map((c) => `<button type="button" class="chip" data-a="cat" data-v="${esc(c)}" aria-pressed="${st.cat === c}">${esc(c)}</button>`).join('')}</div>
       <div class="chips chips-eq">${['', ...EQUIPMENTS].map((q) => `<button type="button" class="chip" data-a="eq" data-v="${q}" aria-pressed="${st.equip === q}">${q || '器具：すべて'}</button>`).join('')}</div></div>
       <div class="pk-list">${listHtml()}</div><div style="height:12px"></div><button type="button" class="btn btn-line btn-block" data-a="create">${ICON.plus}リストにない種目を新しく作る</button>`,
@@ -6046,6 +6148,7 @@ function openRpePlan(opt) {
   const last = lastDoneDate(ex.id); const gapW = last ? Math.floor(daysBetween(last, ymd()) / 7) : 0;
   const st = { mode: p0.max > 0 ? 'manual' : 'win', win: p0.win != null ? p0.win : MAX_WIN_DEF, adj: p0.adj || (gapW >= 6 && !opt.plan ? 90 : 100), manual: p0.max > 0 ? String(p0.max) : '', r: p0.r || clamp(ex.defaultTargetReps || 5, 1, 12), rpe: p0.rpe || 8, toMenu: !!(opt.toMenu && opt.toMenu.on) };
   if (st.mode === 'win' && !wins.some((w) => w.v > 0)) st.mode = 'manual';
+  const rg = !wins.some((w) => w.v > 0) && !(p0.max > 0) ? relGuess(ex.id) : null; if (rg) st.manual = String(rg.one);
   const pe = prevEffort(ex.id, opt.sessionId);
   st.dir = opt.dir || 'r2w'; st.w = opt.weight ? String(opt.weight) : pe ? String(round2(pe.w + ex.stepKg)) : '';
   const cur = () => planMaxInfo(ex.id, { win: st.win, adj: st.adj, ...(st.mode === 'manual' ? { max: Number(st.manual) || 0 } : {}) });
@@ -6081,7 +6184,7 @@ function openRpePlan(opt) {
     render: () => `<div class="seg pill rp-dir" style="margin-bottom:12px"><button type="button" data-a="dir" data-v="r2w" aria-pressed="${st.dir === 'r2w'}">回数 → 重さ</button><button type="button" data-a="dir" data-v="w2r" aria-pressed="${st.dir === 'w2r'}">重さ → 回数</button></div>
       <div class="field"><span class="lbl">MAXの決め方</span>
       <div class="rp-wins">${wins.map((w) => `<button type="button" data-a="win" data-v="${w.d}" aria-pressed="${st.mode === 'win' && st.win === w.d}" ${w.v ? '' : 'disabled'}><b>${w.l}</b><small>${w.v ? fmtNum(w.v) + 'kg' : '記録なし'}</small></button>`).join('')}<button type="button" data-a="win" data-v="manual" aria-pressed="${st.mode === 'manual'}"><b>手入力</b><small>測定値</small></button></div>
-      ${st.mode === 'manual' ? `<input class="input num" style="margin-top:8px" type="number" inputmode="decimal" step="0.5" min="0" data-in="max" value="${esc(st.manual)}" placeholder="分かっているMAX（kg）">` : ''}
+      ${st.mode === 'manual' ? `<input class="input num" style="margin-top:8px" type="number" inputmode="decimal" step="0.5" min="0" data-in="max" value="${esc(st.manual)}" placeholder="分かっているMAX（kg）">${rg && st.manual === String(rg.one) ? `<p class="tiny rg-note" style="margin:6px 2px 0">近い種目（${esc(getEx(rg.srcId).name)} 推定1RM ${fmtNum(rg.srcMax)}kg）から換算した控えめな推定です。分かっていれば書き換えてください。</p>` : ''}` : ''}
       <p class="tiny faint" style="margin:6px 2px 0">期間内の記録からの推定1RMの最高です。始めるたびに計算し直すので、力が落ちても伸びても今の身の丈に合わせて変わります。</p></div>
       ${gapW >= 6 ? `<p class="rp-warn">この種目は前回の記録（${fmtDate(last)}）から<b>${gapW}週間</b>空いています。久しぶりのときは、調整を90%前後に下げて様子を見るのがおすすめです。</p>` : ''}
       <div class="field"><span class="lbl">調整（久しぶり・不調のときは下げる）</span><div class="seg pill mini">${MAX_ADJS.map((a) => `<button type="button" data-a="adj" data-v="${a}" aria-pressed="${st.adj === a}">${a}%</button>`).join('')}</div></div>
